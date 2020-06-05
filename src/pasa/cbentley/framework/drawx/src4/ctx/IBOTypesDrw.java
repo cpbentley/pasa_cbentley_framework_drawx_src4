@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.ctx;
 
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
@@ -13,13 +17,13 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
  */
 public interface IBOTypesDrw extends IBOTypesBOC {
 
-   public static final int A_SID_DRWTYPE_A           = 50;
+   public static final int A_SID_DRWTYPE_A         = 50;
 
    /**
     * When Length is not sufficient anymore, you have to create a new module
     * or sub module
     */
-   public static final int A_SID_DRWTYPE_Z           = 99;
+   public static final int A_SID_DRWTYPE_Z         = 99;
 
    /**
     * 1 or 2 bytes defines a figure
@@ -46,18 +50,18 @@ public interface IBOTypesDrw extends IBOTypesBOC {
     * <br><br>
     * Several Types of Anchor encoding exists.<br>
     */
-   public static final int TYPE_051_BOX         = 51;
+   public static final int TYPE_051_BOX            = 51;
 
    public static final int TYPE_052_ARTIFACT       = 52;
+
+   public static final int TYPE_053_MOSAIC         = 53;
+
+   public static final int TYPE_054_SKEWER         = 54;
 
    /**
     * Parameters for scaling an image, including a post scaling RGB filter to smooth the scaling result
     */
    public static final int TYPE_055_SCALE          = 55;
-
-   public static final int TYPE_054_SKEWER         = 54;
-
-   public static final int TYPE_053_MOSAIC         = 53;
 
    /**
     * Filters a RGB array (RgbImage or Image) using a given function.
@@ -80,12 +84,6 @@ public interface IBOTypesDrw extends IBOTypesBOC {
 
    public static final int TYPE_057_COLOR_FUNCTION = 57;
 
-   public static final int TYPE_061_COLOR_RANDOM   = 61;
-
-   public static final int TYPE_062_BLENDER        = 62;
-
-   public static final int TYPE_063_PIX_STAR       = 63;
-
    /**
     * Defines an interaction between 2 layers of RGB data. 
     * <br>
@@ -103,7 +101,7 @@ public interface IBOTypesDrw extends IBOTypesBOC {
     * <b>Classic</b> : top layer pixels decide the alpha value of bottom layer pixels. Only the bottom
     * layer is drawn to the {@link GraphicsX}.
     * <br>
-    * When applied to Figures, {@link ITechFigure#FIG_FLAG_4MASK} is set. The figure is drawn in black over a white background. 
+    * When applied to Figures, {@link ITechFigure#FIG_FLAG_4_MASK} is set. The figure is drawn in black over a white background. 
     * The mask figure is drawn on the bottom layer.
     * <br>
     * <font color=#CC1111>Merge</font> : a top white pixel at x,y makes the bottom pixel x,y fully transparent. 
@@ -150,6 +148,14 @@ public interface IBOTypesDrw extends IBOTypesBOC {
     * In Swing, java.awt.Insets
     */
    public static final int TYPE_060_TBLR           = 60;
+
+   public static final int TYPE_061_COLOR_RANDOM   = 61;
+
+   public static final int TYPE_062_BLENDER        = 62;
+
+   public static final int TYPE_063_PIX_STAR       = 63;
+
+   public static final int TYPE_069_ANCHOR         = 69;
 
    /**
     * Text effect works on the String figure. 
@@ -198,6 +204,7 @@ public interface IBOTypesDrw extends IBOTypesBOC {
     *  
     */
    public static final int TYPE_070_TEXT_EFFECTS   = 70;
-   public static final int TYPE_123_STYLE   = 71;
+
+   public static final int TYPE_071_STYLE          = 71;
 
 }

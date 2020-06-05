@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.engine;
 
 import java.io.IOException;
@@ -15,8 +19,9 @@ import pasa.cbentley.core.src4.memory.IMemory;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
+import pasa.cbentley.framework.coredraw.src4.interfaces.IImageFactory;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.ITechCtxSettingsDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ITechCtxSettingsDrwx;
 import pasa.cbentley.framework.drawx.src4.interfaces.IRgbLoader;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
 
@@ -202,26 +207,26 @@ public class RgbCache implements IMemFreeable {
     * @param drc
     */
    public RgbCache(DrwCtx drc) {
+      if(drc == null) {
+         throw new NullPointerException();
+      }
       this.drc = drc;
       NULL_IMAGE = new RgbImage(drc, this, new int[0], 0, 0, 0);
       NULL_IMAGE.setFlag(ITechRgbImage.FLAG_22_NOT_DRAWABLE, true);
-      //configuration of module
-      applySettings();
    }
 
    /**
     * 
     */
-   public void applySettings() {
-      ByteObject techDrw = drc.getSettingsCtxDrw();
-      if (techDrw.hasFlag(ITechCtxSettingsDrw.MODSET_DRW_OFFSET_01_FLAG1, ITechCtxSettingsDrw.MODSET_DRW_FLAG_1_USER_IMAGE_CACHE)) {
+   public void applySettings(ByteObject settingsNew) {
+      if (settingsNew.hasFlag(ITechCtxSettingsDrwx.CTX_DRW_OFFSET_01_FLAG1, ITechCtxSettingsDrwx.CTX_DRW_FLAG_1_USER_IMAGE_CACHE)) {
          imagesByName = new Hashtable();
       } else {
          imagesByName = null;
       }
    }
 
-   public DrwCtx getCtx() {
+   public DrwCtx getDC() {
       return dc;
    }
 
@@ -827,7 +832,8 @@ public class RgbCache implements IMemFreeable {
     * @return
     */
    public IImage createPrimitiveWhite(int width, int height) {
-      return drc.getImageFactory().createImage(width, height);
+      IImageFactory imageFactory = drc.getImageFactory();
+      return imageFactory.createImage(width, height);
    }
 
    public RgbImage createPrimviteRgbImmutable(int[] data, int w, int h, boolean processAlpha) {

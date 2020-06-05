@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.tech;
 
 import pasa.cbentley.byteobjects.src4.tech.ITechFunction;
@@ -161,7 +165,6 @@ public interface ITechColorFunction extends ITechFunction {
 
    /**
     * {@link ITechBlend#BLENDING_05_BEHIND}
-    * {@link ITechBlend#BLENDING_06_INVERSE_ALPHA}
     * {@link ITechBlend#BLENDING_07_INVERSE}
     * 
     */

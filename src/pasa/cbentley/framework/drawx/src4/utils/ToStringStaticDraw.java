@@ -1,13 +1,22 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.utils;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.interfaces.C;
+import pasa.cbentley.core.src4.interfaces.ITechTransform;
 import pasa.cbentley.core.src4.logging.ToStringStaticBase;
+import pasa.cbentley.framework.coredraw.src4.ctx.ToStringStaticCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
+import pasa.cbentley.framework.drawx.src4.style.ITechStyle;
+import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
+import pasa.cbentley.framework.drawx.src4.tech.ITechBlend;
 import pasa.cbentley.framework.drawx.src4.tech.ITechColorFunction;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGradient;
@@ -29,20 +38,20 @@ public class ToStringStaticDraw extends ToStringStaticBase {
 
    public static String debugAlign(int a) {
       switch (a) {
-         case ITechFigure.ALIGN_TOP:
-            return "TOP";
-         case ITechFigure.ALIGN_BOTTOM:
-            return "BOTTOM";
-         case ITechFigure.ALIGN_FILL:
-            return "FILL";
-         case ITechFigure.ALIGN_CENTER:
-            return "CENTER";
-         case ITechFigure.ALIGN_RIGHT:
-            return "RIGHT";
-         case ITechFigure.ALIGN_LEFT:
-            return "LEFT";
+         case ITechAnchor.ALIGN_1_TOP:
+            return "Top";
+         case ITechAnchor.ALIGN_2_BOTTOM:
+            return "Bottom";
+         case ITechAnchor.ALIGN_5_FILL:
+            return "Fill";
+         case ITechAnchor.ALIGN_6_CENTER:
+            return "Center";
+         case ITechAnchor.ALIGN_4_RIGHT:
+            return "Right";
+         case ITechAnchor.ALIGN_3_LEFT:
+            return "Left";
          default:
-            return "UNKNOWN ALIGN";
+            return "Unknown Align " + a;
       }
    }
 
@@ -60,6 +69,21 @@ public class ToStringStaticDraw extends ToStringStaticBase {
             return "Rotate";
          default:
             return "UnknownPass " + p;
+      }
+   }
+
+   public static String debugStyleAnchor(int i) {
+      switch (i) {
+         case ITechStyle.STYLE_ANC_0_BORDER:
+            return "AT_BORDER";
+         case ITechStyle.STYLE_ANC_1_MARGIN:
+            return "AT_MARGIN";
+         case ITechStyle.STYLE_ANC_2_CONTENT:
+            return "AT_CONTENT";
+         case ITechStyle.STYLE_ANC_3_PADDING:
+            return "AT_PADDING";
+         default:
+            return "INVALID_ERROR";
       }
    }
 
@@ -183,7 +207,7 @@ public class ToStringStaticDraw extends ToStringStaticBase {
    }
 
    public static String debugFont(IMFont f) {
-      String s = "#Font " + debugFontFace(f.getFace()) + " " + debugFontStyle(f.getStyle()) + " " + debugFontSize(f.getSize());
+      String s = "#Font " + ToStringStaticCoreDraw.fontFace(f.getFace()) + " " + ToStringStaticCoreDraw.debugFontStyle(f.getStyle()) + " " + ToStringStaticCoreDraw.debugFontSize(f.getSize());
       return s;
    }
 
@@ -191,53 +215,8 @@ public class ToStringStaticDraw extends ToStringStaticBase {
       if (f == null) {
          return "NULL FONT";
       }
-      String s = "[" + debugFontFace(f.getFace()) + " " + debugFontStyle(f.getStyle()) + " " + debugFontSize(f.getSize()) + "]";
+      String s = "[" + ToStringStaticCoreDraw.fontFace(f.getFace()) + " " + ToStringStaticCoreDraw.debugFontStyle(f.getStyle()) + " " + ToStringStaticCoreDraw.debugFontSize(f.getSize()) + "]";
       return s;
-   }
-
-   public static String debugFontFace(int face) {
-      switch (face) {
-         case IMFont.FACE_MONOSPACE:
-            return "MONO";
-         case IMFont.FACE_PROPORTIONAL:
-            return "PROP";
-         case IMFont.FACE_SYSTEM:
-            return "SYSTEM";
-         default:
-            return "Unknown " + face;
-      }
-   }
-
-   public static String debugFontSize(int size) {
-      switch (size) {
-         case IMFont.SIZE_4_LARGE:
-            return "LARGE";
-         case IMFont.SIZE_3_MEDIUM:
-            return "MEDIUM";
-         case IMFont.SIZE_2_SMALL:
-            return "SMALL";
-         case IMFont.SIZE_5_HUGE:
-            return "VERY LARGE";
-         case IMFont.SIZE_1_TINY:
-            return "Very SMALL";
-         default:
-            return "Unknown " + size;
-      }
-   }
-
-   public static String debugFontStyle(int style) {
-      switch (style) {
-         case IMFont.STYLE_BOLD:
-            return "BOLD";
-         case IMFont.STYLE_ITALIC:
-            return "ITALIC";
-         case IMFont.STYLE_PLAIN:
-            return "PLAIN";
-         case IMFont.STYLE_UNDERLINED:
-            return "UNDERLINED";
-         default:
-            return "Unknown " + style;
-      }
    }
 
    public static String toStringColor(int c) {
@@ -433,13 +412,13 @@ public class ToStringStaticDraw extends ToStringStaticBase {
     */
    public static String debugFigFlag(ByteObject fig) {
       StringBBuilder sb = new StringBBuilder(fig.getUCtx());
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_1ANCHOR, " Anchor");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2GRADIENT, " Gradient");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_3COLOR_ARRAY, " ColorArray");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4MASK, " Mask");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5FILTER, " Filter");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_6ANIMATED, " Anim");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_7SUB_FIGURE, " Sub");
+      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_1_ANCHOR, " Anchor");
+      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT, " Gradient");
+      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_3_COLOR_ARRAY, " ColorArray");
+      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK, " Mask");
+      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER, " Filter");
+      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_6_ANIMATED, " Anim");
+      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_7_SUB_FIGURE, " Sub");
       return sb.toString();
    }
 
@@ -505,49 +484,124 @@ public class ToStringStaticDraw extends ToStringStaticBase {
       }
    }
 
-   public static String toStringTrans(int key) {
-      switch (key) {
-         case IImage.TRANSFORM_0_NONE:
-            return "None";
-         case IImage.TRANSFORM_1_FLIP_H_MIRROR_ROT180:
-            return "Flip H = MirrorRot180";
-         case IImage.TRANSFORM_2_FLIP_V_MIRROR:
-            return "VMirror";
-         case IImage.TRANSFORM_3_ROT_180:
-            return "Rot180";
-         case IImage.TRANSFORM_4_MIRROR_ROT270:
-            return "MirrorRot270";
-         case IImage.TRANSFORM_5_ROT_90:
-            return "Rot90";
-         case IImage.TRANSFORM_6_ROT_270:
-            return "Rot270";
-         case IImage.TRANSFORM_7_MIRROR_ROT90:
-            return "MirrorRot90";
+   public static String debugBlend(int mode) {
+      switch (mode) {
+         case ITechBlend.BLENDING_00_OVER:
+            return "OVER";
+         case ITechBlend.BLENDING_01_SRC:
+            return "SRC";
+         case ITechBlend.BLENDING_04_MERGE_ARGB:
+            return "MergeARGB";
+         case ITechBlend.BLENDING_05_BEHIND:
+            return "Behind";
+         case ITechBlend.BLENDING_07_INVERSE:
+            return "Inverse";
+         case ITechBlend.BLENDING_08_DISSOLVE:
+            return "Dissolve";
+         case ITechBlend.BLENDING_09_INVERSE:
+            return "Inverse";
+         case ITechBlend.BLENDING_10_HUE:
+            return "Hue";
+         case ITechBlend.BLENDING_11_HUE_SAT:
+            return "Hue Saturation";
+         case ITechBlend.BLENDING_12_HUE_LUM:
+            return "Hue Luminance";
+         case ITechBlend.BLENDING_13_SATURATION:
+            return "Saturation";
+         case ITechBlend.BLENDING_14_SAT_LUM:
+            return "SaturationLuminance";
+         case ITechBlend.BLENDING_15_LUMINANCE:
+            return "Luminance";
+         case ITechBlend.BLENDING_16_MULTIPLY_BURN:
+            return "Multiply Burn";
+         case ITechBlend.BLENDING_17_COLOR_BURN:
+            return "Color Burn";
+         case ITechBlend.BLENDING_18_LINEAR_BURN:
+            return "Luminance";
+         case ITechBlend.BLENDING_19_SCREEN_DODGE:
+            return "Screen Dodge";
+         case ITechBlend.BLENDING_20_COLOR_DODGE:
+            return "Color Dodge";
+         case ITechBlend.BLENDING_21_LINEAR_DODGE:
+            return "Linear Dodge";
+         case ITechBlend.BLENDING_22_HARD_MIX:
+            return "Hard Mix";
+         case ITechBlend.BLENDING_23_ADDITION:
+            return "Addition";
+         case ITechBlend.BLENDING_26_:
+            return "Substraction";
+         case ITechBlend.BLENDING_25_DIVIDE:
+            return "Divide";
+         case ITechBlend.BLENDING_24_DIFFERENCE:
+            return "Difference";
+         case ITechBlend.BLENDING_27_EXCLUSION_NEGATION:
+            return "Exclusion";
+         case ITechBlend.BLENDING_28_:
+            return "_";
+         case ITechBlend.BLENDING_29_PIN_LIGHT:
+            return "Pin Light";
+         case ITechBlend.BLENDING_02_DARKEN:
+            return "Darken";
+         case ITechBlend.BLENDING_03_LIGHTEN:
+            return "Lighten";
+
          default:
-            return "ToStringTrans Unknown" + key;
+            return "Unknown " + mode;
       }
    }
 
-   public static String toStringTransform(int trans) {
-      switch (trans) {
-         case IImage.TRANSFORM_0_NONE:
-            return "No Transform";
-         case IImage.TRANSFORM_1_FLIP_H_MIRROR_ROT180:
-            return "Flip_H";
-         case IImage.TRANSFORM_2_FLIP_V_MIRROR:
-            return "Flip_V";
-         case IImage.TRANSFORM_3_ROT_180:
-            return "Rotation_180";
-         case IImage.TRANSFORM_4_MIRROR_ROT270:
-            return "Mirrot_Rotation270";
-         case IImage.TRANSFORM_5_ROT_90:
-            return "Rotation_90";
-         case IImage.TRANSFORM_6_ROT_270:
-            return "Rotation_270";
-         case IImage.TRANSFORM_7_MIRROR_ROT90:
-            return "Mirror_Rotation90";
+   public static String debugAlpha(int mode) {
+      switch (mode) {
+         case ITechBlend.ALPHA_0_OVER:
+            return "Over";
          default:
-            return "Unknown Transform " + trans;
+            return "Unknown " + mode;
+      }
+   }
+
+   public static String debugOpacity(int op) {
+      switch (op) {
+         case ITechBlend.OPACITY_00_SRC:
+            return "src";
+         case ITechBlend.OPACITY_01_MIN_OVERIDE_SRC:
+            return "min src";
+         case ITechBlend.OPACITY_02_MAX_OVERIDE_SRC:
+            return "max src";
+         case ITechBlend.OPACITY_03_OVERIDE_SRC:
+            return "overide src";
+         default:
+            return "Unknown " + op;
+      }
+   }
+
+   public static String debugOpDuff(int op) {
+      switch (op) {
+         case ITechBlend.OP_00_SRC_OVER:
+            return "src over";
+         case ITechBlend.OP_01_SRC:
+            return "src";
+         case ITechBlend.OP_02_SRC_IN:
+            return "src in";
+         case ITechBlend.OP_03_SRC_OUT:
+            return "src out";
+         case ITechBlend.OP_04_SRC_ATOP:
+            return "src atop";
+         case ITechBlend.OP_05_DST_OVER:
+            return "dest over";
+         case ITechBlend.OP_06_DST:
+            return "dst";
+         case ITechBlend.OP_07_DST_IN:
+            return "dst in";
+         case ITechBlend.OP_08_DST_OUT:
+            return "dst out";
+         case ITechBlend.OP_09_DST_ATOP:
+            return "dst atop";
+         case ITechBlend.OP_10_XOR:
+            return "xor";
+         case ITechBlend.OP_11_CLEAR:
+            return "clear";
+         default:
+            return "Unknown " + op;
       }
    }
 }

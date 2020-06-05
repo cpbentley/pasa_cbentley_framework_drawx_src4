@@ -1,8 +1,12 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.utils;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
-import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 public class AnchorUtils {
 
@@ -35,10 +39,10 @@ public class AnchorUtils {
     */
    public static int getXAlign(int ha, int x, int totalwidth, int objectwidth) {
       int val = 0;
-      if (ha == ITechFigure.ALIGN_CENTER) {
+      if (ha == ITechAnchor.ALIGN_6_CENTER) {
          //center
          val = (totalwidth - objectwidth) / 2;
-      } else if (ha == ITechFigure.ALIGN_RIGHT) {
+      } else if (ha == ITechAnchor.ALIGN_4_RIGHT) {
          val = (totalwidth - objectwidth);
       }
       return x + val;
@@ -69,10 +73,10 @@ public class AnchorUtils {
     */
    public static int getYAlign(int va, int y, int totalheight, int objectheight) {
       int val = 0;
-      if (va == ITechFigure.ALIGN_CENTER) {
+      if (va == ITechAnchor.ALIGN_6_CENTER) {
          //center
          val = (totalheight - objectheight) / 2;
-      } else if (va == ITechFigure.ALIGN_BOTTOM) {
+      } else if (va == ITechAnchor.ALIGN_2_BOTTOM) {
          val += totalheight - objectheight;
       }
       return y + val;

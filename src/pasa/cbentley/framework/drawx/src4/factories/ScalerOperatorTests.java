@@ -1,15 +1,18 @@
-package pasa.cbentley.framework.drawx.src4.base;
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
+package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.core.src4.logging.ITechLvl;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImageFactory;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwOperator;
 
-public class ScalerTests extends AbstractDrwOperator {
+public class ScalerOperatorTests extends AbstractDrwOperator {
 
-   public ScalerTests(DrwCtx drc) {
+   public ScalerOperatorTests(DrwCtx drc) {
       super(drc);
    }
 
@@ -81,7 +84,7 @@ public class ScalerTests extends AbstractDrwOperator {
       //#debug
       String msg = "xDelta=" + xDelta + " xError=" + xError + " yDelta=" + yDelta + " yError=" + yError;
       //#debug
-      toDLog().pDraw(msg, this, ScalerTests.class, "resampleImage", ITechLvl.LVL_05_FINE, true);
+      toDLog().pDraw(msg, this, ScalerOperatorTests.class, "resampleImage", ITechLvl.LVL_05_FINE, true);
 
       // Whole pile of non array variables for the loop.
       int pixelA, pixelB, pixelC, pixelD;
@@ -219,7 +222,7 @@ public class ScalerTests extends AbstractDrwOperator {
       //#debug
       String msg = "yd=" + yd + " yr=" + yr + " xd=" + xd + " xr=" + xr;
       //#debug
-      toDLog().pDraw(msg, this, ScalerTests.class, "resampleImage4", ITechLvl.LVL_05_FINE, true);
+      toDLog().pDraw(msg, this, ScalerOperatorTests.class, "resampleImage4", ITechLvl.LVL_05_FINE, true);
 
       
 
@@ -499,7 +502,7 @@ public class ScalerTests extends AbstractDrwOperator {
       //#debug
       String msg = "yd=" + yd + " yr=" + yr + " xd=" + xd + " xr=" + xr;
       //#debug
-      toDLog().pDraw(msg, this, ScalerTests.class, "resampleImageOriGood", ITechLvl.LVL_05_FINE, true);
+      toDLog().pDraw(msg, this, ScalerOperatorTests.class, "resampleImageOriGood", ITechLvl.LVL_05_FINE, true);
 
       
 

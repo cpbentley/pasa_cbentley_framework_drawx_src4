@@ -1,12 +1,18 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
+import pasa.cbentley.byteobjects.src4.extra.MergeMaskFactory;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGradient;
 
-public class GradientOperator  extends AbstractDrwOperator implements ITechFigure {
+public class GradientOperator extends AbstractDrwOperator implements ITechFigure, ITechGradient {
 
    public GradientOperator(DrwCtx drc) {
       super(drc);
@@ -22,6 +28,48 @@ public class GradientOperator  extends AbstractDrwOperator implements ITechFigur
          return;
       grad.addSub(artifac);
       grad.setFlag(ITechGradient.GRADIENT_OFFSET_01_FLAG, ITechGradient.GRADIENT_FLAG_7_ARTIFACTS, true);
+   }
+
+   public void setGradientOffset(ByteObject gradient, int offset) {
+      gradient.set2(GRADIENT_OFFSET_08_OFFSET2, 2);
+      gradient.setFlag(GRADIENT_OFFSET_09_FLAGX1, GRADIENT_FLAGX_6_OFFSET, true);
+   }
+   /**
+    * Merge 2 gradients when a figure with a gradient is merged with another figure with a gradient.
+    * <br>
+    * <br>
+    * 
+    * @param root != null
+    * @param merge != null
+    * @return
+    */
+   public ByteObject mergeGradient(ByteObject root, ByteObject merge) {
+      MergeMaskFactory mmf = boc.getMergeMaskFactory();
+      int scolor = root.get4(ITechGradient.GRADIENT_OFFSET_04_COLOR4);
+      int sec = root.get1(ITechGradient.GRADIENT_OFFSET_05_SEC1);
+      int type = root.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
+      ByteObject tcolor = root.getSubFirst(IBOTypesBOC.TYPE_002_LIT_INT);
+      //get merge mask from incomplete gradient
+      ByteObject mergeMask = merge.getSubFirst(IBOTypesBOC.TYPE_011_MERGE_MASK);
+      if (mergeMask.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_4)) {
+         scolor = merge.get4(ITechGradient.GRADIENT_OFFSET_04_COLOR4);
+      }
+      if (mergeMask.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_5)) {
+         sec = merge.get1(ITechGradient.GRADIENT_OFFSET_05_SEC1);
+      }
+      if (mergeMask.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_6)) {
+         type = merge.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
+      }
+      if (mergeMask.hasFlag(MERGE_MASK_OFFSET_1FLAG1, ITechGradient.GRADIENT_FLAG_3_THIRD_COLOR)) {
+         tcolor = merge.getSubFirst(IBOTypesBOC.TYPE_002_LIT_INT);
+      }
+
+      int mainFlag = mmf.mergeFlag(root, merge, mergeMask, ITechGradient.GRADIENT_OFFSET_01_FLAG, MERGE_MASK_OFFSET_1FLAG1);
+      int exludeFlags = mmf.mergeFlag(root, merge, mergeMask, ITechGradient.GRADIENT_OFFSET_02_FLAGK_EXCLUDE, MERGE_MASK_OFFSET_2FLAG1);
+      int channelFlags = mmf.mergeFlag(root, merge, mergeMask, ITechGradient.GRADIENT_OFFSET_03_FLAGC_CHANNELS, MERGE_MASK_OFFSET_3FLAG1);
+
+      ByteObject newGrad = drc.getGradientFactory().getGradient(scolor, sec, type, mainFlag, exludeFlags, channelFlags, tcolor);
+      return newGrad;
    }
 
    public static int getRectGradSize(int width, int height, int arcw, int arch, int type) {
@@ -95,7 +143,7 @@ public class GradientOperator  extends AbstractDrwOperator implements ITechFigur
       int pr = (primaryColor & 0x00FF0000) >> 16;
       int pg = (primaryColor & 0x0000FF00) >> 8;
       int pb = (primaryColor & 0x000000FF);
-   
+
       // Break the secondary color into red, green, and blue.
       int sr = (secondaryColor & 0x00FF0000) >> 16;
       int sg = (secondaryColor & 0x0000FF00) >> 8;
@@ -103,11 +151,11 @@ public class GradientOperator  extends AbstractDrwOperator implements ITechFigur
       double p = (double) step / (double) end;
       double v = Math.abs(maxSecondary - p);
       double v2 = 1.0 - v;
-   
+
       int red = (int) (pr * v + sr * v2);
       int green = (int) (pg * v + sg * v2);
       int blue = (int) (pb * v + sb * v2);
       return ColorUtils.getRGBInt(red, green, blue);
-   
+
    }
 }

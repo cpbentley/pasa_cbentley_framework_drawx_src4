@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
@@ -326,7 +330,7 @@ public class FilterFactory extends AbstractDrwFactory implements ITechFunction, 
    public void addFilter(ByteObject figure, ByteObject filter) {
       if (filter != null) {
          figure.addSub(filter);
-         figure.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5FILTER, true);
+         figure.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER, true);
       }
 
    }

@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.tech;
 
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
@@ -237,6 +241,8 @@ public interface ITechGradient extends ITechByteObject {
    /**
     * Offset at which to start the gradient. last color will be offset-1 treating the color array
     * as circular.
+    * 
+    * Flag controlled with {@link ITechGradient#GRADIENT_FLAGX_6_OFFSET}
     */
    public static final int GRADIENT_OFFSET_08_OFFSET2                = A_OBJECT_BASIC_SIZE + 10;
 

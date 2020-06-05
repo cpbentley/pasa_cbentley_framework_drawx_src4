@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.ctx;
 
 import pasa.cbentley.byteobjects.src4.core.BOModuleAbstract;
@@ -5,10 +9,10 @@ import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.ctx.IDebugStringable;
 import pasa.cbentley.byteobjects.src4.tech.ITechFunction;
+import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.color.ColorFunction;
 import pasa.cbentley.framework.drawx.src4.color.GradientFunction;
-import pasa.cbentley.framework.drawx.src4.engine.BlendOp;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbCache;
 import pasa.cbentley.framework.drawx.src4.interfaces.IDIDsDrwBase;
@@ -118,7 +122,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    public ByteObject getFlagOrdered(ByteObject bo, int offset, int flag) {
       int type = bo.getType();
       switch (type) {
-         case TYPE_123_STYLE:
+         case TYPE_071_STYLE:
             return drc.getStyleOperator().getStyleDrw(bo, offset, flag);
       }
       return null;
@@ -137,7 +141,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IDIDsDrwBase.DID_02_GRAD_TRIG:
             return ToStringStaticDraw.debugStrGradTrig(value);
          case IDIDsDrwBase.DID_03_IMAGE_TRANSFORM:
-            return ToStringStaticDraw.toStringTransform(value);
+            return ToStringStaticUc.toStringTransform(value);
          case IDIDsDrwBase.DID_04_GRAD_ELLIPSE:
             return ToStringStaticDraw.debugStrGradEllipse(value);
          case IDIDsDrwBase.DID_05_MASK_BLEND:
@@ -147,9 +151,9 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IDIDsDrwBase.DID_08_DIAG_DIR:
             return ToStringStaticDraw.debugDiagDir(value);
          case IDIDsDrwBase.DID_09_BLEND_OP:
-            return BlendOp.debugBlend(value);
+            return ToStringStaticDraw.debugBlend(value);
          case IDIDsDrwBase.DID_10_TRANSFORMATION:
-            return ToStringStaticDraw.toStringTrans(value);
+            return ToStringStaticUc.toStringTrans(value);
          case IDIDsDrwBase.DID_12_SKEW_EDGE_TYPES:
             return ToStringStaticDraw.toStringEdge(value);
          case IDIDsDrwBase.DID_11_INTERPOLATION:
@@ -171,7 +175,19 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    public ByteObject merge(ByteObject root, ByteObject merge) {
       int type = merge.getType();
       switch (type) {
-         case TYPE_123_STYLE:
+         case TYPE_050_FIGURE:
+            return drc.getFigureOperator().mergeFigure(root, merge);
+         case TYPE_051_BOX:
+            return drc.getBoxFactory().mergeBox(root, merge);
+         case TYPE_059_GRADIENT:
+            return drc.getGradientOperator().mergeGradient(root, merge);
+         case TYPE_058_MASK:
+            return drc.getMaskOperator().mergeMask(root, merge);
+         case TYPE_060_TBLR:
+            return drc.getTblrFactory().mergeTBLR(root, merge);
+         case TYPE_069_ANCHOR:
+            return drc.getAnchorFactory().mergeAnchor(root, merge);
+         case TYPE_071_STYLE:
             return drc.getStyleOperator().mergeStyle(root, merge);
          case TYPE_070_TEXT_EFFECTS:
             return drc.getFxStringOperator().mergeTxtEffects(root, merge);
@@ -217,10 +233,6 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
             return gf.getColors();
       }
       return null;
-   }
-
-   public ByteObject subMergeByteObject(ByteObject root, ByteObject merge) {
-      return drc.getMergeMaskOperator().mergeDrwParamOver(root, merge);
    }
 
    /**
@@ -275,7 +287,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
             break;
          case IBOTypesDrw.TYPE_051_BOX:
             //we need to give the context
-            drc.getBoxEng().toStringBox(bo, sb);
+            drc.getBoxFactory().toStringBox(bo, sb);
             break;
          case IBOTypesDrw.TYPE_058_MASK:
             drc.getMaskFactory().toStringMask(bo, sb);
@@ -286,7 +298,10 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IBOTypesDrw.TYPE_056_COLOR_FILTER:
             drc.getFilterFactory().toStringFilter(bo, sb);
             break;
-         case TYPE_123_STYLE:
+         case IBOTypesDrw.TYPE_069_ANCHOR:
+            drc.getAnchorFactory().toStringAnchor(bo, sb);
+            break;
+         case TYPE_071_STYLE:
             drc.getStyleOperator().toStringStyle(bo, sb);
             break;
          case TYPE_070_TEXT_EFFECTS:
@@ -314,10 +329,10 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
       final int type = bo.getType();
       switch (type) {
          case IBOTypesDrw.TYPE_050_FIGURE:
-            drc.getFigureFactory().toStringFigure(bo, sb);
+            drc.getFigureFactory().toStringFigure1Line(bo, sb);
             break;
          case IBOTypesDrw.TYPE_051_BOX:
-            drc.getBoxEng().toStringBox(bo, sb);
+            drc.getBoxFactory().toStringBox(bo, sb);
             break;
          case IBOTypesDrw.TYPE_052_ARTIFACT:
             drc.getGradientFactory().toStringArtifact(bo, sb);
@@ -337,7 +352,10 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IBOTypesDrw.TYPE_060_TBLR:
             drc.getTblrFactory().toStringTBLR(bo, sb);
             break;
-         case TYPE_123_STYLE:
+         case IBOTypesDrw.TYPE_069_ANCHOR:
+            drc.getAnchorFactory().toStringAnchor(bo, sb);
+            break;
+         case TYPE_071_STYLE:
             drc.getStyleOperator().toString1LineStyle(bo, sb);
             break;
          case TYPE_070_TEXT_EFFECTS:
@@ -418,6 +436,12 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
             return "Blender";
          case TYPE_063_PIX_STAR:
             return "PixStar";
+         case TYPE_069_ANCHOR:
+            return "Anchor";
+         case TYPE_070_TEXT_EFFECTS:
+            return "TextEffects";
+         case TYPE_071_STYLE:
+            return "Style";
       }
       return null;
    }

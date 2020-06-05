@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
@@ -7,6 +11,7 @@ import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.ColorUtils;
+import pasa.cbentley.framework.coredraw.src4.ctx.ToStringStaticCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFont;
 import pasa.cbentley.framework.drawx.src4.ctx.BOModuleDrawx;
@@ -30,12 +35,21 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
       super(drc);
    }
 
+   /**
+    * Merge mask for {@link ITechMergeMaskFigure}
+    * @return
+    */
+   public ByteObject getMergeMaskFigure() {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
    public void addAnchor(ByteObject figure, ByteObject anchor) {
       if (figure == null || anchor == null)
          return;
-      if (!figure.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1ANCHOR)) {
+      if (!figure.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1_ANCHOR)) {
          figure.addByteObject(anchor);
-         figure.setFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1ANCHOR, true);
+         figure.setFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1_ANCHOR, true);
       }
    }
 
@@ -47,15 +61,15 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
    public void addMask(ByteObject figure, ByteObject mask) {
       if (figure == null || mask == null)
          return;
-      if (!figure.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_4MASK)) {
+      if (!figure.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_4_MASK)) {
          figure.addSub(mask);
-         figure.setFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_4MASK, true);
+         figure.setFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_4_MASK, true);
       }
    }
 
    public void addTxtFXToStringFig(ByteObject strFix, ByteObject fx) {
       strFix.addByteObject(fx);
-      strFix.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_5EFFECT, true);
+      strFix.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_5_EFFECT, true);
    }
 
    public ByteObject getBorder(ByteObject tblr, int color) {
@@ -134,7 +148,6 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
       p.setFlag(FIG_BORDER_OFFSET_1FLAG, FIG_BORDER_FLAG_5FIGURE, true);
       if (tblr == null) {
          p.setFlag(FIG_BORDER_OFFSET_1FLAG, FIG_BORDER_FLAG_4COIN, false);
-         p.setFlag(A_OBJECT_OFFSET_2_FLAG, A_OBJECT_FLAG_1_INCOMPLETE, true);
       }
       p.setByteObjects(new ByteObject[] { rect, tblr });
       return p;
@@ -189,7 +202,6 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
       p.setFlag(FIG_BORDER_OFFSET_1FLAG, FIG_BORDER_FLAG_4COIN, true);
       if (tblr == null) {
          p.setFlag(FIG_BORDER_OFFSET_1FLAG, FIG_BORDER_FLAG_4COIN, false);
-         p.setFlag(A_OBJECT_OFFSET_2_FLAG, A_OBJECT_FLAG_1_INCOMPLETE, true);
       }
       if (figures.length != 8) {
          throw new IllegalArgumentException();
@@ -782,22 +794,22 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
          int flag = 0;
          switch (type) {
             case IBOTypesDrw.TYPE_056_COLOR_FILTER:
-               flag = FIG_FLAG_5FILTER;
+               flag = FIG_FLAG_5_FILTER;
                break;
             case IBOTypesDrw.TYPE_050_FIGURE:
-               flag = FIG_FLAG_7SUB_FIGURE;
+               flag = FIG_FLAG_7_SUB_FIGURE;
                break;
             case IBOTypesDrw.TYPE_058_MASK:
-               flag = FIG_FLAG_4MASK;
+               flag = FIG_FLAG_4_MASK;
                break;
             case IBOTypesDrw.TYPE_051_BOX:
-               flag = FIG_FLAG_1ANCHOR;
+               flag = FIG_FLAG_1_ANCHOR;
                break;
             case IBOTypesBOC.TYPE_007_LIT_ARRAY_INT:
-               flag = FIG_FLAG_3COLOR_ARRAY;
+               flag = FIG_FLAG_3_COLOR_ARRAY;
                break;
             case IBOTypesDrw.TYPE_059_GRADIENT:
-               flag = FIG_FLAG_2GRADIENT;
+               flag = FIG_FLAG_2_GRADIENT;
                break;
             default:
                break;
@@ -814,7 +826,7 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
     * @param subFigures the array may be reused after this call. A copy is made anyways
     */
    public void setFigSubFigures(ByteObject figure, ByteObject[] subFigures) {
-      figure.setFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_7SUB_FIGURE, true);
+      figure.setFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_7_SUB_FIGURE, true);
       figure.addByteObject(subFigures);
    }
 
@@ -856,7 +868,7 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
    }
 
    public ByteObject getFigRepeater(ByteObject figure, int w, int h) {
-      ByteObject anchor = drc.getBoxEng().getCenter(w, h);
+      ByteObject anchor = drc.getBoxFactory().getCenter(w, h);
       return getFigRepeater(figure, anchor);
    }
 
@@ -957,35 +969,35 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
 
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
       p.setValue(FIG_STRING_OFFSET_02_FACE1, face, 1);
-      p.setValue(FIG_STRING_OFFSET_3STYLE1, style, 1);
-      p.setValue(FIG_STRING_OFFSET_4SIZE1, size, 1);
+      p.setValue(FIG_STRING_OFFSET_03_STYLE1, style, 1);
+      p.setValue(FIG_STRING_OFFSET_04_SIZE1, size, 1);
       int num = 0;
       ByteObject raw = null;
       if (str != null) {
-         p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_6EXPLICIT, true);
+         p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_6_EXPLICIT, true);
          if (str.length() == 1) {
-            p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_7CHAR, true);
-            p.setValue(FIG_STRING_OFFSET_5CHAR2, str.charAt(0), 2);
+            p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_7_CHAR, true);
+            p.setValue(FIG_STRING_OFFSET_05_CHAR2, str.charAt(0), 2);
          } else {
-            p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_4RAW, true);
+            p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_4_RAW, true);
             raw = boc.getLitteralStringFactory().getLitteralString(str);
             num++;
          }
       }
       if (effects != null) {
-         p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_5EFFECT, true);
+         p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_5_EFFECT, true);
          num++;
       }
       if (mask != null) {
-         p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_5EFFECT, true);
+         p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_5_EFFECT, true);
          num++;
       }
       if (scale != null) {
-         p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_5EFFECT, true);
+         p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_5_EFFECT, true);
          num++;
       }
       if (anchor != null) {
-         p.setFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1ANCHOR, true);
+         p.setFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1_ANCHOR, true);
          num++;
       }
       ByteObject[] pa = new ByteObject[num];
@@ -1072,7 +1084,7 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
     */
    public ByteObject getFigStringT(String str, ByteObject txteffect, ByteObject scale) {
       ByteObject p = getFigString(str, 0, 0, 0, 0, txteffect, null, scale, null);
-      ByteObject mm = drc.getMergeMaskFactory().getMergeMask(MERGE_MASK_OFFSET_1FLAG1, FIG_STRING_FLAG_5EFFECT);
+      ByteObject mm = drc.getMergeMaskFactory().getMergeMask(MERGE_MASK_OFFSET_1FLAG1, FIG_STRING_FLAG_5_EFFECT);
       p.addByteObject(mm);
       return p;
    }
@@ -1095,7 +1107,7 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
     * @return
     */
    public ByteObject getFigStringTFontSize(int size) {
-      return getFigStringTrans(FIG_STRING_OFFSET_4SIZE1, 1, size, MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG6_3);
+      return getFigStringTrans(FIG_STRING_OFFSET_04_SIZE1, 1, size, MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG6_3);
    }
 
    /**
@@ -1104,13 +1116,10 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
     * @return
     */
    public ByteObject getFigStringTFontStyle(int style) {
-      return getFigStringTrans(FIG_STRING_OFFSET_3STYLE1, 1, style, MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG6_2);
+      return getFigStringTrans(FIG_STRING_OFFSET_03_STYLE1, 1, style, MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG6_2);
    }
 
    /**
-    * Merging is implemented at {@link BOModuleDrawx#subMergeByteObject(ByteObject, ByteObject)}
-    * <br>
-    * <br>
     * More at {@link MergeMaskOperator}.
     * <br>
     * <br>
@@ -1122,11 +1131,11 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
     * @return
     */
    public ByteObject getFigStringTrans(int offset, int size, int value, int mergeOffset, int mergeFlag) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, FIG_STRING_BASIC_SIZE);
-      p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_10_STRING, 1);
-      p.setValue(offset, value, size);
-      drc.getMergeMaskFactory().setMergeMask(p, mergeOffset, mergeFlag);
-      return p;
+      ByteObject figure = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, FIG_STRING_BASIC_SIZE);
+      figure.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_10_STRING, 1);
+      figure.setValue(offset, value, size);
+      drc.getMergeMaskFactory().setMergeMask(figure, mergeOffset, mergeFlag);
+      return figure;
    }
 
    /**
@@ -1377,8 +1386,111 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
       }
    }
 
+   public void toStringFigure1Line(ByteObject bo, Dctx sb) {
+      sb.rootN(bo, "Figure");
+      final int figType = bo.getValue(FIG__OFFSET_01_TYPE1, 1);
+      switch (figType) {
+         case FIG_TYPE_01_RECTANGLE:
+            if (bo.hasFlag(FIG_RECTANGLE_OFFSET_1FLAG, FIG_RECTANGLE_FLAG_1ROUND)) {
+               sb.append("Round ");
+            }
+            sb.append("Rectangle ");
+            sb.append(toStringColor(bo.get4(FIG__OFFSET_06_COLOR4)));
+            sb.append(" arc=[");
+            sb.append(bo.get1(FIG_RECTANGLE_OFFSET_2ARCW1));
+            sb.append(',');
+            sb.append(bo.get1(FIG_RECTANGLE_OFFSET_3ARCH1));
+            sb.append(']');
+            sb.append(" sizeFill=" + bo.get1(FIG_RECTANGLE_OFFSET_4SIZEF1));
+            break;
+         case FIG_TYPE_02_BORDER:
+            sb.append("Border ");
+            sb.append((toStringColor(bo.get4(FIG__OFFSET_06_COLOR4))));
+            if (bo.hasFlag(FIG_BORDER_OFFSET_1FLAG, FIG_BORDER_FLAG_1OUTER)) {
+               sb.append(" Outer");
+            }
+            if (bo.hasFlag(FIG_BORDER_OFFSET_1FLAG, FIG_BORDER_FLAG_1OUTER)) {
+               sb.append(" Outer");
+            }
+
+            sb.append(" Corners=" + (bo.hasFlag(FIG_BORDER_OFFSET_1FLAG, FIG_BORDER_FLAG_4COIN)) + " ");
+            sb.append(" CornerShift=" + bo.get1(FIG_BORDER_OFFSET_2CORNER_SHIFT1));
+            break;
+         case FIG_TYPE_06_LOSANGE:
+            sb.append("Losange = ");
+            sb.append((toStringColor(bo.get4(FIG__OFFSET_06_COLOR4))));
+            break;
+         case FIG_TYPE_13_REPEATER:
+            sb.append("Repeater");
+            sb.nl();
+            sb.append(" color=" + (toStringColor(bo.get4(FIG__OFFSET_06_COLOR4))) + " ");
+            sb.nl();
+            sb.append(" forceCopyArea=" + bo.hasFlag(FIG_REPEATER_OFFSET_1FLAG, FIG_REPEATER_FLAG_1FORCECOPYAREA));
+            sb.append(" BgColor=" + bo.hasFlag(FIG_REPEATER_OFFSET_1FLAG, FIG_REPEATER_FLAG_2USE_BGCOLOR));
+            break;
+         case FIG_TYPE_17_ARLEQUIN:
+            sb.append("Arlequin");
+            sb.append("pcolor = " + toStringColor(bo.get4(FIG__OFFSET_06_COLOR4)) + " ");
+            sb.append("scolor = " + toStringColor(bo.get4(FIG_ARLEQUIN_OFFSET_2COLOR4)) + " ");
+            break;
+         case FIG_TYPE_3_TRIANGLE:
+            sb.append("Triangle");
+            sb.append((toStringColor(bo.get4(FIG__OFFSET_06_COLOR4))));
+            sb.append(" angle = " + (bo.getValue(FIG_TRIANGLE_OFFSET_2ANGLE2, 2)) + " ");
+            int h = bo.getValue(FIG_TRIANGLE_OFFSET_3h4, 4);
+            if (h != 0) {
+               sb.append("h = " + h);
+            }
+            break;
+         case FIG_TYPE_16_SUPERLINES:
+            sb.append("SUPERLINES");
+            sb.nl();
+            sb.append("color = " + toStringColor(bo.get4(FIG__OFFSET_06_COLOR4)));
+            sb.append(" sepsize = " + (bo.getValue(FIG_SL_OFFSET_4SEPARATION2, 2)));
+            sb.append(" repeat = " + (bo.getValue(FIG_SL_OFFSET_3REPEAT2, 2)));
+            break;
+         case FIG_TYPE_07_ELLIPSE:
+            sb.append("Ellipse = ");
+            sb.append((toStringColor(bo.get4(FIG__OFFSET_06_COLOR4))));
+            break;
+         case FIG_TYPE_10_STRING:
+            sb.append("String ");
+            sb.append(toStringColor(bo.get4(FIG__OFFSET_06_COLOR4)));
+            if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_6_EXPLICIT)) {
+               if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_7_CHAR)) {
+                  sb.append("char=" + (char) bo.get2(FIG_STRING_OFFSET_05_CHAR2));
+               } else if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_4_RAW)) {
+                  ByteObject raw = bo.getSubFirst(IBOTypesBOC.TYPE_003_LIT_STRING);
+                  sb.append("string = " + boc.getLitteralStringOperator().getLitteralString(raw));
+               }
+            }
+            sb.append(" Font=");
+            sb.append("[" + ToStringStaticCoreDraw.fontFace(bo.get1(FIG_STRING_OFFSET_02_FACE1)));
+            sb.append("," + ToStringStaticCoreDraw.debugFontStyle(bo.get1(FIG_STRING_OFFSET_03_STYLE1)));
+            sb.append("," + ToStringStaticCoreDraw.debugFontSize(bo.get1(FIG_STRING_OFFSET_04_SIZE1)));
+            sb.append("]");
+            break;
+         case FIG_TYPE_09_PIXELS:
+            sb.append("PIXELS");
+            sb.nl();
+            sb.append("color = " + toStringColor(bo.get4(FIG__OFFSET_06_COLOR4)));
+            sb.append(" len = " + (bo.getValue(FIG_PIXEL_OFFSET_07_LENGTH_H2, 2)));
+            sb.append(" rndColor = " + (bo.hasFlag(FIG_PIXEL_OFFSET_01_FLAG, FIG_PIXEL_FLAG_2_RANDOM_COLOR)));
+            sb.append(" rndLength = " + (bo.hasFlag(FIG_PIXEL_OFFSET_01_FLAG, FIG_PIXEL_FLAG_1_RANDOM_SIZE)));
+            int[] colors = bo.getValues(FIG_PIXEL_OFFSET_04_COLORSX);
+            sb.nl();
+            sb.append(" colors ");
+            for (int i = 0; i < colors.length; i++) {
+               sb.append(" " + toStringColor(colors[i]));
+            }
+         default:
+            sb.append("UNKNOWN FIG = " + figType);
+            break;
+      }
+   }
+
    public void toStringFigure(ByteObject bo, Dctx sb) {
-      sb.append("#Figure ");
+      sb.rootN(bo, "Figure");
       final int figType = bo.getValue(FIG__OFFSET_01_TYPE1, 1);
       switch (figType) {
          case FIG_TYPE_01_RECTANGLE:
@@ -1449,19 +1561,19 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
          case FIG_TYPE_10_STRING:
             sb.append("String ");
             sb.append(toStringColor(bo.get4(FIG__OFFSET_06_COLOR4)));
-            if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_6EXPLICIT)) {
-               if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_7CHAR)) {
-                  sb.append("char=" + (char) bo.get2(FIG_STRING_OFFSET_5CHAR2));
-               } else if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_4RAW)) {
+            if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_6_EXPLICIT)) {
+               if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_7_CHAR)) {
+                  sb.append("char=" + (char) bo.get2(FIG_STRING_OFFSET_05_CHAR2));
+               } else if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_4_RAW)) {
                   ByteObject raw = bo.getSubFirst(IBOTypesBOC.TYPE_003_LIT_STRING);
                   sb.append("string = " + boc.getLitteralStringOperator().getLitteralString(raw));
                }
             }
             sb.append(" Font=");
 
-            sb.append("[" + ToStringStaticDraw.debugFontFace(bo.get1(FIG_STRING_OFFSET_02_FACE1)));
-            sb.append("," + ToStringStaticDraw.debugFontStyle(bo.get1(FIG_STRING_OFFSET_3STYLE1)));
-            sb.append("," + ToStringStaticDraw.debugFontSize(bo.get1(FIG_STRING_OFFSET_4SIZE1)));
+            sb.append("[" + ToStringStaticCoreDraw.fontFace(bo.get1(FIG_STRING_OFFSET_02_FACE1)));
+            sb.append("," + ToStringStaticCoreDraw.debugFontStyle(bo.get1(FIG_STRING_OFFSET_03_STYLE1)));
+            sb.append("," + ToStringStaticCoreDraw.debugFontSize(bo.get1(FIG_STRING_OFFSET_04_SIZE1)));
             sb.append("]");
             break;
          case FIG_TYPE_09_PIXELS:
@@ -1482,13 +1594,13 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeMask,
             break;
       }
       if (bo.get1(FIG__OFFSET_02_FLAG) != 0) {
-         sb.nnl();
-         sb.append("FIGURE_FLAGS:");
+         sb.nl();
+         sb.append("Flags_Basic:");
          sb.append(ToStringStaticDraw.debugFigFlag(bo));
       }
       if (bo.get1(FIG__OFFSET_03_FLAGP) != 0) {
-         sb.nnl();
-         sb.append("PERF_FLAGS:");
+         sb.nl();
+         sb.append("Flags_Performance:");
          sb.append(ToStringStaticDraw.debugFigPerfFlag(bo));
       }
    }

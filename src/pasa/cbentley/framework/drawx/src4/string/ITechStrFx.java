@@ -1,5 +1,8 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.string;
-
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.functions.Function;
@@ -10,9 +13,9 @@ import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
  * <br>
  * <br>
  * Each definition is set to a scope
- * <li> {@link IFxStr#FX_SCOPE_0_CHAR}
- * <li> {@link IFxStr#FX_SCOPE_2_LINE}
- * <li> {@link IFxStr#FX_SCOPE_2_COMPOSITE}
+ * <li> {@link ITechStrFx#FX_SCOPE_0_CHAR}
+ * <li> {@link ITechStrFx#FX_SCOPE_2_LINE}
+ * <li> {@link ITechStrFx#FX_SCOPE_2_COMPOSITE}
  * <br>
  * <br>
  * 
@@ -31,7 +34,7 @@ import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
  * @author Charles-Philip Bentley
  *
  */
-public interface IFxStr extends ITechByteObject {
+public interface ITechStrFx extends ITechByteObject {
 
    /**
     * 1 byte for flag
@@ -42,7 +45,7 @@ public interface IFxStr extends ITechByteObject {
    public static final int FX_COMPOSITE_BASIC_SIZE         = A_OBJECT_BASIC_SIZE + 6;
 
    /**
-    * When effect is very specific and {@link IFxStr#FX_OFFSET_04_INDEX2} gives the
+    * When effect is very specific and {@link ITechStrFx#FX_OFFSET_04_INDEX2} gives the
     * ID of the effect.
     */
    public static final int FX_FLAG_1_SPECIFIC_SWITCH       = 1;
@@ -103,6 +106,8 @@ public interface IFxStr extends ITechByteObject {
 
    public static final int FX_FLAGX_6_DEFINED_INDEX        = 1 << 5;
 
+   public static final int FX_FLAGX_7_INCOMPLETE           = 1 << 6;
+
    /**
     * The effect is actually to be choosen by a function using the sub text effect
     * of this instance.
@@ -160,7 +165,7 @@ public interface IFxStr extends ITechByteObject {
     * element.
     * <br>
     * <br>
-    * The style {@link IViewTypes#TYPE_123_STYLE} is stored as a sub parameter of this object.
+    * The style {@link IViewTypes#TYPE_071_STYLE} is stored as a sub parameter of this object.
     * <br>
     * <br>
     * When this happens, a {@link FigDrawable} is used to wrap around a basic String figure.
@@ -184,11 +189,11 @@ public interface IFxStr extends ITechByteObject {
     * <br>
     * <br>
     * This allows code to know which template to use for reading this {@link ByteObject} without error.
-    * <li> {@link IFxStr#FX_SCOPE_0_CHAR}
-    * <li> {@link IFxStr#FX_SCOPE_2_LINE}
-    * <li> {@link IFxStr#FX_SCOPE_1_WORD}
-    * <li> {@link IFxStr#FX_SCOPE_3_PARAGRAPH}
-    * <li> {@link IFxStr#FX_SCOPE_3_PARAGRAPH}
+    * <li> {@link ITechStrFx#FX_SCOPE_0_CHAR}
+    * <li> {@link ITechStrFx#FX_SCOPE_2_LINE}
+    * <li> {@link ITechStrFx#FX_SCOPE_1_WORD}
+    * <li> {@link ITechStrFx#FX_SCOPE_3_PARAGRAPH}
+    * <li> {@link ITechStrFx#FX_SCOPE_3_PARAGRAPH}
     * <br>
     * <br>
     * 
@@ -203,12 +208,12 @@ public interface IFxStr extends ITechByteObject {
     * <li> 1 second character
     * <br>
     * etc.
-    * From where counting, read scope {@link IFxStr#FX_OFFSET_11_INDEX_SCOPE1}
+    * From where counting, read scope {@link ITechStrFx#FX_OFFSET_11_INDEX_SCOPE1}
     * <br>
     * <br>
-    * <li>{@link IFxStr#FX_SCOPE_0_CHAR}, it means the first char of ? each word? each line?
-    * <li>{@link IFxStr#FX_SCOPE_1_WORD} index 0 means the first word of text or line?
-    * <li>{@link IFxStr#FX_SCOPE_2_LINE} each word of text/line?
+    * <li>{@link ITechStrFx#FX_SCOPE_0_CHAR}, it means the first char of ? each word? each line?
+    * <li>{@link ITechStrFx#FX_SCOPE_1_WORD} index 0 means the first word of text or line?
+    * <li>{@link ITechStrFx#FX_SCOPE_2_LINE} each word of text/line?
     * <li>For scope Paragraph, 0 is the first element each word of text/line?
     * <li>For scope Text, 0 is the very first word of the whole text
     * <br>
@@ -230,19 +235,19 @@ public interface IFxStr extends ITechByteObject {
     * How to define a random fx for each word/char?
     * <br>
     * <br>
-    * First, root fx is defined with flag {@link IFxStr#FX_FLAGX_1_ROOT}. Than an array of fxs are subbed.
+    * First, root fx is defined with flag {@link ITechStrFx#FX_FLAGX_1_ROOT}. Than an array of fxs are subbed.
     * <br>
     * <br>
     * Those are used for the randomization. The scope of those subs is ignored. They inherit scope of root.
     * <br>
     * <br>
-
+   
     */
    public static final int FX_OFFSET_05_INDEX_PATTERN1     = A_OBJECT_BASIC_SIZE + 4;
 
    /**
-    * Provides {@link IFxStr#FX_OFFSET_04_INDEX2} scope
-    * <li> First character of every word char scope index 0, scope {@link IFxStr#FX_SCOPE_1_WORD}.
+    * Provides {@link ITechStrFx#FX_OFFSET_04_INDEX2} scope
+    * <li> First character of every word char scope index 0, scope {@link ITechStrFx#FX_SCOPE_1_WORD}.
     * <li> First line of every paragraph.
     * <li> Random index of every word bigger than 2 letters. Index {@link Function} and Acceptor for Word.
     * <br>
@@ -340,7 +345,7 @@ public interface IFxStr extends ITechByteObject {
    public static final int FXCHAR_BASIC_SIZE               = FX_BASIC_SIZE + 4;
 
    /**
-    * Flags specific to the {@link IFxStr#FX_SCOPE_0_CHAR}.
+    * Flags specific to the {@link ITechStrFx#FX_SCOPE_0_CHAR}.
     * 
     */
    public static final int FXCHAR_OFFSET_01_FLAG           = FX_BASIC_SIZE;

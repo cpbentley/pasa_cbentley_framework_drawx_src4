@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.engine;
 
 import java.util.Random;
@@ -6,9 +10,12 @@ import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
+import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBlend;
 import pasa.cbentley.framework.drawx.src4.utils.HSBUtilz;
+import pasa.cbentley.framework.drawx.src4.utils.RgbUtils;
+import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 
 /**
  * Function class for blending pixels between 2 images.
@@ -35,130 +42,7 @@ public class BlendOp implements IStringable {
 
    static int               cacheSrc;
 
-   public static String debugAlpha(int mode) {
-      switch (mode) {
-         case ITechBlend.ALPHA_0_OVER:
-            return "Over";
-         default:
-            return "Unknown " + mode;
-      }
-   }
-
-   public static String debugBlend(int mode) {
-      switch (mode) {
-         case ITechBlend.BLENDING_00_OVER:
-            return "OVER";
-         case ITechBlend.BLENDING_01_SRC:
-            return "SRC";
-         case ITechBlend.BLENDING_04_MERGE_ARGB:
-            return "MergeARGB";
-         case ITechBlend.BLENDING_05_BEHIND:
-            return "Behind";
-         case ITechBlend.BLENDING_06_INVERSE_ALPHA:
-            return "InverseAlpha";
-         case ITechBlend.BLENDING_07_INVERSE:
-            return "Inverse";
-         case ITechBlend.BLENDING_08_DISSOLVE:
-            return "Dissolve";
-         case ITechBlend.BLENDING_09_INVERSE:
-            return "Inverse";
-         case ITechBlend.BLENDING_10_HUE:
-            return "Hue";
-         case ITechBlend.BLENDING_11_HUE_SAT:
-            return "Hue Saturation";
-         case ITechBlend.BLENDING_12_HUE_LUM:
-            return "Hue Luminance";
-         case ITechBlend.BLENDING_13_SATURATION:
-            return "Saturation";
-         case ITechBlend.BLENDING_14_SAT_LUM:
-            return "SaturationLuminance";
-         case ITechBlend.BLENDING_15_LUMINANCE:
-            return "Luminance";
-         case ITechBlend.BLENDING_16_MULTIPLY_BURN:
-            return "Multiply Burn";
-         case ITechBlend.BLENDING_17_COLOR_BURN:
-            return "Color Burn";
-         case ITechBlend.BLENDING_18_LINEAR_BURN:
-            return "Luminance";
-         case ITechBlend.BLENDING_19_SCREEN_DODGE:
-            return "Screen Dodge";
-         case ITechBlend.BLENDING_20_COLOR_DODGE:
-            return "Color Dodge";
-         case ITechBlend.BLENDING_21_LINEAR_DODGE:
-            return "Linear Dodge";
-         case ITechBlend.BLENDING_22_HARD_MIX:
-            return "Hard Mix";
-         case ITechBlend.BLENDING_23_ADDITION:
-            return "Addition";
-         case ITechBlend.BLENDING_26_:
-            return "Substraction";
-         case ITechBlend.BLENDING_25_DIVIDE:
-            return "Divide";
-         case ITechBlend.BLENDING_24_DIFFERENCE:
-            return "Difference";
-         case ITechBlend.BLENDING_27_EXCLUSION_NEGATION:
-            return "Exclusion";
-         case ITechBlend.BLENDING_28_:
-            return "_";
-         case ITechBlend.BLENDING_29_PIN_LIGHT:
-            return "Pin Light";
-         case ITechBlend.BLENDING_02_DARKEN:
-            return "Darken";
-         case ITechBlend.BLENDING_03_LIGHTEN:
-            return "Lighten";
-
-         default:
-            return "Unknown " + mode;
-      }
-   }
-
-   public static String debugOpacity(int op) {
-      switch (op) {
-         case ITechBlend.OPACITY_00_SRC:
-            return "src";
-         case ITechBlend.OPACITY_01_MIN_OVERIDE_SRC:
-            return "min src";
-         case ITechBlend.OPACITY_02_MAX_OVERIDE_SRC:
-            return "max src";
-         case ITechBlend.OPACITY_03_OVERIDE_SRC:
-            return "overide src";
-         default:
-            return "Unknown " + op;
-      }
-   }
-
-   public static String debugOpDuff(int op) {
-      switch (op) {
-         case ITechBlend.OP_00_SRC_OVER:
-            return "src over";
-         case ITechBlend.OP_01_SRC:
-            return "src";
-         case ITechBlend.OP_02_SRC_IN:
-            return "src in";
-         case ITechBlend.OP_03_SRC_OUT:
-            return "src out";
-         case ITechBlend.OP_04_SRC_ATOP:
-            return "src atop";
-         case ITechBlend.OP_05_DST_OVER:
-            return "dest over";
-         case ITechBlend.OP_06_DST:
-            return "dst";
-         case ITechBlend.OP_07_DST_IN:
-            return "dst in";
-         case ITechBlend.OP_08_DST_OUT:
-            return "dst out";
-         case ITechBlend.OP_09_DST_ATOP:
-            return "dst atop";
-         case ITechBlend.OP_10_XOR:
-            return "xor";
-         case ITechBlend.OP_11_CLEAR:
-            return "clear";
-         default:
-            return "Unknown " + op;
-      }
-   }
-
-   private static int fctAddition(int blendRed, int baseRed) {
+   private static int fctAddition(int baseRed, int blendRed) {
       return Math.min(blendRed + baseRed, 255);
    }
 
@@ -208,12 +92,12 @@ public class BlendOp implements IStringable {
 
    /**
     * similar to 
-    * @param foreground
-    * @param background
+    * @param base
+    * @param blend
     * @return
     */
-   private static int fctDifference(int foreground, int background) {
-      return Math.abs(foreground - background);
+   private static int fctDifference(int base, int blend) {
+      return Math.abs(blend - base);
    }
 
    /**
@@ -255,12 +139,12 @@ public class BlendOp implements IStringable {
     * @return
     */
    private static int fctGreen(int blend, int base, float alpha) {
-      int rBase = gr(base);
-      int gBase = gg(base);
-      int bBase = gb(base);
-      int aBase = ga(base);
-      int aRes = Math.min(255, aBase + ga(blend));
-      return getPixMix(alpha, aBase, rBase, gBase, bBase, aRes, rBase, gg(blend), bBase);
+      int rBase = getRed(base);
+      int gBase = getGreen(base);
+      int bBase = getBlue(base);
+      int aBase = getAlpha(base);
+      int aRes = Math.min(255, aBase + getAlpha(blend));
+      return getPixMix(alpha, aBase, rBase, gBase, bBase, aRes, rBase, getGreen(blend), bBase);
    }
 
    /**
@@ -349,7 +233,7 @@ public class BlendOp implements IStringable {
     * @return
     */
    private static int fctLinearDodge(int blend, int base) {
-      return fctAddition(blend, base);
+      return fctAddition(base, blend);
    }
 
    /**
@@ -372,47 +256,63 @@ public class BlendOp implements IStringable {
     * @param baseRed
     * @return
     */
-   private static int fctMultiply(int dest, int src) {
-      return (dest * src) / 255;
+   private static int fctMultiply(int base, int blend) {
+      return (blend * base) / 255;
    }
 
    /**
     * Overlay is a combination of screen and multiply
-    * @param dest
-    * @param src
+    * @param base
+    * @param blend
     * @return
     */
-   private static int fctOverlayDest(int dest, int src) {
-      int m = fctMultiply(dest, src);
-      int sc = fctScreenFct(dest, src);
-      return (dest * sc + (1 - dest) * m) / 255;
+   private static int fctOverlayDest(int base, int blend) {
+      int multiplied = fctMultiply(base, blend);
+      int screened = fctScreenFct(base, blend);
+      return (blend * screened + (1 - blend) * multiplied) / 255;
    }
 
-   private static int fctOverlaySrc(int dest, int src) {
-      int m = fctMultiply(dest, src);
-      int sc = fctScreenFct(dest, src);
-      return (src * sc + (1 - src) * m) / 255;
+   private static int fctOverlaySrc(int base, int blend) {
+      int multiplied = fctMultiply(base, blend);
+      int screened = fctScreenFct(base, blend);
+      return (base * screened + (1 - base) * multiplied) / 255;
    }
 
-   private static int fctScreenFct(int dest, int src) {
-      return 255 - (((255 - dest) * (255 - src)) / 255);
+   private static int fctScreenFct(int base, int blend) {
+      return 255 - (((255 - blend) * (255 - base)) / 255);
    }
 
-   private static int fctSubstract(int foreground, int background) {
-      return Math.max(background - foreground, 0);
+   private static int fctSubstract(int base, int blend) {
+      return Math.max(base - blend, 0);
    }
 
-   private static int ga(int px) {
+   private static int getAlpha(int px) {
       return ((px >> 24) & 0xFF);
    }
 
-   private static int gb(int px) {
+   private static int getBlue(int px) {
       return ((px >> 0) & 0xFF);
    }
 
+   /**
+    * 
+    * @param base
+    * @param blend
+    * @param baseRed
+    * @param baseGreen
+    * @param baseBlue
+    * @param redResult
+    * @param greenResult
+    * @param blueResult
+    * @return
+    */
    protected static int getAlphaFixed(int base, int blend, int baseRed, int baseGreen, int baseBlue, int redResult, int greenResult, int blueResult) {
-      int blendAlpha = ((blend >> 24) & 0xFF);
       int baseAlpha = ((base >> 24) & 0xFF);
+      int blendAlpha = ((blend >> 24) & 0xFF);
+      return getAlphaFixed(base, blend, baseAlpha, blendAlpha, baseRed, baseGreen, baseBlue, redResult, greenResult, blueResult);
+   }
+
+   protected static int getAlphaFixed(int base, int blend, int baseAlpha, int blendAlpha, int baseRed, int baseGreen, int baseBlue, int redResult, int greenResult, int blueResult) {
       int alphaResult16 = 0;
       if (blendAlpha == 0) {
          return base;
@@ -424,16 +324,15 @@ public class BlendOp implements IStringable {
          float alphaFix = (float) blendAlpha / (float) 255;
          float invAlphaFix = ((float) 1) - alphaFix;
          //fix alpha
-         redResult = BlendOp.overOperator(baseRed & 0xFF, redResult & 0xFF, alphaFix, invAlphaFix) & 0xFF;
-         greenResult = BlendOp.overOperator(baseGreen & 0xFF, greenResult & 0xFF, alphaFix, invAlphaFix) & 0xFF;
-         blueResult = BlendOp.overOperator(baseBlue & 0xFF, blueResult & 0xFF, alphaFix, invAlphaFix) & 0xFF;
+         redResult = overOperator(baseRed & 0xFF, redResult & 0xFF, alphaFix, invAlphaFix) & 0xFF;
+         greenResult = overOperator(baseGreen & 0xFF, greenResult & 0xFF, alphaFix, invAlphaFix) & 0xFF;
+         blueResult = overOperator(baseBlue & 0xFF, blueResult & 0xFF, alphaFix, invAlphaFix) & 0xFF;
 
       }
       //values are computed in base 16.
       int val = (alphaResult16 << 16) + (redResult << 16) + (greenResult << 8) + (blueResult);
       return val;
    }
-
 
    /**
     * Default mixing method. other methods are possible.
@@ -461,14 +360,20 @@ public class BlendOp implements IStringable {
       return (int) (dest + (src - dest) * alpha) & 0xFF;
    }
 
-   private static int gg(int px) {
+   private static int getGreen(int px) {
       return ((px >> 8) & 0xFF);
    }
 
-   private static int gr(int px) {
+   private static int getRed(int px) {
       return (px >> 16 & 0xFF);
    }
 
+   /**
+    * 
+    * @param base
+    * @param blend
+    * @return
+    */
    public static int mergeDarken(int base, int blend) {
 
       int blendRed = ((blend >> 16) & 0xFF);
@@ -486,7 +391,7 @@ public class BlendOp implements IStringable {
       return getAlphaFixed(base, blend, baseRed, baseGreen, baseBlue, redResult, greenResult, blueResult);
    }
 
-   public static int mergeLighten(int base, int blend) {
+   public static int mergeLighten(int base, int blend, int alphaOp) {
 
       int blendRed = ((blend >> 16) & 0xFF);
       int blendGreen = ((blend >> 8) & 0xFF);
@@ -496,13 +401,52 @@ public class BlendOp implements IStringable {
       int baseGreen = ((base >> 8) & 0xFF);
       int baseBlue = ((base >> 0) & 0xFF);
 
-      //int alphaResult = Math.max(blendAlpha,baseAlpha);
-
       int redResult = Math.max(blendRed, baseRed);
       int greenResult = Math.max(blendGreen, baseGreen);
       int blueResult = Math.max(blendBlue, baseBlue);
 
-      return getAlphaFixed(base, blend, baseRed, baseGreen, baseBlue, redResult, greenResult, blueResult);
+      int baseAlpha = ((base >> 24) & 0xFF);
+      int blendAlpha = ((blend >> 24) & 0xFF);
+
+      if (alphaOp == ITechBlend.ALPHA_0_OVER) {
+         return getAlphaFixed(base, blend, baseAlpha, blendAlpha, baseRed, baseGreen, baseBlue, redResult, greenResult, blueResult);
+      } else if (alphaOp == ITechBlend.ALPHA_1_MERGE) {
+         int alpha = Math.max(baseAlpha, blendAlpha);
+         return ColorUtils.getRGBInt(alpha, redResult, greenResult, blueResult);
+      } else {
+         return mergeAlpha(alphaOp, baseAlpha, blendAlpha, redResult, greenResult, blueResult);
+      }
+   }
+
+   private static int mergeAlpha(int alphaOp, int baseAlpha, int blendAlpha, int redResult, int greenResult, int blueResult) {
+      int alpha = 255;
+      switch (alphaOp) {
+         case ITechBlend.ALPHA_4_INVERSE:
+            alpha = fctInverse(baseAlpha, blendAlpha);
+            break;
+         case ITechBlend.ALPHA_5_MAX:
+            alpha = Math.max(baseAlpha, blendAlpha);
+            break;
+         case ITechBlend.ALPHA_6_MIN:
+            alpha = Math.min(baseAlpha, blendAlpha);
+            break;
+         case ITechBlend.ALPHA_5_RGB_AVERAGE:
+            alpha = getAverage(redResult, greenResult, blueResult);
+            break;
+         case ITechBlend.ALPHA_5_RGB_AVERAGE_INVERSE:
+            alpha = getAverage(255 - redResult, 255 - greenResult, 255 - blueResult);
+            break;
+
+         default:
+            break;
+      }
+      return ColorUtils.getRGBInt(alpha, redResult, greenResult, blueResult);
+   }
+
+   public static int getAverage(int r, int g, int b) {
+      int total = r + g + b;
+      return total / 3;
+
    }
 
    /**
@@ -551,10 +495,10 @@ public class BlendOp implements IStringable {
       int baseGreen = ((base >> 8) & 0xFF);
       int baseBlue = ((base >> 0) & 0xFF);
 
-      int alphaResult = fctDifference(blendAlpha, baseAlpha);
-      int redResult = fctDifference(blendRed, baseRed);
-      int greenResult = fctDifference(blendGreen, baseGreen);
-      int blueResult = fctDifference(blendBlue, baseBlue);
+      int alphaResult = fctDifference(baseAlpha, blendAlpha);
+      int redResult = fctDifference(baseRed, blendRed);
+      int greenResult = fctDifference(baseGreen, blendGreen);
+      int blueResult = fctDifference(baseBlue, blendBlue);
       int val = (alphaResult << 16) + (redResult << 16) + (greenResult << 8) + (blueResult << 0);
       return val;
    }
@@ -612,6 +556,48 @@ public class BlendOp implements IStringable {
       int redResult = fctHardMix(blendRed, baseRed);
       int greenResult = fctHardMix(blendGreen, baseGreen);
       int blueResult = fctHardMix(blendBlue, baseBlue);
+
+      int val = (alphaResult << 24) + (redResult << 16) + (greenResult << 8) + (blueResult << 0);
+
+      return val;
+   }
+
+   public static int mergePixelsMathSubstract(int base, int blend) {
+      int blendAlpha = ((blend >> 24) & 0xFF);
+      int blendRed = ((blend >> 16) & 0xFF);
+      int blendGreen = ((blend >> 8) & 0xFF);
+      int blendBlue = ((blend >> 0) & 0xFF);
+
+      int baseAlpha = ((base >> 24) & 0xFF);
+      int baseRed = ((base >> 16) & 0xFF);
+      int baseGreen = ((base >> 8) & 0xFF);
+      int baseBlue = ((base >> 0) & 0xFF);
+
+      int alphaResult = fctSubstract(baseAlpha, blendAlpha);
+      int redResult = fctSubstract(baseRed, blendRed);
+      int greenResult = fctSubstract(baseGreen, blendGreen);
+      int blueResult = fctSubstract(baseBlue, blendBlue);
+
+      int val = (alphaResult << 24) + (redResult << 16) + (greenResult << 8) + (blueResult << 0);
+
+      return val;
+   }
+
+   public static int mergePixelsMathAdd(int base, int blend) {
+      int blendAlpha = ((blend >> 24) & 0xFF);
+      int blendRed = ((blend >> 16) & 0xFF);
+      int blendGreen = ((blend >> 8) & 0xFF);
+      int blendBlue = ((blend >> 0) & 0xFF);
+
+      int baseAlpha = ((base >> 24) & 0xFF);
+      int baseRed = ((base >> 16) & 0xFF);
+      int baseGreen = ((base >> 8) & 0xFF);
+      int baseBlue = ((base >> 0) & 0xFF);
+
+      int alphaResult = fctAddition(baseAlpha, blendAlpha);
+      int redResult = fctAddition(baseRed, blendRed);
+      int greenResult = fctAddition(baseGreen, blendGreen);
+      int blueResult = fctAddition(baseBlue, blendBlue);
 
       int val = (alphaResult << 24) + (redResult << 16) + (greenResult << 8) + (blueResult << 0);
 
@@ -710,10 +696,48 @@ public class BlendOp implements IStringable {
       int baseGreen = ((base >> 8) & 0xFF);
       int baseBlue = ((base >> 0) & 0xFF);
 
-      int alphaResult = fctMultiply(blendAlpha, baseAlpha);
-      int redResult = fctMultiply(blendRed, baseRed);
-      int greenResult = fctMultiply(blendGreen, baseGreen);
-      int blueResult = fctMultiply(blendBlue, baseBlue);
+      int alphaResult = fctMultiply(baseAlpha, blendAlpha);
+      int redResult = fctMultiply(baseRed, blendRed);
+      int greenResult = fctMultiply(baseGreen, blendGreen);
+      int blueResult = fctMultiply(baseBlue, blendBlue);
+      int val = (alphaResult << 16) + (redResult << 16) + (greenResult << 8) + (blueResult << 0);
+      return val;
+   }
+
+   public static int mergePixelsOverlay(int base, int blend) {
+      int blendAlpha = ((blend >> 24) & 0xFF);
+      int blendRed = ((blend >> 16) & 0xFF);
+      int blendGreen = ((blend >> 8) & 0xFF);
+      int blendBlue = ((blend >> 0) & 0xFF);
+
+      int baseAlpha = ((base >> 24) & 0xFF);
+      int baseRed = ((base >> 16) & 0xFF);
+      int baseGreen = ((base >> 8) & 0xFF);
+      int baseBlue = ((base >> 0) & 0xFF);
+
+      int alphaResult = fctOverlaySrc(baseAlpha, blendAlpha);
+      int redResult = fctOverlaySrc(baseRed, blendRed);
+      int greenResult = fctOverlaySrc(baseGreen, blendGreen);
+      int blueResult = fctOverlaySrc(baseBlue, blendBlue);
+      int val = (alphaResult << 16) + (redResult << 16) + (greenResult << 8) + (blueResult << 0);
+      return val;
+   }
+
+   public static int mergePixelsOverlayDest(int base, int blend) {
+      int blendAlpha = ((blend >> 24) & 0xFF);
+      int blendRed = ((blend >> 16) & 0xFF);
+      int blendGreen = ((blend >> 8) & 0xFF);
+      int blendBlue = ((blend >> 0) & 0xFF);
+
+      int baseAlpha = ((base >> 24) & 0xFF);
+      int baseRed = ((base >> 16) & 0xFF);
+      int baseGreen = ((base >> 8) & 0xFF);
+      int baseBlue = ((base >> 0) & 0xFF);
+
+      int alphaResult = fctOverlayDest(baseAlpha, blendAlpha);
+      int redResult = fctOverlayDest(baseRed, blendRed);
+      int greenResult = fctOverlayDest(baseGreen, blendGreen);
+      int blueResult = fctOverlayDest(baseBlue, blendBlue);
       int val = (alphaResult << 16) + (redResult << 16) + (greenResult << 8) + (blueResult << 0);
       return val;
    }
@@ -802,11 +826,11 @@ public class BlendOp implements IStringable {
       int baseGreen = ((base >> 8) & 0xFF);
       int baseBlue = ((base >> 0) & 0xFF);
 
-      int alphaResult = fctScreenFct(blendAlpha, baseAlpha);
+      int alphaResult = fctScreenFct(baseAlpha, blendAlpha);
 
-      int redResult = fctScreenFct(blendRed, baseRed);
-      int greenResult = fctScreenFct(blendGreen, baseGreen);
-      int blueResult = fctScreenFct(blendBlue, baseBlue);
+      int redResult = fctScreenFct(baseRed, blendRed);
+      int greenResult = fctScreenFct(baseGreen, blendGreen);
+      int blueResult = fctScreenFct(baseBlue, blendBlue);
 
       int val = (alphaResult << 24) + (redResult << 16) + (greenResult << 8) + (blueResult << 0);
 
@@ -860,64 +884,70 @@ public class BlendOp implements IStringable {
 
    }
 
-   float[]                  arrayPerf;
+   float[]              arrayPerf;
 
-   protected float[]        baseR       = new float[3];
+   protected float[]    baseR       = new float[3];
 
-   protected float[]        baseRS      = new float[3];
+   protected float[]    baseRS      = new float[3];
 
-   protected float[]        blendR      = new float[3];
+   protected float[]    blendR      = new float[3];
 
    /**
     * Once the channels have been blended.. method for compositing back
     */
-   private int              compositeOperator;
+   private int          compositeOperator;
 
    /**
     * By default 0
     */
-   protected int            emptyDest;
+   protected int        emptyDest;
 
    /**
     * By default 0
     */
-   protected int            emptySrc;
-
-   private boolean          is;
+   protected int        emptySrc;
 
    /**
     * Ignore 
     */
-   protected boolean        isA;
+   protected boolean    isA;
 
    /**
     * Swap Alpha of base and blender
     */
-   protected boolean        isAlphaSwap;
+   protected boolean    isAlphaSwap;
 
    /**
     * Process Blue channel?
     * <br>
     * When processing 
     */
-   protected boolean        isB;
+   protected boolean    isB;
 
-   protected boolean        isG;
+   protected boolean    isG;
 
-   private boolean          isPorterAlpha;
+   private boolean      isPorterAlpha;
 
-   protected boolean        isR;
+   protected boolean    isR;
 
-   protected int            mode;
+   /**
+    * <li>{@link ITechBlend#BLENDING_00_OVER}
+    * <li>{@link ITechBlend#BLENDING_01_SRC}
+    * <li>{@link ITechBlend#BLENDING_02_DARKEN}
+    * <li>{@link ITechBlend#BLENDING_03_LIGHTEN}
+    * <li>{@link ITechBlend#BLENDING_04_MERGE_ARGB}
+    */
+   protected int        mode;
 
    /**
     * Tells what to do with the alpha channel
     * 
     * <li> {@link ITechBlend#ALPHA_0_OVER}
-    * <li> {@link BlendOp#ALPHA_1_SRC}
-    * <li> {@link ITechBlend#ALPHA_2_OVER}
+    * <li> {@link ITechBlend#ALPHA_1_MERGE}
+    * <li> {@link ITechBlend#ALPHA_2_255}
+    * <li> {@link ITechBlend#ALPHA_4_INVERSE}
     */
-   protected int            modeAlpa;
+   protected int        modeAlpa;
 
    /**
     * {@link ITechBlend#BLEND_OFFSET_06_COMPO_OP1}
@@ -926,44 +956,58 @@ public class BlendOp implements IStringable {
     * <li> {@link ITechBlend#OPACITY_02_MAX_OVERIDE_SRC}
     * 
     */
-   private int              opacityOperator;
+   private int          opacityOperator;
 
    /**
     * 0-255 {@link ITechBlend#BLEND_OFFSET_05_OPACITY1}
     */
-   private int              overRideOpacityIntValue;
+   private int          overRideOpacityIntValue;
 
    /**
     * {@link ITechBlend#BLEND_OFFSET_01_DUFF_OP1} 
     */
-   private int              porterDuffOperator;
+   private int          porterDuffOperator;
 
-   protected Random         r;
+   protected Random     r;
 
-   protected int            virginPixel = 0;
+   protected int        virginPixel = 0;
 
    private final DrwCtx drc;
 
-   public BlendOp(DrwCtx drc, ByteObject byo) {
+   /**
+    * 
+    * @param drc
+    * @param bo {@link ITechBlend}
+    */
+   public BlendOp(DrwCtx drc, ByteObject bo) {
       this.drc = drc;
-      porterDuffOperator = byo.get1(ITechBlend.BLEND_OFFSET_01_DUFF_OP1);
-      this.modeAlpa = byo.get1(ITechBlend.BLEND_OFFSET_02_ALPHA1);
-      this.mode = byo.get2(ITechBlend.BLEND_OFFSET_03_TYPE2);
-      this.overRideOpacityIntValue = byo.get1(ITechBlend.BLEND_OFFSET_05_OPACITY1);
-      this.opacityOperator = byo.get1(ITechBlend.BLEND_OFFSET_04_OPACITY_OP1);
-      this.compositeOperator = byo.get1(ITechBlend.BLEND_OFFSET_06_COMPO_OP1);
-      isPorterAlpha = byo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_1_PORTER_ALPHA);
-      isAlphaSwap = byo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_2_SWAP_ALPHA);
-      isA = !byo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_3_IGNORE_ALPHA);
-      isR = !byo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_4_IGNORE_RED);
-      isG = !byo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_5_IGNORE_GREEN);
-      isB = !byo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_6_IGNORE_BLUE);
+      porterDuffOperator = bo.get1(ITechBlend.BLEND_OFFSET_01_DUFF_OP1);
+      this.modeAlpa = bo.get1(ITechBlend.BLEND_OFFSET_02_ALPHA1);
+      this.mode = bo.get2(ITechBlend.BLEND_OFFSET_03_TYPE2);
+      this.overRideOpacityIntValue = bo.get1(ITechBlend.BLEND_OFFSET_05_OPACITY1);
+      this.opacityOperator = bo.get1(ITechBlend.BLEND_OFFSET_04_OPACITY_OP1);
+      this.compositeOperator = bo.get1(ITechBlend.BLEND_OFFSET_06_COMPO_OP1);
+      isPorterAlpha = bo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_1_PORTER_ALPHA);
+      isAlphaSwap = bo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_2_SWAP_ALPHA);
+      isA = !bo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_3_IGNORE_ALPHA);
+      isR = !bo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_4_IGNORE_RED);
+      isG = !bo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_5_IGNORE_GREEN);
+      isB = !bo.hasFlag(ITechBlend.BLEND_OFFSET_07_FLAG1, ITechBlend.BLEND_FLAG_6_IGNORE_BLUE);
 
       if (mode == ITechBlend.BLENDING_08_DISSOLVE) {
          r = drc.getRandom();
       }
    }
 
+   /**
+    * <li>{@link ITechBlend#BLENDING_00_OVER}
+    * <li>{@link ITechBlend#BLENDING_01_SRC}
+    * <li>{@link ITechBlend#BLENDING_02_DARKEN}
+    * <li>{@link ITechBlend#BLENDING_03_LIGHTEN}
+    * <li>{@link ITechBlend#BLENDING_04_MERGE_ARGB}
+    * @param drc
+    * @param mode
+    */
    public BlendOp(DrwCtx drc, int mode) {
       this(drc, mode, ITechBlend.ALPHA_0_OVER);
    }
@@ -994,13 +1038,10 @@ public class BlendOp implements IStringable {
             newPixel = mergeDarken(dest, src);
             break;
          case ITechBlend.BLENDING_03_LIGHTEN:
-            newPixel = mergeLighten(dest, src);
+            newPixel = mergeLighten(dest, src, modeAlpa);
             break;
          case ITechBlend.BLENDING_04_MERGE_ARGB:
             newPixel = mergePixelsARGB(dest, src);
-            break;
-         case ITechBlend.BLENDING_06_INVERSE_ALPHA:
-            newPixel = mergePixelsTransShape(dest, src);
             break;
          case ITechBlend.BLENDING_07_INVERSE:
             newPixel = mergePixelsInverse(dest, src);
@@ -1034,6 +1075,12 @@ public class BlendOp implements IStringable {
             break;
          case ITechBlend.BLENDING_22_HARD_MIX:
             newPixel = mergePixelsHardMix(dest, src);
+            break;
+         case ITechBlend.BLENDING_23_ADDITION:
+            newPixel = mergePixelsMathAdd(dest, src);
+            break;
+         case ITechBlend.BLENDING_24_DIFFERENCE:
+            newPixel = mergePixelsMathSubstract(dest, src);
             break;
          case ITechBlend.BLENDING_25_DIVIDE:
             newPixel = mergePixelsDivide(dest, src);
@@ -1070,99 +1117,99 @@ public class BlendOp implements IStringable {
 
    /**
     * Entry point for blending 2 values.
-    * @param dest background
-    * @param src foreground
+    * @param base background
+    * @param blend foreground
     * @return
     */
-   public int blendPixel(int dest, int src) {
-      return blendPixelPorter(dest, src);
+   public int blendPixel(int base, int blend) {
+      return blendPixelPorter(base, blend);
    }
 
-   public int blendPixelPorter(int dest, int src) {
+   public int blendPixelPorter(int base, int blend) {
       switch (porterDuffOperator) {
          case ITechBlend.OP_00_SRC_OVER:
-            if (dest == emptyDest) {
-               return blendOpacity(src, overRideOpacityIntValue);
+            if (base == emptyDest) {
+               return blendOpacity(blend, overRideOpacityIntValue);
             }
-            if (src == emptySrc) {
-               return dest; //destination opacity is not changed if source is empty
+            if (blend == emptySrc) {
+               return base; //destination opacity is not changed if source is empty
             }
-            return blendComposite(dest, src);
+            return blendComposite(base, blend);
          case ITechBlend.OP_01_SRC:
-            return src;
+            return blend;
          case ITechBlend.OP_02_SRC_IN:
-            if (dest != emptyDest && src != emptySrc) {
-               return blendOpacity(src, overRideOpacityIntValue);
+            if (base != emptyDest && blend != emptySrc) {
+               return blendOpacity(blend, overRideOpacityIntValue);
             }
-            return dest;
+            return base;
          case ITechBlend.OP_03_SRC_OUT:
-            if (src != emptySrc) {
-               if (dest == emptyDest) {
+            if (blend != emptySrc) {
+               if (base == emptyDest) {
                   //part outside the destination, we replace destination
-                  return blendOpacity(src, overRideOpacityIntValue);
+                  return blendOpacity(blend, overRideOpacityIntValue);
                } else {
                   return emptySrc;
                }
             } else {
                //outside the src
                if (isPorterAlpha) {
-                  return dest;
+                  return base;
                } else {
                   //source erases destination
                   return emptySrc;
                }
             }
          case ITechBlend.OP_04_SRC_ATOP:
-            if (src != emptySrc) {
+            if (blend != emptySrc) {
                //when pixel src is not empty, 
-               return blendComposite(dest, src);
+               return blendComposite(base, blend);
             }
-            return dest;
+            return base;
          case ITechBlend.OP_05_DST_OVER:
-            if (dest == emptyDest) {
-               return src;
+            if (base == emptyDest) {
+               return blend;
             }
-            if (src == emptySrc) {
-               return dest;
+            if (blend == emptySrc) {
+               return base;
             }
-            return blendComposite(src, dest);
+            return blendComposite(blend, base);
          case ITechBlend.OP_06_DST:
-            return dest;
+            return base;
          case ITechBlend.OP_07_DST_IN:
-            if (src != emptySrc) {
-               return blendOpacity(dest, overRideOpacityIntValue);
+            if (blend != emptySrc) {
+               return blendOpacity(base, overRideOpacityIntValue);
             }
-            return dest;
+            return base;
          case ITechBlend.OP_08_DST_OUT:
-            if (src == emptySrc) {
+            if (blend == emptySrc) {
                //return dest outside source
-               return dest;
+               return base;
             }
             //make destination pixel fully transparent when opacity is 100%
-            return blendOpacity(dest, 255 - overRideOpacityIntValue);
+            return blendOpacity(base, 255 - overRideOpacityIntValue);
          case ITechBlend.OP_09_DST_ATOP:
-            if (src != emptySrc) {
-               return blendComposite(src, dest);
+            if (blend != emptySrc) {
+               return blendComposite(blend, base);
             }
-            return dest;
+            return base;
          case ITechBlend.OP_10_XOR:
-            if (src != emptySrc && dest != emptyDest) {
+            if (blend != emptySrc && base != emptyDest) {
                //inverse opacity. override on the dest pixel.
-               return blendOpacity(dest, 255 - overRideOpacityIntValue);
+               return blendOpacity(base, 255 - overRideOpacityIntValue);
             }
-            if (dest == emptyDest) {
-               return blendOpacity(src, overRideOpacityIntValue);
+            if (base == emptyDest) {
+               return blendOpacity(blend, overRideOpacityIntValue);
             }
-            return dest;
+            return base;
          case ITechBlend.OP_11_CLEAR:
-            if (src != emptySrc) {
+            if (blend != emptySrc) {
                return emptyDest;
             }
-            return dest;
+            return base;
          default:
             break;
       }
-      return dest;
+      return base;
    }
 
    /**
@@ -1305,14 +1352,13 @@ public class BlendOp implements IStringable {
       this.modeAlpa = alphaMode;
    }
 
-   
    //#mdebug
    public String toString() {
       return Dctx.toString(this);
    }
 
    public void toString(Dctx dc) {
-      dc.root(this, "BlendOp");
+      dc.root(this, BlendOp.class, 1297);
       toStringPrivate(dc);
    }
 
@@ -1322,13 +1368,13 @@ public class BlendOp implements IStringable {
 
    private void toStringPrivate(Dctx sb) {
       sb.append("#BlendOp ");
-      sb.append(debugBlend(mode));
+      sb.append(ToStringStaticDraw.debugBlend(mode));
       sb.append(" ");
-      sb.append(debugAlpha(modeAlpa));
+      sb.append(ToStringStaticDraw.debugAlpha(modeAlpa));
       sb.append(" ");
-      sb.append(debugOpacity(opacityOperator));
+      sb.append(ToStringStaticDraw.debugOpacity(opacityOperator));
       sb.append(" ");
-      sb.append(debugOpDuff(porterDuffOperator));
+      sb.append(ToStringStaticDraw.debugOpDuff(porterDuffOperator));
       sb.nl();
       sb.append("PorterAlpha=" + isPorterAlpha);
       sb.append(" AlphaSwap=" + isAlphaSwap);
@@ -1344,7 +1390,5 @@ public class BlendOp implements IStringable {
    }
 
    //#enddebug
-   
-
 
 }

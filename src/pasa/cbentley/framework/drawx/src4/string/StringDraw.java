@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
@@ -200,18 +204,18 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
       StringFx fxLine = stringer.getLineFx(lineIndex);
       lineStart(fxLine);
       switch (stringer.drawLineType) {
-         case Stringer.TYPE_0_SINGLE_LINE:
+         case ITechStringer.TYPE_0_SINGLE_LINE:
             drawLineSingle(g, offset, len);
             break;
-         case Stringer.TYPE_1_SINGLE_LINE_FX:
+         case ITechStringer.TYPE_1_SINGLE_LINE_FX:
             //what StringFX to use? unless there is a specific StringFX. uses the default one
             drawLineSingleFX(g, offset, len);
 
             break;
-         case Stringer.TYPE_2_BREAKS:
+         case ITechStringer.TYPE_2_BREAKS:
             drawLineInBreak(g, offset, len, lineIndex);
             break;
-         case Stringer.TYPE_7_LINE_BREAKS_WORD_BREAKS_FX:
+         case ITechStringer.TYPE_7_LINE_BREAKS_WORD_BREAKS_FX:
             int[] bs = stringer.getMetrics().breaksWord; //offsets are relative (0 -based)
             drawLineWords(g, lineIndex, bs);
             break;
@@ -236,9 +240,9 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
       //alignement is done? The StringMetric is not used for this setting.
       int cx = cxTracker + stringer.getMetrics().getCharX(offset - stringer.offsetChars);
       int cy = cyTracker + stringer.getMetrics().getCharY(offset - stringer.offsetChars);
-      g.setFont(stringer.fx.f);
-      g.setColor(stringer.fx.color);
-      g.drawChars(stringer.chars, offset, len, cx, cy, stringer.fx.anchor);
+      g.setFont(stringer.stringFx.f);
+      g.setColor(stringer.stringFx.color);
+      g.drawChars(stringer.chars, offset, len, cx, cy, stringer.stringFx.anchor);
    }
 
    /**
@@ -284,12 +288,12 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
     */
    public void drawLineSingle(GraphicsX g, int offset, int len) {
       //alignement is done? The StringMetric is not used for this setting.
-      int day = AnchorUtils.getYAlign(stringer.anchor, 0, stringer.areaH, stringer.metrics.getPrefHeight());
-      int dax = AnchorUtils.getXAlign(stringer.anchor, 0, stringer.areaW, stringer.metrics.getPrefWidth());
+      int day = AnchorUtils.getYAlign(stringer.anchor, 0, stringer.areaH, stringer.stringMetrics.getPrefHeight());
+      int dax = AnchorUtils.getXAlign(stringer.anchor, 0, stringer.areaW, stringer.stringMetrics.getPrefWidth());
       int cx = cxTracker + dax;
       int cy = cyTracker + day;
-      g.setFont(stringer.fx.f);
-      g.setColor(stringer.fx.color);
+      g.setFont(stringer.stringFx.f);
+      g.setColor(stringer.stringFx.color);
       //
       int clen = stringer.chars.length;
       
@@ -297,7 +301,7 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
          //#debug
          g.toDLog().pDraw("chars clen=" + clen + " offset=" + offset + " len=" + len, this, StringDraw.class, "drawLineSingle", ITechLvl.LVL_05_FINE, true);
       } else {
-         g.drawChars(stringer.chars, offset, len, cx, cy, stringer.fx.anchor);
+         g.drawChars(stringer.chars, offset, len, cx, cy, stringer.stringFx.anchor);
       }
    }
 
@@ -321,7 +325,7 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
          maskDrawn = true;
       }
 
-      if (stringer.hasState(Stringer.STATE_01_CHAR_EFFECTS)) {
+      if (stringer.hasState(ITechStringer.STATE_01_CHAR_EFFECTS)) {
          //as soon as a char has a LineFX it becomes active?
          //draw each char as itself
          for (int i = 0; i < len; i++) {
@@ -342,9 +346,9 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
     * @param wb array of word breaking specified by 
     */
    public void drawLineWords(GraphicsX g, int lineIndex, int[] wb) {
-      int numWords = (wb[0] - Stringer.BREAK_EXTRA_SIZE + 1) / Stringer.BREAK_WINDOW_SIZE;
+      int numWords = (wb[0] - ITechStringer.BREAK_EXTRA_SIZE + 1) / ITechStringer.BREAK_WINDOW_SIZE;
       for (int i = 0; i < numWords; i++) {
-         int index = Stringer.BREAK_HEADER_SIZE + (i * Stringer.BREAK_WINDOW_SIZE);
+         int index = ITechStringer.BREAK_HEADER_SIZE + (i * ITechStringer.BREAK_WINDOW_SIZE);
          int numChars = wb[index + 1];
          int woffset = wb[index];
 
@@ -369,9 +373,9 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
          drawShapeString(g, chars, offset, len, baseX, baseY);
       } else {
          //broken into words
-         int numWords = (breaks[0] - Stringer.BREAK_EXTRA_SIZE + 1) / Stringer.BREAK_WINDOW_SIZE;
+         int numWords = (breaks[0] - ITechStringer.BREAK_EXTRA_SIZE + 1) / ITechStringer.BREAK_WINDOW_SIZE;
          for (int i = 0; i < numWords; i++) {
-            int index = Stringer.BREAK_HEADER_SIZE + (i + numWords) * Stringer.BREAK_WINDOW_SIZE;
+            int index = ITechStringer.BREAK_HEADER_SIZE + (i + numWords) * ITechStringer.BREAK_WINDOW_SIZE;
             int startOffset = breaks[index];
             int charNum = breaks[index + 1];
 
@@ -396,9 +400,9 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
     */
    public void drawShapeString(GraphicsX g, char[] chars, int offset, int len, int baseX, int baseY) {
       StringMetrics sm = stringer.getMetrics();
-      if (stringer.hasState(Stringer.STATE_14_BASIC_POSITIONING)) {
+      if (stringer.hasState(ITechStringer.STATE_14_BASIC_POSITIONING)) {
          g.drawChars(chars, offset, len, baseX, baseY, ANCHOR);
-      } else if (stringer.hasState(Stringer.STATE_11_DIFFERENT_FONTS)) {
+      } else if (stringer.hasState(ITechStringer.STATE_11_DIFFERENT_FONTS)) {
          drawShapeStringChars(g, chars, offset, len, baseX, baseY, sm);
       }
    }
@@ -429,7 +433,7 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
       } else {
          int numLines = stringer.getNumOfLines();
          for (int i = 0; i < numLines; i++) {
-            int index = 1 + (i + numLines) * Stringer.BREAK_WINDOW_SIZE;
+            int index = 1 + (i + numLines) * ITechStringer.BREAK_WINDOW_SIZE;
             int startOffset = breaks[index];
             int charNum = breaks[index + 1];
             //wOffset decides what to draw
@@ -451,7 +455,7 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
     * @param baseY
     */
    public void drawShapeWord(GraphicsX g, char[] chars, int offset, int len, int baseX, int baseY) {
-      if (stringer.hasState(Stringer.STATE_09_WORD_FX)) {
+      if (stringer.hasState(ITechStringer.STATE_09_WORD_FX)) {
 
       }
       drawShapeString(g, chars, offset, len, baseX, baseY);
@@ -493,7 +497,7 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
     * Draw the given character interval as a word.
     * <br>
     * <br>
-    * This is only called when there is a {@link StringFx} scoped to {@link IFxStr#FX_SCOPE_1_WORD}.
+    * This is only called when there is a {@link StringFx} scoped to {@link ITechStrFx#FX_SCOPE_1_WORD}.
     * <br>
     * <br>
     * 
@@ -517,9 +521,9 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
       if (fx.maskWord != null) {
          int[] bs = stringer.getMetrics().breaksWord; //offsets are relative (0 -based)
          int relOffset = offset - stringer.offsetChars;
-         int numWords = (bs[0] - Stringer.BREAK_EXTRA_SIZE + 1) / Stringer.BREAK_WINDOW_SIZE;
+         int numWords = (bs[0] - ITechStringer.BREAK_EXTRA_SIZE + 1) / ITechStringer.BREAK_WINDOW_SIZE;
          for (int i = 0; i < numWords; i++) {
-            int index = Stringer.BREAK_HEADER_SIZE + (i * Stringer.BREAK_WINDOW_SIZE);
+            int index = ITechStringer.BREAK_HEADER_SIZE + (i * ITechStringer.BREAK_WINDOW_SIZE);
             int woffset = bs[index];
             int wlen = bs[index + 1];
             int firstChar = stringer.offsetChars + woffset;
@@ -529,7 +533,7 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
                drawLineMask(g, fx.maskWord, stringer.chars, woffset, wlen);
             }
          }
-         if (stringer.hasState(Stringer.STATE_09_WORD_FX)) {
+         if (stringer.hasState(ITechStringer.STATE_09_WORD_FX)) {
             //line must be written word by word. and each word may have to be written char by char
             drawLineWords(g, 0, bs);
          }
@@ -563,7 +567,7 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
     * Work to do at the end of a line.
     * <br>
     * <br>
-    * For {@link Stringer#STATE_04_TRIMMED} ?
+    * For {@link ITechStringer#STATE_04_TRIMMED} ?
     * <br>
     * <br>
     * Line {@link StringFx} decides where the next line be located 
@@ -588,7 +592,7 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
    }
 
    public void toString(Dctx dc) {
-      dc.root(this, "StringDraw");
+      dc.root(this, StringDraw.class,591);
       dc.append(" Tracker=[" + cxTracker + "," + cyTracker + "]");
    }
 

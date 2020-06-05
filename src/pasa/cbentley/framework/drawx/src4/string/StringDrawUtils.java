@@ -1,9 +1,13 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.core.src4.utils.IntUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
-import pasa.cbentley.framework.drawx.src4.factories.drawer.StringDrawer;
+import pasa.cbentley.framework.drawx.src4.factories.drawer.DrawerString;
 
 public class StringDrawUtils {
 
@@ -141,18 +145,18 @@ public class StringDrawUtils {
       char c;
       charLoop: while (breakOffset <= offset + len && textW < w) {
          if (breakOffset == offset + len)
-            c = StringDrawer.TEXTBREAKS[0]; // last character + 1, fake break char
+            c = DrawerString.TEXTBREAKS[0]; // last character + 1, fake break char
          else
             c = text[breakOffset];
-         if (c == StringDrawer.NEWLINE) {
+         if (c == DrawerString.NEWLINE) {
             // got a nice break here, new line
             niceB = breakOffset;
             break charLoop;
          }
    
          // Try finding break charachters
-         breakCharLoop: for (int i = StringDrawer.TEXTBREAKS.length - 1; i >= 0; i--) {
-            if (c == StringDrawer.TEXTBREAKS[i]) {
+         breakCharLoop: for (int i = DrawerString.TEXTBREAKS.length - 1; i >= 0; i--) {
+            if (c == DrawerString.TEXTBREAKS[i]) {
                niceB = breakOffset;
                break breakCharLoop;
             }
@@ -249,11 +253,20 @@ public class StringDrawUtils {
       return trim;
    }
 
+   /**
+    * Returns the maximum number of characters that can be drawn in the given
+    * width using the Font on 1 line
+    * @param s
+    * @param width
+    * @param style
+    * @return
+    */
    public static int maxNumChars(String s, int width, IMFont f) {
       int wc = 0;
       for (int i = 0; i < s.length(); i++) {
-         if (wc >= width)
+         if (wc >= width) {
             return i;
+         }
          wc += f.charWidth(s.charAt(0));
       }
       return s.length();

@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.color;
 
 import java.util.Random;
@@ -525,11 +529,9 @@ public class ColorIterator implements IStringable {
       dc.append(" stepPixelValue=" + stepPixelValue);
       dc.append(" nextStepValue=" + nextStepValue);
       dc.nlLvl(grad);
-      dc.nl();
-      if (stepValues != null) {
-         dc.append("stepValues=");
-         dc.debugNlSep(stepValues);
-      }
+      
+      dc.nlLvl("stepValues", stepValues, 1);
+      
       dc.append("#colors = " + colors.length);
 
       if (dc.hasFlagData(drc, IDLogDraw.DATA_FLAG_21_MANY_COLORS)) {

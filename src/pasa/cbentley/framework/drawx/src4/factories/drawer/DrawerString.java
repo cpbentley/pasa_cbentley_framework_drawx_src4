@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.factories.drawer;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
@@ -7,6 +11,7 @@ import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.structs.IntBuffer;
 import pasa.cbentley.core.src4.utils.IntUtils;
+import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
@@ -32,7 +37,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
  * @author Charles-Philip Bentley
  *
  */
-public class StringDrawer implements IStringable, IBOTypesDrw, ITechFigure {
+public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
 
    /** New line constant */
    public static final char   NEWLINE    = '\n';
@@ -42,7 +47,7 @@ public class StringDrawer implements IStringable, IBOTypesDrw, ITechFigure {
 
    protected final DrwCtx     drc;
 
-   public StringDrawer(DrwCtx drc) {
+   public DrawerString(DrwCtx drc) {
       this.drc = drc;
 
    }
@@ -58,10 +63,10 @@ public class StringDrawer implements IStringable, IBOTypesDrw, ITechFigure {
       int w = f.charWidth(c);
       int h = f.getHeight();
       int[] imgData = new int[w * h];
-      IImage img = drc.getImageFactory().createImage(w, h);
+      IImage img = drc.getImageFactory().createImage(w, h, IColors.FULLY_TRANSPARENT_BLACK);
       IGraphics g = img.getGraphics();
+      g.setColor(IColors.FULLY_OPAQUE_WHITE);
       g.drawChar(c, 0, 0, IGraphics.TOP | IGraphics.LEFT);
-      g.setColor(0);
       img.getRGB(imgData, 0, w, 0, 0, w, h);
       int start = 0;
       int end = h;
@@ -94,10 +99,6 @@ public class StringDrawer implements IStringable, IBOTypesDrw, ITechFigure {
       return drc.getImageFactory().createRGBImage(newData, newW, newH, true);
    }
 
-   public void draw(GraphicsX g, int x, int y, int w, int h, IMFont f, int color, String str, int offset, int len, ByteObject fx, ByteObject scale, ByteObject anchor) {
-
-   }
-
    /**
     * The figure must have some raw text.
     * <br>
@@ -127,7 +128,7 @@ public class StringDrawer implements IStringable, IBOTypesDrw, ITechFigure {
       IMFont f = getStringFont(fig);
       int color = getStringColor(fig);
       int anchor = GraphicsX.ANCHOR;
-      if (fig.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_1ANCHOR)) {
+      if (fig.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_1_ANCHOR)) {
          //this anchor is different than the box one.
          ByteObject banchor = fig.getSubFirst(IBOTypesDrw.TYPE_051_BOX);
       }
@@ -216,8 +217,8 @@ public class StringDrawer implements IStringable, IBOTypesDrw, ITechFigure {
          return drc.getFontFactory().getDefaultFont();
       }
       int face = strFig.getValue(ITechFigure.FIG_STRING_OFFSET_02_FACE1, 1);
-      int style = strFig.getValue(ITechFigure.FIG_STRING_OFFSET_3STYLE1, 1);
-      int size = strFig.getValue(ITechFigure.FIG_STRING_OFFSET_4SIZE1, 1);
+      int style = strFig.getValue(ITechFigure.FIG_STRING_OFFSET_03_STYLE1, 1);
+      int size = strFig.getValue(ITechFigure.FIG_STRING_OFFSET_04_SIZE1, 1);
 
       IMFont f = drc.getFontFactory().getFont(face, style, size);
       return f;

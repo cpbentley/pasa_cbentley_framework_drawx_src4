@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.color;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
@@ -18,120 +22,55 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFilter;
  *
  */
 public class ColorFunction extends Function implements ITechColorFunction {
-   public static final int MODE_0_SAFETY        = 0;
+   public static final int   MODE_0_SAFETY        = 0;
 
    /**
     * f(x) extract top 8 bits, apply function and return updated x.
     */
-   public static final int MODE_1_ALPHA_CHANNEL = 1;
+   public static final int   MODE_1_ALPHA_CHANNEL = 1;
 
    /**
     * 
     */
-   public static final int MODE_2_ARGB_CHANNELS = 2;
+   public static final int   MODE_2_ARGB_CHANNELS = 2;
 
    /**
     * Apply function on 32 bits of x in f(x)
     */
-   public static final int MODE_3_32_BITS       = 3;
+   public static final int   MODE_3_32_BITS       = 3;
 
-   public static final int MODE_4_RANDOM        = 4;
+   public static final int   MODE_4_RANDOM        = 4;
 
-   public void debugFunctionChannel(StringBBuilder sb, ByteObject f) {
-      sb.append("channels=" + f.hasFlag(FUN_OFFSET_03_FLAGP, FUN_FLAGP_4_CHANNELS));
-      sb.append(" a=" + f.hasFlag(FUN_OFFSET_03_FLAGP, ITechColorFunction.FUNCTION_FLAGP_5ALPHA));
-      sb.append(" r=" + f.hasFlag(FUN_OFFSET_03_FLAGP, ITechColorFunction.FUNCTION_FLAGP_6RED));
-      sb.append(" g=" + f.hasFlag(FUN_OFFSET_03_FLAGP, ITechColorFunction.FUNCTION_FLAGP_7GREEN));
-      sb.append(" b=" + f.hasFlag(FUN_OFFSET_03_FLAGP, ITechColorFunction.FUNCTION_FLAGP_8BLUE));
-   }
+   private BlendOp           bop;
 
-   public String debugRndColorType(int i) {
-      switch (i) {
-         case RND_COLORS_TYPE_0_RND_32BITS:
-            return "Random 32bits";
-         case RND_COLORS_TYPE_1_CHANNEL:
-            return "Random Channels";
-         case RND_COLORS_TYPE_8_FIXEDEXTREMES:
-            return "Extremes";
-         case RND_COLORS_TYPE_5_FIXED_BW_ROOT:
-            return "Black&White+Root";
-         case RND_COLORS_TYPE_4_GRAYSCALE:
-            return "Grayscale";
-         default:
-            return "UNKNOWN TYPE " + i;
-      }
-   }
+   protected ColorFunction[] colorFunctions       = new ColorFunction[0];
 
-   public String debugSwitchMode(int mode) {
-      switch (mode) {
-         case MODE_1_ALPHA_CHANNEL:
-            return "MODE_ALPHA_CHANNEL";
-         case MODE_2_ARGB_CHANNELS:
-            return "MODE_ARGB_CHANNELS";
-         case MODE_3_32_BITS:
-            return "MODE_32_BITS";
-         case MODE_0_SAFETY:
-            return "SAFETY";
-         default:
-            return "UNKNOWN " + mode;
-      }
-   }
+   protected final DrwCtx    drc;
 
-   /**
-    * 
-    * @param sb
-    * @param nl
-    * @param bo ColorFunction definition whose mode is {@link ColorFunction#MODE_4_RANDOM}.
-    * 
-    */
-   public void toStringRndColor(Dctx sb, ByteObject bo) {
-      //
-      sb.rootSub("RndColor");
-      int type = bo.get1(RND_COLORS_OFFSET_06_TYPE1);
-      sb.append(debugRndColorType(type));
-      sb.nl();
-      boolean useThreshold = bo.hasFlag(RND_COLORS_OFFSET_01_FLAG, RND_COLORS_FLAG_8_USE_THRESHOLD);
-      sb.append("Use Threshold=" + useThreshold + " : [Floor,Ceil] = [" + bo.get1(RND_COLORS_OFFSET_04_FLOOR1) + "," + bo.get1(RND_COLORS_OFFSET_05_CEIL1) + "]");
-      sb.nl();
-      sb.append(" all=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_8_ALL_COLOR));
-      sb.append(" c#1=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_1_COLOR));
-      sb.append(" c#2=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_2_COLOR_AUX));
-      sb.append(" c#3=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_3_COLOR_BG));
-      sb.append(" c#4=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_4_COLOR_BORDER));
-      sb.append(" color serie=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_5_COLOR_SERIE));
-      sb.nl();
-      sb.append("Channels alpha=" + bo.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_4_ALPHA_CHANNEL));
-      sb.append(" red=" + bo.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_1_RED_CHANNEL));
-      sb.append(" green=" + bo.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_2_GREEN_CHANNEL));
-      sb.append(" blue=" + bo.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_3_BLUE_CHANNEL));
+   boolean                   fxChannels;
 
-   }
+   private boolean           isAlphaProcessing;
 
-   private BlendOp            bop;
+   private boolean           isBlueProcessing;
 
-   protected ColorFunction[]  colorFunctions = new ColorFunction[0];
+   private boolean           isGreenProcessing;
 
-   protected final DrwCtx drc;
+   private boolean           isRedProcessing;
 
-   boolean                    fxChannels;
+   protected double          operator;
 
-   private boolean            isAlphaProcessing;
-
-   private boolean            isBlueProcessing;
-
-   private boolean            isGreenProcessing;
-
-   private boolean            isRedProcessing;
-
-   protected double           operator;
-
-   private ByteObject         randDef;
+   private ByteObject        randDef;
 
    /**
     * <li> {@link Function#MODE_3_32_BITS}
     */
-   private int                switchMode;
+   private int               switchMode;
 
+   /**
+    * 
+    * @param drc
+    * @param def
+    */
    public ColorFunction(DrwCtx drc, ByteObject def) {
       super(drc.getBOC(), def);
       this.drc = drc;
@@ -147,12 +86,12 @@ public class ColorFunction extends Function implements ITechColorFunction {
 
    private int channelSlope(int color) {
       int mo = randDef.get2(RND_COLORS_OFFSET_08_CHANNEL_MOD2);
-      int ch = random.nextInt(4);
+      int ch = getRandom().nextInt(4);
       if (randDef.hasFlag(RND_COLORS_OFFSET_01_FLAG, RND_COLORS_FLAG_6_RANDOM_MOD_CAP)) {
          mo = getRandomNegs(0, mo);
       }
       int[] vals = new int[4];
-      int v = random.nextInt(2);
+      int v = getRandom().nextInt(2);
       int start = 255;
       if (v == 0) {
          start = 0;
@@ -200,8 +139,48 @@ public class ColorFunction extends Function implements ITechColorFunction {
       return bop.blendPixel(rootColor, oldcolor);
    }
 
+   public void debugFunctionChannel(StringBBuilder sb, ByteObject f) {
+      sb.append("channels=" + f.hasFlag(FUN_OFFSET_03_FLAGP, FUN_FLAGP_4_CHANNELS));
+      sb.append(" a=" + f.hasFlag(FUN_OFFSET_03_FLAGP, ITechColorFunction.FUNCTION_FLAGP_5ALPHA));
+      sb.append(" r=" + f.hasFlag(FUN_OFFSET_03_FLAGP, ITechColorFunction.FUNCTION_FLAGP_6RED));
+      sb.append(" g=" + f.hasFlag(FUN_OFFSET_03_FLAGP, ITechColorFunction.FUNCTION_FLAGP_7GREEN));
+      sb.append(" b=" + f.hasFlag(FUN_OFFSET_03_FLAGP, ITechColorFunction.FUNCTION_FLAGP_8BLUE));
+   }
+
+   public String debugRndColorType(int i) {
+      switch (i) {
+         case RND_COLORS_TYPE_0_RND_32BITS:
+            return "Random 32bits";
+         case RND_COLORS_TYPE_1_CHANNEL:
+            return "Random Channels";
+         case RND_COLORS_TYPE_8_FIXEDEXTREMES:
+            return "Extremes";
+         case RND_COLORS_TYPE_5_FIXED_BW_ROOT:
+            return "Black&White+Root";
+         case RND_COLORS_TYPE_4_GRAYSCALE:
+            return "Grayscale";
+         default:
+            return "UNKNOWN TYPE " + i;
+      }
+   }
+
+   public String debugSwitchMode(int mode) {
+      switch (mode) {
+         case MODE_1_ALPHA_CHANNEL:
+            return "MODE_ALPHA_CHANNEL";
+         case MODE_2_ARGB_CHANNELS:
+            return "MODE_ARGB_CHANNELS";
+         case MODE_3_32_BITS:
+            return "MODE_32_BITS";
+         case MODE_0_SAFETY:
+            return "SAFETY";
+         default:
+            return "UNKNOWN " + mode;
+      }
+   }
+
    private int doValuesPreset(int oldcolor) {
-      //random order or in order
+      //getRandom() order or in order
       boolean isRandom = randDef.hasFlag(RND_COLORS_OFFSET_01_FLAG, RND_COLORS_FLAG_2_RANDOM);
       if (values != null) {
          if (isRandom) {
@@ -361,14 +340,14 @@ public class ColorFunction extends Function implements ITechColorFunction {
          return root;
       }
       if (val < 0) {
-         return root - random.nextInt(-val);
+         return root - getRandom().nextInt(-val);
       } else {
-         return root + random.nextInt(val);
+         return root + getRandom().nextInt(val);
       }
    }
 
    protected int randGrayscale(int color) {
-      int val = random.nextInt(256);
+      int val = getRandom().nextInt(256);
       int ov = val;
       int mo = randDef.get2(RND_COLORS_OFFSET_08_CHANNEL_MOD2);
       int red = val;
@@ -399,7 +378,7 @@ public class ColorFunction extends Function implements ITechColorFunction {
    }
 
    private int randInArray(int[] array) {
-      int index = random.nextInt(array.length);
+      int index = getRandom().nextInt(array.length);
       return array[index];
    }
 
@@ -450,7 +429,7 @@ public class ColorFunction extends Function implements ITechColorFunction {
    private int rnd0(int oldcolor) {
       //new mode
       int color;
-      color = random.nextInt();
+      color = getRandom().nextInt();
       return color;
    }
 
@@ -478,16 +457,16 @@ public class ColorFunction extends Function implements ITechColorFunction {
          }
       }
       if (randDef.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_4_ALPHA_CHANNEL)) {
-         alpha = random.nextInt(d) + floor;
+         alpha = getRandom().nextInt(d) + floor;
       }
       if (randDef.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_1_RED_CHANNEL)) {
-         red = random.nextInt(d) + floor;
+         red = getRandom().nextInt(d) + floor;
       }
       if (randDef.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_2_GREEN_CHANNEL)) {
-         green = random.nextInt(d) + floor;
+         green = getRandom().nextInt(d) + floor;
       }
       if (randDef.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_3_BLUE_CHANNEL)) {
-         blue = random.nextInt(d) + floor;
+         blue = getRandom().nextInt(d) + floor;
       }
       color = ColorUtils.getRGBInt(alpha, red, green, blue);
       return color;
@@ -506,7 +485,7 @@ public class ColorFunction extends Function implements ITechColorFunction {
       int blue = (color >> 0) & 0xFF;
       boolean isAllSame = randDef.hasFlag(RND_COLORS_OFFSET_01_FLAG, RND_COLORS_FLAG_7_ALL_CHANNELS_SAME);
       if (isAllSame) {
-         //make it randomly positive/negative
+         //make it getRandom()ly positive/negative
          mod = getRandomNegs(0, mod);
       }
       if (randDef.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_4_ALPHA_CHANNEL)) {
@@ -538,7 +517,7 @@ public class ColorFunction extends Function implements ITechColorFunction {
       if (randcap < 3) {
          randcap = 3;
       }
-      int id = random.nextInt(randcap);
+      int id = getRandom().nextInt(randcap);
       if (id == 0)
          color = ColorUtils.FULLY_OPAQUE_WHITE;
       else if (id == 1)
@@ -570,6 +549,36 @@ public class ColorFunction extends Function implements ITechColorFunction {
 
    public void toString1Line(Dctx sb) {
       sb.root1Line(this, "ColorFunction");
+   }
+
+   /**
+    * 
+    * @param dc
+    * @param nl
+    * @param bo ColorFunction definition whose mode is {@link ColorFunction#MODE_4_RANDOM}.
+    * 
+    */
+   public void toStringRndColor(Dctx dc, ByteObject bo) {
+      //
+      dc.rootN(bo, "RndColor");
+      int type = bo.get1(RND_COLORS_OFFSET_06_TYPE1);
+      dc.append(debugRndColorType(type));
+      dc.nl();
+      boolean useThreshold = bo.hasFlag(RND_COLORS_OFFSET_01_FLAG, RND_COLORS_FLAG_8_USE_THRESHOLD);
+      dc.append("Use Threshold=" + useThreshold + " : [Floor,Ceil] = [" + bo.get1(RND_COLORS_OFFSET_04_FLOOR1) + "," + bo.get1(RND_COLORS_OFFSET_05_CEIL1) + "]");
+      dc.nl();
+      dc.append(" all=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_8_ALL_COLOR));
+      dc.append(" c#1=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_1_COLOR));
+      dc.append(" c#2=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_2_COLOR_AUX));
+      dc.append(" c#3=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_3_COLOR_BG));
+      dc.append(" c#4=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_4_COLOR_BORDER));
+      dc.append(" color serie=" + bo.hasFlag(RND_COLORS_OFFSET_03_FLAGC, RND_COLORS_FLAG_C_5_COLOR_SERIE));
+      dc.nl();
+      dc.append("Channels alpha=" + bo.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_4_ALPHA_CHANNEL));
+      dc.append(" red=" + bo.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_1_RED_CHANNEL));
+      dc.append(" green=" + bo.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_2_GREEN_CHANNEL));
+      dc.append(" blue=" + bo.hasFlag(RND_COLORS_OFFSET_02_FLAGP, RND_COLORS_FLAG_P_3_BLUE_CHANNEL));
+
    }
 
    //#enddebug

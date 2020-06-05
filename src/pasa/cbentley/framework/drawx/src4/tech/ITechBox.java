@@ -1,10 +1,17 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.tech;
 
+import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
+import pasa.cbentley.framework.drawx.src4.ctx.BOModuleDrawx;
+import pasa.cbentley.framework.drawx.src4.factories.BoxFactory;
 
 /**
- * A Box defines how to size and align a rectangle relative to another rectangle
+ * A {@link ITechBox} defines how to size and align the content relative to it.
  * <br>
  * <li> int coded width sizer : {@link ITechBox#BOX_OFFSET_04_WIDTH4} 
  * <li> int coded height sizer : {@link ITechBox#BOX_OFFSET_05_HEIGHT4} 
@@ -28,6 +35,11 @@ public interface ITechBox extends ITechByteObject {
    /**
     */
    public static final int BOX_BASIC_SIZE                = A_OBJECT_BASIC_SIZE + 17;
+
+   /**
+    * See {@link BOModuleDrawx} and {@link BoxFactory#mergeBox(ByteObject, ByteObject)}
+    */
+   public static final int BOX_FLAG_1_INCOMPLETE         = 1 << 0;
 
    /**
     * Is width defined

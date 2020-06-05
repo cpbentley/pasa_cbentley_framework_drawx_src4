@@ -1,6 +1,11 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
@@ -64,6 +69,16 @@ public class RgbImageOperator extends AbstractDrwOperator {
       DrawUtilz.setAlphaToColorRGB(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), alpha, color);
    }
 
+   
+   public void apply(RgbImage img, int numBits, int size, int[] rgbs, int[] indexes, int offset, int len, int width) {
+      int iterateSize = offset + len;
+      for (int i = offset; i < iterateSize; i++) {
+         int pixelIndex = indexes[i];
+         int pixelData = rgbs[pixelIndex];
+         
+      }
+   }
+   
    /**
     * Empty array if all rgb value equal color
     * @param rgb

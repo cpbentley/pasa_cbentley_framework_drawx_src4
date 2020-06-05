@@ -1,13 +1,16 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.string;
 
-
-import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.structs.IntBuffer;
 import pasa.cbentley.core.src4.structs.IntToInts;
 import pasa.cbentley.core.src4.utils.IntUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.engine.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 
 /**
@@ -22,7 +25,7 @@ import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
  * @author Charles-Philip Bentley
  *
  */
-public class StringMetrics implements IStringable {
+public class StringMetrics extends ObjectDrw implements IStringable {
 
    /**
     * <b>Array Structure : Triplets </b> <br>
@@ -83,7 +86,7 @@ public class StringMetrics implements IStringable {
    /**
     * Stored value
     */
-   int                breakHeight;
+   int              breakHeight;
 
    /**
     * <b>Array Structure : Triplets </b> <br>
@@ -101,7 +104,7 @@ public class StringMetrics implements IStringable {
     * 
     * In case of Trim, the last two letters will be replaced with .. or . if not enough space for 2 or 1 letters
     */
-   int[]              breaks;
+   int[]            breaks;
 
    /**
     * Tracks word positions. A Word is a consecutive serie of alphanumerical characters.
@@ -116,17 +119,17 @@ public class StringMetrics implements IStringable {
     * <br>
     * Relative to {@link Stringer#offsetChars}
     */
-   int[]              breaksWord;
+   int[]            breaksWord;
 
    /**
     * Break type used to break the string.
     */
-   int                breakType;
+   int              breakType;
 
    /**
     * Stored value
     */
-   int                breakWidth;
+   int              breakWidth;
 
    /**
     * Characters widths, computed during breaking.
@@ -138,37 +141,35 @@ public class StringMetrics implements IStringable {
     * <br>
     * 
     */
-   private int[]      charWidths = new int[10];
+   private int[]    charWidths = new int[10];
 
    /**
     * Char x positions relative to first char at 0, computed during breaking
     * <br>
-    * Those values are used for caret positioning. All {@link StringFx} scoped to {@link IFxStr#FX_SCOPE_0_CHAR}  artifacts use it.
+    * Those values are used for caret positioning. All {@link StringFx} scoped to {@link ITechStrFx#FX_SCOPE_0_CHAR}  artifacts use it.
     * <br>
     * Values depends on {@link StringDraw} anchoring {@link Anchor}
     * <br>
     * For basic {@link Stringer} type, those values are computed on demand.
     * <br>
-    * For {@link IStr#BREAK_1_WIDTH}, values are computed during the breaking process.
+    * For {@link ITechStringDrw#BREAK_1_WIDTH}, values are computed during the breaking process.
     * <br>
     * <br>
     * 
     */
-   int[]              charXs     = new int[10];
+   int[]            charXs     = new int[10];
 
    /**
     * Char y positions relative to first char at 0.
     * <br>
     * An rotation animation will modify those values
     */
-   int[]              charYs     = new int[10];
-
-   private DrwCtx drc;
+   int[]            charYs     = new int[10];
 
    /**
     * Not null when different lines have different heights due to different Fxs.
     */
-   private int[]      lineHeights;
+   private int[]    lineHeights;
 
    /**
     * The pixel size width for each line.
@@ -179,12 +180,12 @@ public class StringMetrics implements IStringable {
     * <br>
     * When only one line, this value is null and pw is returned.
     */
-   int[]              lineWidths;
+   int[]            lineWidths;
 
    /**
     * word breaks relative to the start of a line
     */
-   int[][]            lineWordBreaks;
+   int[][]          lineWordBreaks;
 
    /**
     * Relative x positions of lines. null when no line breaking.
@@ -195,12 +196,12 @@ public class StringMetrics implements IStringable {
     * <br>
     * 
     */
-   int[]              lineXs;
+   int[]            lineXs;
 
    /**
     * 
     */
-   int[]              lineYs;
+   int[]            lineYs;
 
    /**
     * Height of the {@link Stringer}
@@ -208,19 +209,19 @@ public class StringMetrics implements IStringable {
     * <br>
     * Used by {@link StringMetrics#getPrefHeight()}
     */
-   private int        ph         = -1;
+   private int      ph         = -1;
 
    /**
     * Width of the {@link Stringer}
-    * <li>When {@link IStr#BREAK_1_WIDTH}, this is the value given during the break/format process
+    * <li>When {@link ITechStringDrw#BREAK_1_WIDTH}, this is the value given during the break/format process
     * <li>otherwise, it will be the computed length
     * <br>
     * <br>
     * Used by {@link StringMetrics#getPrefWidth()}
     */
-   private int        pw         = -1;
+   private int      pw         = -1;
 
-   private Stringer   stringer   = null;
+   private Stringer stringer   = null;
 
    /**
     * Initialize the {@link StringMetrics} with the controlling {@link Stringer}.
@@ -230,7 +231,7 @@ public class StringMetrics implements IStringable {
     * @param stringer
     */
    public StringMetrics(DrwCtx drc, Stringer stringer) {
-      this.drc = drc;
+      super(drc);
       this.stringer = stringer;
    }
 
@@ -254,7 +255,7 @@ public class StringMetrics implements IStringable {
       charWidths[indexRelative] = cw;
 
       //now update the breaks. update char on a line. if it goes too far, update following lines
-      if (stringer.hasState(Stringer.STATE_06_CHAR_POSITIONS)) {
+      if (stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
          for (int i = indexRelative + 1; i < charXs.length; i++) {
             charXs[i] += cw;
          }
@@ -425,12 +426,12 @@ public class StringMetrics implements IStringable {
     * <br>
     * <br>
     * Break Types
-    * <li> {@link IStr#BREAK_0_NONE}
-    * <li> {@link IStr#BREAK_1_WIDTH}
-    * <li> {@link IStr#BREAK_2_NATURAL}
-    * <li> {@link IStr#BREAK_3_ONE_LINE}
-    * <li> {@link IStr#BREAK_4_TRIM_SINGLE_LINE}
-    * <li> {@link IStr#BREAK_6_WORD_LINE}
+    * <li> {@link ITechStringDrw#BREAK_0_NONE}
+    * <li> {@link ITechStringDrw#BREAK_1_WIDTH}
+    * <li> {@link ITechStringDrw#BREAK_2_NATURAL}
+    * <li> {@link ITechStringDrw#BREAK_3_ONE_LINE}
+    * <li> {@link ITechStringDrw#BREAK_4_TRIM_SINGLE_LINE}
+    * <li> {@link ITechStringDrw#BREAK_6_WORD_LINE}
     * <br>
     * <br>
     * When trimmed, the index.len is valid.
@@ -447,29 +448,29 @@ public class StringMetrics implements IStringable {
    private int[] breakString(int breakType, int maxLines, int breakWidth, int breakHeight, Stringer stringer) {
       int[] breaks = null;
       switch (breakType) {
-         case IStr.BREAK_0_NONE:
+         case ITechStringDrw.BREAK_0_NONE:
             break;
-         case IStr.BREAK_1_WIDTH:
+         case ITechStringDrw.BREAK_1_WIDTH:
             //break at cw. unlimited lines
             breaks = stringer.getMetrics().breakStringLine2(breakWidth, -1, stringer);
             break;
-         case IStr.BREAK_2_NATURAL:
+         case ITechStringDrw.BREAK_2_NATURAL:
             //natural break
             //System.out.println(new String(chars, offset, len));
             breaks = drc.getUCtx().getStrU().getBreaksLineNatural(stringer.chars, stringer.offsetChars, stringer.lengthChars);
             //MUtils.debug(breaks);
             break;
-         case IStr.BREAK_3_ONE_LINE:
+         case ITechStringDrw.BREAK_3_ONE_LINE:
             //remove all new lines characters
             break;
-         case IStr.BREAK_4_TRIM_SINGLE_LINE:
+         case ITechStringDrw.BREAK_4_TRIM_SINGLE_LINE:
             //trim at cw (only 1 line). if not enough room for a single character?
-            breaks = getTrimSingleLine(breakWidth, stringer);
+            breaks = stringer.getTrimSingleLine(breakWidth);
             break;
-         case IStr.BREAK_5_TRIM_FIT_HEIGHT:
+         case ITechStringDrw.BREAK_5_TRIM_FIT_HEIGHT:
             //trim at cw and ch
             int numLines = breakHeight / stringer.getMetrics().getLineHeight();
-            breaks = getTrimFormat(breakWidth, numLines, stringer);
+            breaks = stringer.getTrimFormat(breakWidth, numLines);
             break;
          default:
             break;
@@ -491,14 +492,14 @@ public class StringMetrics implements IStringable {
     * <br>
     * <br>
     * 
-    * @param breakType {@link IStr#BREAK_0_NONE} to {@link IStr#BREAK_6_WORD_LINE}.
+    * @param breakType {@link ITechStringDrw#BREAK_0_NONE} to {@link ITechStringDrw#BREAK_6_WORD_LINE}.
     * @param maxLinesth
     * @param breakWidth
     * @param breakHeight
     */
    void breakStringEntry(int breakType, int maxLines, int breakWidth, int breakHeight) {
       this.breakType = breakType;
-      if (stringer.hasState(Stringer.STATE_09_WORD_FX)) {
+      if (stringer.hasState(ITechStringer.STATE_09_WORD_FX)) {
          //we must index the words
          breaksWord = breakWords(stringer);
 
@@ -515,7 +516,7 @@ public class StringMetrics implements IStringable {
          if (breaks[0] == 1) {
             //only 1 line assume there is no breaks then
             breaks = null;
-         } else if ((breaks[0] == Stringer.BREAK_HEADER_SIZE + Stringer.BREAK_WINDOW_SIZE + Stringer.BREAK_TRAILER_SIZE - 1)) {
+         } else if ((breaks[0] == ITechStringer.BREAK_HEADER_SIZE + ITechStringer.BREAK_WINDOW_SIZE + ITechStringer.BREAK_TRAILER_SIZE - 1)) {
             //1 line
             if (breakFlag == 1) {
                breaks = null;
@@ -528,8 +529,8 @@ public class StringMetrics implements IStringable {
          computeLinePositions();
          //managed the trim issue.
          switch (breakType) {
-            case IStr.BREAK_4_TRIM_SINGLE_LINE:
-            case IStr.BREAK_5_TRIM_FIT_HEIGHT:
+            case ITechStringDrw.BREAK_4_TRIM_SINGLE_LINE:
+            case ITechStringDrw.BREAK_5_TRIM_FIT_HEIGHT:
                pw = breakWidth; //shorten the Stringer's width to breakWidth
                //only trim if needed : check last line if trim is needed
                int lastBreaksIndex = breaks[0];
@@ -540,7 +541,7 @@ public class StringMetrics implements IStringable {
                   //last index of char is 
                   int numberOfVisibleCharsOnLastLine = breaks[indexNumberLastLine];
                   int lastIndex = breaks[indexFirstIndex] + numberOfVisibleCharsOnLastLine;
-                  stringer.trim(lastIndex);
+                  stringer.executeTrim(lastIndex);
                } else {
                   //no trim cue to install
                }
@@ -549,11 +550,11 @@ public class StringMetrics implements IStringable {
                break;
          }
       }
-      stringer.setState(Stringer.STATE_07_BROKEN, true);
+      stringer.setState(ITechStringer.STATE_07_BROKEN, true);
    }
 
    /**
-    * Called when breaking {@link IStr#BREAK_1_WIDTH}
+    * Called when breaking {@link ITechStringDrw#BREAK_1_WIDTH}
     * <br>
     * <br>
     * Compute breaks.
@@ -669,18 +670,18 @@ public class StringMetrics implements IStringable {
    private void computeCharPositions() {
       charXs = drc.getMem().ensureCapacity(charXs, stringer.lengthChars);
       charYs = drc.getMem().ensureCapacity(charYs, stringer.lengthChars);
-      int dx = stringer.fx.fxLineExtraW; //relative to Stringer x coordinate
+      int dx = stringer.stringFx.fxLineExtraW; //relative to Stringer x coordinate
       int dy = 0;
       //align with respect to local
       //TODO anchor locale and opposite 
 
-      int day = AnchorUtils.getYAlign(stringer.anchor, 0, stringer.areaH, stringer.metrics.getPrefHeight());
+      int day = AnchorUtils.getYAlign(stringer.anchor, 0, stringer.areaH, stringer.stringMetrics.getPrefHeight());
       if (breaks != null) {
          //iterate over each line
          int lineCount = 0;
          int numLines = getNumOfLines();
          for (int i = 0; i < numLines; i++) {
-            int index = Stringer.BREAK_HEADER_SIZE + (i * Stringer.BREAK_WINDOW_SIZE);
+            int index = ITechStringer.BREAK_HEADER_SIZE + (i * ITechStringer.BREAK_WINDOW_SIZE);
             //0 based line index
             int startIndex = breaks[index];
             int numChars = breaks[index + 1];
@@ -706,7 +707,7 @@ public class StringMetrics implements IStringable {
             dx = getFXDxOffset(0, dx, i);
          }
       }
-      stringer.setState(Stringer.STATE_06_CHAR_POSITIONS, true);
+      stringer.setState(ITechStringer.STATE_06_CHAR_POSITIONS, true);
    }
 
    /**
@@ -719,7 +720,7 @@ public class StringMetrics implements IStringable {
       int dy = 0;
       //figure anchoring
       for (int i = 0; i < numLines; i++) {
-         int index = Stringer.BREAK_HEADER_SIZE + (i * Stringer.BREAK_WINDOW_SIZE);
+         int index = ITechStringer.BREAK_HEADER_SIZE + (i * ITechStringer.BREAK_WINDOW_SIZE);
          int linePixelSize = breaks[index + 2];
          int dax = AnchorUtils.getXAlign(stringer.anchor, 0, stringer.areaW, linePixelSize);
          lineXs[i] = dax;
@@ -737,7 +738,7 @@ public class StringMetrics implements IStringable {
    public void deleteCharAt(int indexRelative) {
       int cw = charWidths[indexRelative];
       pw -= cw;
-      boolean doPositions = stringer.hasState(Stringer.STATE_06_CHAR_POSITIONS);
+      boolean doPositions = stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS);
       for (int i = indexRelative; i < stringer.lengthChars - 1; i++) {
          charWidths[i] = charWidths[i + 1];
          if (doPositions) {
@@ -782,7 +783,7 @@ public class StringMetrics implements IStringable {
     */
    public int getCharWidth(int indexRelative) {
       //System.out.println("#StringMetrics getCharWidth relativeIndex=" + indexRelative + " charWidths.length=" + charWidths.length + " for " + stringer.offset + ":" + stringer.len);
-      if (stringer.hasState(Stringer.STATE_02_CHAR_WIDTHS)) {
+      if (stringer.hasState(ITechStringer.STATE_02_CHAR_WIDTHS)) {
          return charWidths[indexRelative];
       } else {
          //compute it
@@ -800,7 +801,7 @@ public class StringMetrics implements IStringable {
     * The index relative parameter selects the {@link StringFx} to be used.
     * <br>
     * <br>
-    * When {@link Stringer} has {@link Stringer#STATE_01_CHAR_EFFECTS}
+    * When {@link Stringer} has {@link ITechStringer#STATE_01_CHAR_EFFECTS}
     * <br>
     * <br>
     * @param step
@@ -827,7 +828,7 @@ public class StringMetrics implements IStringable {
     * @return integer relative to {@link Stringer#areaX}
     */
    public int getCharX(int indexRelative) {
-      if (!stringer.hasState(Stringer.STATE_06_CHAR_POSITIONS)) {
+      if (!stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
          //ask to compute all
          computeCharPositions();
       }
@@ -838,11 +839,11 @@ public class StringMetrics implements IStringable {
     * Array of  integer values relative to {@link Stringer#areaX}.
     * <br>
     * <br>
-    * Values are computed when flag {@link Stringer#STATE_06_CHAR_POSITIONS} is not set.
+    * Values are computed when flag {@link ITechStringer#STATE_06_CHAR_POSITIONS} is not set.
     * @return
     */
    public int[] getCharXs() {
-      if (!stringer.hasState(Stringer.STATE_06_CHAR_POSITIONS)) {
+      if (!stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
          //ask to compute all
          computeCharPositions();
       }
@@ -854,7 +855,7 @@ public class StringMetrics implements IStringable {
    }
 
    public int[] getCharYs() {
-      if (!stringer.hasState(Stringer.STATE_06_CHAR_POSITIONS)) {
+      if (!stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
          //ask to compute all
          computeCharPositions();
       }
@@ -862,7 +863,7 @@ public class StringMetrics implements IStringable {
    }
 
    /**
-    * TODO {@link IFxStr#FXLINE_OFFSET_02_CHAR_X_OFFSET1} function to modify x coordinates.
+    * TODO {@link ITechStrFx#FXLINE_OFFSET_02_CHAR_X_OFFSET1} function to modify x coordinates.
     * <br>
     * <br>
     * 
@@ -876,7 +877,11 @@ public class StringMetrics implements IStringable {
    }
 
    private int getFXDyOffset(int lineCount, int dy) {
-      return dy + stringer.fx.f.getHeight();
+      return dy + stringer.stringFx.f.getHeight();
+   }
+
+   public IntUtils getIntUtils() {
+      return drc.getUCtx().getIU();
    }
 
    /**
@@ -889,15 +894,15 @@ public class StringMetrics implements IStringable {
     * @return
     */
    public int getLineHeight() {
-      if (stringer.fx.fxLine == null) {
-         return stringer.fx.f.getHeight();
+      if (stringer.stringFx.fxLine == null) {
+         return stringer.stringFx.f.getHeight();
       } else {
-         return stringer.fx.f.getHeight();
+         return stringer.stringFx.f.getHeight();
       }
    }
 
    /**
-    * Compute the line pixel height at the given line count, using {@link Font} and {@link IFxStr}.
+    * Compute the line pixel height at the given line count, using {@link Font} and {@link ITechStrFx}.
     * <br>
     * When use of several Fonts, height is the biggest size.
     * <br>
@@ -908,7 +913,7 @@ public class StringMetrics implements IStringable {
       if (lineHeights != null) {
          return lineHeights[lineIndex];
       }
-      return stringer.fx.f.getHeight();
+      return stringer.stringFx.f.getHeight();
    }
 
    /**
@@ -935,7 +940,7 @@ public class StringMetrics implements IStringable {
     */
    public int getNumOfLines() {
       if (breaks != null) {
-         return (breaks[0] - Stringer.BREAK_EXTRA_SIZE + 1) / 3;
+         return (breaks[0] - ITechStringer.BREAK_EXTRA_SIZE + 1) / 3;
       }
       return 1;
    }
@@ -948,7 +953,7 @@ public class StringMetrics implements IStringable {
     * @return
     */
    public int getPrefCharHeight() {
-      return stringer.fx.f.getHeight();
+      return stringer.stringFx.f.getHeight();
    }
 
    /**
@@ -956,7 +961,7 @@ public class StringMetrics implements IStringable {
     * @return
     */
    public int getPrefCharWidth() {
-      return stringer.fx.f.getWidthWeigh();
+      return stringer.stringFx.f.getWidthWeigh();
    }
 
    /**
@@ -970,17 +975,17 @@ public class StringMetrics implements IStringable {
       if (ph == -1) {
          //compute it
          switch (stringer.drawLineType) {
-            case Stringer.TYPE_0_SINGLE_LINE:
-            case Stringer.TYPE_1_SINGLE_LINE_FX:
-               ph = stringer.fx.getFontHeight();
+            case ITechStringer.TYPE_0_SINGLE_LINE:
+            case ITechStringer.TYPE_1_SINGLE_LINE_FX:
+               ph = stringer.stringFx.getFontHeight();
                break;
-            case Stringer.TYPE_2_BREAKS:
-            case Stringer.TYPE_3_BREAKS_FX:
-               int max = stringer.fx.getFontHeight();
-               max += stringer.fx.fxLineExtraH;
+            case ITechStringer.TYPE_2_BREAKS:
+            case ITechStringer.TYPE_3_BREAKS_FX:
+               int max = stringer.stringFx.getFontHeight();
+               max += stringer.stringFx.fxLineExtraH;
                if (breaks != null) {
                   int numLines = getNumOfLines();
-                  int val = numLines * (max) + ((numLines - 1) * stringer.fx.fxLineExtraBetween);
+                  int val = numLines * (max) + ((numLines - 1) * stringer.stringFx.fxLineExtraBetween);
                   //System.out.println("#StringMetrics#getPrefHeight numLines=" + numLines + " val=" + val);
                   ph = val;
                } else {
@@ -1005,24 +1010,24 @@ public class StringMetrics implements IStringable {
    public int getPrefWidth() {
       if (pw == -1) {
          switch (stringer.drawLineType) {
-            case Stringer.TYPE_0_SINGLE_LINE:
-            case Stringer.TYPE_1_SINGLE_LINE_FX: //TODO compute fx
-               pw = stringer.fx.f.charsWidth(stringer.chars, stringer.offsetChars, stringer.lengthChars);
+            case ITechStringer.TYPE_0_SINGLE_LINE:
+            case ITechStringer.TYPE_1_SINGLE_LINE_FX: //TODO compute fx
+               pw = stringer.stringFx.f.charsWidth(stringer.chars, stringer.offsetChars, stringer.lengthChars);
                break;
-            case Stringer.TYPE_2_BREAKS:
-            case Stringer.TYPE_3_BREAKS_FX:
+            case ITechStringer.TYPE_2_BREAKS:
+            case ITechStringer.TYPE_3_BREAKS_FX:
                int max = 0;
                int numLines = getNumOfLines();
                for (int i = 0; i < numLines; i++) {
-                  int index = Stringer.BREAK_HEADER_SIZE + (i * Stringer.BREAK_WINDOW_SIZE);
+                  int index = ITechStringer.BREAK_HEADER_SIZE + (i * ITechStringer.BREAK_WINDOW_SIZE);
                   int offset = stringer.offsetChars + breaks[index];
                   int len = breaks[index + 1];
-                  int v = stringer.fx.f.charsWidth(stringer.chars, offset, len);
+                  int v = stringer.stringFx.f.charsWidth(stringer.chars, offset, len);
                   if (v > max) {
                      max = v;
                   }
                }
-               max += stringer.fx.fxLineExtraW;
+               max += stringer.stringFx.fxLineExtraW;
                pw = max;
                break;
             default:
@@ -1044,7 +1049,7 @@ public class StringMetrics implements IStringable {
       if (breaks == null) {
          return pw;
       } else {
-         int i = Stringer.BREAK_HEADER_SIZE + (indexLine * Stringer.BREAK_WINDOW_SIZE);
+         int i = ITechStringer.BREAK_HEADER_SIZE + (indexLine * ITechStringer.BREAK_WINDOW_SIZE);
          return breaks[i + 2];
       }
    }
@@ -1112,136 +1117,6 @@ public class StringMetrics implements IStringable {
    }
 
    /**
-    * Format String to fit into the <code>width</code> parameter given the {@link Font}.
-    * <br>
-    * <br>
-    * Does not modify the state of the {@link Stringer}.
-    * <br>
-    * <br>
-    * 
-    * When maxLines is 1, trim as soon as width is consumed.
-    * <br>
-    * When maxLines is 2, trim on the second line after a line break.
-    * <br>
-    * <br>
-    * <b>Structure of Integer Array</b> <br>
-    * index[0] = control value<br>
-    * index[1] = start index of 1st line<br>
-    * index[2] = number of characters on 1st line<br>
-    * index[3] = start index of 2nd line<br>
-    * index[4] = number of characters on 2nd line<br>
-    * <br>
-    * This structure allows to skip newline entirely. It allows to draw tabs \t.
-    * 
-    * <li>array's length is the number of lines * 2 + 1
-    * <li>The first value is a control value.
-    * <li>A line may be empty.
-    * <br>
-    * <br>
-    * TODO Write a switch to stop the format for really big strings. The maxline is a first security.                 
-    * <br>
-    * <br>
-    * @param width width given for formatting the string. If width not big enough for one character. Method fits at least one letter by line.
-    * @param maxLines the number of lines after -1 if infinity of lines. Automatically sets the TRIM state to the 
-    * @return integer array 
-    */
-   public int[] getTrimFormat(int width, int maxLines, Stringer stringer) {
-      int lineWidth = 0;
-      int lineCount = 1;
-      int numCharOnLine = 0;
-      IntBuffer data = new IntBuffer(drc.getUCtx());
-      StringMetrics sm = stringer.getMetrics();
-      int charw = 0;
-      int lineStartOffset = 0;
-      boolean isTrimNeeded = false;
-      for (int step = 0; step < stringer.lengthChars; step++) {
-         charw = sm.getCharWidth(step);
-         lineWidth += charw;
-         if (lineWidth > width) {
-            if (lineCount == maxLines) {
-               //we reached the end of available lines. trim the last 2 characters to replace them with the trim cue.
-               lineWidth -= charw;
-               isTrimNeeded = true;
-               break;//end the algo
-            } else {
-               //special case where not even one character can fit the space. only one dot will be drawn.
-               if (numCharOnLine == 0) {
-                  numCharOnLine = 1;
-                  lineWidth = 1;
-                  isTrimNeeded = true;
-                  break;
-               } else {
-                  //finish current line
-                  data.addInt(lineStartOffset);
-                  data.addInt(numCharOnLine);
-                  data.addInt(lineWidth - charw);
-                  lineStartOffset = step;
-                  lineCount++;
-                  lineWidth = charw;
-                  numCharOnLine = 1;
-               }
-            }
-         } else {
-            //increment the number of characters on this line
-            numCharOnLine += 1;
-         }
-      }
-      //finalize line if there is enough space
-      data.addInt(lineStartOffset);
-      data.addInt(numCharOnLine);
-      data.addInt(lineWidth);
-      int flag = 0;
-      if (!isTrimNeeded) {
-         flag = 1;
-      }
-      data.addInt(flag);
-      return data.getIntsRef();
-   }
-
-   /**
-    * Method creates a trim cue with {@link Stringer} and the given width.
-    * <br>
-    * <br>
-    * 
-    * POST: the state of {@link Stringer} is not modified.
-    * <br>
-    * <br>
-    * @param str
-    * @return null if trimming is not needed. For structure semantics see {@link StringMetrics#breaks}
-    */
-   public int[] getTrimSingleLine(int width, Stringer str) {
-      StringMetrics sm = str.getMetrics();
-      int widthPixelCount = 0;
-      boolean isTrimmed = false;
-      IntBuffer breaks = new IntBuffer(drc.getUCtx());
-      int numCharOnLine = 0;
-      int charw = 0;
-      int stepStart = 0;
-      int stepEnd = str.lengthChars;
-      for (int step = stepStart; step < stepEnd; step++) {
-         charw = sm.getCharWidth(step);
-         widthPixelCount += charw;
-         if (widthPixelCount <= width) {
-            numCharOnLine++;
-         } else {
-            widthPixelCount -= charw;
-            isTrimmed = true;
-            break;
-         }
-      }
-      if (isTrimmed) {
-         //finalize line.
-         breaks.addInt(stepStart);
-         breaks.addInt(numCharOnLine);
-         breaks.addInt(widthPixelCount);
-         breaks.addInt(0);
-         return breaks.getIntsRef();
-      } else {
-         return null;
-      }
-   }
-
-   /**
     * Pixels consumed by letter since the start of the line
     * <br>
     * @param index
@@ -1277,17 +1152,30 @@ public class StringMetrics implements IStringable {
 
    }
 
-   public IntUtils getIntUtils() {
-      return drc.getUCtx().getIU();
-   }
-   
    //#mdebug
-   public String toString() {
-      return Dctx.toString(this);
+
+   /**
+    * 
+    * @param index
+    * @param c
+    */
+   public void setCharAt(int index, char c) {
+      int oldw = charWidths[index];
+      int cw = getCharWidthCompute(c, index);
+      charWidths[index] = cw;
+      if (oldw != cw) {
+         int diff = cw - oldw;
+         pw += diff;
+         if (stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
+            for (int i = index + 1; i < charXs.length; i++) {
+               charXs[i] += diff;
+            }
+         }
+      }
    }
 
    public void toString(Dctx sb) {
-      sb.root(this, "StringMetrics");
+      sb.root(this, StringMetrics.class, 1161);
       sb.append(" pw=" + pw + " ph=" + ph);
       sb.append(" Breaks=[" + getIntUtils().debugString(breaks) + "]");
       sb.nl();
@@ -1300,39 +1188,11 @@ public class StringMetrics implements IStringable {
       sb.append("lineHeights " + getIntUtils().debugString(lineHeights));
    }
 
-   public String toString1Line() {
-      return Dctx.toString1Line(this);
-   }
 
    public void toString1Line(Dctx dc) {
       dc.root1Line(this, "StringMetrics");
       dc.append(" pw=" + pw + " ph=" + ph);
    }
-
    //#enddebug
-
-   public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
-   }
-
-   /**
-    * 
-    * @param index
-    * @param c
-    */
-   public void updateCharAt(int index, char c) {
-      int oldw = charWidths[index];
-      int cw = getCharWidthCompute(c, index);
-      charWidths[index] = cw;
-      if (oldw != cw) {
-         int diff = cw - oldw;
-         pw += diff;
-         if (stringer.hasState(Stringer.STATE_06_CHAR_POSITIONS)) {
-            for (int i = index + 1; i < charXs.length; i++) {
-               charXs[i] += diff;
-            }
-         }
-      }
-   }
 
 }

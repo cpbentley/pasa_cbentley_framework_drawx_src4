@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
@@ -11,6 +15,7 @@ import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.framework.drawx.src4.engine.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
 import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 
@@ -18,7 +23,7 @@ import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
  * Manages a FX group which is the merge of several {@link IDrwTypes#TYPE_070_TEXT_EFFECTS} definitions.
  * <br>
  * <br>
- * Unwraps the values stored in a text effect definition {@link IFxStr}.
+ * Unwraps the values stored in a text effect definition {@link ITechStrFx}.
  * <br>
  * <br>
  * A {@link StringFx} tracks information of style for an index class. Several FX definition may apply to such a class.
@@ -41,13 +46,13 @@ import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
  * <br>
  * <br>
  * <br>
- * When {@link IFxStr#FX_FLAGZ_7_STYLE} is used
+ * When {@link ITechStrFx#FX_FLAGZ_7_STYLE} is used
  * <br>
  * <br>
  * @author Charles-Philip Bentley
  *
  */
-public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
+public class StringFx extends ObjectDrw implements ITechStrFx, IStringable, IBOTypesDrw {
 
    public static final int FLAG_01_SAME_HEIGHTS              = 1;
 
@@ -57,17 +62,17 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
 
    public static final int FLAG_04_HAS_CHAR_VISUALS          = 1 << 3;
 
-   public static String toStringScope(int scope) {
+   public static String toStringFxScope(int scope) {
       switch (scope) {
-         case IFxStr.FX_SCOPE_0_CHAR:
+         case ITechStrFx.FX_SCOPE_0_CHAR:
             return "Char";
-         case IFxStr.FX_SCOPE_2_LINE:
+         case ITechStrFx.FX_SCOPE_2_LINE:
             return "Line";
-         case IFxStr.FX_SCOPE_1_WORD:
+         case ITechStrFx.FX_SCOPE_1_WORD:
             return "Word";
-         case IFxStr.FX_SCOPE_3_PARAGRAPH:
+         case ITechStrFx.FX_SCOPE_3_PARAGRAPH:
             return "Paragraph";
-         case IFxStr.FX_SCOPE_4_TEXT:
+         case ITechStrFx.FX_SCOPE_4_TEXT:
             return "Text";
          default:
             return "Unknown scope " + scope;
@@ -84,8 +89,8 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
     * <br>
     * THis value is influenced by the following
     * <li> {@link IDrw#FIG__OFFSET_06_COLOR4}
-    * <li> {@link IFxStr#FX_OFFSET_09_COLOR4}
-    * <li> {@link IFxStr#FXLINE_FLAG_2_GRADIENT}
+    * <li> {@link ITechStrFx#FX_OFFSET_09_COLOR4}
+    * <li> {@link ITechStrFx#FXLINE_FLAG_2_GRADIENT}
     * <br>
     * <br>
     * 
@@ -98,7 +103,7 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
     * Main Font used by {@link Stringer}.
     * Prevent nulls by setting default
     */
-   IMFont             f      = null;
+   IMFont           f      = null;
 
    /**
     * Figure to be drawn before on the area of the line width
@@ -113,7 +118,7 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
    ByteObject       fxBlock;
 
    /**
-    * Fx effect for every characters. Merged of all the {@link IFxStr#FX_SCOPE_0_CHAR}
+    * Fx effect for every characters. Merged of all the {@link ITechStrFx#FX_SCOPE_0_CHAR}
     * definitions.
     */
    ByteObject       fxChar;
@@ -129,8 +134,8 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
    /**
     * Special effects defined at the line.
     * <br>
-    * {@link IFxStr#FXLINE_OFFSET_02_CHAR_X_OFFSET1}
-    * {@link IFxStr#FXLINE_OFFSET_03_CHAR_Y_OFFSET1}
+    * {@link ITechStrFx#FXLINE_OFFSET_02_CHAR_X_OFFSET1}
+    * {@link ITechStrFx#FXLINE_OFFSET_03_CHAR_Y_OFFSET1}
     * <br>
     * <br>
     * By default, a fxLine effect force a full repaint when any character is modified on the line.
@@ -143,9 +148,9 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
 
    int              fxLineExtraW;
 
-   int              fxLineXOffset;
+   int              fxLineOffsetX;
 
-   int              fxLineYOffset;
+   int              fxLineOffsetY;
 
    /**
     * The different FX definition. starts by the root.
@@ -184,10 +189,9 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
 
    private Stringer stringer;
 
-   private DrwCtx drc;
 
    public StringFx(DrwCtx drc, Stringer st) {
-      this.drc = drc;
+      super(drc);
       f = drc.getFontFactory().getDefaultFont();
       stringer = st;
    }
@@ -242,8 +246,8 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
     * @return {@link StringFx} different from this
     */
    public StringFx cloneMergeTop(ByteObject dynDef, int id) {
-      StringFx fx = new StringFx(drc,stringer);
-      if (dynDef.hasFlag(A_OBJECT_OFFSET_2_FLAG, A_OBJECT_FLAG_1_INCOMPLETE)) {
+      StringFx fx = new StringFx(drc, stringer);
+      if (dynDef.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_7_INCOMPLETE)) {
          int scope = dynDef.get1(FX_OFFSET_03_SCOPE1);
          ByteObject bo = dynDef.getSubFirst(IBOTypesBOC.TYPE_011_MERGE_MASK);
          if (bo != null) {
@@ -326,14 +330,14 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
 
    public void initFxChar() {
       //check the type of char fx. if a different fx for all chars.
-      if (fxDefinition.hasFlag(IFxStr.FX_OFFSET_10_FLAGZ, IFxStr.FX_FLAGZ_3_MASK)) {
+      if (fxDefinition.hasFlag(ITechStrFx.FX_OFFSET_10_FLAGZ, ITechStrFx.FX_FLAGZ_3_MASK)) {
          maskChar = fxDefinition.getSubFirst(TYPE_058_MASK);
          setState(FLAG_02_HAS_LINE_VISUAL_ARTIFACTS, true);
          setState(FLAG_04_HAS_CHAR_VISUALS, true);
       }
       fxChar = fxDefinition;
-      stringer.setState(Stringer.STATE_01_CHAR_EFFECTS, true);
-      if (fxDefinition.hasFlag(IFxStr.FX_OFFSET_02_FLAGX, IFxStr.FX_FLAGX_6_DEFINED_INDEX)) {
+      stringer.setState(ITechStringer.STATE_01_CHAR_EFFECTS, true);
+      if (fxDefinition.hasFlag(ITechStrFx.FX_OFFSET_02_FLAGX, ITechStrFx.FX_FLAGX_6_DEFINED_INDEX)) {
          int indexs = fxDefinition.get2(FX_OFFSET_04_INDEX2);
 
       } else {
@@ -349,7 +353,7 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
     */
    public void initFxLine() {
       //check the type of char fx. if a different fx for all chars.
-      if (fxDefinition.hasFlag(IFxStr.FX_OFFSET_10_FLAGZ, IFxStr.FX_FLAGZ_3_MASK)) {
+      if (fxDefinition.hasFlag(ITechStrFx.FX_OFFSET_10_FLAGZ, ITechStrFx.FX_FLAGZ_3_MASK)) {
          maskLine = fxDefinition.getSubFirst(TYPE_058_MASK);
          setState(StringFx.FLAG_02_HAS_LINE_VISUAL_ARTIFACTS, true);
       }
@@ -359,7 +363,7 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
 
    public void initFxWord() {
       //check the type of char fx. if a different fx for all chars.
-      if (fxDefinition.hasFlag(IFxStr.FX_OFFSET_10_FLAGZ, IFxStr.FX_FLAGZ_3_MASK)) {
+      if (fxDefinition.hasFlag(ITechStrFx.FX_OFFSET_10_FLAGZ, ITechStrFx.FX_FLAGZ_3_MASK)) {
          maskWord = fxDefinition.getSubFirst(TYPE_058_MASK);
          setState(StringFx.FLAG_03_HAS_WORD_VISUALS, true);
       }
@@ -403,38 +407,38 @@ public class StringFx implements IFxStr, IStringable, IBOTypesDrw {
    }
 
    //#mdebug
-   public String toString() {
-      return Dctx.toString(this);
+   public void toString(Dctx dc) {
+      dc.root(this, StringFx.class, 412);
+      dc.nl();
+      dc.appendVarWithSpace("color", ToStringStaticDraw.toStringColor(color));
+      dc.appendVarWithSpace("font", ToStringStaticDraw.debugFontBrackets(f));
+      
+      dc.appendVarWithSpace("fxLineExtraBetween", fxLineExtraBetween);
+      dc.appendVarWithSpace("fxLineExtraW", fxLineExtraW);
+      dc.appendVarWithSpace("fxLineExtraH", fxLineExtraH);
+      dc.appendVarWithSpace("fxLineOffsetX", fxLineOffsetX);
+      dc.appendVarWithSpace("fxLineOffsetY", fxLineOffsetY);
+      dc.nlLvl(bgFigure, "bgFigure");
+      dc.nlLvl(fxDefinition, "fxDefinition");
+      dc.appendVarWithSpace("getExtraCharWidth()", getExtraCharWidth());
+      
+      dc.nlLvl(maskBlock, "maskBlock");
+      dc.nlLvl(maskLine, "maskLine");
+      dc.nlLvl(maskWord, "maskWord");
+      dc.nlLvl(maskChar, "maskChar");
+      
+      dc.nlLvl(scale, "Scaler");
+      dc.nlLvl(fxBlock, "fxBlock");
+      dc.nlLvl(fxLine, "fxLine");
+      dc.nlLvl(fxWord, "fxWord");
+      dc.nlLvl(fxChar, "fxChar");
    }
 
-   
-   public void toString(Dctx sb) {
-      sb.root(this, "StringFx");
-      sb.nl();
-      sb.append(ToStringStaticDraw.toStringColor(color));
-      sb.append(" ");
-      sb.append(ToStringStaticDraw.debugFontBrackets(f));
-      sb.nlLvl("#Scaler", scale);
-      sb.nlLvl("#maskChar", maskChar);
-      sb.nlLvl("#Scaler", scale);
-      sb.nlLvl("#Scaler", scale);
-      sb.nlLvl("#Scaler", scale);
-      sb.nlLvl("#Scaler", scale);
-   }
 
-   
-   public String toString1Line() {
-      return Dctx.toString1Line(this);
-   }
-
-   
    public void toString1Line(Dctx dc) {
       dc.root1Line(this, "StringFx");
    }
    //#enddebug
 
-   public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
-   }
-   
+
 }

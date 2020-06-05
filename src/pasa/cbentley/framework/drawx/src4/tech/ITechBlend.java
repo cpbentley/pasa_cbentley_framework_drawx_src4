@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.tech;
 
 import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
@@ -8,41 +12,50 @@ public interface ITechBlend extends ITechByteObject {
 
    /**
     * Default Behaviour. All alphas are treated equally in the blender
+    * and are merged using the OVER function
     */
    public static final int ALPHA_0_OVER                   = 0;
 
    /**
-    * Sets the Alpha to 255, thus ignoring Alpha values
+    * The merge ignores alpha values.
     * <br>
+    * Return pixel's alpha is always 255.
+    */
+   public static final int ALPHA_2_255                    = 2;
+
+   /**
+    * The alphas are merged using the same function as the RGB components
+    */
+   public static final int ALPHA_1_MERGE                  = 1;
+
+   /**
+    * Inverse function on the alpha
+    */
+   public static final int ALPHA_4_INVERSE                = 4;
+
+   /**
+    * The maximum alpha value between base and blend is taken
+    */
+   public static final int ALPHA_5_MAX                    = 5;
+
+   /**
+    * Takes the average of RGB values. Ignores 
     * 
+    * light is open, dark is 
     */
-   public static final int ALPHA_1_NO_APLHA               = 0;
-
-   public static final int ALPHA_2_MERGE                  = 3;
+   public static final int ALPHA_5_RGB_AVERAGE            = 8;
 
    /**
-    * Only opaque pixels in the blender are processed to source.
-    * <br>
-    * Blend pixels with alpha are not blended at all.
-    */
-   public static final int ALPHA_2_OPAQUE_BLENDER         = 2;
-
-   public static final int ALPHA_2_OVER                   = 2;
-
-   /**
-    * Look at the blend pixels, only semi alpha pixels are blended
-    */
-   public static final int ALPHA_2_SEMI                   = 3;
-
-   /**
-    * Only non opaque pixels are blended
-    */
-   public static final int ALPHA_3_ALPHA_BLENDER          = 3;
-
-   /**
+    * Takes the average of RGB values and invert it. Ignores 
     * 
+    * light is transparent, dark is opaque 
     */
-   public static final int ALPHA_4_ALPHA_INVERSE          = 4;
+   public static final int ALPHA_5_RGB_AVERAGE_INVERSE    = 9;
+
+   /**
+    * The minimum alpha value between base and blend is taken
+    */
+   public static final int ALPHA_6_MIN                    = 6;
 
    public static final int ALPHA_CK_MAX                   = 0;
 
@@ -86,6 +99,11 @@ public interface ITechBlend extends ITechByteObject {
 
    /**
     * Composition between 2 pixels.
+    * {@link ITechBlend#BLENDING_00_OVER}
+    * {@link ITechBlend#BLENDING_01_SRC}
+    * {@link ITechBlend#BLENDING_02_DARKEN}
+    * {@link ITechBlend#BLENDING_03_LIGHTEN}
+    * {@link ITechBlend#BLENDING_04_MERGE_ARGB}
     */
    public static final int BLEND_OFFSET_03_TYPE2          = A_OBJECT_BASIC_SIZE + 2;
 
@@ -124,7 +142,7 @@ public interface ITechBlend extends ITechByteObject {
     * <br>
     * This is the behavior of opaque replacement except that it also applies to alpha value
     * 
-    * <li> {@link ITechBlend#ALPHA_2_OPAQUE_BLENDER} will only replace fully opaque SRC pixels
+    * Using this blending operator can be redundant with the porter-duff op
     */
    public static final int BLENDING_01_SRC                = 1;
 
@@ -135,6 +153,8 @@ public interface ITechBlend extends ITechByteObject {
     * <br>
     * <br>
     * The darkest pixel of either the blend layer or the composition is used.
+    * <br>
+    * In effect takes the minimum of each RGB components in base and blend pixels.
     */
    public static final int BLENDING_02_DARKEN             = 30;
 
@@ -144,6 +164,8 @@ public interface ITechBlend extends ITechByteObject {
     * <br>
     * <br>
     * The lightest pixel of either the blend layer or the composition is used.
+    * <br>
+    * In effect takes the maximum of each RGB components in base and blend pixels.
     */
    public static final int BLENDING_03_LIGHTEN            = 31;
 
@@ -156,15 +178,6 @@ public interface ITechBlend extends ITechByteObject {
     * Only paints on the transparent part of the layer. = transhape?
     */
    public static final int BLENDING_05_BEHIND             = 5;
-
-   /**
-    * Opaque pixel are made transparent.
-    * Uses the image as a mask
-    * <br>
-    * Equivalent of a Mask
-    * Base pixels will show over fully opaque source
-    */
-   public static final int BLENDING_06_INVERSE_ALPHA      = 6;
 
    /**
     * Inverse the value of each color channel
@@ -286,28 +299,56 @@ public interface ITechBlend extends ITechByteObject {
    public static final int BLENDING_CK_MAX                = 31;
 
    /**
-    * The source is composited over the destination. The composite can be parametrized with a
-    * blender such as
-    * <li> {@link BLENDING_00_OVER} 
-    * <li> {@link BLENDING_02_DARKEN} 
-    * <li> {@link BLENDING_19_SCREEN_DODGE} 
+    * The source is composited over the destination. 
     * 
+    * RGB components blending can be parametrized with
+    * <li> {@link ITechBlend#BLENDING_00_OVER}
+    * <li> {@link ITechBlend#BLENDING_01_SRC}
+    * <li> {@link ITechBlend#BLENDING_02_DARKEN}
+    * <li> {@link ITechBlend#BLENDING_10_HUE}
+    * <li> {@link ITechBlend#BLENDING_11_HUE_SAT}
+    * <li> {@link ITechBlend#BLENDING_12_HUE_LUM}
+    * <li> {@link ITechBlend#BLENDING_19_SCREEN_DODGE}
+    * 
+    * <br>
+    * <br>
+    * The alpha blending is decided by
+    * <li> {@link ITechBlend#ALPHA_0_OVER}
+    * <li> {@link ITechBlend#ALPHA_2_255}
+    * <li> {@link ITechBlend#ALPHA_1_MERGE}
+    * <li> {@link ITechBlend#ALPHA_4_INVERSE}
     */
    public static final int OP_00_SRC_OVER                 = 0;
 
    /**
     * The source is copied to the destination (Porter-Duff Source rule). The destination is not used as input. 
+    * 
+    * Return the orange triangle and nothing else.
+    * 
+    * Inverse of {@link ITechBlend#OP_06_DST}
     */
    public static final int OP_01_SRC                      = 1;
 
    /**
-    * The part of the source lying inside of the destination replaces the destination
+    * The part of the source lying inside of the destination replaces the destination.
+    * 
+    * "The orange triangle colors in orange the opaque pixels of the letters."
+    * 
+    * What happens for semi tranparent pixels [0 < alpha values < 255] ?
+    * <br>
+    * But you still have the Opacity operator applied
+    * <li> {@link ITechBlend#OPACITY_00_SRC}
+    * <li> {@link ITechBlend#OPACITY_01_MIN_OVERIDE_SRC}
+    * <li> {@link ITechBlend#OPACITY_02_MAX_OVERIDE_SRC}
+    * <li> {@link ITechBlend#OPACITY_03_OVERIDE_SRC}
     */
    public static final int OP_02_SRC_IN                   = 2;
 
    /**
     * The part of the source lying outside of the destination replaces the destination.
     * <br>
+    * "The orange triangle colors in orange the transparent pixels. Letter shape is now transparent"
+    * 
     * Erase where there are destination pixels. Erasing is proportional to Opacity.
     * <br>
     * Destination pixels outside Source are kept. Ie empty src pixels don't replace. Should they?
@@ -315,17 +356,28 @@ public interface ITechBlend extends ITechByteObject {
    public static final int OP_03_SRC_OUT                  = 3;
 
    /**
-    * The part of the source lying inside of the destination is composited onto the destination
+    * The part of the source lying inside of the destination is composited onto the destination.
+    * 
+    * If a destination pixel is empty.. the source is not composited at all!
+    * 
+    * The orange triangle is ARGB composited only where opaque letters pixel are located.
     */
    public static final int OP_04_SRC_ATOP                 = 4;
 
    /**
-    * The destination is composited over the source and the result replaces the destination 
+    * The destination is composited over the source and the result replaces the destination.
+    * 
+    * The blue letter is RGB composited over the orange triangle.
+    * 
     */
    public static final int OP_05_DST_OVER                 = 5;
 
    /**
-    * The destination is left untouched 
+    * The destination is left untouched. The source is not used.
+    * 
+    * The blue letter is returned and the orange triangle is not used.
+    * 
+    * Inverse of {@link ITechBlend#OP_01_SRC}
     */
    public static final int OP_06_DST                      = 6;
 

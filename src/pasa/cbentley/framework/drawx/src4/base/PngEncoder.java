@@ -1,34 +1,6 @@
 /*
- * Minimal PNG encoder to create PNG streams (and MIDP images) from RGBA arrays.
- * 
- * Copyright 2006-2009 Christian Frschlin 
- *
- * www.chrfr.de
- *
- *
- * Changelog:
- *
- * 09/22/08: Fixed Adler checksum calculation and byte order
- *           for storing length of zlib deflate block. Thanks
- *           to Miloslav Ruzicka for noting this.
- *
- * 05/12/09: Split PNG and ZLIB functionality into separate classes.
- *           Added support for images > 64K by splitting the data into
- *           multiple uncompressed deflate blocks.
- *
- * Terms of Use:  
- *
- * You may use the PNG encoder free of charge for any purpose you desire, as long
- * as you do not claim credit for the original sources and agree not to hold me
- * responsible for any damage arising out of its use.
- *
- * If you have a suitable location in GUI or documentation for giving credit,
- * I'd appreciate a mention of
- * 
- *  PNG encoder (C) 2006-2009 by Christian Frschlin, www.chrfr.de
- *
- * but that's not mandatory.
- *
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
  */
 
 package pasa.cbentley.framework.drawx.src4.base;
@@ -67,6 +39,13 @@ public class PngEncoder {
       }
    }
 
+   /**
+    * Extra bytes
+    * @param img
+    * @param data
+    * @param extra
+    * @return
+    */
    public byte[] encodePNG(RgbImage img, String data, byte[] extra) {
       return encodePNG(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), data, extra);
    }

@@ -1,9 +1,14 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.engine;
 
 import java.util.Random;
 import java.util.Vector;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.logging.Dctx;
@@ -22,7 +27,9 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechDrawer;
 import pasa.cbentley.framework.drawx.src4.base.TransformUtilz;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
 import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
+import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBlend;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGraphicsX;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
@@ -175,6 +182,8 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
 
    private String    debugName;
 
+   private DrwCtx    drc;
+
    private int       excludeColor;
 
    /**
@@ -196,7 +205,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     */
    boolean           hasAlpha          = false;
 
-   private boolean   ignoreClip        = true;
+   private boolean   isIgnoreClip        = true;
 
    private int       imageDraws;
 
@@ -321,8 +330,6 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     */
    private int       translateY        = 0;
 
-   private DrwCtx    drc;
-
    /**
     * Use this constructor for paint(Graphics g) of MasterCanvas
     * The principle is G is the screen when PseudoColor support is not needed
@@ -337,9 +344,9 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       aInit();
    }
 
-   GraphicsX(RgbCache rc, RgbImage rgbImg, boolean isNull) {
+   GraphicsX(DrwCtx drc, RgbCache rc, RgbImage rgbImg, boolean isNull) {
       if (isNull) {
-         this.drc = rc.getCtx();
+         this.drc = drc;
          this.cache = rc;
          this.imageRgbData = rgbImg;
          paintMode = MODE_4_NULL;
@@ -355,8 +362,8 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     * @param rgbImg image cannot be null
     * @param paintingMode
     */
-   GraphicsX(RgbCache rc, RgbImage rgbImg, int paintingMode) {
-      this(rc, rgbImg, paintingMode, 0, 0, rgbImg.getWidth(), rgbImg.getHeight());
+   GraphicsX(DrwCtx drc, RgbCache rc, RgbImage rgbImg, int paintingMode) {
+      this(drc, rc, rgbImg, paintingMode, 0, 0, rgbImg.getWidth(), rgbImg.getHeight());
    }
 
    /**
@@ -373,10 +380,10 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     * @param w
     * @param h
     */
-   GraphicsX(RgbCache rc, RgbImage rgbImg, int paintingMode, int x, int y, int w, int h) {
+   GraphicsX(DrwCtx drc, RgbCache rc, RgbImage rgbImg, int paintingMode, int x, int y, int w, int h) {
       if (paintingMode == MODE_0_SCREEN)
          throw new IllegalArgumentException("Cannot have SCREEN mode with a RgbImage");
-      this.drc = rc.getCtx();
+      this.drc = drc;
       this.cache = rc;
       aInit();
       this.imageRgbData = rgbImg;
@@ -417,12 +424,19 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
          case MODE_0_SCREEN:
             break;
          case MODE_1_IMAGE:
-            updateLayer(w, h);
+            changeDimensionLayer(w, h);
             break;
          default:
             imageRgbData.changeDimension(w, h);
-            updateLayer(w, h);
+            changeDimensionLayer(w, h);
             break;
+      }
+   }
+
+   private void changeDimensionLayer(int w, int h) {
+      if (imageLayer.getWidth() != w || imageLayer.getHeight() != h) {
+         imageLayer = drc.getImageFactory().createImage(w, h);
+         g = imageLayer.getGraphics();
       }
    }
 
@@ -463,6 +477,13 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
    }
 
    /**
+    * Using current clip, fill draw area with background color
+    */
+   public void clearWithBgColor() {
+      clearLayer();
+   }
+
+   /**
     * Intersects the current clip with the specified rectangle.
     * <br>
     * <br>
@@ -500,7 +521,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     * When no clip was made. do nothing
     */
    public synchronized void clipReset() {
-      if (ignoreClip)
+      if (isIgnoreClip)
          return;
       //else no clip so reset has no effect
       if (clipIndex > 0) {
@@ -555,8 +576,9 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     * @param directive
     */
    public synchronized void clipSet(int x, int y, int width, int height, int directive) {
-      if (ignoreClip)
+      if (isIgnoreClip) {
          return;
+      }
 
       //add previous current to cliplist history
 
@@ -874,7 +896,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     * @param transform
     * @param x the x coordinate of the anchor point in the destination drawing area
     * @param y the y coordinate of the anchor point in the destination drawing area
-    * @param anchor
+    * @param anchor flag {@link IGraphics#LEFT}
     * GraphicsX. This call requires a merge
     * @throws   NullPointerException - if src is null 
     * @throws   IllegalArgumentException - if src is the same image as the destination of this Graphics object 
@@ -906,14 +928,14 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
          int refX = x + x_src;
          int refY = y + y_src;
          //1st : take the intersection of image region and underlying image based on x and y
-         //         int[] sec1 = DrawUtilz.getIntersectionDest(0, 0, imageRgbData.getWidth(), imageRgbData.getHeight(), refX, refY, width, height);
+         //         int[] sec1 = ColorUtils.getIntersectionDest(0, 0, imageRgbData.getWidth(), imageRgbData.getHeight(), refX, refY, width, height);
          //         if (sec1 != null) {
          //            toLog().pDraw("Intersection between Image Region and Image Destination is " + MUtils.debugAlone(sec1, ","), GraphicsX.class);
          //         }
          //---------------------
          //2nd take intersection between source Image and underlying clipped area
          //clipx and clipy are not translated because x_dest is not translated so effect is null for the purpose of computing intersection
-         //int[] sec = DrawUtilz.getIntersectionDest(getClipXTranslated(), getClipYTranslated(), clipW, clipH, x_dest, y_dest, src.getWidth(), src.getHeight());
+         //int[] sec = ColorUtils.getIntersectionDest(getClipXTranslated(), getClipYTranslated(), clipW, clipH, x_dest, y_dest, src.getWidth(), src.getHeight());
          //coordinates are in the referential of the Image src. to be used only for reading pixel data 
          int[] sec = getGeo2dUtils().getIntersectionDest(clipX, clipY, clipW, clipH, refX, refY, width, height);
 
@@ -928,28 +950,24 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
             //g.drawRegion(img, x_src, y_src, width, height, transform, x, y, anchor);
 
             //#debug
-            String msg = "Trans=" + ToStringStaticDraw.toStringTrans(transform) + " Src xy=[" + x_src + "," + y_src + ":" + width + "-" + height + "] at position " + x + ";" + y;
+            String msg = "Trans=" + ToStringStaticUc.toStringTrans(transform) + " Src xy=[" + x_src + "," + y_src + ":" + width + "-" + height + "] at position " + x + ";" + y;
             //#debug
             toDLog().pDraw(msg, this, GraphicsX.class, "drawRegion", ITechLvl.LVL_05_FINE, true);
             //#debug
-            toDLog().pDraw("Trans=" + ToStringStaticDraw.toStringTrans(transform) + " w=" + sec[2] + " h=" + sec[3] + " Clipped To " + getIntUtils().debugString(sec), this, GraphicsX.class, "drawRegion", ITechLvl.LVL_05_FINE, true);
+            toDLog().pDraw("Trans=" + ToStringStaticUc.toStringTrans(transform) + " w=" + sec[2] + " h=" + sec[3] + " Clipped To " + getIntUtils().debugString(sec), this, GraphicsX.class, "drawRegion", ITechLvl.LVL_05_FINE, true);
 
             data = TransformUtilz.transform(data, sec[2], sec[3], transform);
             BlendOp op = blendOpImages;
             //get intersection in GraphicsX referencetial
             sec = getGeo2dUtils().getIntersection(clipX, clipY, clipW, clipH, refX, refY, width, height);
             //toLog().pDraw("drawRegion data=" + data.length + " should be = " + (sec[2] * sec[3]) + " Drawing at " + MUtils.debugString(sec), GraphicsX.class);
-            imageRgbData.blend(data, 0, sec[2], 0, 0, sec[2], sec[3], sec[0], sec[1], op);
+            imageRgbData.blend(op, sec[0], sec[1], data, 0, sec[2], 0, 0, sec[2], sec[3]);
             //NOTE: translation of x_dest and y_dest will occur inside drawRGB method
          }
       } else {
          g.drawRegion(src, x_src, y_src, width, height, transform, x, y, anchor);
       }
       postPrimitiveWork();
-   }
-
-   public IntUtils getIntUtils() {
-      return drc.getUCtx().getIU();
    }
 
    /**
@@ -989,7 +1007,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
             mergeAndClear();
             //get intersection with RgbImage or with Layer? and copy over it normalize if graphics have been translated
             //intersection between the current clip and the position of the image data
-            //int[] sec = DrawUtilz.getIntersectionDest(getClipXTranslated(), getClipYTranslated(), clipW, clipH, x, y, width, height);
+            //int[] sec = ColorUtils.getIntersectionDest(getClipXTranslated(), getClipYTranslated(), clipW, clipH, x, y, width, height);
             x += translateX;
             y += translateY;
             //offset=m + scanlength * n
@@ -1008,19 +1026,15 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
                BlendOp op = blendOpImages;
                if (!processAlpha) {
                   //without alpha, all pixels go to destination.
-                  op = new BlendOp(drc, blendOpImages.getMode(), ITechBlend.ALPHA_1_NO_APLHA);
+                  op = new BlendOp(drc, blendOpImages.getMode(), ITechBlend.ALPHA_2_255);
                }
                sec = getGeo2dUtils().getIntersection(clipX, clipY, clipW, clipH, x, y, width, height);
 
                //#debug
                toDLog().pDraw("newoffset=" + newoffset + " newscan=" + newscan + " Drawing at " + getIntUtils().debugString(sec), this, GraphicsX.class, "drawRGB", ITechLvl.LVL_05_FINE, true);
-               imageRgbData.blend(rgbData, newoffset, scanlength, 0, 0, sec[2], sec[3], sec[0], sec[1], op);
+               imageRgbData.blend(op, sec[0], sec[1], rgbData, newoffset, scanlength, 0, 0, sec[2], sec[3]);
             }
       }
-   }
-
-   private Geo2dUtils getGeo2dUtils() {
-      return drc.getUCtx().getGeo2dUtils();
    }
 
    //   /**
@@ -1143,6 +1157,10 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       y += translateY;
       g.drawRoundRect(x, y, width, height, arcWidth, arcHeight);
       postPrimitiveWork();
+   }
+
+   public void drawString(String str, int x, int y) {
+      this.drawString(str, x, y, ITechAnchor.ANCHOR_G_TOP_LEFT);
    }
 
    /**
@@ -1458,10 +1476,6 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       return g.getColor();
    }
 
-   public Random getRandom() {
-      return drc.getRandom();
-   }
-
    /**
     * Gets the color that will be displayed if the specified color is requested.
     * @param color
@@ -1487,6 +1501,19 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       return (IMFont) g.getFont();
    }
 
+   private Geo2dUtils getGeo2dUtils() {
+      return drc.getUCtx().getGeo2dUtils();
+   }
+
+   /**
+    * Returns the internal handle to the {@link IGraphics}, the {@link CoreDrawCtx}
+    * which implements drawing primities.
+    * @return
+    */
+   public IGraphics getGraphics() {
+      return g;
+   }
+
    /**
     * Gets the current grayscale value of the color being used for rendering operations.
     * @return
@@ -1501,6 +1528,10 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     */
    public int getGreenComponent() {
       return g.getGreenComponent();
+   }
+
+   public IntUtils getIntUtils() {
+      return drc.getUCtx().getIU();
    }
 
    /**
@@ -1574,6 +1605,10 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
 
    public int getPrimitivetTally() {
       return primitiveTally;
+   }
+
+   public Random getRandom() {
+      return drc.getRandom();
    }
 
    /**
@@ -1704,23 +1739,6 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       return BitUtils.hasFlag(switches, flag);
    }
 
-   /**
-    * Returns the new value of the flag
-    * 
-    * <li> {@link ITechGraphicsX#SWITCHOFF_1_GRADIENT}
-    * <li> {@link ITechGraphicsX#SWITCHOFF_2_TEXT_EFFECTS}
-    * <li> {@link ITechGraphicsX#SWITCHOFF_3_TEXT_EFFECTS}
-    * <li> {@link ITechGraphicsX#SWITCHOFF_4_BUSINESS}
-    * <li> {@link ITechGraphicsX#SWITCHOFF_5_PAINT}
-    * 
-    * @param flag
-    * @return
-    */
-   public boolean toggleSwitchOff(int flag) {
-      boolean v = !BitUtils.hasFlag(switches, flag);
-      switches = BitUtils.setFlag(switches, flag, v);
-      return v;
-   }
    /**
     * Switch to RGB with TOP primitive layer
     * RGB Image is put to RGB mode and top layer is kept
@@ -1977,7 +1995,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     * When set to False, overrides painting Mode.
     * <br>
     * When true, the blending uses
-    * When false, {@link ITechBlend#ALPHA_1_NO_APLHA} is set
+    * When false, {@link ITechBlend#ALPHA_2_255} is set
     * @param v
     */
    public void setAlphaBlending(boolean v) {
@@ -1985,7 +2003,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       if (v) {
 
       } else {
-         blendOpImages.setAlphaMode(ITechBlend.ALPHA_1_NO_APLHA);
+         blendOpImages.setAlphaMode(ITechBlend.ALPHA_2_255);
       }
    }
 
@@ -2119,15 +2137,6 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
    }
 
    /**
-    * Returns the internal handle to the {@link IGraphics}, the {@link CoreDrawCtx}
-    * which implements drawing primities.
-    * @return
-    */
-   public IGraphics getGraphics() {
-      return g;
-   }
-
-   /**
     * Resets Primitive count.
     * 
     * @param g
@@ -2147,8 +2156,8 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
    }
 
    public void setIgnoreClip(boolean isIgnore) {
-      if (ignoreClip != isIgnore) {
-         ignoreClip = isIgnore;
+      if (isIgnoreClip != isIgnore) {
+         isIgnoreClip = isIgnore;
       }
    }
 
@@ -2228,48 +2237,6 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       }
    }
 
-   /**
-    * The {@link IGraphics} object is set with the reset
-    * each time a reference is process for rendering
-    * {@link GraphicsX#reset(IGraphics)}
-    */
-   private void setPaintModeScreen() {
-      if (imageRgbData != null) {
-         imageRgbData.dispose();
-      }
-      imageLayer = null;
-      //update the translation
-      g.translate(translateX, translateY);
-      isAlphaMode = false;
-      isPseudoColorMode = false;
-   }
-
-   private void setPaintModeRgbImage(int w, int h) {
-      //make sure we have a RgbImage of Canvas Size
-      if (imageRgbData == null) {
-         imageRgbData = drc.getCache().create(w, h);
-      } else {
-         imageRgbData.changeDimension(w, h);
-      }
-      if (imageLayer == null) {
-         imageLayer = createImageLayer(w, h);
-      }
-      g = imageLayer.getGraphics();
-      g.translate(translateX, translateY);
-      isAlphaMode = true;
-   }
-
-   private void setPaintModeRGB() {
-      if (imageLayer != null) {
-         //TODO
-         //rgbImage = RgbImage.createRgb(layer);
-      } else {
-
-      }
-      imageLayer = null;
-      g = null;
-   }
-
    private void setPaintModeImage(int w, int h) {
       if (imageLayer == null || imageLayer.getHeight() != h || imageLayer.getWidth() != w) {
          imageLayer = drc.getImageFactory().createImage(w, h);
@@ -2287,6 +2254,48 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       isPseudoColorMode = false;
    }
 
+   private void setPaintModeRGB() {
+      if (imageLayer != null) {
+         //TODO
+         //rgbImage = RgbImage.createRgb(layer);
+      } else {
+
+      }
+      imageLayer = null;
+      g = null;
+   }
+
+   private void setPaintModeRgbImage(int w, int h) {
+      //make sure we have a RgbImage of Canvas Size
+      if (imageRgbData == null) {
+         imageRgbData = drc.getCache().create(w, h);
+      } else {
+         imageRgbData.changeDimension(w, h);
+      }
+      if (imageLayer == null) {
+         imageLayer = createImageLayer(w, h);
+      }
+      g = imageLayer.getGraphics();
+      g.translate(translateX, translateY);
+      isAlphaMode = true;
+   }
+
+   /**
+    * The {@link IGraphics} object is set with the reset
+    * each time a reference is process for rendering
+    * {@link GraphicsX#reset(IGraphics)}
+    */
+   private void setPaintModeScreen() {
+      if (imageRgbData != null) {
+         imageRgbData.dispose();
+      }
+      imageLayer = null;
+      //update the translation
+      g.translate(translateX, translateY);
+      isAlphaMode = false;
+      isPseudoColorMode = false;
+   }
+
    /**
     * Sets the stroke style used for drawing lines, arcs, rectangles, and rounded rectangles.
     * <li>
@@ -2298,6 +2307,40 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
 
    public void setSwitchOff(int flag, boolean v) {
       switches = BitUtils.setFlag(switches, flag, v);
+   }
+
+   /**
+    * Force the translation by setting values
+    * @param x
+    * @param y
+    */
+   public void setTranslationForce(int x, int y) {
+      this.translateX = x;
+      this.translateY = y;
+   }
+
+   /**
+    * Translates the origin of the graphics context to the point (x, y) in the current coordinate system.
+    * RGB operation
+    * <br>
+    * <br>
+    * Modifies existing cached clip info? No. All clip info is relative to origin of graphics destination, i.e RgbImage.
+    * @param x
+    * @param y
+    */
+   public void setTranslationShift(int x, int y) {
+      //#debug
+      toDLog().pFlow("Before trX=" + translateX + "(" + x + ") trY=" + translateY + " (" + y + ")" + ToStringStaticDraw.debugPaintMode(paintMode), this, GraphicsX.class, "setTranslationShift", LVL_05_FINE, true);
+      translateX += x;
+      translateY += y;
+      //modify the clip roots ? why?
+
+      //SystemLog.pDraw("GraphicsX#translate After trX=" + trX + "(" + x + ") trY=" + trY + " (" + y + ")" + debugPaintMode(paintMode));
+      //      if (g != null) {
+      //         //SystemLog.pDraw("Translation Before x=" + g.getTranslateX() + " y=" + g.getTranslateY());
+      //         g.translate(x, y);
+      //         //SystemLog.pDraw("Translation After x=" + g.getTranslateX() + " y=" + g.getTranslateY());
+      //      }
    }
 
    public void setVirgin(int x, int y, int w, int h) {
@@ -2320,6 +2363,11 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       return System.currentTimeMillis() - tickTime;
    }
 
+   //#mdebug
+   public IDLog toDLog() {
+      return drc.toDLog();
+   }
+
    public void toggleBlendBack() {
       blendOpImages = saved;
    }
@@ -2329,125 +2377,135 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       blendOpImages = beo;
    }
 
-   //#mdebug
-   public IDLog toDLog() {
-      return drc.toDLog();
+   /**
+    * Returns the new value of the flag
+    * 
+    * <li> {@link ITechGraphicsX#SWITCHOFF_1_GRADIENT}
+    * <li> {@link ITechGraphicsX#SWITCHOFF_2_TEXT_EFFECTS}
+    * <li> {@link ITechGraphicsX#SWITCHOFF_3_TEXT_EFFECTS}
+    * <li> {@link ITechGraphicsX#SWITCHOFF_4_BUSINESS}
+    * <li> {@link ITechGraphicsX#SWITCHOFF_5_PAINT}
+    * 
+    * @param flag
+    * @return
+    */
+   public boolean toggleSwitchOff(int flag) {
+      boolean v = !BitUtils.hasFlag(switches, flag);
+      switches = BitUtils.setFlag(switches, flag, v);
+      return v;
    }
 
    public String toString() {
       return Dctx.toString(this);
    }
 
-   public String toString(String nl) {
-      return toString(nl, true);
+   public void toString(Dctx dc) {
+      dc.root(this, GraphicsX.class, "@line2450");
+      toStringPrivate(dc);
+
+      dc.appendVarWithSpace("isPseudoColorMode", isPseudoColorMode);
+      dc.appendVarWithSpace("isAlphaMode", isAlphaMode);
+      dc.appendVarWithSpace("isFillMode", isFillMode);
+      dc.appendVarWithSpace("isIgnoreClip", isIgnoreClip);
+
+      dc.line();
+      
+      dc.appendVarWithSpace("hasAlpha", hasAlpha);
+      dc.appendVarWithSpace("alpha", alpha);
+      dc.appendColorWithSpace("ActiveColor", mycolor);
+
+      dc.line();
+      dc.appendVarWithSpace("pseudoSwapCount", pseudoSwapCount);
+      dc.appendVarWithSpace("mergeCount", mergeCount);
+      dc.appendVarWithSpace("pOpaqueLayerCount", pOpaqueLayerCount);
+      dc.appendVarWithSpace("primitiveTally", primitiveTally);
+      dc.appendVarWithSpace("rgbCount", rgbCount);
+
+      dc.line();
+      toStringClipInfo(dc);
+
+      dc.line();
+      toStringTranslate(dc);
+
+      if (dc.hasFlagData(drc, IFlagsToStringDrw.D_FLAG_25_IGNORE_IGRAPHICS)) {
+         dc.line();
+         dc.append(" [IGraphics Ignored]");
+      } else {
+         dc.nlLvl(g, "IGraphics");
+      }
+      
+      dc.nlLvl(blendOpImages, "blendOpImages");
+      dc.nlLvl(imageLayer, "ImageLayer");
+      dc.nlLvl(imageRgbData, "imageRgbData");
    }
 
-   public String toString(String nl, boolean image) {
-      StringBBuilder sb = new StringBBuilder(drc.getUCtx());
-      String nnl = nl + '\t';
-      sb.append("#GraphicsX");
-      sb.append(" DebugName=");
-      if (debugName != null) {
-         sb.append(debugName);
-      } else {
-         sb.append("null");
-      }
-      sb.append(" PaintMode=");
-      sb.append(ToStringStaticDraw.debugPaintMode(paintMode));
-      sb.append(" ");
-      sb.append("ActiveColor=" + toStringGetUCtx().getColorU().toStringColor(mycolor));
-      sb.append(nl);
-      sb.append("isPseudoColorMode=" + isPseudoColorMode);
-      sb.append(" isAlphaMode=" + isAlphaMode);
-      sb.append(" hasAlpha=" + hasAlpha);
-      sb.append(" alpha=" + alpha);
-      sb.append(nl);
-      sb.append(" pseudoSwaps=" + pseudoSwapCount);
-      sb.append(" merges=" + mergeCount);
-      sb.append(" opaqueCount=" + pOpaqueLayerCount);
-      sb.append(" primitivesTally=" + primitiveTally);
-      sb.append(" rgbCount=" + rgbCount);
-      if (g != null) {
-         sb.append(" Graphics=[" + g.hashCode() + "]");
-      } else {
-         sb.append(" Graphics is null");
-      }
-      toStringAppendClipInfo(nl, sb, nnl);
-      sb.append(nl);
-      sb.append(toStringTranslate());
-
-      if (blendOpImages != null) {
-         sb.append(nl);
-         sb.append("RgbImageBlendOp =\t");
-         sb.append(blendOpImages.toString());
-      }
-      sb.append(nl);
-      if (imageLayer == null) {
-         sb.append("#ImageLayer=null");
-      } else {
-         sb.append("#ImageLayer w=" + imageLayer.getWidth() + " h=" + imageLayer.getHeight() + " mutable=" + imageLayer.isMutable() + " hash=" + imageLayer.hashCode());
-      }
-      sb.append(nl);
-
-      if (imageRgbData == null) {
-         sb.append("#RgbImage=null");
-      } else {
-         if (image) {
-            sb.append(imageRgbData.toString());
-         } else {
-            sb.append("#RgbImage isRgbMode=" + imageRgbData.isRgb() + " hash=" + imageRgbData.hashCode());
-         }
-      }
-      return sb.toString();
-   }
-
-   /**
-    * 
-    * @param nl
-    * @param sb
-    * @param nnl
-    */
-   private void toStringAppendClipInfo(String nl, StringBBuilder sb, String nnl) {
-      sb.append(nl);
-      sb.append(toStringClip());
-      int numClips = (clipIndex / 4);
-      sb.append(" Clip#" + numClips);
-      int v = clipIndex;
-      for (int i = 0; i < numClips; i++) {
-         int newH = clipList[v - 1];
-         int newW = clipList[v - 2];
-         int newY = clipList[v - 3];
-         int newX = clipList[v - 4];
-         sb.append(nnl);
-         sb.append("#" + (i + 1) + "[" + newX + "," + newY + " " + newW + "," + newH + "]");
-         v -= 4;
-      }
-   }
 
    public String toString1Line() {
       return Dctx.toString1Line(this);
    }
 
-   public String toStringClip() {
-      return "[" + clipX + "," + clipY + " " + clipW + "," + clipH + "] Index=" + clipIndex;
-
-   }
-
-   public String toStringClip2() {
-      StringBBuilder sb = new StringBBuilder(drc.getUCtx());
-      String nl = "\n\t";
-      String nnl = nl + "\t";
-      sb.append("#GraphicsX#debugClip");
-      toStringAppendClipInfo(nl, sb, nnl);
-      return sb.toString();
-   }
-
-   public void toString(Dctx dc) {
-      dc.root(this, "GraphicsX");
-   }
-
    public void toString1Line(Dctx dc) {
-      dc.root(this, "GraphicsX");
+      dc.root1Line(this, GraphicsX.class);
+      toStringPrivate(dc);
+   }
+
+   public String toStringClip() {
+      Dctx dc = new Dctx(toStringGetUCtx());
+      toStringClip(dc);
+      return dc.toString();
+   }
+
+   public void toStringClip(Dctx dc) {
+      dc.append("[");
+      dc.append(clipX);
+      dc.append(",");
+      dc.append(clipY);
+      dc.append(" ");
+      dc.append(clipW);
+      dc.append(",");
+      dc.append(clipH);
+      dc.append("]");
+      dc.appendVarWithSpace("Index", clipIndex);
+   }
+
+   public void toStringClipInfo(Dctx dc) {
+      dc.append("CurrentClip");
+      toStringClip(dc);
+
+      int numClips = (clipIndex / 4);
+      dc.append(" Clip#" + numClips);
+      int v = clipIndex;
+      for (int i = 0; i < numClips; i++) {
+         dc.tab();
+         int newH = clipList[v - 1];
+         int newW = clipList[v - 2];
+         int newY = clipList[v - 3];
+         int newX = clipList[v - 4];
+         dc.line();
+         dc.append("#");
+         dc.append(i + 1);
+         dc.append("[");
+         dc.append(newX);
+         dc.append(",");
+         dc.append(newY);
+         dc.append(" ");
+         dc.append(newW);
+         dc.append(",");
+         dc.append(newH);
+         dc.append("]");
+         v -= 4;
+         dc.tabRemove();
+      }
+   }
+
+   public UCtx toStringGetUCtx() {
+      return drc.getUCtx();
+   }
+
+
+   private void toStringPrivate(Dctx dc) {
+      dc.appendVarWithSpace("debugName", debugName);
+      dc.appendVarWithSpace("paintMode", ToStringStaticDraw.debugPaintMode(paintMode));
    }
 
    /**
@@ -2455,54 +2513,25 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     * @return
     */
    public String toStringTranslate() {
-      StringBBuilder sb = new StringBBuilder(drc.getUCtx());
-      sb.append("Translation [" + translateX + "," + translateY + "]");
+      Dctx dc = new Dctx(toStringGetUCtx());
+      toStringTranslate(dc);
+      return dc.toString();
+   }
+
+   public void toStringTranslate(Dctx dc) {
+      dc.append("Translation [");
+      dc.append(translateX);
+      dc.append(",");
+      dc.append(translateY);
+      dc.append("]");
       if (g != null) {
-         sb.append("Graphics=[" + g.getTranslateX() + "," + g.getTranslateY() + "]");
+         dc.append("Translation on IGraphics [");
+         dc.append(g.getTranslateX());
+         dc.append(",");
+         dc.append(g.getTranslateY());
+         dc.append("]");
       }
-      return sb.toString();
    }
-
-   public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
-   }
-
    //#enddebug
-   /**
-    * Translates the origin of the graphics context to the point (x, y) in the current coordinate system.
-    * RGB operation
-    * <br>
-    * <br>
-    * Modifies existing cached clip info? No. All clip info is relative to origin of graphics destination, i.e RgbImage.
-    * @param x
-    * @param y
-    */
-   public void translate(int x, int y) {
-      //SystemLog.pDraw("GraphicsX#translate Before trX=" + trX + "(" + x + ") trY=" + trY + " (" + y + ")" + debugPaintMode(paintMode));
-      translateX += x;
-      translateY += y;
-      //modify the clip roots ? why?
-
-      //SystemLog.pDraw("GraphicsX#translate After trX=" + trX + "(" + x + ") trY=" + trY + " (" + y + ")" + debugPaintMode(paintMode));
-      //      if (g != null) {
-      //         //SystemLog.pDraw("Translation Before x=" + g.getTranslateX() + " y=" + g.getTranslateY());
-      //         g.translate(x, y);
-      //         //SystemLog.pDraw("Translation After x=" + g.getTranslateX() + " y=" + g.getTranslateY());
-      //      }
-   }
-
-   private void updateLayer(int w, int h) {
-      if (imageLayer.getWidth() != w || imageLayer.getHeight() != h) {
-         imageLayer = drc.getImageFactory().createImage(w, h);
-         g = imageLayer.getGraphics();
-      }
-   }
-
-   /**
-    * Using current clip, fill draw area with background color
-    */
-   public void clearWithBgColor() {
-      clearLayer();      
-   }
 
 }

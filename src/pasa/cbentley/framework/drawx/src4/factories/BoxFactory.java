@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
@@ -6,8 +10,8 @@ import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
-import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
@@ -20,7 +24,6 @@ import pasa.cbentley.layouter.src4.tech.ITechSizer;
  * Boxes constrain Figures to specific areas of the drawing rectangle
  * Creates a lightweight layout in a drawing rectangle. No concept of GUI. Just drawing
  * Simplified {@link ITechSizer} and {@link ITechPozer} in a single ByteObject of 16 bytes 
- * Complies with {@link ITechByteObject#A_OBJECT_FLAG_1_INCOMPLETE} framework.
  * Move to Layouter
  * @author Charles Bentley
  *
@@ -51,16 +54,50 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITech
    }
 
    /**
-    * For all 4 int parameters, -1 means undefined. Thus any -1 will set object as {@link IObject#A_OBJECT_FLAG_1_INCOMPLETE}
+    * 
+    * @param root
+    * @param merge
+    * @return
+    */
+   public ByteObject mergeBox(ByteObject root, ByteObject merge) {
+      int rootHa = root.get4(BOX_OFFSET_02_HORIZ_ALIGN4);
+      int rootVa = root.get4(BOX_OFFSET_03_VERTICAL_ALIGN4);
+      int rootW = root.get4(BOX_OFFSET_04_WIDTH4);
+      int rootH = root.get4(BOX_OFFSET_05_HEIGHT4);
+      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_7_DEF_HORIZ_ALIGN)) {
+         rootHa = merge.get4(BOX_OFFSET_02_HORIZ_ALIGN4);
+      }
+      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_8_DEF_VERT_ALIGN)) {
+         rootVa = merge.get4(BOX_OFFSET_03_VERTICAL_ALIGN4);
+      }
+      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_5_DEF_WIDTH)) {
+         rootW = merge.get4(BOX_OFFSET_04_WIDTH4);
+      }
+      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_6_DEF_HEIGHT)) {
+         rootH = merge.get4(BOX_OFFSET_05_HEIGHT4);
+      }
+      ByteObject newAnchor = drc.getBoxFactory().getAnchor(rootHa, rootVa, rootW, rootH);
+      return newAnchor;
+   }
+
+   /**
+    * For all 4 int parameters, -1 means undefined. Thus any -1 will set object as {@link ITechBox#BOX_FLAG_1_INCOMPLETE}
     * For alignments the values are : <br>
-    * <li>{@link ITechFigure#ALIGN_TOP}
-    * <li>{@link ITechFigure#ALIGN_BOTTOM}
-    * <li>{@link ITechFigure#ALIGN_LEFT}
-    * <li>{@link ITechFigure#ALIGN_RIGHT}
-    * <li>{@link ITechFigure#ALIGN_CENTER}
-    * <li>{@link ITechFigure#ALIGN_FILL}
+    * <li>{@link ITechAnchor#ALIGN_1_TOP}
+    * <li>{@link ITechAnchor#ALIGN_2_BOTTOM}
+    * <li>{@link ITechAnchor#ALIGN_3_LEFT}
+    * <li>{@link ITechAnchor#ALIGN_4_RIGHT}
+    * <li>{@link ITechAnchor#ALIGN_6_CENTER}
+    * <li>{@link ITechAnchor#ALIGN_5_FILL}
     * <br>
     * <br>
+    * 
+    * {@link ITechBox}
+    * 
+    * Type : {@link IBOTypesDrw#TYPE_051_BOX}
+    * <br>
+    * <br>
+    * 
     * @param ha horizontal alignment
     * @param va vertical alignment see 
     * @param w width of the box
@@ -69,22 +106,22 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITech
     * @return
     */
    public ByteObject createBox(int ha, int va, int w, int h, boolean perc) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_051_BOX, ITechBox.BOX_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_051_BOX, BOX_BASIC_SIZE);
       boolean incomplete = false;
       if (ha != BOX_UNDEFINED) {
-         p.setFlag(ITechBox.BOX_OFFSET_01_FLAG, ITechBox.BOX_FLAG_7_DEF_HORIZ_ALIGN, true);
+         p.setFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_7_DEF_HORIZ_ALIGN, true);
       } else {
          incomplete = true;
          ha = C.LOGIC_1_TOP_LEFT;
       }
       if (va != BOX_UNDEFINED) {
-         p.setFlag(ITechBox.BOX_OFFSET_01_FLAG, ITechBox.BOX_FLAG_8_DEF_VERT_ALIGN, true);
+         p.setFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_8_DEF_VERT_ALIGN, true);
       } else {
          incomplete = true;
          va = C.LOGIC_1_TOP_LEFT;
       }
       if (w != BOX_UNDEFINED) {
-         p.setFlag(ITechBox.BOX_OFFSET_01_FLAG, ITechBox.BOX_FLAG_5_DEF_WIDTH, true);
+         p.setFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_5_DEF_WIDTH, true);
          if (perc) {
             //create sizers
             w = sizable.codedSizeEncode(MODE_2_RATIO, w, 0, 0, 0);
@@ -94,7 +131,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITech
          w = 0;
       }
       if (h != BOX_UNDEFINED) {
-         p.setFlag(ITechBox.BOX_OFFSET_01_FLAG, ITechBox.BOX_FLAG_6_DEF_HEIGHT, true);
+         p.setFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_6_DEF_HEIGHT, true);
          if (perc) {
             h = sizable.codedSizeEncode(MODE_2_RATIO, h, 0, 0, 0);
          }
@@ -103,11 +140,11 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITech
          h = 0;
       }
 
-      p.set4(ITechBox.BOX_OFFSET_03_VERTICAL_ALIGN4, va);
-      p.set4(ITechBox.BOX_OFFSET_02_HORIZ_ALIGN4, ha);
-      p.set4(ITechBox.BOX_OFFSET_04_WIDTH4, w);
-      p.set4(ITechBox.BOX_OFFSET_05_HEIGHT4, h);
-      p.setFlag(A_OBJECT_OFFSET_2_FLAG, A_OBJECT_FLAG_1_INCOMPLETE, incomplete);
+      p.set4(BOX_OFFSET_03_VERTICAL_ALIGN4, va);
+      p.set4(BOX_OFFSET_02_HORIZ_ALIGN4, ha);
+      p.set4(BOX_OFFSET_04_WIDTH4, w);
+      p.set4(BOX_OFFSET_05_HEIGHT4, h);
+      p.setFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_1_INCOMPLETE, incomplete);
       return p;
    }
 
@@ -123,12 +160,20 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITech
       return createBox(ha, va, BOX_UNDEFINED, BOX_UNDEFINED, false);
    }
 
+   /**
+    * 
+    * @param ha
+    * @param va
+    * @param sizeW
+    * @param sizeH
+    * @return
+    */
    public ByteObject getAnchor(int ha, int va, int sizeW, int sizeH) {
       return createBox(ha, va, sizeW, sizeH, false);
    }
 
-   /**
-    * Incomplete box with just H defined
+  /**
+   * Incomplete box with just H defined
    * Fill Anchor with an explicit pixel Height given. <br>
    * Width is unknown and set to zero. 
    * Will be explicity given for the drawing.
@@ -138,11 +183,11 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITech
    * @return {@link ByteObject} of type {@link IBOTypesDrw#TYPE_051_BOX}.
    */
    public ByteObject getAnchorH(int h) {
-      return createBox(-1, -1, -1, h, false);
+      return createBox(BOX_UNDEFINED, BOX_UNDEFINED, BOX_UNDEFINED, h, false);
    }
 
    public ByteObject getAnchorW(int w) {
-      return createBox(-1, -1, w, -1, false);
+      return createBox(BOX_UNDEFINED, BOX_UNDEFINED, w, BOX_UNDEFINED, false);
    }
 
    public ByteObject getBoxCenter() {
@@ -194,32 +239,32 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITech
    public void toStringBox(ByteObject bo, Dctx sb) {
       sb.append("#Box ");
       sb.append("[H V]=[");
-      sb.append(ToStringStaticDraw.debugAlign(bo.getValue(ITechBox.BOX_OFFSET_02_HORIZ_ALIGN4, 1)));
-      if (bo.hasFlag(ITechBox.BOX_OFFSET_01_FLAG, ITechBox.BOX_FLAG_7_DEF_HORIZ_ALIGN)) {
+      sb.append(ToStringStaticDraw.debugAlign(bo.get4(BOX_OFFSET_02_HORIZ_ALIGN4)));
+      if (bo.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_7_DEF_HORIZ_ALIGN)) {
 
       } else {
          sb.append(" undef");
       }
       sb.append(' ');
-      sb.append(ToStringStaticDraw.debugAlign(bo.getValue(ITechBox.BOX_OFFSET_03_VERTICAL_ALIGN4, 1)));
-      if (bo.hasFlag(ITechBox.BOX_OFFSET_01_FLAG, ITechBox.BOX_FLAG_8_DEF_VERT_ALIGN)) {
+      sb.append(ToStringStaticDraw.debugAlign(bo.get4(BOX_OFFSET_03_VERTICAL_ALIGN4)));
+      if (bo.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_8_DEF_VERT_ALIGN)) {
 
       } else {
          sb.append(" undef");
       }
       sb.append(']');
-      int w = bo.get4(ITechBox.BOX_OFFSET_04_WIDTH4);
+      int w = bo.get4(BOX_OFFSET_04_WIDTH4);
       sb.append(" [w,h]=");
-      if (bo.hasFlag(ITechBox.BOX_OFFSET_01_FLAG, ITechBox.BOX_FLAG_5_DEF_WIDTH)) {
+      if (bo.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_5_DEF_WIDTH)) {
          //ask sizer factory for a String
          sb.append(drc.getLAC().getLayoutFactory().toString1Line(w, bo));
       } else {
          sb.append(" undef");
       }
-      int h = bo.get4(ITechBox.BOX_OFFSET_05_HEIGHT4);
+      int h = bo.get4(BOX_OFFSET_05_HEIGHT4);
       sb.append(',');
       sb.append(h);
-      if (bo.hasFlag(ITechBox.BOX_OFFSET_01_FLAG, ITechBox.BOX_FLAG_6_DEF_HEIGHT)) {
+      if (bo.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_6_DEF_HEIGHT)) {
          sb.append(drc.getLAC().getLayoutFactory().toString1Line(h, bo));
       } else {
          sb.append(" undef");

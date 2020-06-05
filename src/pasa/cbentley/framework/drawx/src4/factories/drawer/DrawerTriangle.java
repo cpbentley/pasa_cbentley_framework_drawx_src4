@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.factories.drawer;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
@@ -9,6 +13,7 @@ import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
+import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGradient;
 import pasa.cbentley.framework.drawx.src4.utils.DrawUtilz;
@@ -480,12 +485,12 @@ public class DrawerTriangle {
       int va2 = (angle >> 6) & 0x3;
       int ha3 = (angle >> 8) & 0x3;
       int va3 = (angle >> 10) & 0x3;
-      int dx1 = (ha1 == ITechFigure.ALIGN_2BITS_0CENTER) ? x + w / 2 : (ha1 == ITechFigure.ALIGN_2BITS_1LEFT) ? x : x + w;
-      int dy1 = (va1 == ITechFigure.ALIGN_2BITS_0CENTER) ? y + h / 2 : (va1 == ITechFigure.ALIGN_2BITS_1LEFT) ? y : y + h;
-      int dx2 = (ha2 == ITechFigure.ALIGN_2BITS_0CENTER) ? x + w / 2 : (ha2 == ITechFigure.ALIGN_2BITS_1LEFT) ? x : x + w;
-      int dy2 = (va2 == ITechFigure.ALIGN_2BITS_0CENTER) ? y + h / 2 : (va2 == ITechFigure.ALIGN_2BITS_1LEFT) ? y : y + h;
-      int dx3 = (ha3 == ITechFigure.ALIGN_2BITS_0CENTER) ? x + w / 2 : (ha3 == ITechFigure.ALIGN_2BITS_1LEFT) ? x : x + w;
-      int dy3 = (va3 == ITechFigure.ALIGN_2BITS_0CENTER) ? y + h / 2 : (va3 == ITechFigure.ALIGN_2BITS_1LEFT) ? y : y + h;
+      int dx1 = (ha1 == ITechAnchor.ALIGN_BITS_0_CENTER) ? x + w / 2 : (ha1 == ITechAnchor.ALIGN_BITS_1_LEFT) ? x : x + w;
+      int dy1 = (va1 == ITechAnchor.ALIGN_BITS_0_CENTER) ? y + h / 2 : (va1 == ITechAnchor.ALIGN_BITS_1_LEFT) ? y : y + h;
+      int dx2 = (ha2 == ITechAnchor.ALIGN_BITS_0_CENTER) ? x + w / 2 : (ha2 == ITechAnchor.ALIGN_BITS_1_LEFT) ? x : x + w;
+      int dy2 = (va2 == ITechAnchor.ALIGN_BITS_0_CENTER) ? y + h / 2 : (va2 == ITechAnchor.ALIGN_BITS_1_LEFT) ? y : y + h;
+      int dx3 = (ha3 == ITechAnchor.ALIGN_BITS_0_CENTER) ? x + w / 2 : (ha3 == ITechAnchor.ALIGN_BITS_1_LEFT) ? x : x + w;
+      int dy3 = (va3 == ITechAnchor.ALIGN_BITS_0_CENTER) ? y + h / 2 : (va3 == ITechAnchor.ALIGN_BITS_1_LEFT) ? y : y + h;
       g.fillTriangle(dx1, dy1, dx2, dy2, dx3, dy3);
    }
 
@@ -728,7 +733,7 @@ public class DrawerTriangle {
    }
 
    public void drawTriangleDirectional(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      if (g.hasGradient() && p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2GRADIENT)) {
+      if (g.hasGradient() && p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT)) {
          int trigType = p.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2);
          if (trigType < 4) {
             drawTriangleGradient_0_3(g, x, y, w, h, p);

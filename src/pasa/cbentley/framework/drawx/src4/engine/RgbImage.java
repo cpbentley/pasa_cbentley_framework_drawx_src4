@@ -1,12 +1,18 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.engine;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.ctx.IFlagsToString;
+import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IDLog;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.logging.ITechLvl;
+import pasa.cbentley.core.src4.structs.IntToStrings;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
@@ -16,6 +22,7 @@ import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.interfaces.IDLogDraw;
 import pasa.cbentley.framework.drawx.src4.interfaces.IRgbLoader;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
+import pasa.cbentley.framework.drawx.src4.utils.DrawUtilz;
 import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 
 /**
@@ -177,9 +184,9 @@ public class RgbImage implements IStringable, ITechRgbImage {
     * Default is fully transparent black. RgbImage keeps track with the flag
     * {@linke RgbImage#FLAGX_8VIRGIN} if its RgbArray is filled with this background color
     */
-   int                backgroundColor;
+   int             backgroundColor;
 
-   RgbCache           cache;
+   RgbCache        cache;
 
    /**
     * ID of the int array in the cache:  {@link RgbCache#areaToRgb} <br>
@@ -187,28 +194,28 @@ public class RgbImage implements IStringable, ITechRgbImage {
     * -1 means not used or Primitive mode <br>
     * Entirely private to the package. may change during garbage collection
     */
-   int                cacheIntID    = -1;
+   int             cacheIntID    = -1;
 
    /**
     * ID of the RgbImage in the cache
     * Entirely private to the package. may change during garbage collection
     */
-   int                cacheRgbIndex = -1;
+   int             cacheRgbIndex = -1;
 
-   private DrwCtx drc;
+   private DrwCtx  drc;
 
    /**
     * By default, Image is in Primitive mode, No Locks, Alpha Mode, Not a Region, Not a Link
     * 
     */
-   int                flags;
+   int             flags;
 
    /**
     * The graphics object on which primitives are drawn
     */
-   GraphicsX          graphicsX;
+   GraphicsX       graphicsX;
 
-   int                height;
+   int             height;
 
    /**
     * Mutable or Immutable image object
@@ -216,53 +223,53 @@ public class RgbImage implements IStringable, ITechRgbImage {
     * 
     * If not null, rgb mode is false
     */
-   IImage             img;
+   IImage          img;
 
-   RgbImage           linkImage;
+   RgbImage        linkImage;
 
-   IRgbLoader         loader;
+   IRgbLoader      loader;
 
-   int                m;
+   int             m;
 
-   protected int      memoryState;
+   protected int   memoryState;
 
-   int                n;
+   int             n;
 
-   private String     name          = "";
+   private String  name          = "";
 
    /**
     * Start of start in int array.
     * <br>
     * usually 0, unless the Image is being read in a big shared array
     */
-   int                offset;
+   int             offset;
 
    /**
     * {@link RgbImage} of which this Image is a region.
     * <br>
     * When flag {@link ITechRgbImage#FLAG_03_LINKING} is true, this field is not null.
     */
-   public RgbImage    parentImage;
+   public RgbImage parentImage;
 
    /**
     * image data. managed by RgbCache
     * If not null, rgb mode is true.
     * 
     */
-   int[]              rgbData;
+   int[]           rgbData;
 
-   private int        shareCount;
+   private int     shareCount;
 
    /**
     * Int value used by the Cache when an incoming Request for linking
     * arrives.
     */
-   int                signature;
+   int             signature;
 
    /**
     * In the case of cache object, this is the IDrawable.
     */
-   Object             source;
+   Object          source;
 
    /**
     * Location on Disk/Internet of the Image data.
@@ -272,15 +279,15 @@ public class RgbImage implements IStringable, ITechRgbImage {
     * where ID is the reference ID in the ByteObject pool
     * This value may also be used for Transformation Linking
     */
-   String             sourceLocator;
+   String          sourceLocator;
 
    /**
     * Image transformation to apply on root image data
     * getWidth and getHeight method are impacted by the transformation
     */
-   int                transform;
+   int             transform;
 
-   int                width;
+   int             width;
 
    /**
     * Empty shell created by {@link RgbCache}.
@@ -369,12 +376,12 @@ public class RgbImage implements IStringable, ITechRgbImage {
     * Blends Image (Source) with this {@link RgbImage} (Destination) at x,y.
     * <br>
     * <br>
-    * @param img blender image is read into a int[] array.
+    * @param bo {@link BlendOp}
     * @param x coordinate relative to TOP LEFT coordinate of RgbImage
     * @param y coordinate relative to TOP LEFT coordinate of RgbImage
-    * @param bo {@link BlendOp}
+    * @param img blender image is read into a int[] array.
     */
-   public void blend(IImage img, int x, int y, BlendOp bo) {
+   public void blend(BlendOp bo, int x, int y, IImage img) {
       int[] sec = drc.getUCtx().getGeo2dUtils().getIntersectionDest(0, 0, getWidth(), getHeight(), x, y, img.getWidth(), img.getHeight());
       int ix = sec[0];
       int iy = sec[1];
@@ -384,37 +391,53 @@ public class RgbImage implements IStringable, ITechRgbImage {
       //this extracts pseudo transparent colors from the Image.
       int[] layerRgb = cache.getImageData(img, ix, iy, iw, ih);
       //SystemLog.printDraw(RgbImage.debugAlphas(layerRgb, iw, ih));
-      blend(layerRgb, 0, iw, 0, 0, iw, ih, x, y, bo);
+      blend(bo, x, y, layerRgb, 0, iw, 0, 0, iw, ih);
+   }
+
+   /**
+    * 
+    * @param bo
+    * @param x
+    * @param y
+    * @param srcRGB must be the size of this {@link RgbImage}.
+    */
+   public synchronized void blend(BlendOp bo, int[] srcRGB) {
+      if (srcRGB.length != this.width * this.height) {
+         throw new IllegalArgumentException();
+      }
+      int srcScan = this.width;
+      int srcW = this.width;
+      int srcH = this.height;
+      blend(bo, 0, 0, srcRGB, 0, srcScan, 0, 0, srcW, srcH);
    }
 
    /**
     * Blends the rgb array into the RgbImage.
     * <br>
     * <br>
-    * If RgbImage is in Rgb mode, operation is straightforward.
-    * If RgbImage is in Primitive mode, Rgb is switched to Rgb 
+    * <li>If RgbImage is in Rgb mode, operation is straightforward.
+    * <li>If RgbImage is in Primitive mode, Rgb is switched to Rgb 
     * <br>
     * <br>
-    * All blends method call this method eventually.
+    * All blend methods call this method eventually.
     * <br>
     * <br>
     * Beofre a blends, RgbImage is flushed, finalized.
     * <br>
     * After a blends, RgbImage is in RGB mode.
-    * @param bo
-    * @param rgb
-    * @param srcOffset
-    * @param srcScan
-    * @param srcM
-    * @param srcN
-    * @param srcW
-    * @param srcH
-    * @param x must be positive
-    * @param y must be positive
-    * @param bo
+    * @param bo {@link BlendOp}, {@link BlendOp#}
+    * @param x coordinate relative to TOP LEFT coordinate of RgbImage
+    * @param y coordinate relative to TOP LEFT coordinate of RgbImage
+    * @param srcRGB the pixel data to blend into the current image
+    * @param srcOffset starting offset when reading rgb int[] array
+    * @param srcScan 'width' of the scan in rgb int[] array
+    * @param srcM the x coordinate in the srcRGB array 
+    * @param srcN the y coordinate in the srcRGB array
+    * @param srcW the width of the source
+    * @param srcH the height of the source
     * @throws IllegalArgumentException when x or y are negative
     */
-   public synchronized void blend(int[] rgb, int srcOffset, int srcScan, int srcM, int srcN, int srcW, int srcH, int x, int y, BlendOp bo) {
+   public synchronized void blend(BlendOp bo, int x, int y, int[] srcRGB, int srcOffset, int srcScan, int srcM, int srcN, int srcW, int srcH) {
       //case of Image with pending graphicsx.
       //we cannot call getRgbData because code will loop if a merge happens during the flush
       //SystemLog.printDraw("#Blend in RgbImage "+ this.toString("\t\n"));
@@ -452,7 +475,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
          for (int i = 0; i < srcH; i++) {
             for (int j = 0; j < srcW; j++) {
                int basePix = rgbData[destIndex];
-               int blendPix = rgb[srcIndex];
+               int blendPix = srcRGB[srcIndex];
                //only blend if pixel is not virgin
                //if (rgbData[destIndex] != VIRGIN_PIXEL) {
                rgbData[destIndex] = bo.blendPixel(basePix, blendPix);
@@ -467,7 +490,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
          }
       } catch (ArrayIndexOutOfBoundsException e) {
          //#debug
-         String msg3 = "Array Index Error for " + rgbData.length + "=" + destIndex + " " + rgb.length + "=" + srcIndex + " srcWH=" + srcW + "," + srcH;
+         String msg3 = "Array Index Error for " + rgbData.length + "=" + destIndex + " " + srcRGB.length + "=" + srcIndex + " srcWH=" + srcW + "," + srcH;
          //#debug
          toDLog().pDraw(msg3, this, RgbImage.class, "blend", ITechLvl.LVL_05_FINE, true);
          //#debug
@@ -479,18 +502,17 @@ public class RgbImage implements IStringable, ITechRgbImage {
    /**
     * Blends input image into {@link RgbImage}.
     * Automatically sets by precaution {@link ITechRgbImage#FLAG_05_IGNORE_ALPHA} to false.
-    * 
-    * @param img
+    * @param bo
     * @param x
     * @param y
-    * @param bo
+    * @param img
     */
-   public void blend(RgbImage img, int x, int y, BlendOp bo) {
+   public void blend(BlendOp bo, int x, int y, RgbImage img) {
       if (img.isRgb()) {
          //blend the image. the image might be a region of another image
-         blend(img.rgbData, img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), x, y, bo);
+         blend(bo, x, y, img.rgbData, img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight());
       } else {
-         blend(img.img, x, y, bo);
+         blend(bo, x, y, img.img);
       }
    }
 
@@ -593,6 +615,29 @@ public class RgbImage implements IStringable, ITechRgbImage {
       } catch (Exception e) {
          return this;
       }
+   }
+
+   /**
+    * Returns the smallest rectangle removing external blocks of color
+    * @param img
+    * @param color
+    * @return
+    */
+   public RgbImage crop(int color) {
+      int[] rgb = this.getRgbData();
+      int w = this.getWidth();
+      int h = this.getHeight();
+      int[] vals = DrawUtilz.cropTBLRDistances(rgb, w, h, color);
+      int minLeftCount = vals[2];
+      int minRightCount = vals[3];
+      int minTopCount = vals[0];
+      int minBotCount = vals[1];
+      int newW = w - minLeftCount - minRightCount;
+      int newH = h - minTopCount - minBotCount;
+      RgbImage nimg = this.getRgbCache().create(newW, newH);
+      GraphicsX g = nimg.getGraphicsX();
+      g.drawRgbImage(this, minLeftCount, minTopCount, newW, newH, IImage.TRANSFORM_0_NONE, 0, 0);
+      return nimg;
    }
 
    public void decrementShareCount() {
@@ -731,8 +776,32 @@ public class RgbImage implements IStringable, ITechRgbImage {
       }
    }
 
+   /**
+    * 
+    * @param g
+    * @param x
+    * @param y
+    * @param anchor
+    * @param trans
+    */
    public void drawT(GraphicsX g, int x, int y, int anchor, int trans) {
-      draw(g, getM(), getN(), getWidth(), getHeight(), x, y, trans, anchor);
+      //verbose but faster to step over in debug
+      int m = getM();
+      int n = getN();
+      int width = getWidth();
+      int height = getHeight();
+      draw(g, m, n, width, height, x, y, trans, anchor);
+   }
+
+   /**
+    * this method modifies pixels values from an index model. existing pixels are ignored
+    * @param rgbs colors values
+    * @param indexes array with 
+    * 
+    * Apply with given blend mode, default is OVER
+    */
+   public void applyModel(int[] rgbs, int[] indexes) {
+
    }
 
    /**
@@ -825,7 +894,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       }
       if (this == cache.NULL_IMAGE) {
          //special graphics that doesn't draw anything
-         graphicsX = new GraphicsX(cache, this, true);
+         graphicsX = new GraphicsX(drc, cache, this, true);
          graphicsX.setDebugName("RgbImage_" + ToStringStaticDraw.debugPaintMode(paintingMode));
          return graphicsX;
       }
@@ -835,7 +904,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
             graphicsX.setPaintMode(paintingMode, getWidth(), getHeight());
          }
       } else {
-         graphicsX = new GraphicsX(cache, this, paintingMode);
+         graphicsX = new GraphicsX(drc, cache, this, paintingMode);
          graphicsX.setDebugName("RgbImage_" + ToStringStaticDraw.debugPaintMode(paintingMode));
       }
       return graphicsX;
@@ -856,11 +925,11 @@ public class RgbImage implements IStringable, ITechRgbImage {
    public GraphicsX getGraphicsX(int paintingMode, int x, int y, int w, int h) {
       if (this == cache.NULL_IMAGE) {
          //special graphics that doesn't draw anything
-         graphicsX = new GraphicsX(cache, this, true);
+         graphicsX = new GraphicsX(drc, cache, this, true);
          graphicsX.setDebugName("NullImage");
          return graphicsX;
       }
-      graphicsX = new GraphicsX(cache, this, paintingMode, x, y, w, h);
+      graphicsX = new GraphicsX(drc, cache, this, paintingMode, x, y, w, h);
       graphicsX.setDebugName("RgbImage_" + w + "_" + h);
       return graphicsX;
    }
@@ -966,8 +1035,9 @@ public class RgbImage implements IStringable, ITechRgbImage {
     * @return
     */
    public int getM() {
-      if (parentImage != null)
+      if (parentImage != null) {
          return parentImage.getM() + m;
+      }
       return m;
    }
 
@@ -976,8 +1046,9 @@ public class RgbImage implements IStringable, ITechRgbImage {
     * @return
     */
    public int getN() {
-      if (parentImage != null)
+      if (parentImage != null) {
          return parentImage.getN() + n;
+      }
       return n;
    }
 
@@ -1531,97 +1602,85 @@ public class RgbImage implements IStringable, ITechRgbImage {
       return Dctx.toString(this);
    }
 
-   public void toString(Dctx sb) {
-      sb.root(this, "RgbImage");
+   public void toString(Dctx dc) {
+      dc.root(this, RgbImage.class, 1601);
       if (hasFlag(ITechRgbImage.FLAG_03_LINKING)) {
-         linkImage.toString(sb);
+         linkImage.toString(dc);
          return;
       }
       if (getM() != 0)
-         sb.append(" m=" + getM());
+         dc.append(" m=" + getM());
       if (getN() != 0)
-         sb.append(" n=" + getN());
-      sb.append(" [");
-      sb.append(width);
-      sb.append(",");
-      sb.append(height);
-      sb.append("]");
-      sb.append(" size=");
-      sb.append((width * height * 4 / 1000));
-      sb.append("kb");
-      sb.append(' ');
-      sb.append("Mode=");
+         dc.append(" n=" + getN());
+      dc.append(" [");
+      dc.append(width);
+      dc.append(",");
+      dc.append(height);
+      dc.append("]");
+      dc.append(" size=");
+      dc.append((width * height * 4 / 1000));
+      dc.append("kb");
+      dc.append(' ');
+      dc.append("Mode=");
       if (isRgb()) {
-         sb.append("Rgb");
+         dc.append("Rgb");
       } else {
-         sb.append("Primitive");
+         dc.append("Primitive");
       }
-      if (sb.hasFlagData(drc, IFlagsToString.FLAG_DATA_06_SHOW_NULLS)) {
+      if (dc.hasFlagData(drc, IFlagsToString.FLAG_DATA_06_SHOW_NULLS)) {
          if (img == null) {
-            sb.append(" Img=null");
+            dc.append(" Img=null");
          }
          if (rgbData == null) {
-            sb.append(" Rgb=null");
+            dc.append(" Rgb=null");
          }
       }
-      sb.append(" ");
-      if (getOffset() != 0) {
-         sb.append("offset=");
-         sb.append(getOffset());
-      }
-      if (getScanLength() != getWidth()) {
-         sb.append("scanlength=");
-         sb.append(getScanLength());
-      }
-      sb.append("bgcolor=" + ToStringStaticDraw.toStringColor(backgroundColor));
-      sb.append(" ");
-      sb.append(ToStringStaticDraw.toStringTransform(transform));
+      dc.append(" ");
+      
+      dc.append("offset=");
+      dc.append(getOffset());
+      dc.append("scanlength=");
+      dc.append(getScanLength());
 
-      sb.nl();
-      sb.append("Flags=");
-      if (hasFlag(ITechRgbImage.FLAG_09_USED))
-         sb.append("Used,");
-      if (hasFlag(ITechRgbImage.FLAG_10_NO_DATA))
-         sb.append("NoData,");
-      if (hasFlag(ITechRgbImage.FLAG_11_CLONED))
-         sb.append("Cloned,");
-      if (hasFlag(ITechRgbImage.FLAG_12_DISPOSED))
-         sb.append("Disposed,");
-      if (hasFlag(ITechRgbImage.FLAG_13_RGB))
-         sb.append("Rgb,");
-      if (hasFlag(ITechRgbImage.FLAG_15_KNOWN_ALPHA))
-         sb.append("KnownAlpha,");
-      if (hasFlag(ITechRgbImage.FLAG_14_MODIFIED))
-         sb.append("Modified,");
-      if (hasFlag(ITechRgbImage.FLAG_01_REGION))
-         sb.append("Region,");
-      if (hasFlag(ITechRgbImage.FLAG_02_ROOT_LINK))
-         sb.append("Root,");
-      if (hasFlag(ITechRgbImage.FLAG_03_LINKING))
-         sb.append("Link,");
-      if (hasFlag(ITechRgbImage.FLAG_05_IGNORE_ALPHA))
-         sb.append("NoAlpha,");
-      if (hasFlag(ITechRgbImage.FLAG_06_WRITE_LOCK))
-         sb.append("WriteLock,");
-      if (hasFlag(ITechRgbImage.FLAG_07_READ_LOCK))
-         sb.append("ReadLock,");
-      if (hasFlag(ITechRgbImage.FLAG_16_VIRGIN))
-         sb.append("Virgin,");
+      dc.append("bgcolor=" + ToStringStaticDraw.toStringColor(backgroundColor));
+      dc.append(" ");
+      dc.append(ToStringStaticUc.toStringTransform(transform));
 
-      if (sourceLocator != null) {
-         sb.append("Locator=");
-         sb.append(sourceLocator);
+      dc.nl();
+      IntToStrings flags = new IntToStrings(toStringGetUCtx());
+      flags.add(ITechRgbImage.FLAG_09_USED, "Used");
+      flags.add(ITechRgbImage.FLAG_10_NO_DATA, "NoData");
+      flags.add(ITechRgbImage.FLAG_11_CLONED, "Cloned");
+      flags.add(ITechRgbImage.FLAG_12_DISPOSED, "Disposed");
+      flags.add(ITechRgbImage.FLAG_13_RGB, "RGB");
+      flags.add(ITechRgbImage.FLAG_15_KNOWN_ALPHA, "KnownAlpha");
+      flags.add(ITechRgbImage.FLAG_14_MODIFIED, "Modified");
+      flags.add(ITechRgbImage.FLAG_01_REGION, "Region");
+      flags.add(ITechRgbImage.FLAG_02_ROOT_LINK, "Root");
+      flags.add(ITechRgbImage.FLAG_03_LINKING, "Link");
+      flags.add(ITechRgbImage.FLAG_05_IGNORE_ALPHA, "NoAlpha");
+      flags.add(ITechRgbImage.FLAG_06_WRITE_LOCK, "WriteLock");
+      flags.add(ITechRgbImage.FLAG_07_READ_LOCK, "ReadLock");
+      flags.add(ITechRgbImage.FLAG_16_VIRGIN, "Virgin");
+
+      dc.appendFlagsPositive(this.flags, "RGBFlags", flags);
+
+      dc.nlLvlO(sourceLocator, "Locator");
+
+      if (dc.hasFlagData(drc, IDLogDraw.DATA_FLAG_20_HIDE_CACHE)) {
+         dc.append(" Cache Ignored ");
+      } else {
+         dc.nl();
+         dc.appendVar("cacheIntID", cacheIntID);
+         dc.appendVar("cacheRgbIndex", cacheRgbIndex);
       }
-      if (sb.hasFlagData(drc, IDLogDraw.DATA_FLAG_20_CACHE)) {
-         sb.nl();
-         sb.append(" cacheIntID=");
-         sb.append(cacheIntID);
-         sb.append(" cacheRgbIndex=");
-         sb.append(cacheRgbIndex);
+      if (dc.hasFlagData(drc, IDLogDraw.DATA_FLAG_22_HIDE_GRAPHICS)) {
+         dc.append(" GraphicsX Ignored ");
+      } else {
+         dc.nlLvl(graphicsX, "graphicsX");
       }
-      if (sb.hasFlagData(drc, IDLogDraw.DATA_FLAG_22_GRAPHICS) && graphicsX != null) {
-         sb.nlLvl("", graphicsX);
-      }
+      
+      dc.nlLvl(img, "img");
    }
 
    public String toString1Line() {
@@ -1727,7 +1786,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       }
    }
 
-   public void toStringBlending(Dctx sb,IImage img, RgbImage dest, int x, int y, int ix, int iy, int iw, int ih) {
+   public void toStringBlending(Dctx sb, IImage img, RgbImage dest, int x, int y, int ix, int iy, int iw, int ih) {
       sb.append("#RgbImage.blends");
       sb.append(" srcImage=[" + img.getWidth() + ", " + img.getHeight() + "]");
       sb.append(" into [" + dest.getWidth() + "," + dest.getHeight() + "]");
@@ -1766,7 +1825,8 @@ public class RgbImage implements IStringable, ITechRgbImage {
             sb.append('\t');
             destIndex++;
          }
-         sb.nl();;
+         sb.nl();
+         ;
       }
    }
 
@@ -1821,7 +1881,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       sb.append("backgroundColor=" + ToStringStaticDraw.toStringColor(backgroundColor));
       sb.nl();
       sb.append(" Transform=");
-      sb.append(ToStringStaticDraw.toStringTransform(transform));
+      sb.append(ToStringStaticUc.toStringTransform(transform));
       sb.nl();
       sb.append(" FlagX=");
       toStringFlag(sb, ITechRgbImage.FLAG_09_USED, " Used");

@@ -1,14 +1,22 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.logging.Dctx;
+import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.structs.IntBuffer;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
+import pasa.cbentley.framework.drawx.src4.engine.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
-import pasa.cbentley.framework.drawx.src4.factories.drawer.StringDrawer;
+import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
+import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
  * Tracks the metering and drawing of a String of characters for the {@link StringDrawable}.
@@ -35,146 +43,20 @@ import pasa.cbentley.framework.drawx.src4.factories.drawer.StringDrawer;
  * <br>
  * @see StringFx
  * @see StringMetrics
- * @see IFxStr
+ * @see ITechStrFx
  * <br>
  * <br>
  * 
  * @author Charles-Philip Bentley
  *
  */
-public class Stringer extends StringDrawer {
-
-   public static final int BREAK_EXTRA_SIZE                  = 2;
+public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBOTypesDrw {
 
    /**
     * 
-    */
-   public static final int BREAK_HEADER_SIZE                 = 1;
-
-   public static final int BREAK_TRAILER_SIZE                = 1;
-
-   public static final int BREAK_WINDOW_SIZE                 = 3;
-
-   /**
-    * Set when
-    */
-   public static final int STATE_01_CHAR_EFFECTS             = 1;
-
-   /**
-    * Set when all characters widths have been computed.
-    */
-   public static final int STATE_02_CHAR_WIDTHS              = 1 << 1;
-
-   public static final int STATE_03_CHECK_CLIP               = 1 << 2;
-
-   /**
-    * Modifies the char array and reduces the length
-    */
-   public static final int STATE_04_TRIMMED                  = 1 << 3;
-
-   /**
+    * {@link ITechAnchor}
     * 
-    */
-   public static final int STATE_05_STR_WIDTH                = 1 << 4;
-
-   /**
-    * Set when characters coordinates have been computed.
-    * <br>
-    * <br>
-    * 
-    */
-   public static final int STATE_06_CHAR_POSITIONS           = 1 << 5;
-
-   /**
-    * When the string had to be broken into several pieces.
-    */
-   public static final int STATE_07_BROKEN                   = 1 << 6;
-
-   /**
-    * Set when at least one Static style is impacting at least one character.
-    */
-   public static final int STATE_08_ACTIVE_STYLE             = 1 << 7;
-
-   /**
-    * This enable word indexing and looking for space and punctuation.
-    * <br>
-    * <br>
-    * 
-    */
-   public static final int STATE_09_WORD_FX                  = 1 << 8;
-
-   /**
-    * Set when at least one dynamic style is impacting at least one character.
-    */
-   public static final int STATE_10_ACTIVE_DYNAMIC_STYLE     = 1 << 9;
-
-   public static int       STATE_11_DIFFERENT_FONTS          = 1 << 10;
-
-   /**
-    * Set when there is a FX component to the String. anything other than basic color will set this flag
-    * 
-    */
-   public static final int STATE_13_FX                       = 1 << 12;
-
-   /**
-    * Set when characters are set horizontally as provided by {@link GraphicsX#drawChars(char[], int, int, int, int, int)} method.
-    * <br>
-    * <br>
-    * Colors could change though. in which case {@link Stringer#TYPE_1_SINGLE_LINE_FX}
-    * <br>
-    * <br>
-    * 
-    */
-   public static final int STATE_14_BASIC_POSITIONING        = 1 << 13;
-
-   /**
-    * At least one {@link StringFx} defines a bg or a style hosted in a {@link FigDrawable}.
-    * <br>
-    * <br>
-    * 
-    */
-   public static final int STATE_15_BG_DEFINED               = 1 << 14;
-
-   public static final int STATE_16_STATIC_INDEX_FX          = 1 << 15;
-
-   /**
-    * Single line no breaks, no fx.
-    * <br>
-    * <br>
-    * This is the straight forward line drawing. Are {@link StringMetrics} fully computed?
-    * <br>
-    * We don't really need them until editmodule requires specific char positions
-    * <br>
-    * This will be used temporarily for the line shape mask.
-    * <br>
-    * <br>
-    * 
-    */
-   public static final int TYPE_0_SINGLE_LINE                = 0;
-
-   /**
-    * There is a {@link StringFx} but no breaks
-    */
-   public static final int TYPE_1_SINGLE_LINE_FX             = 1;
-
-   /**
-    * Breaks no special effect.
-    * <br>
-    * <br>
-    * 
-    */
-   public static final int TYPE_2_BREAKS                     = 2;
-
-   /**
-    * Fx and breaks
-    */
-   public static final int TYPE_3_BREAKS_FX                  = 3;
-
-   public static final int TYPE_7_LINE_BREAKS_WORD_BREAKS_FX = 7;
-
-   /**
-    * Type {@link IDrwTypes#TYPE_051_BOX}.
-    * Anchors the String figure in the box.
+    * Anchors the String figure in the box defined by the Stringer area.
     * <br>
     * However String have a locale associated with it.
     * Therefore the String is a 
@@ -182,17 +64,17 @@ public class Stringer extends StringDrawer {
     * <li>dextrosinistral text
     * <li>sinistrodextral text from the left to the right
     */
-   ByteObject              anchor;
+   ByteObject         anchor;
 
    /**
     * Used for alignment
     */
-   int                     areaH;
+   int                areaH;
 
    /**
     * Used for alignment
     */
-   int                     areaW;
+   int                areaW;
 
    /**
     * the x coordinate at which the draw the String.
@@ -200,9 +82,9 @@ public class Stringer extends StringDrawer {
     * <br>
     * When drawing shapes on a {@link RgbImage} for mask, this value is not used
     */
-   int                     areaX;
+   int                areaX;
 
-   int                     areaY;
+   int                areaY;
 
    /**
     * When many different styles are used at the character level, the synthesis of merges is set here.
@@ -216,7 +98,7 @@ public class Stringer extends StringDrawer {
     * <br>
     * 
     */
-   StringFx[]              charFxs;
+   StringFx[]         charFxs;
 
    /**
     * Modified when Trimming. Thus the word Charles trimmed at letter 5 will be Cha..
@@ -228,18 +110,18 @@ public class Stringer extends StringDrawer {
     * <br>
     * What happens when the chars include the .. of a trim cue?
     */
-   char[]                  chars;
+   char[]             chars;
 
    /**
     * Stores original string before trimming
     */
-   char[]                  charsBackup;
+   char[]             charsBackup;
 
-   public boolean          debugArea                         = false;
+   public boolean     debugArea     = false;
 
-   int                     drawLineType;
+   int                drawLineType;
 
-   int                     drawWordType;
+   int                drawWordType;
 
    /**
     * Global Text effects definition. Never null. First it is the translation of String figure values.
@@ -254,7 +136,7 @@ public class Stringer extends StringDrawer {
     * <br>
     * 
     */
-   StringFx                fx                                = null;
+   StringFx           stringFx      = null;
 
    /**
     * This array hosts the dynamic defintion starting at index 1. Index 1 means the reset to default
@@ -272,20 +154,20 @@ public class Stringer extends StringDrawer {
     * <br>
     * 
     */
-   StringFx[]              fxsDynamic;
+   StringFx[]         fxsDynamic;
 
    /**
     * Definition of dynamic fxs.
     */
-   ByteObject[]            fxsDynamicDefinition;
+   ByteObject[]       fxsDynamicDefinition;
 
    /**
     * Array for the static fx that will be applied to characters/words using the rule based system for deciding 
     * on what index a given static style is applied.
     * <br>
     * <br>
-    * <li>{@link IFxStr#FX_OFFSET_04_INDEX2}
-    * <li>{@link IFxStr#FX_OFFSET_05_INDEX_PATTERN1}
+    * <li>{@link ITechStrFx#FX_OFFSET_04_INDEX2}
+    * <li>{@link ITechStrFx#FX_OFFSET_05_INDEX_PATTERN1}
     * <br>
     * <br>
     * Array never contains nulls.
@@ -293,9 +175,9 @@ public class Stringer extends StringDrawer {
     * <br>
     * 
     */
-   StringFx[]              fxsStatic;
+   StringFx[]         fxsStatic;
 
-   private StringFx[]      fxsStaticIndex;
+   private StringFx[] fxsStaticIndex;
 
    /**
     * Tracks the intervals for the Dynamic Styles.
@@ -314,59 +196,61 @@ public class Stringer extends StringDrawer {
     * <br>
     * 
     */
-   IntBuffer[]             intervals;
+   IntBuffer[]        intervals;
 
    /**
     * the length of characters starting offsetChars.
     */
-   int                     lengthChars;
+   int                lengthChars;
 
    /**
     * When specific line fxs are used.
     */
-   StringFx[]              lineFxs                           = null;
+   StringFx[]         lineFxs       = null;
 
-   StringMetrics           metrics                           = null;
+   StringMetrics      stringMetrics = null;
 
    /**
     * Absolute offset for reading characters in the character array.
     */
-   int                     offsetChars;
+   int                offsetChars;
 
    /**
     * Provides the {@link Stringer} with easily accessible state information.
     * <br>
     * <br>
-    * <li> {@link Stringer#STATE_04_TRIMMED}
+    * <li> {@link ITechStringer#STATE_04_TRIMMED}
     */
-   private int             states;
+   private int        states;
 
    /**
     * The {@link StringDraw} based on areaX and areaY.
     */
-   StringDraw              stringDraw                        = null;
+   StringDraw         stringDraw    = null;
 
    /**
     * 
     */
-   int[]                   styleFlags;
+   int[]              styleFlags;
 
    /**
     * 
     */
-   ByteObject              text;
+   ByteObject         text;
 
    public Stringer(DrwCtx drc) {
       super(drc);
-      metrics = new StringMetrics(drc, this);
-      fx = new StringFx(drc, this);
+      stringMetrics = new StringMetrics(drc, this);
+      stringFx = new StringFx(drc, this);
       stringDraw = new StringDraw(drc, this);
    }
 
    /**
-    * Called by 
-    * <br>
+    * Called by client when he wants to modify a string
+    * 
     * Updates the breaks
+    * <br>
+    * To initialize Stringer with a string, use {@link Stringer#initFig(ByteObject, int, int, int, int, char[], int, int)}
     * <br>
     * @param cs update char array
     * @param index
@@ -374,14 +258,19 @@ public class Stringer extends StringDrawer {
     */
    public void addChar(char[] cs, int index, char c) {
       chars = cs;
-      metrics.addChar(index, c);
+      stringMetrics.addChar(index, c);
       lengthChars++;
    }
 
+   /**
+    * 
+    * @param cs
+    * @param indexRelative
+    */
    public synchronized void deleteCharAt(char[] cs, int indexRelative) {
       chars = cs;
       //metrics uses the previous len value
-      metrics.deleteCharAt(indexRelative);
+      stringMetrics.deleteCharAt(indexRelative);
       lengthChars--;
    }
 
@@ -403,10 +292,10 @@ public class Stringer extends StringDrawer {
          g.setColor(ColorUtils.FULLY_OPAQUE_RED);
          g.drawRect(areaX - 1, areaY - 1, areaW + 1, areaH + 1);
       }
-      if (fx.scale != null) {
+      if (stringFx.scale != null) {
          drawScaled(g);
       } else {
-         drawOffsets(g, areaX, areaY, 0, lengthChars, 0, metrics.getNumOfLines());
+         drawOffsets(g, areaX, areaY, 0, lengthChars, 0, stringMetrics.getNumOfLines());
       }
       //System.out.println(this.toString());
    }
@@ -429,7 +318,7 @@ public class Stringer extends StringDrawer {
     * @param caretIndex
     */
    public void drawChar(GraphicsX g, int indexRelative) {
-      if (hasState(STATE_01_CHAR_EFFECTS)) {
+      if (hasState(ITechStringer.STATE_01_CHAR_EFFECTS)) {
          getDraw().drawCharFx(g, chars[offsetChars + indexRelative], indexRelative);
       } else {
          getDraw().drawChar(g, chars[offsetChars + indexRelative], indexRelative);
@@ -445,7 +334,7 @@ public class Stringer extends StringDrawer {
     * It tries to honour the offset. Line offsets are meaningless if there is one line.
     * <br>
     * <br>
-    * This is fine for line {@link StringFx} but what happens to Paragraph or {@link IFxStr#FX_SCOPE_4_TEXT}
+    * This is fine for line {@link StringFx} but what happens to Paragraph or {@link ITechStrFx#FX_SCOPE_4_TEXT}
     * when a line is drawn again?
     * <br>
     * <br>
@@ -476,7 +365,7 @@ public class Stringer extends StringDrawer {
          stringDraw = new StringDraw(drc, this);
          stringDraw.init(x, y);
       }
-      int[] breaks = metrics.breaks;
+      int[] breaks = stringMetrics.breaks;
       if (breaks == null) {
          //draw everything on a single line
          int offset = this.offsetChars + wOffset;
@@ -485,7 +374,7 @@ public class Stringer extends StringDrawer {
          stringDraw.drawLine(g, offset, len, 0);
 
       } else {
-         int numLines = metrics.getNumOfLines();
+         int numLines = stringMetrics.getNumOfLines();
          int end = Math.min(numLines, hNum);
          int firstLineIndex = hOffset;
          //
@@ -494,7 +383,7 @@ public class Stringer extends StringDrawer {
             int dx = x;
             int dy = y;
             if (wOffset > 0) {
-               dx -= metrics.getCharX(wOffset);
+               dx -= stringMetrics.getCharX(wOffset);
             }
             if (hOffset > 0) {
                dy -= getLineY(firstLineIndex);
@@ -503,7 +392,7 @@ public class Stringer extends StringDrawer {
          }
          for (int i = 0; i < end; i++) {
             int lineIndex = hOffset + i;
-            int index = BREAK_HEADER_SIZE + (i + hOffset) * BREAK_WINDOW_SIZE;
+            int index = ITechStringer.BREAK_HEADER_SIZE + (i + hOffset) * ITechStringer.BREAK_WINDOW_SIZE;
             int startOffset = breaks[index];
             int charNum = breaks[index + 1];
             //wOffset decides what to draw
@@ -524,20 +413,20 @@ public class Stringer extends StringDrawer {
 
          //or we can use the background color of hosting figure in StringDrawable.
       }
-      int scaledImageW = metrics.getPrefWidth() + 1;
-      int scaledImageH = metrics.getPrefHeight() + 1;
+      int scaledImageW = stringMetrics.getPrefWidth() + 1;
+      int scaledImageH = stringMetrics.getPrefHeight() + 1;
       //draw on image and scale to fit area. metrics
       //TODO check if figure has defined a bgcolor else use transparent
       RgbImage baseImage = drc.getCache().create(scaledImageW, scaledImageH, bgColor);
       GraphicsX gi = baseImage.getGraphicsX();
       int scalePosX = 1; //glitch needed for pretty scaling.
       int scalePoxY = 0;
-      drawOffsets(gi, scalePosX, scalePoxY, 0, lengthChars, 0, metrics.getNumOfLines());
+      drawOffsets(gi, scalePosX, scalePoxY, 0, lengthChars, 0, stringMetrics.getNumOfLines());
 
       //removes background pixels if the x,y area is not virgin of background color
 
       //TODO fix the double blending
-      RgbImage scaledImage = drc.getRgbImageOperator().scaleRgbImage(baseImage, areaW, areaH, fx.scale);
+      RgbImage scaledImage = drc.getRgbImageOperator().scaleRgbImage(baseImage, areaW, areaH, stringFx.scale);
 
       g.drawRgbImage(scaledImage, areaX, areaY);
       baseImage.dispose();
@@ -559,7 +448,7 @@ public class Stringer extends StringDrawer {
          return charFxs[index];
       } else if (intervals == null) {
          //check for static
-         return fx;
+         return stringFx;
       } else {
          //if only dynamic style look up interval. not very efficient
          for (int i = 0; i < intervals.length; i++) {
@@ -574,7 +463,137 @@ public class Stringer extends StringDrawer {
             }
          }
       }
-      return fx;
+      return stringFx;
+   }
+
+   /**
+    * Method creates a trim cue with {@link Stringer} and the given width.
+    * <br>
+    * <br>
+    * 
+    * POST: the state of {@link Stringer} is not modified.
+    * <br>
+    * <br>
+    * @param str
+    * @return null if trimming is not needed. For structure semantics see {@link StringMetrics#breaks}
+    */
+   public int[] getTrimSingleLine(int width) {
+      StringMetrics sm = this.getMetrics();
+      int widthPixelCount = 0;
+      boolean isTrimmed = false;
+      IntBuffer breaks = new IntBuffer(drc.getUCtx());
+      int numCharOnLine = 0;
+      int charw = 0;
+      int stepStart = 0;
+      int stepEnd = this.lengthChars;
+      for (int step = stepStart; step < stepEnd; step++) {
+         charw = sm.getCharWidth(step);
+         widthPixelCount += charw;
+         if (widthPixelCount <= width) {
+            numCharOnLine++;
+         } else {
+            widthPixelCount -= charw;
+            isTrimmed = true;
+            break;
+         }
+      }
+      if (isTrimmed) {
+         //finalize line.
+         breaks.addInt(stepStart);
+         breaks.addInt(numCharOnLine);
+         breaks.addInt(widthPixelCount);
+         breaks.addInt(0);
+         return breaks.getIntsRef();
+      } else {
+         return null;
+      }
+   }
+
+   /**
+    * Format String to fit into the <code>width</code> parameter given the {@link Font}.
+    * <br>
+    * <br>
+    * Does not modify the state of the {@link Stringer}.
+    * <br>
+    * <br>
+    * 
+    * When maxLines is 1, trim as soon as width is consumed.
+    * <br>
+    * When maxLines is 2, trim on the second line after a line break.
+    * <br>
+    * <br>
+    * <b>Structure of Integer Array</b> <br>
+    * index[0] = control value<br>
+    * index[1] = start index of 1st line<br>
+    * index[2] = number of characters on 1st line<br>
+    * index[3] = start index of 2nd line<br>
+    * index[4] = number of characters on 2nd line<br>
+    * <br>
+    * This structure allows to skip newline entirely. It allows to draw tabs \t.
+    * 
+    * <li>array's length is the number of lines * 2 + 1
+    * <li>The first value is a control value.
+    * <li>A line may be empty.
+    * <br>
+    * <br>
+    * TODO Write a switch to stop the format for really big strings. The maxline is a first security.                 
+    * <br>
+    * <br>
+    * @param width width given for formatting the string. If width not big enough for one character. Method fits at least one letter by line.
+    * @param maxLines the number of lines after -1 if infinity of lines. Automatically sets the TRIM state to the 
+    * @return integer array 
+    */
+   public int[] getTrimFormat(int width, int maxLines) {
+      int lineWidth = 0;
+      int lineCount = 1;
+      int numCharOnLine = 0;
+      IntBuffer data = new IntBuffer(drc.getUCtx());
+      StringMetrics sm = this.getMetrics();
+      int charw = 0;
+      int lineStartOffset = 0;
+      boolean isTrimNeeded = false;
+      for (int step = 0; step < this.lengthChars; step++) {
+         charw = sm.getCharWidth(step);
+         lineWidth += charw;
+         if (lineWidth > width) {
+            if (lineCount == maxLines) {
+               //we reached the end of available lines. trim the last 2 characters to replace them with the trim cue.
+               lineWidth -= charw;
+               isTrimNeeded = true;
+               break;//end the algo
+            } else {
+               //special case where not even one character can fit the space. only one dot will be drawn.
+               if (numCharOnLine == 0) {
+                  numCharOnLine = 1;
+                  lineWidth = 1;
+                  isTrimNeeded = true;
+                  break;
+               } else {
+                  //finish current line
+                  data.addInt(lineStartOffset);
+                  data.addInt(numCharOnLine);
+                  data.addInt(lineWidth - charw);
+                  lineStartOffset = step;
+                  lineCount++;
+                  lineWidth = charw;
+                  numCharOnLine = 1;
+               }
+            }
+         } else {
+            //increment the number of characters on this line
+            numCharOnLine += 1;
+         }
+      }
+      //finalize line if there is enough space
+      data.addInt(lineStartOffset);
+      data.addInt(numCharOnLine);
+      data.addInt(lineWidth);
+      int flag = 0;
+      if (!isTrimNeeded) {
+         flag = 1;
+      }
+      data.addInt(flag);
+      return data.getIntsRef();
    }
 
    /**
@@ -624,15 +643,15 @@ public class Stringer extends StringDrawer {
     */
    public StringFx getLineFx(int i) {
 
-      return fx;
+      return stringFx;
    }
 
    public int getLineY(int i) {
-      return metrics.lineYs[i];
+      return stringMetrics.lineYs[i];
    }
 
    public StringMetrics getMetrics() {
-      return metrics;
+      return stringMetrics;
    }
 
    private int getNumDynamic(ByteObject textFigure) {
@@ -640,7 +659,7 @@ public class Stringer extends StringDrawer {
       int count = 0;
       if (subs != null) {
          for (int i = 0; i < subs.length; i++) {
-            if (subs[i] != null && subs[i].hasFlag(IFxStr.FX_OFFSET_02_FLAGX, IFxStr.FX_FLAGX_2_DYNAMIC)) {
+            if (subs[i] != null && subs[i].hasFlag(ITechStrFx.FX_OFFSET_02_FLAGX, ITechStrFx.FX_FLAGX_2_DYNAMIC)) {
                count++;
             }
          }
@@ -649,14 +668,14 @@ public class Stringer extends StringDrawer {
    }
 
    public int getNumOfLines() {
-      return metrics.getNumOfLines();
+      return stringMetrics.getNumOfLines();
    }
 
    private int getNumStaticIndex(ByteObject[] subs) {
       int count = 0;
       for (int i = 0; i < subs.length; i++) {
-         if (subs[i] != null && !subs[i].hasFlag(IFxStr.FX_OFFSET_02_FLAGX, IFxStr.FX_FLAGX_2_DYNAMIC)) {
-            if (subs[i].hasFlag(IFxStr.FX_OFFSET_02_FLAGX, IFxStr.FX_FLAGX_6_DEFINED_INDEX)) {
+         if (subs[i] != null && !subs[i].hasFlag(ITechStrFx.FX_OFFSET_02_FLAGX, ITechStrFx.FX_FLAGX_2_DYNAMIC)) {
+            if (subs[i].hasFlag(ITechStrFx.FX_OFFSET_02_FLAGX, ITechStrFx.FX_FLAGX_6_DEFINED_INDEX)) {
                count++;
             }
          }
@@ -664,13 +683,30 @@ public class Stringer extends StringDrawer {
       return count;
    }
 
+   /**
+    * {@link StringFx} for the whole string.
+    * @return
+    */
    public StringFx getStringFx() {
-      return fx;
+      return stringFx;
    }
 
+   /**
+    * {@link StringFx} for the whole string.
+    * @return
+    */
+   public StringFx getFx() {
+      return stringFx;
+   }
+
+   /**
+    * 
+    * @param lineIndex
+    * @return
+    */
    public int[] getWordBreaks(int lineIndex) {
-      if (metrics.lineWordBreaks != null) {
-         return metrics.lineWordBreaks[lineIndex];
+      if (stringMetrics.lineWordBreaks != null) {
+         return stringMetrics.lineWordBreaks[lineIndex];
       }
       return null;
    }
@@ -704,6 +740,7 @@ public class Stringer extends StringDrawer {
     */
    public void initFig(ByteObject textFigure, int x, int y, int w, int h, char[] chars, int offset, int len) {
       textFigure.checkType(TYPE_050_FIGURE);
+      
       this.charsBackup = null;
       if (chars == null) {
          throw new NullPointerException();
@@ -712,10 +749,10 @@ public class Stringer extends StringDrawer {
       this.offsetChars = offset;
       this.lengthChars = len;
       this.text = textFigure;
-      if (text.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1ANCHOR)) {
-         anchor = text.getSubFirst(TYPE_051_BOX);
+      if (text.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1_ANCHOR)) {
+         anchor = text.getSubFirst(TYPE_069_ANCHOR);
       }
-      if (text.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_4MASK)) {
+      if (text.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_4_MASK)) {
          //figure has a mask, move it to text mask fx.
       }
 
@@ -725,9 +762,9 @@ public class Stringer extends StringDrawer {
       areaW = w;
       areaH = h;
       //no effects. we extract figure information from text to create the StringFx object.
-      fx.init(textFigure);
+      stringFx.init(textFigure);
       stringDraw.init(areaX, areaY);
-      metrics.init();
+      stringMetrics.init();
       //all txt effect are stored sequencially
       ByteObject[] subs = textFigure.getSubs(TYPE_070_TEXT_EFFECTS);
       if (subs != null && subs.length != 0) {
@@ -740,20 +777,20 @@ public class Stringer extends StringDrawer {
    }
 
    private void initMetrics() {
-      metrics.init();
+      stringMetrics.init();
    }
 
    /**
-    * Reads the different {@link IFxStr} definitions and sort them.
+    * Reads the different {@link ITechStrFx} definitions and sort them.
     * @param textFigure
     * @param subs not null by contract size above 0 and elements inside are not null
     */
    public void initTextEffects(ByteObject textFigure, ByteObject[] subs) {
-      setState(STATE_08_ACTIVE_STYLE, true);
+      setState(ITechStringer.STATE_08_ACTIVE_STYLE, true);
       int dsize = getNumDynamic(textFigure);
       if (dsize > 0) {
          fxsDynamic = new StringFx[dsize + 1];
-         fxsDynamic[0] = fx;
+         fxsDynamic[0] = stringFx;
          fxsDynamicDefinition = new ByteObject[dsize + 1];
          intervals = new IntBuffer[1 + dsize];
       }
@@ -767,13 +804,13 @@ public class Stringer extends StringDrawer {
          if (subs[i] != null) {
             StringFx fxi = new StringFx(drc, this);
             fxi.init(subs[i]);
-            if (subs[i].hasFlag(IFxStr.FX_OFFSET_02_FLAGX, IFxStr.FX_FLAGX_2_DYNAMIC)) {
+            if (subs[i].hasFlag(ITechStrFx.FX_OFFSET_02_FLAGX, ITechStrFx.FX_FLAGX_2_DYNAMIC)) {
                fxsDynamic[countDynamic] = fxi;
                fxsDynamicDefinition[countDynamic] = subs[i];
                intervals[countDynamic] = new IntBuffer(drc.getUCtx(), 4);
                countDynamic++;
             } else {
-               if (subs[i].hasFlag(IFxStr.FX_OFFSET_02_FLAGX, IFxStr.FX_FLAGX_6_DEFINED_INDEX)) {
+               if (subs[i].hasFlag(ITechStrFx.FX_OFFSET_02_FLAGX, ITechStrFx.FX_FLAGX_6_DEFINED_INDEX)) {
                   fxsStaticIndex[countStaticIndex] = fxi;
                   countStaticIndex++;
                } else {
@@ -785,23 +822,23 @@ public class Stringer extends StringDrawer {
       }
       //create the static final style that by default applies to all chars
       for (int i = 0; i < fxsStatic.length; i++) {
-         fx = fx.add(fxsStatic[i]);
+         stringFx = stringFx.add(fxsStatic[i]);
       }
       //create the index
       for (int i = 0; i < fxsStaticIndex.length; i++) {
-         int scope = fxsStaticIndex[i].fxDefinition.get1(IFxStr.FX_OFFSET_03_SCOPE1);
-         int index = fxsStaticIndex[i].fxDefinition.get2(IFxStr.FX_OFFSET_04_INDEX2);
+         int scope = fxsStaticIndex[i].fxDefinition.get1(ITechStrFx.FX_OFFSET_03_SCOPE1);
+         int index = fxsStaticIndex[i].fxDefinition.get2(ITechStrFx.FX_OFFSET_04_INDEX2);
 
-         if (scope == IFxStr.FX_SCOPE_0_CHAR) {
+         if (scope == ITechStrFx.FX_SCOPE_0_CHAR) {
             if (charFxs == null) {
                charFxs = new StringFx[lengthChars];
             }
             //check index pattern? what if part of
-            charFxs[index] = fx.cloneMerge(fxsStaticIndex[i]);
+            charFxs[index] = stringFx.cloneMerge(fxsStaticIndex[i]);
 
-         } else if (scope == IFxStr.FX_SCOPE_1_WORD) {
+         } else if (scope == ITechStrFx.FX_SCOPE_1_WORD) {
 
-         } else if (scope == IFxStr.FX_SCOPE_2_LINE) {
+         } else if (scope == ITechStrFx.FX_SCOPE_2_LINE) {
             if (lineFxs == null) {
                lineFxs = new StringFx[getNumOfLines()];
             }
@@ -809,20 +846,20 @@ public class Stringer extends StringDrawer {
          }
       }
       if (countStaticIndex != 0) {
-         setState(STATE_16_STATIC_INDEX_FX, true);
+         setState(ITechStringer.STATE_16_STATIC_INDEX_FX, true);
       }
       if (countDynamic == 0) {
-         setState(STATE_10_ACTIVE_DYNAMIC_STYLE, false);
+         setState(ITechStringer.STATE_10_ACTIVE_DYNAMIC_STYLE, false);
       }
       if (countStatic != 0) {
-         setState(STATE_13_FX, true);
+         setState(ITechStringer.STATE_13_FX, true);
       }
       //from the definitions
-      updateActiveFXs();
+      setActiveFXs();
    }
 
    public void meterString() {
-      this.meterString(IStr.BREAK_0_NONE, 0);
+      this.meterString(ITechStringDrw.BREAK_0_NONE, 0);
    }
 
    /**
@@ -830,7 +867,7 @@ public class Stringer extends StringDrawer {
     * <br>
     * <br>
     * 
-    * @param breakType {@link IStr#BREAK_4_TRIM_SINGLE_LINE} etc.
+    * @param breakType {@link ITechStringDrw#BREAK_4_TRIM_SINGLE_LINE} etc.
     * @param maxLines
     */
    public void meterString(int breakType, int maxLines) {
@@ -843,24 +880,24 @@ public class Stringer extends StringDrawer {
     * <br>
     * @param breakWidth
     * @param breakHeight
-    * @param breakType {@link IStr#BREAK_4_TRIM_SINGLE_LINE} etc.
+    * @param breakType {@link ITechStringDrw#BREAK_4_TRIM_SINGLE_LINE} etc.
     * @param maxLines
     */
    public void meterString(int breakWidth, int breakHeight, int breakType, int maxLines) {
       getMetrics().breakStringEntry(breakType, maxLines, breakWidth, breakHeight);
       //decide type
-      boolean isFX = hasState(STATE_08_ACTIVE_STYLE);
-      if (metrics.breaks != null) {
+      boolean isFX = hasState(ITechStringer.STATE_08_ACTIVE_STYLE);
+      if (stringMetrics.breaks != null) {
          if (isFX) {
-            drawLineType = TYPE_3_BREAKS_FX;
+            drawLineType = ITechStringer.TYPE_3_BREAKS_FX;
          } else {
-            drawLineType = TYPE_2_BREAKS;
+            drawLineType = ITechStringer.TYPE_2_BREAKS;
          }
       } else {
          if (isFX) {
-            drawLineType = TYPE_1_SINGLE_LINE_FX;
+            drawLineType = ITechStringer.TYPE_1_SINGLE_LINE_FX;
          } else {
-            drawLineType = TYPE_0_SINGLE_LINE;
+            drawLineType = ITechStringer.TYPE_0_SINGLE_LINE;
          }
       }
    }
@@ -884,8 +921,8 @@ public class Stringer extends StringDrawer {
                desactiveDynamic = false;
             }
          }
-         setState(STATE_10_ACTIVE_DYNAMIC_STYLE, !desactiveDynamic);
-         updateDynamicFXs();
+         setState(ITechStringer.STATE_10_ACTIVE_DYNAMIC_STYLE, !desactiveDynamic);
+         setDynamicFXs();
       }
    }
 
@@ -927,9 +964,9 @@ public class Stringer extends StringDrawer {
             this.intervals[style].addInt(offset);
             this.intervals[style].addInt(len);
             //modifies Stringer state
-            setState(STATE_10_ACTIVE_DYNAMIC_STYLE, true);
+            setState(ITechStringer.STATE_10_ACTIVE_DYNAMIC_STYLE, true);
             //update fx state status. dynamic style may change
-            updateDynamicFXs();
+            setDynamicFXs();
          }
       }
    }
@@ -952,41 +989,38 @@ public class Stringer extends StringDrawer {
 
    //#mdebug
 
-   public void toString(Dctx sb) {
-      sb.root(this, "Stringer");
-      sb.appendWithSpace("(" + offsetChars + "," + lengthChars + ") ");
-      super.toString(sb.sup());
+   public void toString(Dctx dc) {
+      dc.root(this, Stringer.class, 980);
+      dc.appendWithSpace("(" + offsetChars + "," + lengthChars + ") ");
+      super.toString(dc.sup());
 
       if (chars == null) {
          chars = "STRINGER NULL CHAR[]".toCharArray();
          offsetChars = 0;
          lengthChars = chars.length;
       }
-      sb.append(new String(chars, offsetChars, lengthChars));
-      sb.nl();
-      sb.append(" Area = " + areaX + "," + areaY + " " + areaW + "," + areaH);
-      sb.append(" type=" + drawLineType);
-      if (states != 0) {
-         sb.append(" States=");
-         if (hasState(STATE_01_CHAR_EFFECTS)) {
-            sb.append("CharEffects");
-         }
-         if (hasState(STATE_02_CHAR_WIDTHS)) {
-            sb.append("CharWidths");
-         }
-         if (hasState(STATE_04_TRIMMED)) {
-            sb.append("Trimmed");
-         }
-      }
-      sb.nlLvlArray("DynamicFXs", fxsDynamic);
-      sb.nlLvlArray("StaticFxs", fxsStatic);
-      sb.nlLvlArray("Intervals", intervals);
+      String strDis = getDisplayedString();
+      dc.append("DisplayedString ->");
+      dc.append(strDis);
+      dc.append("<-");
+      dc.nl();
+      dc.append(" Area = " + areaX + "," + areaY + " " + areaW + "," + areaH);
+      dc.append(" type=" + drawLineType);
+      dc.nl();
+      dc.append("States ->");
+      dc.appendVarWithSpace("CharEffects", hasState(ITechStringer.STATE_01_CHAR_EFFECTS));
+      dc.appendVarWithSpace("CharWidths", hasState(ITechStringer.STATE_02_CHAR_WIDTHS));
+      dc.appendVarWithSpace("Trimmed", hasState(ITechStringer.STATE_04_TRIMMED));
 
-      sb.nlLvl(anchor);
+      dc.nlLvlArray("DynamicFXs", fxsDynamic);
+      dc.nlLvlArray("StaticFxs", fxsStatic);
+      dc.nlLvlArray("Intervals", intervals);
 
-      sb.nlLvl(metrics);
-      sb.nlLvl(stringDraw);
-      sb.nlLvl(fx);
+      dc.nlLvl(anchor);
+
+      dc.nlLvl(stringMetrics);
+      dc.nlLvl(stringDraw);
+      dc.nlLvl(stringFx);
 
    }
 
@@ -1012,14 +1046,14 @@ public class Stringer extends StringDrawer {
     * <br> 
     * @param lastIndex the last absolute index at which the string should end. cannot be smaller than Stringer offset.
     */
-   public void trim(int lastIndex) {
+   public void executeTrim(int lastIndex) {
       if (lastIndex < offsetChars) {
          throw new IllegalArgumentException("" + lastIndex);
       }
       if (lengthChars <= 2) {
          return;
       }
-      setState(Stringer.STATE_04_TRIMMED, true);
+      setState(ITechStringer.STATE_04_TRIMMED, true);
       charsBackup = chars;
       int numChars = lastIndex - offsetChars;
       chars = new char[numChars];
@@ -1057,10 +1091,10 @@ public class Stringer extends StringDrawer {
     * @param w
     * @param h
     */
-   public void update(ByteObject text, int x, int y, int w, int h) {
+   public void setTextObjectArea(ByteObject text, int x, int y, int w, int h) {
       if (this.text != text) {
          this.text = text;
-         fx.init(text);
+         stringFx.init(text);
       }
    }
 
@@ -1070,11 +1104,11 @@ public class Stringer extends StringDrawer {
     * <br>
     * 
     */
-   private void updateActiveFXs() {
+   private void setActiveFXs() {
       boolean isGranular = false;
       for (int i = 0; i < fxsStatic.length; i++) {
          StringFx fx = fxsStatic[i];
-         if (fx.fxDefinition.hasFlag(IFxStr.FX_OFFSET_02_FLAGX, IFxStr.FX_FLAGX_6_DEFINED_INDEX)) {
+         if (fx.fxDefinition.hasFlag(ITechStrFx.FX_OFFSET_02_FLAGX, ITechStrFx.FX_FLAGX_6_DEFINED_INDEX)) {
             isGranular = true;
          }
       }
@@ -1083,16 +1117,16 @@ public class Stringer extends StringDrawer {
       }
    }
 
-   public void updateArea(int contentW, int contentH) {
+   public void setArea(int contentW, int contentH) {
       areaW = contentW;
       areaH = contentH;
    }
 
-   public void updateCharAt(int i, char c) {
-      metrics.updateCharAt(i, c);
+   public void setCharAt(int i, char c) {
+      stringMetrics.setCharAt(i, c);
    }
 
-   private void updateDynamicFXs() {
+   private void setDynamicFXs() {
       for (int i = 1; i < intervals.length; i++) {
          IntBuffer ib = intervals[i];
          ByteObject dynDef = fxsDynamicDefinition[i];
@@ -1108,7 +1142,7 @@ public class Stringer extends StringDrawer {
                   StringFx sf = charFxs[k];
                   //when null goes to default FX.
                   if (sf == null) {
-                     sf = fx;
+                     sf = stringFx;
                   }
                   if (!sf.hasDynamicID(i)) {
                      //add it
@@ -1118,7 +1152,7 @@ public class Stringer extends StringDrawer {
             } else {
                if (fxsDynamic[i] == null) {
                   //merge default 
-                  StringFx sf = fx.cloneMergeTop(fxsDynamicDefinition[i], i);
+                  StringFx sf = stringFx.cloneMergeTop(fxsDynamicDefinition[i], i);
                   fxsDynamic[i] = sf;
                }
             }
@@ -1126,7 +1160,7 @@ public class Stringer extends StringDrawer {
       }
    }
 
-   public void updatePosition(int contentX, int contentY) {
+   public void setPosition(int contentX, int contentY) {
       areaX = contentX;
       areaY = contentY;
       stringDraw.init(areaX, areaY);

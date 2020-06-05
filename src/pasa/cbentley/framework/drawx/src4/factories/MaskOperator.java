@@ -1,6 +1,11 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
@@ -46,6 +51,61 @@ public class MaskOperator extends AbstractDrwOperator {
       RgbImage maskedImg = createMaskedFigure(g, mask, figImg);
       g.drawRgbImage(maskedImg, x, y, anchor);
       figImg.dispose();
+   }
+   /**
+    * Merges two mask definitions.
+    * <br>
+    * <br>
+    * @param root
+    * @param merge
+    * @return
+    */
+   public ByteObject mergeMask(ByteObject root, ByteObject merge) {
+      int maskBgColor = root.get4(ITechMask.MASK_OFFSET_2COLOR_BG4);
+      int maskMidColor = root.get4(ITechMask.MASK_OFFSET_3COLOR_MID4);
+      int maskShapeColor = root.get4(ITechMask.MASK_OFFSET_4COLOR_SHAPE4);
+      int blendBg = root.get1(ITechMask.MASK_OFFSET_5BLEND_BG1);
+      int blendMid = root.get1(ITechMask.MASK_OFFSET_6BLEND_MID1);
+      int blendShape = root.get1(ITechMask.MASK_OFFSET_7BLEND_SHAPE1);
+      int bgAlpha = root.get1(ITechMask.MASK_OFFSET_8ALPHA_BG1);
+      int shapeAlpha = root.get1(ITechMask.MASK_OFFSET_9ALPHA_SHAPE1);
+
+      ByteObject mm = merge.getSubFirst(IBOTypesBOC.TYPE_011_MERGE_MASK);
+
+      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_2)) {
+         maskBgColor = merge.get4(ITechMask.MASK_OFFSET_2COLOR_BG4);
+      }
+      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_3)) {
+         maskMidColor = merge.get4(ITechMask.MASK_OFFSET_3COLOR_MID4);
+      }
+      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_4)) {
+         maskShapeColor = merge.get4(ITechMask.MASK_OFFSET_4COLOR_SHAPE4);
+      }
+      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_5)) {
+         blendBg = merge.get4(ITechMask.MASK_OFFSET_5BLEND_BG1);
+      }
+      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_6)) {
+         blendMid = merge.get4(ITechMask.MASK_OFFSET_6BLEND_MID1);
+      }
+      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_7)) {
+         blendShape = merge.get4(ITechMask.MASK_OFFSET_7BLEND_SHAPE1);
+      }
+      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_8)) {
+         bgAlpha = merge.get4(ITechMask.MASK_OFFSET_8ALPHA_BG1);
+      }
+      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_1)) {
+         shapeAlpha = merge.get4(ITechMask.MASK_OFFSET_9ALPHA_SHAPE1);
+      }
+      ByteObject maskFilter = root.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
+      if (merge.hasFlag(ITechMask.MASK_OFFSET_1FLAG1, ITechMask.MASK_FLAG_1MASK_FILTER)) {
+         maskFilter = merge.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
+      }
+      ByteObject bgFigure = root.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
+      if (merge.hasFlag(ITechMask.MASK_OFFSET_1FLAG1, ITechMask.MASK_FLAG_2BG_FIGURE)) {
+         bgFigure = merge.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
+      }
+      ByteObject newMask = drc.getMaskFactory().getMask(maskBgColor, maskMidColor, maskShapeColor, bgAlpha, shapeAlpha, blendBg, blendMid, blendShape, maskFilter, bgFigure);
+      return newMask;
    }
 
    /**
@@ -106,10 +166,10 @@ public class MaskOperator extends AbstractDrwOperator {
    public RgbImage createShapeMask(GraphicsX g, ByteObject mask, int wi, int hi, ByteObject fig) {
       ByteObject cf = fig.cloneCopyHeadRefParams();
       cf.setValue(ITechFigure.FIG__OFFSET_06_COLOR4, ColorUtils.FULLY_OPAQUE_BLACK, 4);
-      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2GRADIENT, false);
-      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_6ANIMATED, false);
-      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4MASK, false);
-      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5FILTER, false);
+      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT, false);
+      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_6_ANIMATED, false);
+      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK, false);
+      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER, false);
       //draw the mask canvas and apply color filter. bg color is opaque white
       RgbImage maskImg = drc.getFigureOperator().getFigImagePrimitve(g, cf, wi, hi, true, -1);
       if (mask.hasFlag(ITechMask.MASK_OFFSET_1FLAG1, ITechMask.MASK_FLAG_1MASK_FILTER)) {
@@ -234,9 +294,9 @@ public class MaskOperator extends AbstractDrwOperator {
    public void addMask(ByteObject figure, ByteObject mask) {
       if (figure == null || mask == null)
          return;
-      if (!figure.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4MASK)) {
+      if (!figure.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK)) {
          figure.addSub(mask);
-         figure.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4MASK, true);
+         figure.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK, true);
       }
    }
 

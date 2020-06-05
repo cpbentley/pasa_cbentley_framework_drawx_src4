@@ -1,3 +1,7 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
@@ -7,14 +11,14 @@ import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwFactory;
 
 /**
- * Creator of {@link IFxStr} templates.
+ * Creator of {@link ITechStrFx} templates.
  * <br>
  * <br>
  * 
  * @author Charles-Philip Bentley
  *
  */
-public class FxStringFactory extends AbstractDrwFactory implements IFxStr, IBOTypesDrw {
+public class FxStringFactory extends AbstractDrwFactory implements ITechStrFx, IBOTypesDrw {
 
    public FxStringFactory(DrwCtx drc) {
       super(drc);

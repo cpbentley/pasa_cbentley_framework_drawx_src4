@@ -1,5 +1,10 @@
+/*
+ * (c) 2018-2020 Charles-Philip Bentley
+ * This code is licensed under MIT license (see LICENSE.txt for details)
+ */
 package pasa.cbentley.framework.drawx.src4.interfaces;
 
+import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.framework.drawx.src4.engine.RgbCache;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 
@@ -13,7 +18,7 @@ import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
  * @author Charles-Philip
  *
  */
-public interface IRgbLoader {
+public interface IRgbLoader extends IStringable {
 
    public RgbImage loadImage();
 
