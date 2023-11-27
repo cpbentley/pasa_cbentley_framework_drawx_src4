@@ -12,9 +12,9 @@ import pasa.cbentley.byteobjects.src4.tech.ITechOperator;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFilter;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 
 /**
  * Color filter definitions creation class.
@@ -370,7 +370,7 @@ public class FilterFactory extends AbstractDrwFactory implements ITechFunction, 
             sb.nl();
             sb.append("Exact = " + bo.hasFlag(ITechFilter.FILTER_OFFSET_02_FLAG1, ITechFilter.FILTER_FLAG_7_EXACT_MATCH));
             sb.append(" Alpha=" + bo.getValue(ITechFilter.FILTER_OFFSET_04_FUNCTION2, 2));
-            sb.append(" Color=" + ToStringStaticDraw.toStringColor(bo.get4(ITechFilter.FILTER_OFFSET_05_COLOR4)));
+            sb.append(" Color=" + ToStringStaticDrawx.toStringColor(bo.get4(ITechFilter.FILTER_OFFSET_05_COLOR4)));
             break;
          case ITechFilter.FILTER_TYPE_07_TBLR:
             sb.append("TBLR");
@@ -390,7 +390,7 @@ public class FilterFactory extends AbstractDrwFactory implements ITechFunction, 
          case ITechFilter.FILTER_TYPE_08_TOUCHES:
             sb.append("Touches");
             sb.nl();
-            sb.append("TouchColor=" + ToStringStaticDraw.toStringColor(bo.get4(ITechFilter.FILTER_OFFSET_05_COLOR4)));
+            sb.append("TouchColor=" + ToStringStaticDrawx.toStringColor(bo.get4(ITechFilter.FILTER_OFFSET_05_COLOR4)));
             sb.append("or48=" + bo.hasFlag(ITechFilter.FILTER_OFFSET_02_FLAG1, ITechFilter.FILTER_FLAG_5_OR48));
             sb.append("FunctionID=" + bo.hasFlag(ITechFilter.FILTER_OFFSET_02_FLAG1, ITechFilter.FILTER_FLAG_6_FUNCTION_ID));
             break;

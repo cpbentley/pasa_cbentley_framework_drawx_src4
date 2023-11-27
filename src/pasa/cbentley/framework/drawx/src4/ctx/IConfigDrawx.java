@@ -13,4 +13,18 @@ public interface IConfigDrawx extends IConfigBO {
     * @return
     */
    public int getFlagsDrw();
+
+   public char getNewLine();
+
+   /**
+    * 
+    * @return
+    */
+   public char[] getLineBreakChars();
+
+   /**
+    * Any
+    * @return
+    */
+   public char[] getWordSeparators();
 }

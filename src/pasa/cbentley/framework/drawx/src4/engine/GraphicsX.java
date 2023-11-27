@@ -10,7 +10,6 @@ import java.util.Vector;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
 import pasa.cbentley.core.src4.ctx.UCtx;
-import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IDLog;
 import pasa.cbentley.core.src4.logging.IStringable;
@@ -24,17 +23,18 @@ import pasa.cbentley.framework.coredraw.src4.ctx.CoreDrawCtx;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
-import pasa.cbentley.framework.coredraw.src4.interfaces.ITechDrawer;
-import pasa.cbentley.framework.drawx.src4.base.TransformUtilz;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFeaturesDraw;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBlend;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGraphicsX;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechStyles;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
+import pasa.cbentley.framework.drawx.src4.utils.TransformUtils;
 
 /**
  * Custom MIDP 3.0 Graphical Layer over the MIDP 2.0 Graphics class. <br>
@@ -180,8 +180,6 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     */
    private int       clipY             = 0;
 
-   private String    debugName;
-
    private DrwCtx    drc;
 
    private int       excludeColor;
@@ -204,8 +202,6 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     * Cannot be set to True in Screen PaintMode
     */
    boolean           hasAlpha          = false;
-
-   private boolean   isIgnoreClip        = true;
 
    private int       imageDraws;
 
@@ -236,6 +232,8 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
    boolean           isAlphaMode       = false;
 
    boolean           isFillMode        = true;
+
+   private boolean   isIgnoreClip      = true;
 
    /**
     * System Flag. This is not a user flag.
@@ -319,6 +317,9 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
    private int       switches;
 
    private long      tickTime;
+
+   //#debug
+   private String    toStringName;
 
    /**
     * Class own translate x component.
@@ -671,7 +672,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     */
    private IImage createImageLayer(int w, int h) {
       IImage img = null;
-      if (drc.hasFeatureSupport(ITechDrawer.SUP_ID_10_TRANSPARENT_BACKGROUND)) {
+      if (drc.hasFeatureSupport(ITechFeaturesDraw.SUP_ID_10_TRANSPARENT_BACKGROUND)) {
          //alpha suppport which means the background is transparent by default
          img = cache.createPrimitiveColor(w, h, 0);
       } else {
@@ -896,7 +897,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     * @param transform
     * @param x the x coordinate of the anchor point in the destination drawing area
     * @param y the y coordinate of the anchor point in the destination drawing area
-    * @param anchor flag {@link IGraphics#LEFT}
+    * @param anchor flag {@link ITechGraphics#LEFT}
     * GraphicsX. This call requires a merge
     * @throws   NullPointerException - if src is null 
     * @throws   IllegalArgumentException - if src is the same image as the destination of this Graphics object 
@@ -956,7 +957,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
             //#debug
             toDLog().pDraw("Trans=" + ToStringStaticUc.toStringTrans(transform) + " w=" + sec[2] + " h=" + sec[3] + " Clipped To " + getIntUtils().debugString(sec), this, GraphicsX.class, "drawRegion", ITechLvl.LVL_05_FINE, true);
 
-            data = TransformUtilz.transform(data, sec[2], sec[3], transform);
+            data = TransformUtils.transform(data, sec[2], sec[3], transform);
             BlendOp op = blendOpImages;
             //get intersection in GraphicsX referencetial
             sec = getGeo2dUtils().getIntersection(clipX, clipY, clipW, clipH, refX, refY, width, height);
@@ -1222,7 +1223,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       }
 
       //#debug
-      toDLog().pDraw(ToStringStaticDraw.toStringColor(excludeColor), this, GraphicsX.class, "excludeColorSwap", ITechLvl.LVL_05_FINE, true);
+      toDLog().pDraw(ToStringStaticDrawx.toStringColor(excludeColor), this, GraphicsX.class, "excludeColorSwap", ITechLvl.LVL_05_FINE, true);
    }
 
    /**
@@ -1642,7 +1643,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     */
    public RgbImage getRgbImage() {
       if (paintMode == MODE_0_SCREEN || paintMode == MODE_1_IMAGE) {
-         throw new IllegalArgumentException("No RgbImage in Mode " + ToStringStaticDraw.debugPaintMode(paintMode));
+         throw new IllegalArgumentException("No RgbImage in Mode " + ToStringStaticDrawx.debugPaintMode(paintMode));
       }
       mergeAndClear();
       return imageRgbData;
@@ -1831,7 +1832,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
          if (imageRgbData.rgbData != null) {
 
             //#debug
-            String msg = "pOpaqueLayerCount=" + pOpaqueLayerCount + " TColor=" + ToStringStaticDraw.toStringColor(excludeColor) + " " + ToStringStaticDraw.debugPaintMode(paintMode);
+            String msg = "pOpaqueLayerCount=" + pOpaqueLayerCount + " TColor=" + ToStringStaticDrawx.toStringColor(excludeColor) + " " + ToStringStaticDrawx.debugPaintMode(paintMode);
             //#debug
             toDLog().pDraw(msg, this, GraphicsX.class, "merge", ITechLvl.LVL_05_FINE, true);
 
@@ -2112,14 +2113,6 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
 
    }
 
-   public void setDebugName(String name) {
-      if (debugName == null) {
-         debugName = name;
-      } else {
-         debugName = debugName + " - " + name;
-      }
-   }
-
    public void setFillMode(boolean mode) {
       isFillMode = mode;
    }
@@ -2330,7 +2323,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     */
    public void setTranslationShift(int x, int y) {
       //#debug
-      toDLog().pFlow("Before trX=" + translateX + "(" + x + ") trY=" + translateY + " (" + y + ")" + ToStringStaticDraw.debugPaintMode(paintMode), this, GraphicsX.class, "setTranslationShift", LVL_05_FINE, true);
+      toDLog().pFlow("Before trX=" + translateX + "(" + x + ") trY=" + translateY + " (" + y + ")" + ToStringStaticDrawx.debugPaintMode(paintMode), this, GraphicsX.class, "setTranslationShift", LVL_05_FINE, true);
       translateX += x;
       translateY += y;
       //modify the clip roots ? why?
@@ -2409,7 +2402,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       dc.appendVarWithSpace("isIgnoreClip", isIgnoreClip);
 
       dc.line();
-      
+
       dc.appendVarWithSpace("hasAlpha", hasAlpha);
       dc.appendVarWithSpace("alpha", alpha);
       dc.appendColorWithSpace("ActiveColor", mycolor);
@@ -2433,12 +2426,11 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       } else {
          dc.nlLvl(g, "IGraphics");
       }
-      
+
       dc.nlLvl(blendOpImages, "blendOpImages");
       dc.nlLvl(imageLayer, "ImageLayer");
       dc.nlLvl(imageRgbData, "imageRgbData");
    }
-
 
    public String toString1Line() {
       return Dctx.toString1Line(this);
@@ -2502,10 +2494,17 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       return drc.getUCtx();
    }
 
-
    private void toStringPrivate(Dctx dc) {
-      dc.appendVarWithSpace("debugName", debugName);
-      dc.appendVarWithSpace("paintMode", ToStringStaticDraw.debugPaintMode(paintMode));
+      dc.appendVarWithSpace("debugName", toStringName);
+      dc.appendVarWithSpace("paintMode", ToStringStaticDrawx.debugPaintMode(paintMode));
+   }
+
+   public void toStringSetName(String name) {
+      if (toStringName == null) {
+         toStringName = name;
+      } else {
+         toStringName = toStringName + " - " + name;
+      }
    }
 
    /**

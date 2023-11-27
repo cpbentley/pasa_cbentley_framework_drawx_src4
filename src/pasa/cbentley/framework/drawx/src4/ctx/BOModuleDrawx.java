@@ -18,7 +18,6 @@ import pasa.cbentley.framework.drawx.src4.engine.RgbCache;
 import pasa.cbentley.framework.drawx.src4.interfaces.IDIDsDrwBase;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFilter;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 
 /**
  * Drawing Parameter class encapsulates a byte array for declarative definitions of Drawables.
@@ -135,37 +134,37 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    public String getIDString(int did, int value) {
       switch (did) {
          case IDIDsDrwBase.DID_07_DRAWABLE_IMPLICIT_W_H:
-            return ToStringStaticDraw.getImplit(value);
+            return ToStringStaticDrawx.getImplit(value);
          case IDIDsDrwBase.DID_01_GRAD_RECT:
-            return ToStringStaticDraw.debugStrGradRect(value);
+            return ToStringStaticDrawx.gradRect(value);
          case IDIDsDrwBase.DID_02_GRAD_TRIG:
-            return ToStringStaticDraw.debugStrGradTrig(value);
+            return ToStringStaticDrawx.gradTrig(value);
          case IDIDsDrwBase.DID_03_IMAGE_TRANSFORM:
             return ToStringStaticUc.toStringTransform(value);
          case IDIDsDrwBase.DID_04_GRAD_ELLIPSE:
-            return ToStringStaticDraw.debugStrGradEllipse(value);
+            return ToStringStaticDrawx.gradEllipse(value);
          case IDIDsDrwBase.DID_05_MASK_BLEND:
-            return ToStringStaticDraw.debugMaskBlend(value);
+            return ToStringStaticDrawx.debugMaskBlend(value);
          case IDIDsDrwBase.DID_06_MASK_PRESET:
-            return ToStringStaticDraw.debugMaskPreset(value);
+            return ToStringStaticDrawx.debugMaskPreset(value);
          case IDIDsDrwBase.DID_08_DIAG_DIR:
-            return ToStringStaticDraw.debugDiagDir(value);
+            return ToStringStaticDrawx.debugDiagDir(value);
          case IDIDsDrwBase.DID_09_BLEND_OP:
-            return ToStringStaticDraw.debugBlend(value);
+            return ToStringStaticDrawx.debugBlend(value);
          case IDIDsDrwBase.DID_10_TRANSFORMATION:
             return ToStringStaticUc.toStringTrans(value);
          case IDIDsDrwBase.DID_12_SKEW_EDGE_TYPES:
-            return ToStringStaticDraw.toStringEdge(value);
+            return ToStringStaticDrawx.toStringEdge(value);
          case IDIDsDrwBase.DID_11_INTERPOLATION:
-            return ToStringStaticDraw.toStringInterpol(value);
+            return ToStringStaticDrawx.toStringInterpol(value);
          case IDIDsDrwBase.DID_13_RND_COLORS:
-            return ToStringStaticDraw.debugColoRnd(value);
+            return ToStringStaticDrawx.debugColoRnd(value);
          case IDIDsDrwBase.DID_14_PASS:
-            return ToStringStaticDraw.debugPass(value);
+            return ToStringStaticDrawx.debugPass(value);
          case IDIDsDrwBase.DID_15_FILTER_TYPE:
             return toStringFilterType(value);
          case IDIDsDrwBase.DID_16_GRAD_PREDEFINES:
-            return ToStringStaticDraw.toStringGradPre(value);
+            return ToStringStaticDrawx.toStringGradPre(value);
          default:
             return null;
       }

@@ -150,7 +150,7 @@ public class DrawerTriangle {
       } else {
          switch (type) {
             case ITechGradient.GRADIENT_TYPE_TRIG_00_TENT:
-               if (trigType == C.TYPE_00TOP || trigType == C.TYPE_01BOTTOM)
+               if (trigType == C.TYPE_00_TOP || trigType == C.TYPE_01_BOTTOM)
                   size = h;
                else
                   size = w;
@@ -162,7 +162,7 @@ public class DrawerTriangle {
                size = h;
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_10_SWIPE:
-               if (trigType == C.TYPE_00TOP || trigType == C.TYPE_01BOTTOM)
+               if (trigType == C.TYPE_00_TOP || trigType == C.TYPE_01_BOTTOM)
                   size = w;
                else
                   size = h;
@@ -180,10 +180,10 @@ public class DrawerTriangle {
    /**
     * Gradient routines for corner triangles.
     * 
-    * <li> {@link C#TYPE_04TopLeft}
-    * <li> {@link C#TYPE_05TopRight}
-    * <li> {@link C#TYPE_06BotLeft}
-    * <li> {@link C#TYPE_07BotRight}
+    * <li> {@link C#TYPE_04_TopLeft}
+    * <li> {@link C#TYPE_05_TopRight}
+    * <li> {@link C#TYPE_06_BotLeft}
+    * <li> {@link C#TYPE_07_BotRight}
     * <br>
     * <br>
     * Support
@@ -198,7 +198,7 @@ public class DrawerTriangle {
       int color = fig.getValue(ITechFigure.FIG__OFFSET_06_COLOR4, 4);
       ByteObject grad = fig.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
       int type = grad.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
-      int trigType = fig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2);
+      int trigType = fig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2);
       int gradSize = getTrigGradSize_4_7(grad, type, w, h, trigType);
       double alpha = MathUtils.aTan((double) w / 2, (double) h / 2);
       int count = 0;
@@ -211,22 +211,22 @@ public class DrawerTriangle {
          switch (type) {
             case ITechGradient.GRADIENT_TYPE_TRIG_00_TENT:
                //inverse normal top
-               if (trigType == C.TYPE_04TopLeft)
+               if (trigType == C.TYPE_04_TopLeft)
                   drawTriangleSwitch(g, x, y, w - count, h - count, trigType);
-               else if (trigType == C.TYPE_05TopRight) {
+               else if (trigType == C.TYPE_05_TopRight) {
                   drawTriangleSwitch(g, x + count, y, w - count, h - count, trigType);
-               } else if (trigType == C.TYPE_06BotLeft) {
+               } else if (trigType == C.TYPE_06_BotLeft) {
                   drawTriangleSwitch(g, x, y + count, w - count, h - count, trigType);
                } else {
                   drawTriangleSwitch(g, x + count, y + count, w - count, h - count, trigType);
                }
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_01_TENT_JESUS:
-               if (trigType == C.TYPE_04TopLeft)
+               if (trigType == C.TYPE_04_TopLeft)
                   drawTriangleSwitch(g, x, y, w, h - count, trigType);
-               else if (trigType == C.TYPE_05TopRight) {
+               else if (trigType == C.TYPE_05_TopRight) {
                   drawTriangleSwitch(g, x, y, w, h - count, trigType);
-               } else if (trigType == C.TYPE_06BotLeft) {
+               } else if (trigType == C.TYPE_06_BotLeft) {
                   drawTriangleSwitch(g, x, y + count, w, h - count, trigType);
                } else {
                   drawTriangleSwitch(g, x, y + count, w, h - count, trigType);
@@ -234,11 +234,11 @@ public class DrawerTriangle {
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_02_TOP_JESUS:
                //inverse normal top
-               if (trigType == C.TYPE_04TopLeft)
+               if (trigType == C.TYPE_04_TopLeft)
                   drawTriangleSwitch(g, x, y, w - count, h, trigType);
-               else if (trigType == C.TYPE_05TopRight) {
+               else if (trigType == C.TYPE_05_TopRight) {
                   drawTriangleSwitch(g, x + count, y, w - count, h, trigType);
-               } else if (trigType == C.TYPE_06BotLeft) {
+               } else if (trigType == C.TYPE_06_BotLeft) {
                   drawTriangleSwitch(g, x, y, w - count, h, trigType);
                } else {
                   drawTriangleSwitch(g, x + count, y, w - count, h, trigType);
@@ -246,11 +246,11 @@ public class DrawerTriangle {
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_03_TUNNEL:
                //inverse normal top
-               if (trigType == C.TYPE_04TopLeft)
+               if (trigType == C.TYPE_04_TopLeft)
                   drawTriangleSwitch(g, x, y + count, w - count, h - count, trigType);
-               else if (trigType == C.TYPE_05TopRight) {
+               else if (trigType == C.TYPE_05_TopRight) {
                   drawTriangleSwitch(g, x + count, y + count, w - count, h - count, trigType);
-               } else if (trigType == C.TYPE_06BotLeft) {
+               } else if (trigType == C.TYPE_06_BotLeft) {
                   drawTriangleSwitch(g, x + count, y + count, w - count, h - 2 * count, trigType);
                } else {
                   drawTriangleSwitch(g, x + count, y + 2 * count, w - count, h - count, trigType);
@@ -258,11 +258,11 @@ public class DrawerTriangle {
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_04_FULL:
                //inverse normal top
-               if (trigType == C.TYPE_04TopLeft)
+               if (trigType == C.TYPE_04_TopLeft)
                   drawTriangleSwitch(g, x + count, y, w - count, h - count, trigType);
-               else if (trigType == C.TYPE_05TopRight) {
+               else if (trigType == C.TYPE_05_TopRight) {
                   drawTriangleSwitch(g, x + count, y + count, w - count, h - count, trigType);
-               } else if (trigType == C.TYPE_06BotLeft) {
+               } else if (trigType == C.TYPE_06_BotLeft) {
                   drawTriangleSwitch(g, x + count, y + count, w - count, h - 2 * count, trigType);
                } else {
                   drawTriangleSwitch(g, x + count, y + 2 * count, w - count, h - count, trigType);
@@ -270,11 +270,11 @@ public class DrawerTriangle {
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_10_SWIPE:
                //in this case each count is the number of degrees from base angle
-               if (trigType == C.TYPE_04TopLeft) {
+               if (trigType == C.TYPE_04_TopLeft) {
                   drawTriangleSwitch(g, x + count, y + count, w - count, h - count, trigType);
-               } else if (trigType == C.TYPE_05TopRight) {
+               } else if (trigType == C.TYPE_05_TopRight) {
                   drawTriangleSwitch(g, x + count, y + count, w - count, h - count, trigType);
-               } else if (trigType == C.TYPE_06BotLeft) {
+               } else if (trigType == C.TYPE_06_BotLeft) {
                   drawTriangleSwitch(g, x + count, y + count, w - count, h - 2 * count, trigType);
                } else {
                   //draw mini trig along 
@@ -288,10 +288,10 @@ public class DrawerTriangle {
    /**
     * Middle triangle only supports
     * 
-    * <li> {@link C#TYPE_08MID_TopLeft}
-    * <li> {@link C#TYPE_09MID_TopRight}
-    * <li> {@link C#TYPE_10MID_BotLeft}
-    * <li> {@link C#TYPE_11MID_BotRight}
+    * <li> {@link C#TYPE_08_MID_TopLeft}
+    * <li> {@link C#TYPE_09_MID_TopRight}
+    * <li> {@link C#TYPE_10_MID_BotLeft}
+    * <li> {@link C#TYPE_11_MID_BotRight}
     * 
     * <br>
     * <br>
@@ -306,7 +306,7 @@ public class DrawerTriangle {
       int color = fig.getValue(ITechFigure.FIG__OFFSET_06_COLOR4, 4);
       ByteObject grad = fig.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
       int type = grad.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
-      int trigType = fig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2);
+      int trigType = fig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2);
       int gradSize = getTrigGradSize(grad, type, w, h, trigType);
       double alpha = MathUtils.aTan((double) w / 2, (double) h / 2);
       int count = 0;
@@ -346,7 +346,7 @@ public class DrawerTriangle {
       int color = fig.getValue(ITechFigure.FIG__OFFSET_06_COLOR4, 4);
       ByteObject grad = fig.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
       int type = grad.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
-      int trigType = fig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2);
+      int trigType = fig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2);
       boolean isWire = grad.hasFlag(ITechGradient.GRADIENT_OFFSET_09_FLAGX1, ITechGradient.GRADIENT_FLAGX_5_WIRE);
       int gradSize = getTrigGradSize(grad, type, w, h, trigType);
       double alpha = MathUtils.aTan((double) w / 2, (double) h / 2);
@@ -363,38 +363,38 @@ public class DrawerTriangle {
          switch (type) {
             case ITechGradient.GRADIENT_TYPE_TRIG_00_TENT:
                //inverse normal top
-               if (trigType == C.TYPE_00TOP)
+               if (trigType == C.TYPE_00_TOP)
                   drawTriangleSwitch(g, x + d2, y + count, w - d, h - count, trigType);
-               else if (trigType == C.TYPE_01BOTTOM) {
+               else if (trigType == C.TYPE_01_BOTTOM) {
                   drawTriangleSwitch(g, x + d2, y, w - d, h - count, trigType);
-               } else if (trigType == C.TYPE_02LEFT) {
+               } else if (trigType == C.TYPE_02_LEFT) {
                   drawTriangleSwitch(g, x + count, y + d2, w - count, h - d, trigType);
                } else {
                   drawTriangleSwitch(g, x, y + d2, w - count, h - d, trigType);
                }
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_01_TENT_JESUS:
-               if (trigType == C.TYPE_00TOP)
+               if (trigType == C.TYPE_00_TOP)
                   drawTriangleSwitch(g, x + d, y + count, w - (2 * d), h - count, trigType);
-               else if (trigType == C.TYPE_01BOTTOM)
+               else if (trigType == C.TYPE_01_BOTTOM)
                   drawTriangleSwitch(g, x + d, y, w - (2 * d), h - count, trigType);
-               else if (trigType == C.TYPE_02LEFT)
+               else if (trigType == C.TYPE_02_LEFT)
                   drawTriangleSwitch(g, x + count, y + d, w - count, h - (2 * d), trigType);
                else
                   drawTriangleSwitch(g, x, y + d, w - count, h - (2 * d), trigType);
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_02_TOP_JESUS:
-               if (trigType == C.TYPE_00TOP || trigType == C.TYPE_01BOTTOM)
+               if (trigType == C.TYPE_00_TOP || trigType == C.TYPE_01_BOTTOM)
                   drawTriangleSwitch(g, x + count, y, w - count2, h, trigType);
                else
                   drawTriangleSwitch(g, x, y + count, w, h - count2, trigType);
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_03_TUNNEL:
-               if (trigType == C.TYPE_00TOP)
+               if (trigType == C.TYPE_00_TOP)
                   drawTriangleSwitch(g, x + d, y, w - (2 * d), h - count, trigType);
-               else if (trigType == C.TYPE_01BOTTOM)
+               else if (trigType == C.TYPE_01_BOTTOM)
                   drawTriangleSwitch(g, x + d, y + count, w - (2 * d), h - count, trigType);
-               else if (trigType == C.TYPE_02LEFT)
+               else if (trigType == C.TYPE_02_LEFT)
                   drawTriangleSwitch(g, x, y + d, w - count, h - (2 * d), trigType);
                else
                   drawTriangleSwitch(g, x + count, y + d, w - count, h - (2 * d), trigType);
@@ -409,11 +409,11 @@ public class DrawerTriangle {
                }
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_08_NORMAL:
-               if (trigType == C.TYPE_00TOP)
+               if (trigType == C.TYPE_00_TOP)
                   drawTriangleSwitch(g, x + d / 2, y, w - d, h - count, trigType);
-               else if (trigType == C.TYPE_01BOTTOM) {
+               else if (trigType == C.TYPE_01_BOTTOM) {
                   drawTriangleSwitch(g, x + d / 2, y + count, w - d, h - count, trigType);
-               } else if (trigType == C.TYPE_02LEFT) {
+               } else if (trigType == C.TYPE_02_LEFT) {
                   drawTriangleSwitch(g, x, y + d2, w - count, h - d, trigType);
                } else {
                   drawTriangleSwitch(g, x + count, y + d2, w - count, h - d, trigType);
@@ -431,16 +431,16 @@ public class DrawerTriangle {
             case ITechGradient.GRADIENT_TYPE_TRIG_09_HALO:
                break;
             case ITechGradient.GRADIENT_TYPE_TRIG_10_SWIPE:
-               if (trigType == C.TYPE_00TOP) {
+               if (trigType == C.TYPE_00_TOP) {
                   if (isWire) {
                      //TODO stroke style
                      g.drawLine(x + count, y + h, x + w / 2, y);
                   } else {
                      g.fillTriangle(x + count, y + h, x + previousC, y + h, x + w / 2, y);
                   }
-               } else if (trigType == C.TYPE_01BOTTOM) {
+               } else if (trigType == C.TYPE_01_BOTTOM) {
                   g.fillTriangle(dx, y, dx + count - previousC, y, x + w / 2, y + h);
-               } else if (trigType == C.TYPE_02LEFT) {
+               } else if (trigType == C.TYPE_02_LEFT) {
                   g.fillTriangle(x + w, dy, x + w, dy + count - previousC, x, y + h / 2);
                } else {
                }
@@ -454,7 +454,7 @@ public class DrawerTriangle {
 
    public void drawTriangleAnchors(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
       ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
-      int angle = p.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2);
+      int angle = p.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2);
       int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
       if (g.hasGradient() && grad != null) {
          int gradSize = Math.min(w / 2, h / 2);
@@ -542,14 +542,14 @@ public class DrawerTriangle {
     * @param p
     */
    public void drawFigLosange(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      int type = p.get1(ITechFigure.FIG_LOSANGE_OFFSET_4TYPE1);
-      if (type == 0) {
+      int type = p.get1(ITechFigure.FIG_LOSANGE_OFFSET_4_TYPE1);
+      if (type == ITechFigure.FIG_LOSANGE_TYPE_0_COLOR) {
          ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
 
          int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
          //when fill is different than zero, draw on rgbimage then mask
-         int fill = p.get2(ITechFigure.FIG_LOSANGE_OFFSET_3FILL2);
-         int overStep = p.get2(ITechFigure.FIG_LOSANGE_OFFSET_2OVERSTEP2);
+         int fill = p.get2(ITechFigure.FIG_LOSANGE_OFFSET_3_FILL2);
+         int overStep = p.get2(ITechFigure.FIG_LOSANGE_OFFSET_2_OVERSTEP2);
 
          if (grad == null) {
             g.setColor(color);
@@ -564,55 +564,55 @@ public class DrawerTriangle {
                drawShapeLosange(g, x + count, y + count, w - c2, h - c2, p, overStep);
             }
          }
-      } else if (type == 1) {
+      } else if (type == ITechFigure.FIG_LOSANGE_TYPE_1_TRIANGLE) {
          ByteObject trig = p.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
-         if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1FLAG, ITechFigure.FIG_LOSANGE_FLAG_1HORIZ)) {
+         if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1_FLAG, ITechFigure.FIG_LOSANGE_FLAG_1_HORIZ)) {
             int w1 = w / 2;
             int w2 = w - w1;
-            trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, C.TYPE_02LEFT, 2);
+            trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, C.TYPE_02_LEFT, 2);
             drawFigTriangle(g, x, y, w1, h, trig);
-            trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, C.TYPE_03RIGHT, 2);
+            trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, C.TYPE_03_RIGHT, 2);
             drawFigTriangle(g, x + w1, y, w2, h, trig);
          } else {
             int h1 = h / 2;
             int h2 = h - h1;
-            trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, C.TYPE_00TOP, 2);
+            trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, C.TYPE_00_TOP, 2);
             drawFigTriangle(g, x, y + h1, w, h1, trig);
-            trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, C.TYPE_01BOTTOM, 2);
+            trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, C.TYPE_01_BOTTOM, 2);
             drawFigTriangle(g, x + h1, y, w, h2, trig);
          }
-      } else if (type == 2) {
+      } else if (type == ITechFigure.FIG_LOSANGE_TYPE_2_TRIANGLES) {
          ByteObject trig1 = p.getSubOrder(IBOTypesDrw.TYPE_050_FIGURE, 0);
          ByteObject trig2 = p.getSubOrder(IBOTypesDrw.TYPE_050_FIGURE, 1);
 
       } else if (type == 3) {
          ByteObject trig = p.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
-         int angle = trig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2);
+         int angle = trig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2);
          int h1 = h / 2;
          int h2 = h - h1;
          int w1 = w / 2;
          int w2 = w - w1;
          switch (angle) {
-            case C.TYPE_00TOP:
+            case C.TYPE_00_TOP:
                drawFigTriangle(g, x, y + h1, w, h1, trig);
-               trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, C.TYPE_01BOTTOM, 2);
+               trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, C.TYPE_01_BOTTOM, 2);
                drawFigTriangle(g, x + h1, y, w, h2, trig);
                break;
-            case C.TYPE_02LEFT:
+            case C.TYPE_02_LEFT:
                drawFigTriangle(g, x, y, w1, h, trig);
-               trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, C.TYPE_03RIGHT, 2);
+               trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, C.TYPE_03_RIGHT, 2);
                drawFigTriangle(g, x + w1, y, w2, h, trig);
                break;
-            case C.TYPE_11MID_BotRight:
+            case C.TYPE_11_MID_BotRight:
                drawFigTriangle(g, x, y, w, h1, trig);
-               trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, C.TYPE_08MID_TopLeft, 2);
+               trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, C.TYPE_08_MID_TopLeft, 2);
                drawFigTriangle(g, x + h1, y, w, h2, trig);
                break;
 
             default:
                break;
          }
-         trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, angle, 2);
+         trig.setValue(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, angle, 2);
       }
    }
 
@@ -624,12 +624,12 @@ public class DrawerTriangle {
       int px = w / 2;
       int py = h / 2;
 
-      if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1FLAG, ITechFigure.FIG_LOSANGE_FLAG_1HORIZ)) {
-         if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1FLAG, ITechFigure.FIG_LOSANGE_FLAG_4NOED_PAPILLION)) {
+      if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1_FLAG, ITechFigure.FIG_LOSANGE_FLAG_1_HORIZ)) {
+         if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1_FLAG, ITechFigure.FIG_LOSANGE_FLAG_4_NOED_PAPILLION)) {
             g.fillTriangle(x, y, x + px + ostep, y + py, x, y + h);
             g.fillTriangle(x + w, y, x + px - ostep, y + py, x + w, y + h);
          } else {
-            if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1FLAG, ITechFigure.FIG_LOSANGE_FLAG_3CONTOUR)) {
+            if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1_FLAG, ITechFigure.FIG_LOSANGE_FLAG_3_CONTOUR)) {
                g.fillTriangle(x, y, x + px + ostep, y, x, y + py);
                //bot left
                g.fillTriangle(x, y + py, x + px + ostep, y + h, x, y + h);
@@ -643,11 +643,11 @@ public class DrawerTriangle {
             }
          }
       } else {
-         if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1FLAG, ITechFigure.FIG_LOSANGE_FLAG_4NOED_PAPILLION)) {
+         if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1_FLAG, ITechFigure.FIG_LOSANGE_FLAG_4_NOED_PAPILLION)) {
             g.fillTriangle(x, y, x + px, y + py + ostep, x + w, y);
             g.fillTriangle(x, y + h, x + px, y + py - ostep, x + w, y + h);
          } else {
-            if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1FLAG, ITechFigure.FIG_LOSANGE_FLAG_3CONTOUR)) {
+            if (p.hasFlag(ITechFigure.FIG_LOSANGE_OFFSET_1_FLAG, ITechFigure.FIG_LOSANGE_FLAG_3_CONTOUR)) {
                g.fillTriangle(x, y, x + px, y, x, y + py + ostep);
                //bot left
                g.fillTriangle(x, y + py - ostep, x + px, y + h, x, y + h);
@@ -674,7 +674,7 @@ public class DrawerTriangle {
     */
    public void drawTriangleComplexAngle(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
       int color = p.getValue(ITechFigure.FIG__OFFSET_06_COLOR4, 4);
-      double angle = p.getValue(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, 2);
+      double angle = p.getValue(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, 2);
       //adjust for weird triangle draw implementation
       angle += 90;
       double rad = Math.toRadians(angle);
@@ -712,7 +712,7 @@ public class DrawerTriangle {
       h -= minus;
 
       //decode the small H value
-      int littleH = drc.getSizer().codedSizeDecode(p, ITechFigure.FIG_TRIANGLE_OFFSET_3h4, w, h, ITechLayout.CTX_2_HEIGHT);
+      int littleH = drc.getSizer().codedSizeDecode(p, ITechFigure.FIG_TRIANGLE_OFFSET_3_h4, w, h, ITechLayout.CTX_2_HEIGHT);
 
       drawTriangleIso(g, (int) angle - 90, color, dx, dy, base, h * 2, littleH);
    }
@@ -734,7 +734,7 @@ public class DrawerTriangle {
 
    public void drawTriangleDirectional(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
       if (g.hasGradient() && p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT)) {
-         int trigType = p.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2);
+         int trigType = p.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2);
          if (trigType < 4) {
             drawTriangleGradient_0_3(g, x, y, w, h, p);
          } else if (trigType < 8) {
@@ -752,10 +752,10 @@ public class DrawerTriangle {
    /**
     * Gradient routines for corner triangles.
     * 
-    * <li> {@link C#TYPE_12TopLeftDiagBot}
-    * <li> {@link C#TYPE_13TopLeftDiagRight}
-    * <li> {@link C#TYPE_14TopRightDiagBot}
-    * <li> {@link C#TYPE_15TopRightDiagLeft}
+    * <li> {@link C#TYPE_12_TopLeftDiagBot}
+    * <li> {@link C#TYPE_13_TopLeftDiagRight}
+    * <li> {@link C#TYPE_14_TopRightDiagBot}
+    * <li> {@link C#TYPE_15_TopRightDiagLeft}
     * <br>
     * <br>
     * Support
@@ -785,7 +785,7 @@ public class DrawerTriangle {
     */
    public void drawTriangleSimple(GraphicsX g, int x, int y, int w, int h, ByteObject trig) {
       int color = trig.getValue(ITechFigure.FIG__OFFSET_06_COLOR4, 4);
-      int type = trig.getValue(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, 2);
+      int type = trig.getValue(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, 2);
       g.setColor(color);
       drawTriangleSwitch(g, x, y, w, h, type);
    }
@@ -798,64 +798,64 @@ public class DrawerTriangle {
       int w2 = w / 2;
       int h2 = h / 2;
       switch (type) {
-         case C.TYPE_00TOP:
+         case C.TYPE_00_TOP:
             g.fillTriangle(x, y + h, x + w2, y, x + w, y + h);
             break;
-         case C.TYPE_01BOTTOM:
+         case C.TYPE_01_BOTTOM:
             g.fillTriangle(x, y, x + w2, y + h, x + w, y);
             break;
-         case C.TYPE_02LEFT:
+         case C.TYPE_02_LEFT:
             g.fillTriangle(x + w, y, x, y + h2, x + w, y + h);
             break;
-         case C.TYPE_03RIGHT:
+         case C.TYPE_03_RIGHT:
             g.fillTriangle(x, y, x + w, y + h2, x, y + h);
             break;
-         case C.TYPE_04TopLeft:
+         case C.TYPE_04_TopLeft:
             g.fillTriangle(x, y, x + w, y, x, y + h);
             break;
-         case C.TYPE_05TopRight:
+         case C.TYPE_05_TopRight:
             g.fillTriangle(x, y, x + w, y, x + w, y + h);
             break;
-         case C.TYPE_06BotLeft:
+         case C.TYPE_06_BotLeft:
             g.fillTriangle(x, y, x + w + 1, y + h, x, y + h);
             break;
-         case C.TYPE_07BotRight:
+         case C.TYPE_07_BotRight:
             g.fillTriangle(x + w, y - 1, x + w, y + h, x - 1, y + h);
             break;
-         case C.TYPE_08MID_TopLeft:
+         case C.TYPE_08_MID_TopLeft:
             g.fillTriangle(x, y, x + w, y + h2, x + w2, y + h);
             break;
-         case C.TYPE_09MID_TopRight:
+         case C.TYPE_09_MID_TopRight:
             g.fillTriangle(x + w, y, x + w2, y + h, x, y + h2);
             break;
-         case C.TYPE_10MID_BotLeft:
+         case C.TYPE_10_MID_BotLeft:
             g.fillTriangle(x, y + h, x + w2, y, x + w, y + h2);
             break;
-         case C.TYPE_11MID_BotRight:
+         case C.TYPE_11_MID_BotRight:
             g.fillTriangle(x + w, y + h, x, y + h2, x + w2, y);
             break;
-         case C.TYPE_12TopLeftDiagBot:
+         case C.TYPE_12_TopLeftDiagBot:
             g.fillTriangle(x, y, x + w, y + h, x + w2, y + h);
             break;
-         case C.TYPE_13TopLeftDiagRight:
+         case C.TYPE_13_TopLeftDiagRight:
             g.fillTriangle(x, y, x + w, y + h, x + w, y + h2);
             break;
-         case C.TYPE_14TopRightDiagBot:
+         case C.TYPE_14_TopRightDiagBot:
             g.fillTriangle(x + w, y, x, y + h, x + w2, y + h);
             break;
-         case C.TYPE_15TopRightDiagLeft:
+         case C.TYPE_15_TopRightDiagLeft:
             g.fillTriangle(x + w, y, x, y + h, x, y + h2);
             break;
-         case C.TYPE_16BotLeftDiagTop:
+         case C.TYPE_16_BotLeftDiagTop:
             g.fillTriangle(x, y + h, x + w, y, x + w2, y);
             break;
-         case C.TYPE_17BotLeftDiagRight:
+         case C.TYPE_17_BotLeftDiagRight:
             g.fillTriangle(x, y + h, x + w, y, x + w, y + h2);
             break;
-         case C.TYPE_18BotRightDiagTop:
+         case C.TYPE_18_BotRightDiagTop:
             g.fillTriangle(x + w, y + h, x, y, x + w2, y);
             break;
-         case C.TYPE_19BotRightDiagLeft:
+         case C.TYPE_19_BotRightDiagLeft:
             g.fillTriangle(x + w, y + h, x, y, x, y + h2);
             break;
 
@@ -876,10 +876,10 @@ public class DrawerTriangle {
     * @param p
     */
    public void drawFigTriangle(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      if (p.hasFlag(ITechFigure.FIG_TRIANGLE_OFFSET_1FLAG1, ITechFigure.FIG_TRIANGLE_FLAG_2ANGLE)) {
+      if (p.hasFlag(ITechFigure.FIG_TRIANGLE_OFFSET_1_FLAG1, ITechFigure.FIG_TRIANGLE_FLAG_2_ANGLE360)) {
          drawTriangleComplexAngle(g, x, y, w, h, p);
       } else {
-         if (p.hasFlag(ITechFigure.FIG_TRIANGLE_OFFSET_1FLAG1, ITechFigure.FIG_TRIANGLE_FLAG_3ANCHOR_POINTS)) {
+         if (p.hasFlag(ITechFigure.FIG_TRIANGLE_OFFSET_1_FLAG1, ITechFigure.FIG_TRIANGLE_FLAG_1_ANCHOR_POINTS)) {
             drawTriangleAnchors(g, x, y, w, h, p);
          } else {
             drawTriangleDirectional(g, x, y, w, h, p);

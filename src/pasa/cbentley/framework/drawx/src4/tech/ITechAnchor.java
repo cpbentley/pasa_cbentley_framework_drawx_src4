@@ -5,7 +5,8 @@
 package pasa.cbentley.framework.drawx.src4.tech;
 
 import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
-import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 
 /**
  * A {@link ITechAnchor} defines how to position some content relative to a Box.
@@ -16,6 +17,8 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
  *
  */
 public interface ITechAnchor extends ITechByteObject {
+
+   public static final int ANCHOR_TYPE                      = IBOTypesDrw.TYPE_069_ANCHOR;
 
    public static final int ALIGN_0_UNDEFINED                = 0;
 
@@ -47,11 +50,11 @@ public interface ITechAnchor extends ITechByteObject {
    /**
     * Default anchors
     */
-   public static final int ANCHOR                           = IGraphics.TOP | IGraphics.LEFT;
+   public static final int ANCHOR                           = ITechGraphics.TOP | ITechGraphics.LEFT;
 
-   public static final int ANCHOR_G_TOP_LEFT                = IGraphics.TOP | IGraphics.LEFT;
+   public static final int ANCHOR_G_TOP_LEFT                = ITechGraphics.TOP | ITechGraphics.LEFT;
 
-   public static final int ANCHOR_G_CENTER_CENTER           = IGraphics.HCENTER | IGraphics.VCENTER;
+   public static final int ANCHOR_G_CENTER_CENTER           = ITechGraphics.HCENTER | ITechGraphics.VCENTER;
 
    /**
     */

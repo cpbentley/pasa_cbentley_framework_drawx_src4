@@ -7,6 +7,7 @@ package pasa.cbentley.framework.drawx.src4.factories;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
@@ -41,7 +42,7 @@ public class RgbImageFactory extends AbstractDrwFactory {
          IGraphics g = ic.getGraphics();
          g.setColor(color);
          g.setFont(f);
-         g.drawChar(c, 0, 0, IGraphics.TOP | IGraphics.LEFT);
+         g.drawChar(c, 0, 0, ITechGraphics.TOP | ITechGraphics.LEFT);
          imgs[i] = ic;
       }
       return imgs;

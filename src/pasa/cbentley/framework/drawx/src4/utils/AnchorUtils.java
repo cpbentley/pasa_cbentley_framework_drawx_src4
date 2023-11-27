@@ -6,8 +6,12 @@ package pasa.cbentley.framework.drawx.src4.utils;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
-import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
 
+/**
+ * 
+ * @author Charles Bentley
+ *
+ */
 public class AnchorUtils {
 
    /**
@@ -15,16 +19,16 @@ public class AnchorUtils {
     * <br>
     * <br>
     * @param anchor when null returns x
-    * @param x
-    * @param w
-    * @param ow 
+    * @param areaX
+    * @param areaW
+    * @param objectW 
     * @return
     */
-   public static int getXAlign(ByteObject anchor, int x, int w, int ow) {
+   public static int getXAlign(ByteObject anchor, int areaX, int areaW, int objectW) {
       if (anchor == null)
-         return x;
-      int ha = anchor.getValue(ITechBox.BOX_OFFSET_02_HORIZ_ALIGN4, 1);
-      return getXAlign(ha, x, w, ow);
+         return areaX;
+      int ha = anchor.getValue(ITechAnchor.ANCHOR_OFFSET_02_HORIZ_ALIGN1, 1);
+      return getXAlign(ha, areaX, areaW, objectW);
    }
 
    /**
@@ -32,54 +36,54 @@ public class AnchorUtils {
     * <br>
     * <br>
     * @param ha horizontal alignment of object
-    * @param x x coordinate of area root
-    * @param totalwidth width of area in which object is being drawn
-    * @param objectwidth width in pixels for our object
+    * @param areaX x coordinate of area root
+    * @param areaW width of area in which object is being drawn
+    * @param objectW width in pixels for our object
     * @return x coordinate, in referential containing area
     */
-   public static int getXAlign(int ha, int x, int totalwidth, int objectwidth) {
+   public static int getXAlign(int ha, int areaX, int areaW, int objectW) {
       int val = 0;
       if (ha == ITechAnchor.ALIGN_6_CENTER) {
          //center
-         val = (totalwidth - objectwidth) / 2;
+         val = (areaW - objectW) / 2;
       } else if (ha == ITechAnchor.ALIGN_4_RIGHT) {
-         val = (totalwidth - objectwidth);
+         val = (areaW - objectW);
       }
-      return x + val;
+      return areaX + val;
    }
 
    /**
     * Same as other method but reads VA value for you
     * @param anchor
-    * @param y
-    * @param h
-    * @param oh
+    * @param areaY
+    * @param areaH
+    * @param objectH
     * @return
     */
-   public static int getYAlign(ByteObject anchor, int y, int h, int oh) {
+   public static int getYAlign(ByteObject anchor, int areaY, int areaH, int objectH) {
       if (anchor == null)
-         return y;
-      int va = anchor.getValue(ITechBox.BOX_OFFSET_03_VERTICAL_ALIGN4, 1);
-      return getYAlign(va, y, h, oh);
+         return areaY;
+      int va = anchor.getValue(ITechAnchor.ANCHOR_OFFSET_03_VERTICAL_ALIGN1, 1);
+      return getYAlign(va, areaY, areaH, objectH);
    }
 
    /**
     * Align TOP, CENTER, or BOTTOM
     * @param va
-    * @param y
-    * @param totalheight
-    * @param objectheight
+    * @param areaY
+    * @param areaH
+    * @param objectH
     * @return
     */
-   public static int getYAlign(int va, int y, int totalheight, int objectheight) {
+   public static int getYAlign(int va, int areaY, int areaH, int objectH) {
       int val = 0;
       if (va == ITechAnchor.ALIGN_6_CENTER) {
          //center
-         val = (totalheight - objectheight) / 2;
+         val = (areaH - objectH) / 2;
       } else if (va == ITechAnchor.ALIGN_2_BOTTOM) {
-         val += totalheight - objectheight;
+         val += areaH - objectH;
       }
-      return y + val;
+      return areaY + val;
    }
 
 }

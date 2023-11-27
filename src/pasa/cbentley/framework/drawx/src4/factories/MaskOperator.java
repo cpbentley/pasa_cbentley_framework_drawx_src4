@@ -7,6 +7,8 @@ package pasa.cbentley.framework.drawx.src4.factories;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.core.src4.utils.ColorUtils;
+import pasa.cbentley.core.src4.utils.interfaces.IColors;
+import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
@@ -15,9 +17,16 @@ import pasa.cbentley.framework.drawx.src4.engine.BlendOp;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
+import pasa.cbentley.framework.drawx.src4.tech.ITechGraphicsX;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
+import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 
-public class MaskOperator extends AbstractDrwOperator {
+/**
+ * 
+ * @author Charles Bentley
+ *
+ */
+public class MaskOperator extends AbstractDrwOperator implements ITechMask, IColors {
 
    public MaskOperator(DrwCtx drc) {
       super(drc);
@@ -34,24 +43,36 @@ public class MaskOperator extends AbstractDrwOperator {
     * @param h Ignored when figure has size anchor
     */
    public void drawMask(GraphicsX g, int x, int y, ByteObject mask, ByteObject fig, int w, int h) {
-      RgbImage figImg = createMaskedFigure(g, mask, w, h, fig);
+      RgbImage figImg = createMaskedFigure(mask, w, h, fig);
       g.drawRgbImage(figImg, x, y);
       figImg.dispose();
    }
 
    public void drawMask(GraphicsX g, int x, int y, ByteObject mask, char c, IMFont f) {
-      RgbImage figImg = drc.getRgbImageFactory().getCharImage(ColorUtils.FULLY_OPAQUE_BLACK, c, f, ColorUtils.FULLY_OPAQUE_WHITE);
-      RgbImage maskedImg = createMaskedFigure(g, mask, figImg);
+      int bgColor = FULLY_OPAQUE_WHITE;
+      RgbImage figImg = drc.getRgbImageFactory().getCharImage(FULLY_OPAQUE_BLACK, c, f, bgColor);
+      RgbImage maskedImg = createMaskedFigure(mask, figImg);
       g.drawRgbImage(maskedImg, x, y);
       figImg.dispose();
    }
 
+   /**
+    * 
+    * @param g
+    * @param x
+    * @param y
+    * @param mask
+    * @param c
+    * @param f
+    * @param anchor {@link ITechGraphicsX#ANCHOR}
+    */
    public void drawMask(GraphicsX g, int x, int y, ByteObject mask, char c, IMFont f, int anchor) {
-      RgbImage figImg = drc.getRgbImageFactory().getCharImage(ColorUtils.FULLY_OPAQUE_BLACK, c, f, ColorUtils.FULLY_OPAQUE_WHITE);
-      RgbImage maskedImg = createMaskedFigure(g, mask, figImg);
+      RgbImage figImg = drc.getRgbImageFactory().getCharImage(FULLY_OPAQUE_BLACK, c, f, FULLY_OPAQUE_WHITE);
+      RgbImage maskedImg = createMaskedFigure(mask, figImg);
       g.drawRgbImage(maskedImg, x, y, anchor);
       figImg.dispose();
    }
+
    /**
     * Merges two mask definitions.
     * <br>
@@ -61,47 +82,47 @@ public class MaskOperator extends AbstractDrwOperator {
     * @return
     */
    public ByteObject mergeMask(ByteObject root, ByteObject merge) {
-      int maskBgColor = root.get4(ITechMask.MASK_OFFSET_2COLOR_BG4);
-      int maskMidColor = root.get4(ITechMask.MASK_OFFSET_3COLOR_MID4);
-      int maskShapeColor = root.get4(ITechMask.MASK_OFFSET_4COLOR_SHAPE4);
-      int blendBg = root.get1(ITechMask.MASK_OFFSET_5BLEND_BG1);
-      int blendMid = root.get1(ITechMask.MASK_OFFSET_6BLEND_MID1);
-      int blendShape = root.get1(ITechMask.MASK_OFFSET_7BLEND_SHAPE1);
-      int bgAlpha = root.get1(ITechMask.MASK_OFFSET_8ALPHA_BG1);
-      int shapeAlpha = root.get1(ITechMask.MASK_OFFSET_9ALPHA_SHAPE1);
+      int maskBgColor = root.get4(MASK_OFFSET_2_COLOR_BG4);
+      int maskMidColor = root.get4(MASK_OFFSET_3_COLOR_MID4);
+      int maskShapeColor = root.get4(MASK_OFFSET_4_COLOR_SHAPE4);
+      int blendBg = root.get1(MASK_OFFSET_5_BLEND_BG1);
+      int blendMid = root.get1(MASK_OFFSET_6_BLEND_MID1);
+      int blendShape = root.get1(MASK_OFFSET_7_BLEND_SHAPE1);
+      int bgAlpha = root.get1(MASK_OFFSET_8_ALPHA_BG1);
+      int shapeAlpha = root.get1(MASK_OFFSET_9_ALPHA_SHAPE1);
 
       ByteObject mm = merge.getSubFirst(IBOTypesBOC.TYPE_011_MERGE_MASK);
 
       if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_2)) {
-         maskBgColor = merge.get4(ITechMask.MASK_OFFSET_2COLOR_BG4);
+         maskBgColor = merge.get4(MASK_OFFSET_2_COLOR_BG4);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_3)) {
-         maskMidColor = merge.get4(ITechMask.MASK_OFFSET_3COLOR_MID4);
+         maskMidColor = merge.get4(MASK_OFFSET_3_COLOR_MID4);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_4)) {
-         maskShapeColor = merge.get4(ITechMask.MASK_OFFSET_4COLOR_SHAPE4);
+         maskShapeColor = merge.get4(MASK_OFFSET_4_COLOR_SHAPE4);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_5)) {
-         blendBg = merge.get4(ITechMask.MASK_OFFSET_5BLEND_BG1);
+         blendBg = merge.get4(MASK_OFFSET_5_BLEND_BG1);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_6)) {
-         blendMid = merge.get4(ITechMask.MASK_OFFSET_6BLEND_MID1);
+         blendMid = merge.get4(MASK_OFFSET_6_BLEND_MID1);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_7)) {
-         blendShape = merge.get4(ITechMask.MASK_OFFSET_7BLEND_SHAPE1);
+         blendShape = merge.get4(MASK_OFFSET_7_BLEND_SHAPE1);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_8)) {
-         bgAlpha = merge.get4(ITechMask.MASK_OFFSET_8ALPHA_BG1);
+         bgAlpha = merge.get4(MASK_OFFSET_8_ALPHA_BG1);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_1)) {
-         shapeAlpha = merge.get4(ITechMask.MASK_OFFSET_9ALPHA_SHAPE1);
+         shapeAlpha = merge.get4(MASK_OFFSET_9_ALPHA_SHAPE1);
       }
       ByteObject maskFilter = root.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
-      if (merge.hasFlag(ITechMask.MASK_OFFSET_1FLAG1, ITechMask.MASK_FLAG_1MASK_FILTER)) {
+      if (merge.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_1_MASK_FILTER)) {
          maskFilter = merge.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
       }
       ByteObject bgFigure = root.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
-      if (merge.hasFlag(ITechMask.MASK_OFFSET_1FLAG1, ITechMask.MASK_FLAG_2BG_FIGURE)) {
+      if (merge.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_2_BG_FIGURE)) {
          bgFigure = merge.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
       }
       ByteObject newMask = drc.getMaskFactory().getMask(maskBgColor, maskMidColor, maskShapeColor, bgAlpha, shapeAlpha, blendBg, blendMid, blendShape, maskFilter, bgFigure);
@@ -116,6 +137,7 @@ public class MaskOperator extends AbstractDrwOperator {
     * Other pixels are changed to fully transparent.
     * @param img
     * @return
+    * @deprecated
     */
    public IImage getImageMask(IImage srcImg, int maskColor, int finalMaskColor) {
       int[] rgb = drc.getRgbCache().getImageData(srcImg);
@@ -143,18 +165,65 @@ public class MaskOperator extends AbstractDrwOperator {
       ByteObject fig = drc.getFigureFactory().getFigString(str, f);
       int wi = f.stringWidth(str);
       int hi = f.getHeight();
-      RgbImage figImg = createMaskedFigure(g, mask, wi, hi, fig);
+      RgbImage figImg = createMaskedFigure(mask, wi, hi, fig);
       g.drawRgbImage(figImg, x, y);
       figImg.dispose();
    }
 
+   public RgbImage createShapeMask(ByteObject mask, int wi, int hi, ByteObject fig, int percent) {
+      RgbImage img = createShapeMask(mask, wi, hi, fig, percent, drc.getAnchorFactory().getCenterCenter());
+      return img;
+   }
+
    /**
-    * Create a black mask. Overrides figure color to black and remove gradients. 
+    * Draws the image as a percentagen over the given area
+    * @param mask
+    * @param wi
+    * @param hi
+    * @param fig
+    * @param percent
+    * @return
+    */
+   public RgbImage createShapeMask(ByteObject mask, int wi, int hi, ByteObject fig, int percent, ByteObject anchor) {
+      RgbImage figImg = drc.getCache().createPrimitiveRgb(wi, hi, -1);
+      GraphicsX figGraphics = figImg.getGraphicsX(GraphicsX.MODE_1_IMAGE);
+      fig = getClonedFigureForMask(fig);
+      if (percent == 100) {
+         drc.getFigureOperator().paintFigureSwitch(figGraphics, 0, 0, wi, hi, fig);
+      } else {
+         int wFig = (int) ((float) wi / 100f * (float) percent);
+         int hFig = (int) ((float) hi / 100f * (float) percent);
+         int x = AnchorUtils.getXAlign(anchor, 0, wi, wFig);
+         int y = AnchorUtils.getYAlign(anchor, 0, hi, hFig);
+         drc.getFigureOperator().paintFigureSwitch(figGraphics, x, y, wFig, hFig, fig);
+      }
+      figImg.disposeGraphics();
+
+      if (mask.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_1_MASK_FILTER)) {
+         ByteObject maskColorFilter = mask.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
+         drc.getFilterOperator().applyColorFilter(maskColorFilter, figImg);
+         //image will be switch to RGB mode.
+      }
+      return figImg;
+   }
+
+   public ByteObject getClonedFigureForMask(ByteObject fig) {
+      ByteObject figureCloned = fig.cloneCopyHeadRefParams();
+      figureCloned.setValue(ITechFigure.FIG__OFFSET_06_COLOR4, FULLY_OPAQUE_BLACK, 4);
+      figureCloned.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT, false);
+      figureCloned.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_6_ANIMATED, false);
+      figureCloned.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK, false);
+      figureCloned.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER, false);
+
+      return figureCloned;
+   }
+
+   /**
+    * Create a black mask on a white background from the figure. 
+    * 
+    * Overrides figure color to black and remove gradients. 
     * <br>
-    * Clone of a String fig keeps the Anchor and Scaler elements.
-    * <br>
-    * This method should not create any blending operation.
-    * <br>
+    * If the Mask has a filter, it is applied on the Black/White image.
     * <br>
     * What happens when you clone a String figure with litteral as sub object?
     * @param mask
@@ -163,21 +232,8 @@ public class MaskOperator extends AbstractDrwOperator {
     * @param fig
     * @return {@link RgbImage} flushed.
     */
-   public RgbImage createShapeMask(GraphicsX g, ByteObject mask, int wi, int hi, ByteObject fig) {
-      ByteObject cf = fig.cloneCopyHeadRefParams();
-      cf.setValue(ITechFigure.FIG__OFFSET_06_COLOR4, ColorUtils.FULLY_OPAQUE_BLACK, 4);
-      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT, false);
-      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_6_ANIMATED, false);
-      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK, false);
-      cf.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER, false);
-      //draw the mask canvas and apply color filter. bg color is opaque white
-      RgbImage maskImg = drc.getFigureOperator().getFigImagePrimitve(g, cf, wi, hi, true, -1);
-      if (mask.hasFlag(ITechMask.MASK_OFFSET_1FLAG1, ITechMask.MASK_FLAG_1MASK_FILTER)) {
-         ByteObject maskColorFilter = mask.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
-         drc.getFilterOperator().applyColorFilter(maskColorFilter, maskImg);
-         //image will be switch to RGB mode.
-      }
-      return maskImg;
+   public RgbImage createShapeMask(ByteObject mask, int wi, int hi, ByteObject fig) {
+      return createShapeMask(mask, wi, hi, fig, 100, null);
    }
 
    /**
@@ -200,67 +256,88 @@ public class MaskOperator extends AbstractDrwOperator {
     * @param fig Figure that will paint its shape in a given color.
     * @return
     */
-   public RgbImage createMaskedFigure(GraphicsX g, ByteObject mask, int wi, int hi, ByteObject fig) {
-      //SystemLog.printDraw(RgbCache.getCache().toString());
-
+   public RgbImage createMaskedFigure(ByteObject mask, int wi, int hi, ByteObject fig) {
       //draw the mask canvas and apply color filter
-      RgbImage maskImg = createShapeMask(g, mask, wi, hi, fig);
-      return createMaskedFigure(g, mask, maskImg);
+      RgbImage maskImg = createShapeMask(mask, wi, hi, fig);
+      return createMaskedFigure(mask, maskImg);
    }
 
-   public RgbImage createMaskedFigure(GraphicsX g, ByteObject mask, RgbImage maskImg) {
-
-      //SystemLog.printDraw(RgbImage.debugAlphas(maskImg.getRgbData(), maskImg.getWidth(), maskImg.getHeight()));
+   /**
+    * 
+    * Size of returned image is same as {@link RgbImage}, unless
+    * the mask defines a sizer {@link ITechMask#MASK_FLAG_6_SIZE_MASK}
+    * 
+    * <br>
+    * <br>
+    * Mask image: 
+    * <li>fully opaque black pixels are SHAPE
+    * <li>fully opaque white pixels are background
+    * <li>anything else is considered halo
+    * 
+    * @param mask Describes what to do with RgbImage
+    * @param maskImg provides the template for which to accept the pixel
+    * @return a new {@link RgbImage}
+    */
+   public RgbImage createMaskedFigure(ByteObject mask, RgbImage maskImg) {
 
       //the alpha value for the bgpixel not hidden by mask color
-      int shapeAlphaValue = mask.getValue(ITechMask.MASK_OFFSET_9ALPHA_SHAPE1, 1);
-      int bgAlphaValue = mask.getValue(ITechMask.MASK_OFFSET_8ALPHA_BG1, 1);
-      int bgColor = mask.get4(ITechMask.MASK_OFFSET_2COLOR_BG4);
-      int shapeColor = mask.get4(ITechMask.MASK_OFFSET_4COLOR_SHAPE4);
-      int midColor = mask.get4(ITechMask.MASK_OFFSET_4COLOR_SHAPE4);
-      int bgBlend = mask.get1(ITechMask.MASK_OFFSET_5BLEND_BG1);
-      int midBlend = mask.get1(ITechMask.MASK_OFFSET_6BLEND_MID1);
-      int shapeBlend = mask.get1(ITechMask.MASK_OFFSET_7BLEND_SHAPE1);
+      int alphaValueShape = mask.getValue(MASK_OFFSET_9_ALPHA_SHAPE1, 1);
+      int alphaValueBg = mask.getValue(MASK_OFFSET_8_ALPHA_BG1, 1);
+      int colorBg = mask.get4(MASK_OFFSET_2_COLOR_BG4);
+      int colorMid = mask.get4(MASK_OFFSET_3_COLOR_MID4);
+      int colorShape = mask.get4(MASK_OFFSET_4_COLOR_SHAPE4);
+      int blendBg = mask.get1(MASK_OFFSET_5_BLEND_BG1);
+      int blendMid = mask.get1(MASK_OFFSET_6_BLEND_MID1);
+      int blendShape = mask.get1(MASK_OFFSET_7_BLEND_SHAPE1);
 
-      ByteObject bgFigure = mask.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
       int dw = maskImg.getWidth();
       int dh = maskImg.getHeight();
-      if (mask.hasFlag(ITechMask.MASK_OFFSET_1FLAG1, ITechMask.MASK_FLAG_6SIZE_MASK)) {
+      if (mask.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_6_SIZE_MASK)) {
          dw = maskImg.getWidth();
          dh = maskImg.getHeight();
       }
-      //backgroud image with GraphicsX in RGB_IMAGE mode
-      RgbImage figBackgroundImg = drc.getFigureOperator().getFigImage(g, bgFigure, dw, dh, false, false, 0);
-      //SystemLog.printDraw(figImg);
-      //SystemLog.printDraw(maskImg);
+
+      int[] figData = null;
+      RgbImage figBackgroundImg;
+      if (mask.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_2_BG_FIGURE)) {
+         ByteObject bgFigure = mask.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
+         //#debug      
+         drc.toStringCheckNull(bgFigure);
+
+         //background image with GraphicsX in RGB_IMAGE mode
+         boolean justSwitch = false;
+         boolean whiteopaque = false;
+         figBackgroundImg = drc.getFigureOperator().getFigImage(bgFigure, dw, dh, justSwitch, whiteopaque, 0);
+      } else {
+         figBackgroundImg = drc.getCache().create(dw, dh, colorBg);
+      }
+      figData = figBackgroundImg.getRgbData();
+
+      //mask pixels.. used to contruct the final image
       //we know by construction that m and n = 0 for both images
-      int[] figData = figBackgroundImg.getRgbData();
       int[] maskData = maskImg.getRgbData();
 
-      //SystemLog.printDraw(RgbImage.debugAlphas(maskImg.getRgbData(), maskImg.getWidth(), maskImg.getHeight()));
-      //SystemLog.printDraw(RgbCache.getCache().toString());
       //mask blending: 3 cases Shape,Bg or Halo.
       //each pixel can be blended
-      BlendOp shapeBlendOP = new BlendOp(drc, shapeBlend);
-      BlendOp bgBlendOP = new BlendOp(drc, bgBlend);
-      BlendOp midBlendOP = new BlendOp(drc, midBlend);
+      BlendOp blendOPShape = new BlendOp(drc, blendShape);
+      BlendOp blendOPBg = new BlendOp(drc, blendBg);
+      BlendOp blendOPMid = new BlendOp(drc, blendMid);
 
       for (int i = 0; i < figData.length; i++) {
-         if (maskData[i] == ColorUtils.FULLY_OPAQUE_BLACK) {
+         if (maskData[i] == FULLY_OPAQUE_BLACK) {
             //we are in the shape area. how to blend bgPixel or shape pixel? either draw pixel or blend with shapecolor
-            blendMaskPixel(figData, i, shapeBlendOP, shapeColor, shapeAlphaValue);
-         } else if (maskData[i] == ColorUtils.FULLY_OPAQUE_WHITE) {
+            blendMaskPixel(figData, i, blendOPShape, colorShape, alphaValueShape);
+         } else if (maskData[i] == FULLY_OPAQUE_WHITE) {
             //we are in the background area
-            blendMaskPixel(figData, i, bgBlendOP, bgColor, bgAlphaValue);
+            blendMaskPixel(figData, i, blendOPBg, colorBg, alphaValueBg);
          } else {
             //middle values between black and white with various alpha values
             //take the alpha value and apply it
             int maskAlpha = (maskData[i] >> 24) & 0xFF;
             //SystemLog.printDraw("maskAlpha = " + maskAlpha);
-            blendMaskPixel(figData, i, midBlendOP, midColor, maskAlpha);
+            blendMaskPixel(figData, i, blendOPMid, colorMid, maskAlpha);
          }
       }
-      maskImg.dispose();
       return figBackgroundImg;
    }
 
@@ -268,18 +345,22 @@ public class MaskOperator extends AbstractDrwOperator {
     * Blends the figData ith pixel with the given color which is given an alphaValue.
     * <br>
     * <br>
+    * Shape color
+    * <li> {@link ITechMask#MASK_OFFSET_2_COLOR_BG4}
+    * <li> {@link ITechMask#MASK_OFFSET_3_COLOR_MID4}
+    * <li> {@link ITechMask#MASK_OFFSET_4_COLOR_SHAPE4}
     * 
     * @param figData
     * @param i
     * @param blendOp 
-    * @param shapeColor
+    * @param shapeColor the color of the shape as defined by {@link ITechMask#MASK_OFFSET_2_COLOR_BG4}
     * @param alphaValue
     */
    void blendMaskPixel(int[] figData, int i, BlendOp blendOp, int shapeColor, int alphaValue) {
       //figData[i] = BlendOp.blendPixel(figData[i], (color & 0xFFFFFF) + (alphaValue << 24), blendOp);
-      if (blendOp.getMode() == ITechMask.MASK_BLEND_0) {
+      if (blendOp.getMode() == MASK_BLEND_0) {
          figData[i] = (figData[i] & 0xFFFFFF) + (alphaValue << 24);
-      } else if (blendOp.getMode() == ITechMask.MASK_BLEND_1) {
+      } else if (blendOp.getMode() == MASK_BLEND_1) {
          figData[i] = (shapeColor & 0xFFFFFF) + (alphaValue << 24);
       } else {
          figData[i] = blendOp.blendPixel(figData[i], (shapeColor & 0xFFFFFF) + (alphaValue << 24));

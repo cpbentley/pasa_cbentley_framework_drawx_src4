@@ -8,12 +8,13 @@ import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.interfaces.ITech;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 
 public interface ITechGraphicsX extends ITech {
 
-   public static final int ANCHOR                        = IGraphics.TOP | IGraphics.LEFT;
+   public static final int ANCHOR                        = ITechGraphics.TOP | ITechGraphics.LEFT;
 
    /**
     * Uses mostly as most of the time, parent drawable clipping context supersedes children.

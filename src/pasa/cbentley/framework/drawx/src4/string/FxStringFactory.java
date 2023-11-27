@@ -11,14 +11,14 @@ import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwFactory;
 
 /**
- * Creator of {@link ITechStrFx} templates.
+ * Creator of {@link IBOFxStr} templates.
  * <br>
  * <br>
  * 
  * @author Charles-Philip Bentley
  *
  */
-public class FxStringFactory extends AbstractDrwFactory implements ITechStrFx, IBOTypesDrw {
+public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBOTypesDrw, IBOFxStrChar, IBOFxStrLine, IBOFxStrPara, IBOFxStrWord {
 
    public FxStringFactory(DrwCtx drc) {
       super(drc);
@@ -33,7 +33,7 @@ public class FxStringFactory extends AbstractDrwFactory implements ITechStrFx, I
     */
    public ByteObject getFxLine(int xf, int yf) {
       ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_070_TEXT_EFFECTS, FXLINE_BASIC_SIZE);
-      p.setValue(FX_OFFSET_03_SCOPE1, FX_SCOPE_2_LINE, 1);
+      p.setValue(FX_OFFSET_04_TYPE_SCOPE1, FX_SCOPE_2_LINE, 1);
       p.setFlag(FXLINE_OFFSET_02_CHAR_X_OFFSET1, FXLINE_FLAG_5_DEFINED_XF, true);
       p.setFlag(FXLINE_OFFSET_03_CHAR_Y_OFFSET1, FXLINE_FLAG_6_DEFINED_YF, true);
       p.setValue(FXLINE_OFFSET_02_CHAR_X_OFFSET1, xf, 1);
@@ -51,7 +51,7 @@ public class FxStringFactory extends AbstractDrwFactory implements ITechStrFx, I
     */
    public ByteObject getTextEffectChar(int index, ByteObject style) {
       ByteObject p = getBOFactory().createByteObject(TYPE_070_TEXT_EFFECTS, FX_BASIC_SIZE);
-      p.setValue(FX_OFFSET_03_SCOPE1, FX_SCOPE_0_CHAR, 1);
+      p.setValue(FX_OFFSET_04_TYPE_SCOPE1, FX_SCOPE_0_CHAR, 1);
       p.setValue(FX_OFFSET_04_INDEX2, index, 2);
       p.setValue(FX_OFFSET_05_INDEX_PATTERN1, index, 1);
 
@@ -66,52 +66,49 @@ public class FxStringFactory extends AbstractDrwFactory implements ITechStrFx, I
     */
    public ByteObject getFxChar(ByteObject[] bgFigure, int[] indexes) {
       ByteObject p = getBOFactory().createByteObject(TYPE_070_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_03_SCOPE1, FX_SCOPE_0_CHAR, 1);
+      p.setValue(FX_OFFSET_04_TYPE_SCOPE1, FX_SCOPE_0_CHAR, 1);
       return p;
    }
 
    public ByteObject getFxChar(int type) {
       ByteObject p = getBOFactory().createByteObject(TYPE_070_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_03_SCOPE1, FX_SCOPE_0_CHAR, 1);
+      p.setValue(FX_OFFSET_04_TYPE_SCOPE1, FX_SCOPE_0_CHAR, 1);
       return p;
    }
 
    /**
-    * Gets the effect Char Lvl, Line Level
-    * <br>
-    * <li> {@link ByteObject#TXT_LVL_CHAR}
-    * <li> {@link ByteObject#TXT_LVL_LINE}
-    * 
-    * @param style
-    * @param flagtype
-    * @param flag
+    * Draws the figure first on the area of the text interval
+    * @param fxLine
     * @return
     */
-   public ByteObject getTxtEffectDrw(ByteObject fx, int flag, int scope) {
-      return null;
+   public ByteObject getFxFigureBg(ByteObject figure) {
+      //#debug
+      figure.checkType(TYPE_050_FIGURE);
+      ByteObject fx = getFx(FX_SCOPE_4_TEXT);
+
+      setFxFigureBg(fx, figure);
+      return fx;
+   }
+
+   public void setColor(ByteObject fx, int color) {
+      fx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_5_DEFINED_COLOR, true);
+      fx.set4(FX_OFFSET_09_COLOR4, color);
    }
 
    /**
-    * From main, get block, line or char effect
-    * <br>
-    * <br>
-    * @param txt
-    * @param type
-    * @param flag
-    * @return null if no such text effects
+    * Draws the figure first on the area of the text interval and override
+    * the text color with the given one.
+    * @param figure
+    * @param textColor
+    * @return
     */
-   public ByteObject getSubFxEffect(ByteObject txt, int type, int flag) {
-      if (txt.hasFlag(FX_OFFSET_01_FLAG, flag)) {
-         ByteObject[] param = txt.getSubs();
-         for (int i = 0; i < param.length; i++) {
-            ByteObject p = param[i];
-            if (p != null) {
-               if (p.get1(FX_OFFSET_03_SCOPE1) == type)
-                  return p;
-            }
-         }
-      }
-      return null;
+   public ByteObject getFxFigureBg(ByteObject figure, int textColor) {
+      //#debug
+      figure.checkType(TYPE_050_FIGURE);
+      ByteObject fx = getFx(FX_SCOPE_4_TEXT);
+      setColor(fx, textColor);
+      setFxFigureBg(fx, figure);
+      return fx;
    }
 
    /**
@@ -122,30 +119,9 @@ public class FxStringFactory extends AbstractDrwFactory implements ITechStrFx, I
     */
    public ByteObject getFxMask(ByteObject mask, int scope) {
       ByteObject p = getFx(scope);
-      p.setFlag(FX_OFFSET_10_FLAGZ, FX_FLAGZ_3_MASK, true);
+      p.setFlag(FX_OFFSET_03_FLAGZ, FX_FLAGZ_3_MASK, true);
       p.addByteObject(mask);
       return p;
-   }
-
-   public int getLineExtraH(ByteObject fxLine) {
-      if (fxLine != null) {
-
-      }
-      return 0;
-   }
-
-   public int getLineExtraW(ByteObject fxLine) {
-      if (fxLine != null) {
-
-      }
-      return 0;
-   }
-
-   public int getLineExtraBetween(ByteObject fxLine) {
-      if (fxLine != null) {
-
-      }
-      return 0;
    }
 
    /**
@@ -160,26 +136,42 @@ public class FxStringFactory extends AbstractDrwFactory implements ITechStrFx, I
     */
    public ByteObject getFxChar(ByteObject[] fxs) {
       ByteObject p = getBOFactory().createByteObject(TYPE_070_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_03_SCOPE1, FX_SCOPE_0_CHAR, 1);
+      p.setValue(FX_OFFSET_04_TYPE_SCOPE1, FX_SCOPE_0_CHAR, 1);
       p.addByteObject(fxs);
       return p;
    }
 
    public ByteObject getFxChar(ByteObject[] masks, IMFont[] fonts, int[] indexes) {
       ByteObject p = getBOFactory().createByteObject(TYPE_070_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_03_SCOPE1, FX_SCOPE_0_CHAR, 1);
+      p.setValue(FX_OFFSET_04_TYPE_SCOPE1, FX_SCOPE_0_CHAR, 1);
       return p;
    }
 
    public ByteObject getFxChar(ByteObject[] masks, IMFont[] fonts) {
       ByteObject p = getBOFactory().createByteObject(TYPE_070_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_03_SCOPE1, FX_SCOPE_0_CHAR, 1);
+      p.setValue(FX_OFFSET_04_TYPE_SCOPE1, FX_SCOPE_0_CHAR, 1);
       return p;
    }
 
-   public void addFxMask(ByteObject fx, ByteObject mask) {
+   public void setFxMask(ByteObject fx, ByteObject mask) {
+      //#debug
+      mask.checkType(TYPE_058_MASK);
       fx.addByteObject(mask);
-      fx.setFlag(FX_OFFSET_10_FLAGZ, FX_FLAGZ_3_MASK, true);
+      fx.setFlag(FX_OFFSET_03_FLAGZ, FX_FLAGZ_3_MASK, true);
+   }
+
+   public void setFxPointer(ByteObject fx, ByteObject pointer) {
+      //#debug
+      pointer.checkType(TYPE_010_POINTER);
+      fx.addByteObject(pointer);
+      fx.setFlag(FX_OFFSET_03_FLAGZ, FX_FLAGZ_8_POINTER, true);
+   }
+
+   public void setFxFigureBg(ByteObject fx, ByteObject figure) {
+      //#debug
+      figure.checkType(TYPE_058_MASK);
+      fx.addByteObject(figure);
+      fx.setFlag(FX_OFFSET_03_FLAGZ, FX_FLAGZ_2_FIGURE, true);
    }
 
    /**
@@ -189,40 +181,84 @@ public class FxStringFactory extends AbstractDrwFactory implements ITechStrFx, I
     */
    public ByteObject getFxChar(ByteObject mask) {
       ByteObject p = getBOFactory().createByteObject(TYPE_070_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_03_SCOPE1, FX_SCOPE_0_CHAR, 1);
+      p.setValue(FX_OFFSET_04_TYPE_SCOPE1, FX_SCOPE_0_CHAR, 1);
       return p;
    }
 
+   /**
+    * A character effect that applies to the <code>charIndex</code>
+    * @param mask
+    * @param charIndex Pointer to identify the characters to which to apply the effect
+    * @return
+    */
    public ByteObject getFxChar(ByteObject mask, int charIndex) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_070_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_03_SCOPE1, FX_SCOPE_0_CHAR, 1);
-      return p;
-   }
-
-   public ByteObject getSubCharFx(ByteObject fx) {
-      return getSubFxEffect(fx, FX_SCOPE_0_CHAR, FX_FLAG_8_CHAR);
+      ByteObject fx = getFx(FX_SCOPE_0_CHAR);
+      ByteObject pointer = boc.getPointerFactory().getPointer(charIndex, 1);
+      setFxPointer(fx, pointer);
+      return fx;
    }
 
    /**
     * 
-    * @param fx
+    * @param mask
+    * @param charIndex
     * @return
     */
-   public ByteObject getSubLineFx(ByteObject fx) {
-      return getSubFxEffect(fx, FX_SCOPE_2_LINE, FX_FLAG_7_LINE);
+   public ByteObject getFxWord(ByteObject mask, int charIndex) {
+      ByteObject fx = getFx(FX_SCOPE_1_WORD);
+      ByteObject pointer = boc.getPointerFactory().getPointer(charIndex, 1);
+      setFxPointer(fx, pointer);
+      return fx;
+   }
+
+   /**
+    * A character effect that applies to the first character of the parent scope.
+    * 
+    * <li> When applied to words, every first characters of word
+    * <li> When applied to lines, every first characters of a line.
+    * <li> When applied to sentences, every first characters of a sentence.
+    * <br>
+    * <br>
+    * What is the parent scope?
+    * @param mask
+    * @return
+    */
+   public ByteObject getFxCharFirst(ByteObject mask) {
+      ByteObject fx= getFxChar(mask, 0);
+      fx.setFlag(FX_OFFSET_01_FLAG, FX_FLAGX_7_INCOMPLETE, true);
+      fx.setFlag(FX_OFFSET_01_FLAG, FX_FLAGX_6_DEFINED_INDEX, true);
+
+      fx.setFlag(FX_OFFSET_01_FLAG, FX_FLAGX_4_DEFINED_FONT, false);
+      fx.setFlag(FX_OFFSET_01_FLAG, FX_FLAGX_5_DEFINED_COLOR, false);
+      return fx;
    }
 
    public ByteObject getFx(int scope) {
-      int size = 0;
-      if (scope == FX_SCOPE_0_CHAR) {
-         size = FXCHAR_BASIC_SIZE;
-      } else if (scope == FX_SCOPE_2_LINE) {
-         size = FXLINE_BASIC_SIZE;
-      } else {
-         size = FX_BASIC_SIZE;
+      int size = FX_BASIC_SIZE;
+      switch (scope) {
+         case FX_SCOPE_0_CHAR:
+            size = FXCHAR_BASIC_SIZE;
+            break;
+         case FX_SCOPE_1_WORD:
+            size = FXWORD_BASIC_SIZE;
+            break;
+         case FX_SCOPE_2_LINE:
+            size = FXLINE_BASIC_SIZE;
+            break;
+         case FX_SCOPE_3_PARA:
+            size = FXPARA_BASIC_SIZE;
+            break;
+         case FX_SCOPE_4_TEXT:
+            size = FXTEXT_BASIC_SIZE;
+            break;
+         case FX_SCOPE_5_FRAZ:
+            size = FXFRAZ_BASIC_SIZE;
+            break;
+         default:
+            break;
       }
       ByteObject p = getBOFactory().createByteObject(TYPE_070_TEXT_EFFECTS, size);
-      p.set1(FX_OFFSET_03_SCOPE1, scope);
+      p.set1(FX_OFFSET_04_TYPE_SCOPE1, scope);
       return p;
    }
 

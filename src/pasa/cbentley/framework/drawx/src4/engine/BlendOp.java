@@ -12,10 +12,10 @@ import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBlend;
 import pasa.cbentley.framework.drawx.src4.utils.HSBUtilz;
 import pasa.cbentley.framework.drawx.src4.utils.RgbUtils;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 
 /**
  * Function class for blending pixels between 2 images.
@@ -1005,6 +1005,9 @@ public class BlendOp implements IStringable {
     * <li>{@link ITechBlend#BLENDING_02_DARKEN}
     * <li>{@link ITechBlend#BLENDING_03_LIGHTEN}
     * <li>{@link ITechBlend#BLENDING_04_MERGE_ARGB}
+    * 
+    * It will use the default {@link ITechBlend#ALPHA_0_OVER}
+    * 
     * @param drc
     * @param mode
     */
@@ -1231,6 +1234,14 @@ public class BlendOp implements IStringable {
       return base;
    }
 
+   /**
+    * <li>{@link ITechBlend#BLENDING_00_OVER}
+    * <li>{@link ITechBlend#BLENDING_01_SRC}
+    * <li>{@link ITechBlend#BLENDING_02_DARKEN}
+    * <li>{@link ITechBlend#BLENDING_03_LIGHTEN}
+    * <li>{@link ITechBlend#BLENDING_04_MERGE_ARGB}
+    * @return
+    */
    public int getMode() {
       return mode;
    }
@@ -1368,13 +1379,13 @@ public class BlendOp implements IStringable {
 
    private void toStringPrivate(Dctx sb) {
       sb.append("#BlendOp ");
-      sb.append(ToStringStaticDraw.debugBlend(mode));
+      sb.append(ToStringStaticDrawx.debugBlend(mode));
       sb.append(" ");
-      sb.append(ToStringStaticDraw.debugAlpha(modeAlpa));
+      sb.append(ToStringStaticDrawx.debugAlpha(modeAlpa));
       sb.append(" ");
-      sb.append(ToStringStaticDraw.debugOpacity(opacityOperator));
+      sb.append(ToStringStaticDrawx.debugOpacity(opacityOperator));
       sb.append(" ");
-      sb.append(ToStringStaticDraw.debugOpDuff(porterDuffOperator));
+      sb.append(ToStringStaticDrawx.debugOpDuff(porterDuffOperator));
       sb.nl();
       sb.append("PorterAlpha=" + isPorterAlpha);
       sb.append(" AlphaSwap=" + isAlphaSwap);

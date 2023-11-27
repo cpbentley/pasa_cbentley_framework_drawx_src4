@@ -10,9 +10,9 @@ import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
 import pasa.cbentley.layouter.src4.tech.ITechPozer;
@@ -31,26 +31,41 @@ public class AnchorFactory extends AbstractDrwFactory implements ITechAnchor {
       super(drc);
    }
 
-   public ByteObject getBoxCenter() {
+   public ByteObject getCenterCenter() {
       return getAnchor(ALIGN_6_CENTER, ALIGN_6_CENTER);
    }
 
-   public ByteObject getBoxLeftCenter() {
+   public ByteObject getLeftCenter() {
       return getAnchor(ALIGN_3_LEFT, ALIGN_6_CENTER);
    }
 
-   public ByteObject getBoxRightCenter() {
+   public ByteObject getRightCenter() {
       return getAnchor(ALIGN_4_RIGHT, ALIGN_6_CENTER);
    }
 
-   public ByteObject getBoxCenterBot() {
+   public ByteObject getLeftBottom() {
+      return getAnchor(ALIGN_3_LEFT, ALIGN_2_BOTTOM);
+   }
+
+   public ByteObject getLeftTop() {
+      return getAnchor(ALIGN_3_LEFT, ALIGN_1_TOP);
+   }
+
+   public ByteObject getRightBottom() {
+      return getAnchor(ALIGN_4_RIGHT, ALIGN_2_BOTTOM);
+   }
+
+   public ByteObject getRightTop() {
+      return getAnchor(ALIGN_4_RIGHT, ALIGN_1_TOP);
+   }
+
+   public ByteObject getCenterBottom() {
       return getAnchor(ALIGN_6_CENTER, ALIGN_2_BOTTOM);
    }
 
-   public ByteObject getBoxCenterTop() {
+   public ByteObject getCenterTop() {
       return getAnchor(ALIGN_6_CENTER, ALIGN_1_TOP);
    }
-
 
    /**
     * 
@@ -120,14 +135,14 @@ public class AnchorFactory extends AbstractDrwFactory implements ITechAnchor {
    public void toStringAnchor(ByteObject bo, Dctx sb) {
       sb.append("#Anchor ");
       sb.append("[H V]=[");
-      sb.append(ToStringStaticDraw.debugAlign(bo.get1(ANCHOR_OFFSET_02_HORIZ_ALIGN1)));
+      sb.append(ToStringStaticDrawx.debugAlign(bo.get1(ANCHOR_OFFSET_02_HORIZ_ALIGN1)));
       if (bo.hasFlag(ANCHOR_OFFSET_01_FLAG, ANCHOR_FLAG_7_DEF_HORIZ_ALIGN)) {
 
       } else {
          sb.append(" undef");
       }
       sb.append(' ');
-      sb.append(ToStringStaticDraw.debugAlign(bo.get1(ANCHOR_OFFSET_03_VERTICAL_ALIGN1)));
+      sb.append(ToStringStaticDrawx.debugAlign(bo.get1(ANCHOR_OFFSET_03_VERTICAL_ALIGN1)));
       if (bo.hasFlag(ANCHOR_OFFSET_01_FLAG, ANCHOR_FLAG_8_DEF_VERT_ALIGN)) {
 
       } else {

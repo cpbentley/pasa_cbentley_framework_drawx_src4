@@ -8,6 +8,7 @@ import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.engine.BlendOp;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
+import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
@@ -153,8 +154,14 @@ public interface IBOTypesDrw extends IBOTypesBOC {
 
    public static final int TYPE_062_BLENDER        = 62;
 
+   /**
+    * What's this?
+    */
    public static final int TYPE_063_PIX_STAR       = 63;
 
+   /**
+    * {@link ITechAnchor}
+    */
    public static final int TYPE_069_ANCHOR         = 69;
 
    /**

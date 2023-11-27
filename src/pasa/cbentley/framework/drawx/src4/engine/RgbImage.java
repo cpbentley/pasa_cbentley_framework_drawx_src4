@@ -17,13 +17,15 @@ import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
-import pasa.cbentley.framework.drawx.src4.base.TransformUtilz;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.interfaces.IDLogDraw;
 import pasa.cbentley.framework.drawx.src4.interfaces.IRgbLoader;
+import pasa.cbentley.framework.drawx.src4.tech.ITechGraphicsX;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
 import pasa.cbentley.framework.drawx.src4.utils.DrawUtilz;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
+import pasa.cbentley.framework.drawx.src4.utils.TransformUtils;
 
 /**
  * Framework {@link IImage} encapuslation class. It provides services:<br>
@@ -755,16 +757,16 @@ public class RgbImage implements IStringable, ITechRgbImage {
             return;
          }
          if (!isRegion() && trans == 0) {
-            if ((anchor & IGraphics.HCENTER) == IGraphics.HCENTER) {
+            if ((anchor & ITechGraphics.HCENTER) == ITechGraphics.HCENTER) {
                x = x + w / 2;
             }
-            if ((anchor & IGraphics.VCENTER) == IGraphics.VCENTER) {
+            if ((anchor & ITechGraphics.VCENTER) == ITechGraphics.VCENTER) {
                y = y + h / 2;
             }
-            if ((anchor & IGraphics.BOTTOM) == IGraphics.BOTTOM) {
+            if ((anchor & ITechGraphics.BOTTOM) == ITechGraphics.BOTTOM) {
                y = y - h;
             }
-            if ((anchor & IGraphics.RIGHT) == IGraphics.RIGHT) {
+            if ((anchor & ITechGraphics.RIGHT) == ITechGraphics.RIGHT) {
                x = x - w;
             }
             g.drawRGB(rgbData, 0, w, x, y, w, h, !hasFlag(ITechRgbImage.FLAG_05_IGNORE_ALPHA));
@@ -882,6 +884,11 @@ public class RgbImage implements IStringable, ITechRgbImage {
     * <br>
     * Blending mode is set on the returned Object
     * <br>
+    * <li>{@link ITechGraphicsX#MODE_0_SCREEN}
+    * <li>{@link ITechGraphicsX#MODE_1_IMAGE}
+    * <li>{@link ITechGraphicsX#MODE_2_RGB_IMAGE}
+    * <li>{@link ITechGraphicsX#MODE_3_RGB}
+    * <li>{@link ITechGraphicsX#MODE_4_NULL}
     * <br>
     * 
     * @param paintingMode
@@ -895,7 +902,8 @@ public class RgbImage implements IStringable, ITechRgbImage {
       if (this == cache.NULL_IMAGE) {
          //special graphics that doesn't draw anything
          graphicsX = new GraphicsX(drc, cache, this, true);
-         graphicsX.setDebugName("RgbImage_" + ToStringStaticDraw.debugPaintMode(paintingMode));
+         //#debug
+         graphicsX.toStringSetName("RgbImage_" + ToStringStaticDrawx.debugPaintMode(paintingMode));
          return graphicsX;
       }
       if (graphicsX != null) {
@@ -905,7 +913,8 @@ public class RgbImage implements IStringable, ITechRgbImage {
          }
       } else {
          graphicsX = new GraphicsX(drc, cache, this, paintingMode);
-         graphicsX.setDebugName("RgbImage_" + ToStringStaticDraw.debugPaintMode(paintingMode));
+         //#debug
+         graphicsX.toStringSetName("RgbImage_" + ToStringStaticDrawx.debugPaintMode(paintingMode));
       }
       return graphicsX;
    }
@@ -926,11 +935,11 @@ public class RgbImage implements IStringable, ITechRgbImage {
       if (this == cache.NULL_IMAGE) {
          //special graphics that doesn't draw anything
          graphicsX = new GraphicsX(drc, cache, this, true);
-         graphicsX.setDebugName("NullImage");
+         graphicsX.toStringSetName("NullImage");
          return graphicsX;
       }
       graphicsX = new GraphicsX(drc, cache, this, paintingMode, x, y, w, h);
-      graphicsX.setDebugName("RgbImage_" + w + "_" + h);
+      graphicsX.toStringSetName("RgbImage_" + w + "_" + h);
       return graphicsX;
    }
 
@@ -1200,7 +1209,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       }
       if (isRgb()) {
          flush();
-         int[] rgb = TransformUtilz.transform(getRgbData(), getWidth(), getHeight(), trans);
+         int[] rgb = TransformUtils.transform(getRgbData(), getWidth(), getHeight(), trans);
          img = cache.createImage(rgb, w, h);
       } else {
          //img = cache.createImage(w, h, 0);
@@ -1608,10 +1617,6 @@ public class RgbImage implements IStringable, ITechRgbImage {
          linkImage.toString(dc);
          return;
       }
-      if (getM() != 0)
-         dc.append(" m=" + getM());
-      if (getN() != 0)
-         dc.append(" n=" + getN());
       dc.append(" [");
       dc.append(width);
       dc.append(",");
@@ -1635,16 +1640,13 @@ public class RgbImage implements IStringable, ITechRgbImage {
             dc.append(" Rgb=null");
          }
       }
-      dc.append(" ");
-      
-      dc.append("offset=");
-      dc.append(getOffset());
-      dc.append("scanlength=");
+      dc.appendVarWithSpace("m",getM());
+      dc.appendVarWithSpace("n",getN());
+      dc.appendVarWithSpace("offset",getOffset());
+      dc.appendVarWithSpace("scanlength",getScanLength());
       dc.append(getScanLength());
-
-      dc.append("bgcolor=" + ToStringStaticDraw.toStringColor(backgroundColor));
-      dc.append(" ");
-      dc.append(ToStringStaticUc.toStringTransform(transform));
+      dc.appendVarWithSpace("bgcolor",ToStringStaticDrawx.toStringColor(backgroundColor));
+      dc.appendVarWithSpace("transform",ToStringStaticUc.toStringTransform(transform));
 
       dc.nl();
       IntToStrings flags = new IntToStrings(toStringGetUCtx());
@@ -1679,7 +1681,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       } else {
          dc.nlLvl(graphicsX, "graphicsX");
       }
-      
+
       dc.nlLvl(img, "img");
    }
 
@@ -1733,10 +1735,10 @@ public class RgbImage implements IStringable, ITechRgbImage {
       toStringFlag(sb, ITechRgbImage.FLAG_07_READ_LOCK, " ReadLock");
       toStringFlag(sb, ITechRgbImage.FLAG_16_VIRGIN, " Virgin");
       if (graphicsX != null) {
-         sb.append(" g=" + ToStringStaticDraw.debugPaintMode(graphicsX.getPaintMode()));
+         sb.append(" g=" + ToStringStaticDrawx.debugPaintMode(graphicsX.getPaintMode()));
       }
       if (backgroundColor != 0) {
-         sb.append(" c=" + ToStringStaticDraw.toStringColor(backgroundColor));
+         sb.append(" c=" + ToStringStaticDrawx.toStringColor(backgroundColor));
       }
       if (sourceLocator != null) {
          sb.append(" ");
@@ -1878,7 +1880,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       sb.append(" cacheRgbIndex=");
       sb.append(cacheRgbIndex);
       sb.append(" ");
-      sb.append("backgroundColor=" + ToStringStaticDraw.toStringColor(backgroundColor));
+      sb.append("backgroundColor=" + ToStringStaticDrawx.toStringColor(backgroundColor));
       sb.nl();
       sb.append(" Transform=");
       sb.append(ToStringStaticUc.toStringTransform(transform));

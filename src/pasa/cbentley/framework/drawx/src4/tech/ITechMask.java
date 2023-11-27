@@ -19,54 +19,76 @@ public interface ITechMask extends ITechByteObject {
     * 1 byte for alpha bg
     * 1 byte for alpha shape
     */
-   int MASK_BASIC_SIZE                      = A_OBJECT_BASIC_SIZE + 18;
+   public static final int MASK_BASIC_SIZE                  = A_OBJECT_BASIC_SIZE + 18;
+
    /**
-    * Default behaviour takes the
+    * Operator takes the bg figure pixel and applies the alpha
     */
-   int MASK_BLEND_0                         = 0;
-   int MASK_BLEND_1                         = 1;
+   public static final int MASK_BLEND_0                     = 0;
+
+   /**
+    * Operator takes the shape color and applies the alpha
+    */
+   public static final int MASK_BLEND_1                     = 1;
+
    /**
     * For any value above, use the {@link BlendOp} switch.
     */
-   int MASK_BLEND_2                         = 2;
+   public static final int MASK_BLEND_2                     = 2;
+
    /**
     * Is there a color filter to be applied on the mask layer, 
     * before the fondu
     */
-   int MASK_FLAG_1MASK_FILTER               = 1;
+   public static final int MASK_FLAG_1_MASK_FILTER          = 1 << 0;
+
    /**
-    * When set, the mask has a background figure defined
+    * When set, the mask has a background figure defined.
+    * Otherwise, a fully opaque black background is used
     */
-   int MASK_FLAG_2BG_FIGURE                 = 2;
+   public static final int MASK_FLAG_2_BG_FIGURE            = 1 << 1;
+
    /**
     * is bg color defined
     */
-   int MASK_FLAG_5BG_COLOR                  = 16;
+   public static final int MASK_FLAG_5_BG_COLOR             = 1 << 4;
+
    /**
     * Function to be applied to all pixels masked with the white mask color
     */
-   int MASK_FLAG_5FUNCTION_MASK_COLOR       = 16;
+   public static final int MASK_FLAG_5_FUNCTION_MASK_COLOR  = 1 << 4;
+
    /**
     * Function to be applied to all pixels masked with the shape color
     */
-   int MASK_FLAG_6FUNCTION_SHAPE_COLOR      = 32;
+   public static final int MASK_FLAG_6_FUNCTION_SHAPE_COLOR = 1 << 5;
+
    /**
     * Background figure is drawn at the scale of masked image.
     * Most used for Strings.
     */
-   int MASK_FLAG_6SIZE_MASK                 = 32;
-   int MASK_FLAG_7BG_FONDU                  = 64;
-   int MASK_FLAG_8SHAPE_FONDU               = 128;
-   int MASK_OFFSET_1FLAG1                   = A_OBJECT_BASIC_SIZE;
+   public static final int MASK_FLAG_6_SIZE_MASK            = 1 << 5;
+
+   public static final int MASK_FLAG_7_BG_FONDU             = 1 << 6;
+
+   public static final int MASK_FLAG_8_SHAPE_FONDU          = 1 << 7;
+
+   public static final int MASK_OFFSET_1_FLAG1              = A_OBJECT_BASIC_SIZE;
+
    /**
     * Color of the mask. Usually fully opaque and should match the background color of
     * the drawable drawing the mask. 
+    * When a shape is applied on a mask, the shape has WHITE pixels which is by default convention,
+    * the background.
+    * White pixels are not used per say. The mask background pixel  
     */
-   int MASK_OFFSET_2COLOR_BG4               = A_OBJECT_BASIC_SIZE + 1;
+   public static final int MASK_OFFSET_2_COLOR_BG4          = A_OBJECT_BASIC_SIZE + 1;
+
    /**
-    * 
+    * When a shape is applied on a mask, the shape has a boundary between BLACK(shape) and WHITE(bg) pixels.
     */
-   int MASK_OFFSET_3COLOR_MID4              = A_OBJECT_BASIC_SIZE + 5;
+   public static final int MASK_OFFSET_3_COLOR_MID4         = A_OBJECT_BASIC_SIZE + 5;
+
    /**
     * Color of the shape drawn on the mask layer (string or other figure).
     * <br>
@@ -78,14 +100,21 @@ public interface ITechMask extends ITechByteObject {
     * <br>
     * 
     */
-   int MASK_OFFSET_4COLOR_SHAPE4            = A_OBJECT_BASIC_SIZE + 9;
+   public static final int MASK_OFFSET_4_COLOR_SHAPE4       = A_OBJECT_BASIC_SIZE + 9;
+
    /**
-    * Blend operator for the non shape pixels in the mask.
+    * Blend operator for the non shape/background pixels in the mask.
     * <br>
+    * It will blend the {@link ITechMask#MASK_OFFSET_2_COLOR_BG4} over the background figure of the mask.
     * <br>
     * It defaults to {@link ITechMask#MASK_BLEND_0}
+    * <li> {@link ITechBlend#BLENDING_00_OVER} replaced by  {@link ITechMask#MASK_BLEND_0}
+    * <li> {@link ITechBlend#BLENDING_01_SRC} replaced by  {@link ITechMask#MASK_BLEND_1}
+    * <li> {@link ITechBlend#BLENDING_02_DARKEN}
+    * <li> {@link ITechBlend#BLENDING_03_LIGHTEN}
     */
-   int MASK_OFFSET_5BLEND_BG1               = A_OBJECT_BASIC_SIZE + 13;
+   public static final int MASK_OFFSET_5_BLEND_BG1          = A_OBJECT_BASIC_SIZE + 13;
+
    /**
     * When the black and white mask is produced, a {@link IBOTypesDrw#TYPE_056_COLOR_FILTER} maybe applied
     * which modifies the alpha values of white and/or black pixels.
@@ -93,29 +122,36 @@ public interface ITechMask extends ITechByteObject {
     * <br>
     * This field is the blend operator for those pixels.
     */
-   int MASK_OFFSET_6BLEND_MID1              = A_OBJECT_BASIC_SIZE + 14;
+   public static final int MASK_OFFSET_6_BLEND_MID1         = A_OBJECT_BASIC_SIZE + 14;
+
    /**
     * The pixels of the shape blends with the bg pixel of the background figure.
     * 
     */
-   int MASK_OFFSET_7BLEND_SHAPE1            = A_OBJECT_BASIC_SIZE + 15;
+   public static final int MASK_OFFSET_7_BLEND_SHAPE1       = A_OBJECT_BASIC_SIZE + 15;
+
    /**
     * Alpha value of pixels that are not the shape.
     * <br>
     * <br>
     * In a normal mask this value is 0 so as to show only the pixels of shape.
     */
-   int MASK_OFFSET_8ALPHA_BG1               = A_OBJECT_BASIC_SIZE + 16;
+   public static final int MASK_OFFSET_8_ALPHA_BG1          = A_OBJECT_BASIC_SIZE + 16;
+
    /**
     * Alpha value of pixels of shape color.
     * <br>
     * <br>
     * That is when you draw a String, 255 will show a fully opaque string of characters.
     */
-   int MASK_OFFSET_9ALPHA_SHAPE1            = A_OBJECT_BASIC_SIZE + 17;
-   int MASK_PRESET_0HAL0                    = 0;
-   int MASK_PRESET_1HAL0                    = 1;
-   int MASK_PRESET_2HAL0                    = 2;
-   int MASK_PRESET_3HAL0                    = 3;
+   public static final int MASK_OFFSET_9_ALPHA_SHAPE1       = A_OBJECT_BASIC_SIZE + 17;
+
+   public static final int MASK_PRESET_0HAL0                = 0;
+
+   public static final int MASK_PRESET_1HAL0                = 1;
+
+   public static final int MASK_PRESET_2HAL0                = 2;
+
+   public static final int MASK_PRESET_3HAL0                = 3;
 
 }

@@ -18,10 +18,9 @@ import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.coredraw.src4.ctx.CoreDrawCtx;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IFontFactory;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImageFactory;
-import pasa.cbentley.framework.coredraw.src4.interfaces.ITechDrawer;
-import pasa.cbentley.framework.drawx.src4.base.PngEncoder;
-import pasa.cbentley.framework.drawx.src4.base.RgbImageRotateUtils;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFeaturesDraw;
 import pasa.cbentley.framework.drawx.src4.color.ColorFunctionFactory;
+import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbCache;
 import pasa.cbentley.framework.drawx.src4.factories.AnchorFactory;
 import pasa.cbentley.framework.drawx.src4.factories.BoxFactory;
@@ -40,21 +39,26 @@ import pasa.cbentley.framework.drawx.src4.factories.ScaleOperator;
 import pasa.cbentley.framework.drawx.src4.factories.ScalerFactory;
 import pasa.cbentley.framework.drawx.src4.factories.ScalerOperatorTests;
 import pasa.cbentley.framework.drawx.src4.factories.TblrFactory;
+import pasa.cbentley.framework.drawx.src4.image.PngEncoder;
 import pasa.cbentley.framework.drawx.src4.string.FxStringFactory;
 import pasa.cbentley.framework.drawx.src4.string.FxStringOperator;
 import pasa.cbentley.framework.drawx.src4.style.StyleFactory;
 import pasa.cbentley.framework.drawx.src4.style.StyleOperator;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBlend;
+import pasa.cbentley.framework.drawx.src4.utils.RgbImageRotateUtils;
 import pasa.cbentley.layouter.src4.ctx.LayouterCtx;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 
 /**
  * Context Object for the Draw Base Module.
- * <br>
- * <li> {@link IDrawCtx} the current user of the Draw engine module.
+ * 
+ * <p>
+ * Noteworthy class of this module
+ * <li> {@link GraphicsX} 
  * <li> {@link RgbCache} Creates the unique reference of {@link RgbCache} accross the whole {@link IAppli}.
- * <li> {@link FactoryDrw} links to the whole object factories for creating figures, mask, TBLR, Gradients
- * <li> {@link ModuleDrwBase} is the {@link BOModule} of this code base
+ * <li> {@link CoreDrawCtx} the current user context using this Draw engine module.
+ * </p>
+ * 
  * @author Charles Bentley
  *
  */
@@ -93,7 +97,6 @@ public class DrwCtx extends ABOCtx {
    private MaskFactory          maskFactory;
 
    private MaskOperator         maskOperator;
-
 
    private BOModuleDrawx        module;
 
@@ -134,6 +137,8 @@ public class DrwCtx extends ABOCtx {
       return anchorFactory;
    }
 
+   private IConfigDrawx configDrawX;
+
    /**
     * Provides what this module needs in input to be usable
     * @param user
@@ -143,6 +148,7 @@ public class DrwCtx extends ABOCtx {
       super(config, cdc.getBOC());
       //any settings in ctx manager is not loaded here
 
+      this.configDrawX = config;
       //#debug
       toStringSetToStringFlag(config.getFlagsDrw());
 
@@ -160,6 +166,10 @@ public class DrwCtx extends ABOCtx {
       if (this.getClass() == DrwCtx.class) {
          a_Init();
       }
+   }
+
+   public IConfigDrawx getConfigDrawX() {
+      return configDrawX;
    }
 
    public void a_Init() {
@@ -297,11 +307,9 @@ public class DrwCtx extends ABOCtx {
       return uc.getMem();
    }
 
-
    public MergeMaskFactory getMergeMaskFactory() {
       return boc.getMergeMaskFactory();
    }
-
 
    public PassDrawOperator getPassDrawOperator() {
       if (passDrawOperator == null) {
@@ -404,9 +412,9 @@ public class DrwCtx extends ABOCtx {
    /**
     * Tells whether {@link CoreDrawCtx} has feature support.
     * 
-    * {@link ITechDrawer#SUP_ID_03_OPEN_GL}
-    * {@link ITechDrawer#SUP_ID_04_ALIAS}
-    * {@link ITechDrawer#SUP_ID_10_TRANSPARENT_BACKGROUND}
+    * {@link ITechFeaturesDraw#SUP_ID_03_OPEN_GL}
+    * {@link ITechFeaturesDraw#SUP_ID_04_ALIAS}
+    * {@link ITechFeaturesDraw#SUP_ID_10_TRANSPARENT_BACKGROUND}
     * 
     * @param featureID
     * @return

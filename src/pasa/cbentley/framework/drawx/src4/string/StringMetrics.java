@@ -8,85 +8,29 @@ import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.structs.IntBuffer;
 import pasa.cbentley.core.src4.structs.IntToInts;
+import pasa.cbentley.core.src4.utils.CharUtils;
 import pasa.cbentley.core.src4.utils.IntUtils;
+import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.engine.ObjectDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 
 /**
- * Controls the sizes and position of each characters of a {@link Stringer}.
+ * A {@link StringMetrics} instance belongs to a single {@link Stringer}. It computes and keeps track of the sizes and positions of each character for the {@link Stringer}.
  * <br>
  * <br>
- * It trims or breaks the String of the {@link Stringer} by computing computes pw and ph using the {@link StringFx}
+ * The Stringer asks for  trims or breaks the String of the {@link Stringer} by computing computes pw and ph using the {@link StringFx}
  * <br>
- * 
- * {@link StringMetrics} are updated when the system flag tells us font sizes have changed q
  * <br>
  * @author Charles-Philip Bentley
- *
+ * @see Stringer
  */
 public class StringMetrics extends ObjectDrw implements IStringable {
 
    /**
-    * <b>Array Structure : Triplets </b> <br>
-    * <li>index[0] = last valid index (6). Number of lines is this value divided by 3
-    * <li>index[1] = start index of 1st line
-    * <li>index[2] = number of visible chars for that line
-    * <li>index[3] = number of pixels consumed by visible characters that line
-    * <li>index[4] = start index of 2nd line
-    * <li>index[5] = number of chars for the 2nd line
-    * <li>index[6] = number pixels consumed by the 2nd line
-    * <li>index[7] = Flags
-    * <br>
-    * <br>
-    * In case of Trim, the last two letters will be replaced with .. or . if not enough space for 2 or 1 letters
-    */
-   public static final int[]  BREAK_LINE_SPEC = null;
-
-   /**
-    * Tracks word positions. A Word is a consecutive serie of alphanumerical characters.
-    * <br>
-    * <br>
-    * <b>Array Structure : Triplets </b> <br>
-    * <li>index[0] = last valid index (6). Number of lines is this value divided by 3
-    * <li>index[1] = start index of 1st word
-    * <li>index[2] = number of visible chars for that word
-    * <li>index[3] = number of pixels consumed by visible characters that word
-    * <br>
-    * <br>
-    * Relative to {@link Stringer#offsetChars}
-    */
-   public static final int[]  BREAK_WORD_SPEC = null;
-
-   /** 
-    * New line constant 
-    */
-   public static final char   C_NEWLINE       = '\n';
-
-   /**
-    *  Textbreak constants 
-    *  TODO what about arabic ?
-    */
-   public static final char[] C_TEXTBREAKS    = { ' ', '?', ';', ',', '.', '!', ':', '-', '=', '(', ')', '[', ']' };
-
-   /**
-    * 
-    * @param c
-    * @return
-    */
-   public static boolean isCharBreak(char c) {
-      for (int i = C_TEXTBREAKS.length - 1; i >= 0; i--) {
-         if (c == C_TEXTBREAKS[i]) {
-            return true;
-         }
-      }
-      return false;
-   }
-
-   /**
     * Stored value
     */
-   int              breakHeight;
+   int       breakHeight;
 
    /**
     * <b>Array Structure : Triplets </b> <br>
@@ -104,7 +48,16 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * 
     * In case of Trim, the last two letters will be replaced with .. or . if not enough space for 2 or 1 letters
     */
-   int[]            breaks;
+   int[]     breaks;
+
+   /**
+    * 
+    */
+   IntBuffer breaksBuffer;
+
+   public IntBuffer getBreaksBuffer() {
+      return breaksBuffer;
+   }
 
    /**
     * Tracks word positions. A Word is a consecutive serie of alphanumerical characters.
@@ -119,17 +72,28 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * <br>
     * Relative to {@link Stringer#offsetChars}
     */
-   int[]            breaksWord;
+   int[]                  breaksWord;
 
    /**
     * Break type used to break the string.
     */
-   int              breakType;
+   int                    breakType;
 
    /**
     * Stored value
     */
-   int              breakWidth;
+   int                    breakWidth;
+
+   /** 
+    * New line constant 
+    */
+   private final char     C_NEWLINE;
+
+   /**
+    *  Textbreak constants 
+    *  TODO what about arabic ?
+    */
+   private final char[]   C_TEXTBREAKS;
 
    /**
     * Characters widths, computed during breaking.
@@ -141,12 +105,12 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * <br>
     * 
     */
-   private int[]    charWidths = new int[10];
+   private int[]          charWidths = new int[10];
 
    /**
     * Char x positions relative to first char at 0, computed during breaking
     * <br>
-    * Those values are used for caret positioning. All {@link StringFx} scoped to {@link ITechStrFx#FX_SCOPE_0_CHAR}  artifacts use it.
+    * Those values are used for caret positioning. All {@link StringFx} scoped to {@link IBOFxStr#FX_SCOPE_0_CHAR}  artifacts use it.
     * <br>
     * Values depends on {@link StringDraw} anchoring {@link Anchor}
     * <br>
@@ -157,19 +121,19 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * <br>
     * 
     */
-   int[]            charXs     = new int[10];
+   int[]                  charXs     = new int[10];
 
    /**
     * Char y positions relative to first char at 0.
     * <br>
     * An rotation animation will modify those values
     */
-   int[]            charYs     = new int[10];
+   int[]                  charYs     = new int[10];
 
    /**
     * Not null when different lines have different heights due to different Fxs.
     */
-   private int[]    lineHeights;
+   private int[]          lineHeights;
 
    /**
     * The pixel size width for each line.
@@ -180,12 +144,12 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * <br>
     * When only one line, this value is null and pw is returned.
     */
-   int[]            lineWidths;
+   int[]                  lineWidths;
 
    /**
     * word breaks relative to the start of a line
     */
-   int[][]          lineWordBreaks;
+   int[][]                lineWordBreaks;
 
    /**
     * Relative x positions of lines. null when no line breaking.
@@ -196,12 +160,12 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * <br>
     * 
     */
-   int[]            lineXs;
+   int[]                  lineXs;
 
    /**
     * 
     */
-   int[]            lineYs;
+   int[]                  lineYs;
 
    /**
     * Height of the {@link Stringer}
@@ -209,7 +173,7 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * <br>
     * Used by {@link StringMetrics#getPrefHeight()}
     */
-   private int      ph         = -1;
+   private int            ph         = -1;
 
    /**
     * Width of the {@link Stringer}
@@ -219,9 +183,9 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * <br>
     * Used by {@link StringMetrics#getPrefWidth()}
     */
-   private int      pw         = -1;
+   private int            pw         = -1;
 
-   private Stringer stringer   = null;
+   private final Stringer stringer;
 
    /**
     * Initialize the {@link StringMetrics} with the controlling {@link Stringer}.
@@ -233,6 +197,23 @@ public class StringMetrics extends ObjectDrw implements IStringable {
    public StringMetrics(DrwCtx drc, Stringer stringer) {
       super(drc);
       this.stringer = stringer;
+      C_NEWLINE = drc.getConfigDrawX().getNewLine();
+      C_TEXTBREAKS = drc.getConfigDrawX().getLineBreakChars();
+   }
+
+   public StringMetrics(DrwCtx drc, Stringer stringer, char newLine, char[] breaks) {
+      super(drc);
+      this.stringer = stringer;
+      C_NEWLINE = newLine;
+      C_TEXTBREAKS = breaks;
+
+   }
+
+   public IntBuffer getBreakBufferLazy() {
+      if (breaksBuffer == null) {
+         breaksBuffer = new IntBuffer(drc.getUCtx());
+      }
+      return breaksBuffer;
    }
 
    /**
@@ -276,7 +257,8 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * @return relative offset of next break or length of text if no more breaks
     */
    private int breakFindNext(char[] text, int offset, int len, int width, int options, IntBuffer buffer) {
-      int breakOffset = offset;
+      int breakOffsetAbs = offset;
+      int breakOffsetRelative = 0;
       int textW = 0;
       int niceBreak = -1;
       int niceBreakWidth = 0;
@@ -285,26 +267,26 @@ public class StringMetrics extends ObjectDrw implements IStringable {
       char c;
       int cw;
       //tries finding characters such as '!' '.' or ' ' It is a good position to create a new line.
-      while (breakOffset < offset + len) {
-         if (breakOffset == offset + len) {
+      while (breakOffsetAbs < offset + len) {
+         if (breakOffsetAbs == offset + len) {
             c = C_TEXTBREAKS[0]; // last character + 1, fake break char
          } else {
-            c = text[breakOffset];
+            c = text[breakOffsetAbs];
          }
          if (options != 1 && c == C_NEWLINE) {
             // got a nice break here, new line
-            niceBreak = breakOffset;
+            niceBreak = breakOffsetAbs;
             break;
          }
 
-         //save char computation
-         cw = getCharWidth(breakOffset);
+         //save char computation// TODO breakoffset relative?
+         cw = getCharWidth(breakOffsetAbs);
 
          textW += cw;
 
          // Try finding break charachters
          if (isCharBreak(c)) {
-            niceBreak = breakOffset;
+            niceBreak = breakOffsetAbs;
             niceBreakWidth = textW;
             if (c == ' ' || c == '\n') {
                niceBreakWidth -= cw;
@@ -324,7 +306,7 @@ public class StringMetrics extends ObjectDrw implements IStringable {
          //            niceBreak = breakOffset + 1;
          //         }
 
-         breakOffset++; //go to next character.
+         breakOffsetAbs++; //go to next character.
       }
       lineWidth = niceBreakWidth;
       int finalOffset = 0;
@@ -334,12 +316,12 @@ public class StringMetrics extends ObjectDrw implements IStringable {
          finalOffset = niceBreak + 2; // case: special case to get rid of extra spaces
       } else if (isBigger && niceBreak > offset && niceBreak < offset + len) {
          finalOffset = niceBreak + 1; // case: found a nice break, use this
-      } else if (breakOffset > offset + len) {
-         finalOffset = breakOffset - 1; // case: broke due to text width too big
-      } else if (breakOffset == offset) {
-         finalOffset = breakOffset + 1; // case: broken on first char, step one more
+      } else if (breakOffsetAbs > offset + len) {
+         finalOffset = breakOffsetAbs - 1; // case: broke due to text width too big
+      } else if (breakOffsetAbs == offset) {
+         finalOffset = breakOffsetAbs + 1; // case: broken on first char, step one more
       } else {
-         finalOffset = breakOffset; // case: default
+         finalOffset = breakOffsetAbs; // case: default
       }
 
       int numChars = finalOffset - offset;
@@ -456,16 +438,15 @@ public class StringMetrics extends ObjectDrw implements IStringable {
             break;
          case ITechStringDrw.BREAK_2_NATURAL:
             //natural break
-            //System.out.println(new String(chars, offset, len));
-            breaks = drc.getUCtx().getStrU().getBreaksLineNatural(stringer.chars, stringer.offsetChars, stringer.lengthChars);
-            //MUtils.debug(breaks);
+            drc.getUCtx().getStrU().getBreaksLineNatural(stringer.chars, stringer.offsetChars, stringer.lengthChars, getBreakBufferLazy());
+            breaks = getBreakBufferLazy().getIntsRef();
             break;
          case ITechStringDrw.BREAK_3_ONE_LINE:
             //remove all new lines characters
             break;
          case ITechStringDrw.BREAK_4_TRIM_SINGLE_LINE:
             //trim at cw (only 1 line). if not enough room for a single character?
-            breaks = stringer.getTrimSingleLine(breakWidth);
+            getTrimSingleLine(breakWidth, stringer);
             break;
          case ITechStringDrw.BREAK_5_TRIM_FIT_HEIGHT:
             //trim at cw and ch
@@ -479,10 +460,45 @@ public class StringMetrics extends ObjectDrw implements IStringable {
    }
 
    /**
-    * Main entry point for formatting a {@link Stringer}. Must be called after {@link StringFx} have been set up.
+    * Method creates a trim cue with {@link Stringer} and the given width.
+    * <br>
+    * POST: the state of {@link Stringer} is not modified.
     * <br>
     * <br>
-    * POST: String is broken
+    * @param str
+    * @return null if trimming is not needed.
+    */
+   public void getTrimSingleLine(int width, Stringer stringer) {
+      StringMetrics sm = stringer.getMetrics();
+      int widthPixelCount = 0;
+      boolean isTrimmed = false;
+      IntBuffer breaks = sm.getBreaksBuffer();
+      int numCharOnLine = 0;
+      int charw = 0;
+      int stepStart = 0; //we need 0 based offsets for getCharWidth
+      int stepEnd = stringer.getLen();
+      for (int step = stepStart; step < stepEnd; step++) {
+         charw = sm.getCharWidth(step);
+         widthPixelCount += charw;
+         if (widthPixelCount <= width) {
+            numCharOnLine++;
+         } else {
+            widthPixelCount -= charw;
+            isTrimmed = true;
+            break;
+         }
+      }
+      if (isTrimmed) {
+         //finalize line.
+         breaks.addInt(stepStart);
+         breaks.addInt(numCharOnLine);
+         breaks.addInt(widthPixelCount);
+         breaks.addInt(0);
+      }
+   }
+
+   /**
+    * Main entry point for formatting a {@link Stringer}. Must be called after {@link StringFx} has been set up.
     * <br>
     * <br>
     * Called by {@link Stringer#meterString(int, int, int, int)}
@@ -553,46 +569,46 @@ public class StringMetrics extends ObjectDrw implements IStringable {
       stringer.setState(ITechStringer.STATE_07_BROKEN, true);
    }
 
-   /**
-    * Called when breaking {@link ITechStringDrw#BREAK_1_WIDTH}
-    * <br>
-    * <br>
-    * Compute breaks.
-    * <br>
-    * Not CharXs, and charY because those values are rarely needed.
-    * <br> 
-    * @param width
-    * @param maxLines
-    * @param stringer
-    * @return
-    */
-   private int[] breakStringLine(int width, int maxLines, Stringer stringer) {
-      char[] text = stringer.chars;
-      // Count text lines
-      int startOffsetAbs = stringer.offsetChars;
-      int finalOffsetAbs = stringer.offsetChars + stringer.lengthChars;
-      int lenLeft = stringer.lengthChars;
-      int numLines = 0;
-      int lineOffset = 0;
-      IntToInts ib = new IntToInts(drc.getUCtx(), IntToInts.TYPE_0NON_ORDERED);
-      IntBuffer intBuffer = new IntBuffer(drc.getUCtx());
-      //count the number of lines
-      while (startOffsetAbs < finalOffsetAbs) {
-         //absolute offset.
-         int breakAbsOffset = breakFindNextOld(text, startOffsetAbs, lenLeft, width);
-         int numChars = breakAbsOffset - startOffsetAbs;
-         lenLeft -= numChars;
-         startOffsetAbs = breakAbsOffset;
-         ib.add(lineOffset, numChars);
-
-         lineOffset += numChars;
-         numLines++;
-         if (numLines == maxLines) {
-            break;
-         }
-      }
-      return ib.getArrayReference();
-   }
+//   /**
+//    * Called when breaking {@link ITechStringDrw#BREAK_1_WIDTH}
+//    * <br>
+//    * <br>
+//    * Compute breaks.
+//    * <br>
+//    * Not CharXs, and charY because those values are rarely needed.
+//    * <br> 
+//    * @param width
+//    * @param maxLines
+//    * @param stringer
+//    * @return
+//    */
+//   private int[] breakStringLine(int width, int maxLines, Stringer stringer) {
+//      char[] text = stringer.chars;
+//      // Count text lines
+//      int startOffsetAbs = stringer.offsetChars;
+//      int finalOffsetAbs = stringer.offsetChars + stringer.lengthChars;
+//      int lenLeft = stringer.lengthChars;
+//      int numLines = 0;
+//      int lineOffset = 0;
+//      IntToInts ib = new IntToInts(drc.getUCtx(), IntToInts.TYPE_0NON_ORDERED);
+//      IntBuffer intBuffer = new IntBuffer(drc.getUCtx());
+//      //count the number of lines
+//      while (startOffsetAbs < finalOffsetAbs) {
+//         //absolute offset.
+//         int breakAbsOffset = breakFindNextOld(text, startOffsetAbs, lenLeft, width);
+//         int numChars = breakAbsOffset - startOffsetAbs;
+//         lenLeft -= numChars;
+//         startOffsetAbs = breakAbsOffset;
+//         ib.add(lineOffset, numChars);
+//
+//         lineOffset += numChars;
+//         numLines++;
+//         if (numLines == maxLines) {
+//            break;
+//         }
+//      }
+//      return ib.getArrayReference();
+//   }
 
    /**
     * Break string into lines. 
@@ -640,6 +656,33 @@ public class StringMetrics extends ObjectDrw implements IStringable {
       return intBuffer.getIntsRef();
    }
 
+//   private void breakStringLine2(int width, int maxLines, Stringer stringer, IntBuffer intBuffer) {
+//      char[] text = stringer.chars;
+//      // Count text lines
+//      int startOffsetAbs = stringer.offsetChars;
+//      int finalOffsetAbs = stringer.offsetChars + stringer.lengthChars;
+//      int lenLeft = stringer.lengthChars;
+//      int numLines = 0;
+//      int options = 0;
+//      //count the number of lines
+//      while (startOffsetAbs < finalOffsetAbs) {
+//         //absolute offset.
+//         int breakOffset = breakFindNext(text, startOffsetAbs, lenLeft, width, options, intBuffer);
+//         int numChars = breakOffset - startOffsetAbs;
+//         lenLeft -= numChars;
+//         startOffsetAbs = breakOffset;
+//         numLines++;
+//         if (numLines == maxLines) {
+//            break;
+//         }
+//      }
+//      //make all offsets relative to start offset
+//      for (int i = 0; i < numLines; i++) {
+//
+//      }
+//      intBuffer.addInt(0);
+//   }
+
    /**
     * Int array specified by {@link StringMetrics#BREAK_WORD_SPEC}
     * <br>
@@ -648,7 +691,8 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * @return
     */
    private int[] breakWords(Stringer stre) {
-      return drc.getUCtx().getStrU().getBreaksWord(stre.chars, stre.offsetChars, stre.lengthChars);
+      StringUtils strU = drc.getUCtx().getStrU();
+      return strU.getBreaksWord(stre.chars, stre.offsetChars, stre.lengthChars);
    }
 
    /**
@@ -773,12 +817,12 @@ public class StringMetrics extends ObjectDrw implements IStringable {
    /**
     * Compute the character pixel width at the given step, using Font and Fx. 
     * <br>
-    * If alreay computed, return it.
+    * If already computed, return it.
     * <br>
     * {@link StringFx} may have special rules for given character index.
     * <br>
     * 
-    * @param indexRelative
+    * @param indexRelative relative to the {@link Stringer} offset
     * @return
     */
    public int getCharWidth(int indexRelative) {
@@ -798,6 +842,13 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * Compute char width as if it is displayed alone.
     * <br>
     * <br>
+    * This method is key when computing metrics. It requires 
+    * that {@link StringFx} has been assigned.
+    * 
+    * In case of width based string breaking, line based styles cannot be assigned until text is broken
+    * 
+    * {@link IBOFxStr#FX_SCOPE_2_LINE}
+    * 
     * The index relative parameter selects the {@link StringFx} to be used.
     * <br>
     * <br>
@@ -863,7 +914,7 @@ public class StringMetrics extends ObjectDrw implements IStringable {
    }
 
    /**
-    * TODO {@link ITechStrFx#FXLINE_OFFSET_02_CHAR_X_OFFSET1} function to modify x coordinates.
+    * TODO {@link IBOFxStr#FXLINE_OFFSET_02_CHAR_X_OFFSET1} function to modify x coordinates.
     * <br>
     * <br>
     * 
@@ -902,7 +953,7 @@ public class StringMetrics extends ObjectDrw implements IStringable {
    }
 
    /**
-    * Compute the line pixel height at the given line count, using {@link Font} and {@link ITechStrFx}.
+    * Compute the line pixel height at the given line count, using {@link Font} and {@link IBOFxStr}.
     * <br>
     * When use of several Fonts, height is the biggest size.
     * <br>
@@ -925,9 +976,15 @@ public class StringMetrics extends ObjectDrw implements IStringable {
       return 0;
    }
 
+   /**
+    * The X position of the first line
+    * @param lineIndex
+    * @return
+    * @throws NullPointerException when not computed
+    * @throws ArrayIndexOutOfBoundsException
+    */
    public int getLineX(int lineIndex) {
       return lineXs[lineIndex];
-
    }
 
    public int getLineY(int lineIndex) {
@@ -935,7 +992,10 @@ public class StringMetrics extends ObjectDrw implements IStringable {
    }
 
    /**
-    * The number of lines
+    * The number of lines.
+    * 
+    * If the {@link StringMetrics} has not been computed, assume number of lines is 1.
+    * 
     * @return
     */
    public int getNumOfLines() {
@@ -1063,7 +1123,7 @@ public class StringMetrics extends ObjectDrw implements IStringable {
     * @param str
     * @return
     */
-   public int[] getTrim(int width, int maxLines, Stringer str) {
+    int[] getTrim(int width, int maxLines, Stringer str) {
       int widthPixelCount = 0;
       int lineCount = 0;
       int counter = 1;
@@ -1127,6 +1187,10 @@ public class StringMetrics extends ObjectDrw implements IStringable {
       return cx + charWidths[index];
    }
 
+   public void newLine() {
+
+   }
+
    /**
     * Returns the width consumed by those characters.
     * <br>
@@ -1141,7 +1205,7 @@ public class StringMetrics extends ObjectDrw implements IStringable {
       return 0;
    }
 
-   public void init() {
+   public void reset() {
       pw = -1;
       ph = -1;
       breaks = null;
@@ -1152,7 +1216,14 @@ public class StringMetrics extends ObjectDrw implements IStringable {
 
    }
 
-   //#mdebug
+   /**
+    * 
+    * @param c
+    * @return
+    */
+   public boolean isCharBreak(char c) {
+      return CharUtils.contains(C_TEXTBREAKS, c);
+   }
 
    /**
     * 
@@ -1174,25 +1245,40 @@ public class StringMetrics extends ObjectDrw implements IStringable {
       }
    }
 
-   public void toString(Dctx sb) {
-      sb.root(this, StringMetrics.class, 1161);
-      sb.append(" pw=" + pw + " ph=" + ph);
-      sb.append(" Breaks=[" + getIntUtils().debugString(breaks) + "]");
-      sb.nl();
-      sb.append("charWidths " + getIntUtils().debugString(charWidths));
-      sb.nl();
-      sb.append("charXs \t" + getIntUtils().debugString(charXs));
-      sb.nl();
-      sb.append("charYs \t" + getIntUtils().debugString(charYs));
-      sb.nl();
-      sb.append("lineHeights " + getIntUtils().debugString(lineHeights));
-   }
+   //#mdebug
+   public void toString(Dctx dc) {
+      dc.root(this, StringMetrics.class, 1161);
+      dc.append(" pw=" + pw + " ph=" + ph);
+      dc.appendVarWithNewLine("Breaks", breaks, ",", true);
+      dc.appendVarWithNewLine("charWidths", charWidths, ",", true);
+      dc.appendVarWithNewLine("charXs", charXs, ",", true);
+      dc.appendVarWithNewLine("charYs", charYs, ",", true);
+      dc.appendVarWithNewLine("lineHeights", lineHeights, ",", true);
+      dc.appendVarWithNewLine("lineXs", lineXs, ",", true);
+      dc.appendVarWithNewLine("lineYs", lineYs, ",", true);
 
+      dc.nl();
+      dc.appendVarWithSpace("NumOfLines", getNumOfLines());
+      dc.appendVarWithSpace("getPrefWidth", getPrefWidth());
+      dc.appendVarWithSpace("getPrefHeight", getPrefHeight());
+
+      dc.nlLvl(stringer, "stringer");
+   }
 
    public void toString1Line(Dctx dc) {
       dc.root1Line(this, "StringMetrics");
       dc.append(" pw=" + pw + " ph=" + ph);
    }
    //#enddebug
+
+   public int getShiftX(int offsetLeaf) {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
+   public int getShiftY(int offsetLeaf) {
+      // TODO Auto-generated method stub
+      return 0;
+   }
 
 }

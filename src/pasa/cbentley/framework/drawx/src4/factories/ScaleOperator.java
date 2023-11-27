@@ -8,6 +8,7 @@ import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
+import pasa.cbentley.framework.drawx.src4.tech.IBOScaler;
 import pasa.cbentley.framework.drawx.src4.tech.ITechPass;
 import pasa.cbentley.framework.drawx.src4.tech.ITechScaler;
 
@@ -87,7 +88,7 @@ public class ScaleOperator extends AbstractDrwOperator implements ITechScaler {
          drc.getFilterOperator().applyColorFilter(preFilter, rgb);
          num++;
       }
-      int type = scaler.get1(SCALE_OFFSET_02_FIT_TYPE1);
+      int type = scaler.get1(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1);
       switch (type) {
          case SCALER_TYPE_0_FIT_NONE:
             newWidth = rgb.getWidth();
@@ -109,7 +110,7 @@ public class ScaleOperator extends AbstractDrwOperator implements ITechScaler {
          default:
             break;
       }
-      int id = scaler.get1(SCALE_OFFSET_03_ID1);
+      int id = scaler.get1(IBOScaler.SCALE_OFFSET_03_ID1);
 
       switch (id) {
          case SCALER_ID_0_LINEAR:
@@ -163,6 +164,16 @@ public class ScaleOperator extends AbstractDrwOperator implements ITechScaler {
          arr[3] = getValue(p[3], y, z);
          return getValue(arr, x);
       }
+   }
+
+   public RgbImage getScaledBiCubic(RgbImage rgb, int newWidth, int newHeight) {
+      int[] data = scaleBiCubic(rgb, newWidth, newHeight);
+      return drc.getCache().createImage(data, newWidth, newHeight);
+   }
+
+   public RgbImage getScaledBiLinear(RgbImage rgb, int newWidth, int newHeight) {
+      int[] data = scaleBiLinear(rgb, newWidth, newHeight);
+      return drc.getCache().createImage(data, newWidth, newHeight);
    }
 
    public int[] scaleBiLinear(RgbImage rgb, int newWidth, int newHeight) {

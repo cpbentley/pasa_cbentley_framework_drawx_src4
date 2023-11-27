@@ -17,11 +17,11 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.TblrFactory;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
 import pasa.cbentley.layouter.src4.interfaces.ISizeCtx;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
@@ -50,7 +50,7 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
          }
          int p = (BitUtils.getBit(anc + 1, val) << 1) + BitUtils.getBit(anc, val);
          sb.append("(");
-         sb.append(ToStringStaticDraw.debugStyleAnchor(p));
+         sb.append(ToStringStaticDrawx.styleAnchor(p));
          sb.append(")");
 
       }

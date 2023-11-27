@@ -7,15 +7,18 @@ package pasa.cbentley.framework.drawx.src4.string;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.functions.Function;
 import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
+import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.tech.ITechFigureString;
 
 /**
  * {@link ByteObject} template for defining String text effects. Creator is {@link FxStringFactory}.
  * <br>
  * <br>
  * Each definition is set to a scope
- * <li> {@link ITechStrFx#FX_SCOPE_0_CHAR}
- * <li> {@link ITechStrFx#FX_SCOPE_2_LINE}
- * <li> {@link ITechStrFx#FX_SCOPE_2_COMPOSITE}
+ * <li> {@link IBOFxStr#FX_SCOPE_0_CHAR}
+ * <li> {@link IBOFxStr#FX_SCOPE_2_LINE}
+ * <li> {@link IBOFxStr#FX_SCOPE_2_COMPOSITE}
  * <br>
  * <br>
  * 
@@ -31,10 +34,12 @@ import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
  * <b>Merging</b>
  * <li>You can't merge two different scope
  * 
+ * TODO rename with IBO
+ * 
  * @author Charles-Philip Bentley
  *
  */
-public interface ITechStrFx extends ITechByteObject {
+public interface IBOFxStr extends ITechByteObject {
 
    /**
     * 1 byte for flag
@@ -42,10 +47,8 @@ public interface ITechStrFx extends ITechByteObject {
     */
    public static final int FX_BASIC_SIZE                   = A_OBJECT_BASIC_SIZE + 14;
 
-   public static final int FX_COMPOSITE_BASIC_SIZE         = A_OBJECT_BASIC_SIZE + 6;
-
    /**
-    * When effect is very specific and {@link ITechStrFx#FX_OFFSET_04_INDEX2} gives the
+    * When effect is very specific and {@link IBOFxStr#FX_OFFSET_04_INDEX2} gives the
     * ID of the effect.
     */
    public static final int FX_FLAG_1_SPECIFIC_SWITCH       = 1;
@@ -88,6 +91,11 @@ public interface ITechStrFx extends ITechByteObject {
     * <br>
     * <br>
     * 99% of the time, a dynamic fx is character scoped.
+    * 
+    * When this flag is false, the fx is deemed static.
+    * 
+    * AbbbC is an interval. A has a static fx for color, index first 0
+    * C has a static fx as well. index last 0
     */
    public static final int FX_FLAGX_2_DYNAMIC              = 1 << 1;
 
@@ -104,16 +112,34 @@ public interface ITechStrFx extends ITechByteObject {
     */
    public static final int FX_FLAGX_5_DEFINED_COLOR        = 1 << 4;
 
+   /**
+    * 
+    */
    public static final int FX_FLAGX_6_DEFINED_INDEX        = 1 << 5;
 
+   /**
+    * 
+    */
    public static final int FX_FLAGX_7_INCOMPLETE           = 1 << 6;
 
    /**
-    * The effect is actually to be choosen by a function using the sub text effect
-    * of this instance.
+    * The effect is actually to be choosen by a function using the sub text effect of this instance.
     * <li> Random function
     * <li> Serie function.
     * <li> ...
+    * 
+    * TODO Color function that gives a color based on a the String of the interval
+    * Like intellij gives colored method names. Word scope color function
+    * 
+    * Char scoped color function
+    * 
+    * We could also have _ separated colors 
+    * <li>FX
+    * <li>FLAGX
+    * <li>8
+    * <li>FUNCTION
+    * 
+    * Each applied
     */
    public static final int FX_FLAGX_8_FUNCTION             = 1 << 7;
 
@@ -161,44 +187,48 @@ public interface ITechStrFx extends ITechByteObject {
    public static final int FX_FLAGZ_6_LAST_FILTER          = 1 << 5;
 
    /**
-    * The rectangular area controlled by the scoped element is treated with a Style
-    * element.
+    * The rectangular area controlled by the scoped element is treated with a Style element.
     * <br>
     * <br>
     * The style {@link IViewTypes#TYPE_071_STYLE} is stored as a sub parameter of this object.
     * <br>
     * <br>
-    * When this happens, a {@link FigDrawable} is used to wrap around a basic String figure.
-    * <br>
     * The figure will be a char, a word or a line.
     * <br>
-    * 
+    * Words will be styled if scoped to word, in the interval of this {@link StringFx}
     */
    public static final int FX_FLAGZ_7_STYLE                = 1 << 6;
+
+   /**
+    * A pointer defines an index to which to apply the effects.
+    * <br>
+    * When not defined, the effect is applied to all elements
+    * 
+    * Allows to define a specific scope based 
+    * Provides {@link IBOFxStr#FX_OFFSET_04_INDEX2} scope
+    * <li> First character of every word char scope index 0, scope {@link IBOFxStr#FX_SCOPE_1_WORD}.
+    * <li> First line of every paragraph.
+    * <li> Random index of every word bigger than 2 letters. Index {@link Function} and Acceptor for Word.
+    * <br>
+    * <br>
+    * Scope in this field must be bigger than scope of Fx definition.
+    * 
+    * A function that defines which interval is targeted by this fx.
+    * 
+    * It could be a recurring interval,
+    */
+   public static final int FX_FLAGZ_8_POINTER              = 1 << 7;
+   
 
    /**
     * 1 byte for normal switches
     * 
     */
-   public static final int FX_OFFSET_01_FLAG               = A_OBJECT_BASIC_SIZE;
+   public static final int FX_OFFSET_01_FLAG               = A_OBJECT_BASIC_SIZE + 0;
 
-   public static final int FX_OFFSET_02_FLAGX              = A_OBJECT_BASIC_SIZE;
+   public static final int FX_OFFSET_02_FLAGX              = A_OBJECT_BASIC_SIZE + 1;
 
-   /**
-    * The scope of the text effect. 
-    * <br>
-    * <br>
-    * This allows code to know which template to use for reading this {@link ByteObject} without error.
-    * <li> {@link ITechStrFx#FX_SCOPE_0_CHAR}
-    * <li> {@link ITechStrFx#FX_SCOPE_2_LINE}
-    * <li> {@link ITechStrFx#FX_SCOPE_1_WORD}
-    * <li> {@link ITechStrFx#FX_SCOPE_3_PARAGRAPH}
-    * <li> {@link ITechStrFx#FX_SCOPE_3_PARAGRAPH}
-    * <br>
-    * <br>
-    * 
-    */
-   public static final int FX_OFFSET_03_SCOPE1             = A_OBJECT_BASIC_SIZE + 1;
+   public static final int FX_OFFSET_03_FLAGZ              = A_OBJECT_BASIC_SIZE + 2;
 
    /**
     * Holds the index value of the character/word/line for which this Fx applies.
@@ -208,12 +238,12 @@ public interface ITechStrFx extends ITechByteObject {
     * <li> 1 second character
     * <br>
     * etc.
-    * From where counting, read scope {@link ITechStrFx#FX_OFFSET_11_INDEX_SCOPE1}
+    * From where counting, read scope {@link IBOFxStr#FX_OFFSET_11_INDEX_SCOPE1}
     * <br>
     * <br>
-    * <li>{@link ITechStrFx#FX_SCOPE_0_CHAR}, it means the first char of ? each word? each line?
-    * <li>{@link ITechStrFx#FX_SCOPE_1_WORD} index 0 means the first word of text or line?
-    * <li>{@link ITechStrFx#FX_SCOPE_2_LINE} each word of text/line?
+    * <li>{@link IBOFxStr#FX_SCOPE_0_CHAR}, it means the first char of ? each word? each line?
+    * <li>{@link IBOFxStr#FX_SCOPE_1_WORD} index 0 means the first word of text or line?
+    * <li>{@link IBOFxStr#FX_SCOPE_2_LINE} each word of text/line?
     * <li>For scope Paragraph, 0 is the first element each word of text/line?
     * <li>For scope Text, 0 is the very first word of the whole text
     * <br>
@@ -221,6 +251,26 @@ public interface ITechStrFx extends ITechByteObject {
     * 
     */
    public static final int FX_OFFSET_04_INDEX2             = A_OBJECT_BASIC_SIZE + 2;
+
+   /**
+    * Sub type of fx that defines scope of the text effect, the smallest unit of text on which is applied
+    * the effects.
+    * 
+    * Character scoped text fx is applied to each characters.
+    * A word scoped text fx is applied to words (alphanumberical contiguous string).
+    * 
+    * <br>
+    * <br>
+    * This allows code to know which template to use for reading this {@link ByteObject} without error.
+    * <li> {@link IBOFxStr#FX_SCOPE_0_CHAR} -> {@link IBOFxStr#FXCHAR_BASIC_SIZE}
+    * <li> {@link IBOFxStr#FX_SCOPE_1_WORD} -> {@link IBOFxStr#FXWORD_BASIC_SIZE}
+    * <li> {@link IBOFxStr#FX_SCOPE_2_LINE} -> {@link IBOFxStr#FXLINE_BASIC_SIZE}
+    * <li> {@link IBOFxStr#FX_SCOPE_3_PARA} -> {@link IBOFxStr#FXPARA_BASIC_SIZE}
+    * <li> {@link IBOFxStr#FX_SCOPE_4_TEXT} -> {@link IBOFxStr#FXTEXT_BASIC_SIZE}
+    * <br>
+    * Mask background figure will be drawn over the area of scope.
+    */
+   public static final int FX_OFFSET_04_TYPE_SCOPE1        = A_OBJECT_BASIC_SIZE + 3;
 
    /**
     * Describes how to repeat index in the given scope of this effect.
@@ -235,7 +285,7 @@ public interface ITechStrFx extends ITechByteObject {
     * How to define a random fx for each word/char?
     * <br>
     * <br>
-    * First, root fx is defined with flag {@link ITechStrFx#FX_FLAGX_1_ROOT}. Than an array of fxs are subbed.
+    * First, root fx is defined with flag {@link IBOFxStr#FX_FLAGX_1_ROOT}. Than an array of fxs are subbed.
     * <br>
     * <br>
     * Those are used for the randomization. The scope of those subs is ignored. They inherit scope of root.
@@ -246,23 +296,12 @@ public interface ITechStrFx extends ITechByteObject {
    public static final int FX_OFFSET_05_INDEX_PATTERN1     = A_OBJECT_BASIC_SIZE + 4;
 
    /**
-    * Provides {@link ITechStrFx#FX_OFFSET_04_INDEX2} scope
-    * <li> First character of every word char scope index 0, scope {@link ITechStrFx#FX_SCOPE_1_WORD}.
-    * <li> First line of every paragraph.
-    * <li> Random index of every word bigger than 2 letters. Index {@link Function} and Acceptor for Word.
-    * <br>
-    * <br>
-    * Scope in this field must be bigger than scope of Fx definition.
-    * 
-    * 
-    */
-   public static final int FX_OFFSET_11_INDEX_SCOPE1       = A_OBJECT_BASIC_SIZE + 13;
-
-   /**
-    * MM: flag 1 of offset 6.
+    * MergeMask: flag 1 of offset 6.
     * <br>
     * <br>
     * ID To a set of fonts defined by driver.
+    * 
+    * {@link ITechFigureString}
     */
    public static final int FX_OFFSET_06_FACE1              = A_OBJECT_BASIC_SIZE + 5;
 
@@ -273,22 +312,25 @@ public interface ITechStrFx extends ITechByteObject {
 
    /**
     * MM: flag 3 of offset 6.
+    * 
+    * Relation to {@link IBOFigString#FIG_STRING_OFFSET_04_SIZE1}
     */
    public static final int FX_OFFSET_08_SIZE1              = A_OBJECT_BASIC_SIZE + 7;
 
    /**
     * Fx base color
+    * 
+    * Relation to {@link IBOFigString#FIG_STRING_OFFSET_04_SIZE1}
     */
    public static final int FX_OFFSET_09_COLOR4             = A_OBJECT_BASIC_SIZE + 8;
 
-   public static final int FX_OFFSET_10_FLAGZ              = A_OBJECT_BASIC_SIZE + 12;
-
    /**
-    * The anchoring to be used for this effect. Such as {@link Graphics#TOP} | {@link Graphics#LEFT}
+    * The anchoring to be used for this effect. Such as {@link ITechGraphics#TOP} | {@link ITechGraphics#LEFT}
     * <br>
     * <br>
     * Value of 0 defaults to TOP LEFT.
     * <br>
+    * {@link ITechGraphics#}
     * <br>
     * 
     */
@@ -305,9 +347,16 @@ public interface ITechStrFx extends ITechByteObject {
     * Effect to be create for each characters.
     * <br>
     * <br>
-    * 
+    * <li> individual char level Mask Figure
     */
    public static final int FX_SCOPE_0_CHAR                 = 0;
+
+   /**
+    * FX is applied to string 'word'.
+    * What happens when the word is cut with -? Right now words are not cut.
+    * 
+    */
+   public static final int FX_SCOPE_1_WORD                 = 1;
 
    /**
     * At the LINE level we find the following options : 
@@ -326,111 +375,22 @@ public interface ITechStrFx extends ITechByteObject {
    public static final int FX_SCOPE_2_LINE                 = 2;
 
    /**
-    * FX is applied to string 'word'.
-    * What happens when the word is cut with -? Right now words are not cut.
-    * 
-    */
-   public static final int FX_SCOPE_1_WORD                 = 1;
-
-   /**
     * Treat the whole text as referential
     */
-   public static final int FX_SCOPE_3_PARAGRAPH            = 3;
+   public static final int FX_SCOPE_3_PARA                 = 3;
 
    public static final int FX_SCOPE_4_TEXT                 = 4;
 
    /**
-    * 
+    * Break text into sentences. The start of a sentence is always a abcABC character?
     */
-   public static final int FXCHAR_BASIC_SIZE               = FX_BASIC_SIZE + 4;
+   public static final int FX_SCOPE_5_FRAZ                 = 5;
 
-   /**
-    * Flags specific to the {@link ITechStrFx#FX_SCOPE_0_CHAR}.
-    * 
-    */
-   public static final int FXCHAR_OFFSET_01_FLAG           = FX_BASIC_SIZE;
 
-   /**
-    * Type of decoration around the character.
-    */
-   public static final int FXCHAR_OFFSET_02_TYPE_DECO1     = FX_BASIC_SIZE + 1;
 
-   public static final int FXLINE_BASIC_SIZE               = FX_BASIC_SIZE + 4;
+   public static final int FXFRAZ_BASIC_SIZE               = FX_BASIC_SIZE + 4;
 
-   /**
-    * Is there a figure to draw between chars
-    * <br>
-    * <br>
-    * When this flag is set the last figure in sub parameters is that figure.
-    * <br>
-    * <br>
-    * POssibly the first one if there are 2, is the bg figure.
-    */
-   public static final int FXLINE_FLAG_1_INTERCHAR_FIG     = 1;
 
-   /**
-    * Simple color gradient over the characters in a line
-    * <br>
-    * <br>
-    * When this flag is set, a {@link IDrwTypes#TYPE_059_GRADIENT} is in the sub parameters.
-    * 
-    */
-   public static final int FXLINE_FLAG_2_GRADIENT          = 1 << 1;
-
-   /**
-    * Is there a XF.
-    * <br>
-    * <br>
-    * A Function is defined to 
-    */
-   public static final int FXLINE_FLAG_5_DEFINED_XF        = 1 << 4;
-
-   /**
-    * Is a Y shift defined?
-    */
-   public static final int FXLINE_FLAG_6_DEFINED_YF        = 1 << 5;
-
-   /**
-    * A function decides how to position characters on a line.
-    * <br>
-    * <br>
-    * By default, input is character width and returns this value.
-    * <br>
-    * <br>
-    * It is a relative function. Relative? Well, it is or can be absolute, but 
-    * in this case, the character index must be given to the function.
-    * <br>
-    * <br>
-    * 
-    */
-   public static final int FXLINE_FLAG_7_FUNCTION_XF       = 1 << 6;
-
-   /**
-    * A second function define the y.
-    * <br>
-    * <br>
-    * By default input is current y position and returns y.
-    */
-   public static final int FXLINE_FLAG_8_FUNCTION_Y        = 1 << 7;
-
-   /**
-    * 
-    */
-   public static final int FXLINE_OFFSET_01_FLAG           = 0;
-
-   /**
-    * Additional x offset between chars in a line of text
-    * <br>
-    * signed
-    * <br>
-    * 0 -> vertical
-    */
-   public static final int FXLINE_OFFSET_02_CHAR_X_OFFSET1 = A_OBJECT_BASIC_SIZE + 2;
-
-   /**
-    * Additional y offset between chars in a line
-    * 0 -> horizontal
-    */
-   public static final int FXLINE_OFFSET_03_CHAR_Y_OFFSET1 = A_OBJECT_BASIC_SIZE + 3;
+   public static final int FXTEXT_BASIC_SIZE               = FX_BASIC_SIZE + 4;
 
 }

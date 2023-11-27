@@ -10,15 +10,6 @@ import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.drawx.src4.interfaces.IAccept;
 
 public class DrawUtilz {
-//
-//   public static final int    DIR_BOT                 = 2;
-//
-//   public static final int    DIR_LEFT                = 1;
-//
-//   public static final int    DIR_RIGHT               = 3;
-//
-//   public static final int    DIR_TOP                 = 0;
-
 
    /**
     * every pixel adjacent to maskColor will have its alpha value modified
@@ -505,10 +496,10 @@ public class DrawUtilz {
     * @param doMask if true count mask pixel in the transparent brush count
     */
    public static void setAlphaGradient(int[] rgb, int w, int h, int maskColor, int size, boolean doMask) {
-      setAlphaGradient(rgb, w, h, maskColor, size, doMask, C.DIR_0TOP);
-      setAlphaGradient(rgb, w, h, maskColor, size, doMask, C.DIR_1BOTTOM);
-      setAlphaGradient(rgb, w, h, maskColor, size, doMask, C.DIR_2LEFT);
-      setAlphaGradient(rgb, w, h, maskColor, size, doMask, C.DIR_3RIGHT);
+      setAlphaGradient(rgb, w, h, maskColor, size, doMask, C.DIR_0_TOP);
+      setAlphaGradient(rgb, w, h, maskColor, size, doMask, C.DIR_1_BOTTOM);
+      setAlphaGradient(rgb, w, h, maskColor, size, doMask, C.DIR_2_LEFT);
+      setAlphaGradient(rgb, w, h, maskColor, size, doMask, C.DIR_3_RIGHT);
    }
 
    /**
@@ -531,7 +522,7 @@ public class DrawUtilz {
       if (doMask)
          count[1] = 1;
       boolean doBreak = false;
-      if (dir == C.DIR_0TOP) {
+      if (dir == C.DIR_0_TOP) {
          for (int i = 0; i < w; i++) {
             index = i;
             count[0] = 0;
@@ -543,7 +534,7 @@ public class DrawUtilz {
                index += w;
             }
          }
-      } else if (dir == C.DIR_2LEFT) {
+      } else if (dir == C.DIR_2_LEFT) {
          for (int i = 0; i < h; i++) {
             index = i * w;
             count[0] = 0;
@@ -555,7 +546,7 @@ public class DrawUtilz {
                index++;
             }
          }
-      } else if (dir == C.DIR_3RIGHT) {
+      } else if (dir == C.DIR_3_RIGHT) {
          for (int i = 0; i < h; i++) {
             index = (i * w) + w - 1;
             count[0] = 0;
@@ -567,7 +558,7 @@ public class DrawUtilz {
                index--;
             }
          }
-      } else if (dir == C.DIR_1BOTTOM) {
+      } else if (dir == C.DIR_1_BOTTOM) {
          for (int i = 0; i < w; i++) {
             index = w * h - 1 - i;
             count[0] = 0;

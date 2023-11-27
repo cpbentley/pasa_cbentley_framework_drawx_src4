@@ -2,18 +2,19 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.utils;
+package pasa.cbentley.framework.drawx.src4.ctx;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.interfaces.C;
-import pasa.cbentley.core.src4.interfaces.ITechTransform;
 import pasa.cbentley.core.src4.logging.ToStringStaticBase;
+import pasa.cbentley.core.src4.structs.IntToStrings;
 import pasa.cbentley.framework.coredraw.src4.ctx.ToStringStaticCoreDraw;
-import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
+import pasa.cbentley.framework.drawx.src4.string.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.style.ITechStyle;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBlend;
@@ -34,7 +35,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechSkew;
  * @author Charles-Philip Bentley
  *
  */
-public class ToStringStaticDraw extends ToStringStaticBase {
+public class ToStringStaticDrawx extends ToStringStaticBase {
 
    public static String debugAlign(int a) {
       switch (a) {
@@ -55,6 +56,127 @@ public class ToStringStaticDraw extends ToStringStaticBase {
       }
    }
 
+   public static String stringerType(int type) {
+      String str = stringerTypeNull(type);
+      if (str == null) {
+         str = "Unknown stringerType " + type;
+      }
+      return str;
+   }
+   public static String stringerStateFlag(int flag) {
+      String str = stringerStateFlagNull(flag);
+      if (str == null) {
+         str = "Unknown stringerStateFlag " + flag;
+      }
+      return str;
+   }
+   
+   public static IntToStrings stringerStateFlagMap(UCtx uc) {
+      IntToStrings flags = new IntToStrings(uc);
+      int flag = ITechStringer.STATE_01_CHAR_EFFECTS;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_02_CHAR_WIDTHS;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_03_CHECK_CLIP;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_04_TRIMMED;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_05_STR_WIDTH;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_06_CHAR_POSITIONS;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_07_BROKEN;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_08_ACTIVE_STYLE;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_09_WORD_FX;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_10_ACTIVE_DYNAMIC_STYLE;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_11_DIFFERENT_FONTS;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_13_FX;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_14_BASIC_POSITIONING;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_15_BG_DEFINED;
+      flags.add(flag, stringerStateFlag(flag));
+      flag = ITechStringer.STATE_16_STATIC_INDEX_FX;
+      flags.add(flag, stringerStateFlag(flag));
+      return flags;
+      
+   }
+   public static String stringerStateFlagNull(int flag) {
+      switch (flag) {
+         case ITechStringer.STATE_01_CHAR_EFFECTS:
+            return "CharEffect";
+         case ITechStringer.STATE_02_CHAR_WIDTHS:
+            return "CharWidths";
+         case ITechStringer.STATE_03_CHECK_CLIP:
+            return "CheckClip";
+         case ITechStringer.STATE_04_TRIMMED:
+            return "Trimmed";
+         case ITechStringer.STATE_05_STR_WIDTH:
+            return "StrWidth";
+         case ITechStringer.STATE_06_CHAR_POSITIONS:
+            return "CharPositions";
+         case ITechStringer.STATE_07_BROKEN:
+            return "Broken";
+         case ITechStringer.STATE_08_ACTIVE_STYLE:
+            return "ActiveStyle";
+         case ITechStringer.STATE_09_WORD_FX:
+            return "WordFx";
+         case ITechStringer.STATE_10_ACTIVE_DYNAMIC_STYLE:
+            return "ActiveDynStyle";
+         case ITechStringer.STATE_11_DIFFERENT_FONTS:
+            return "DifferentFonts";
+         case ITechStringer.STATE_13_FX:
+            return "Fx";
+         case ITechStringer.STATE_14_BASIC_POSITIONING:
+            return "BasicPositioning";
+         case ITechStringer.STATE_15_BG_DEFINED:
+            return "BgDefined";
+         case ITechStringer.STATE_16_STATIC_INDEX_FX:
+            return "StaticIndexFx";
+         default:
+            return null;
+      }
+   }
+
+   public static String a_Template(int type) {
+      String str = a_TemplateNull(type);
+      if (str == null) {
+         str = "Unknown stringerType " + type;
+      }
+      return str;
+   }
+
+   public static String a_TemplateNull(int type) {
+      switch (type) {
+         case 0:
+            return "";
+         default:
+            return null;
+      }
+   }
+
+   public static String stringerTypeNull(int type) {
+      switch (type) {
+         case ITechStringer.TYPE_0_SINGLE_LINE:
+            return "Single Line";
+         case ITechStringer.TYPE_1_SINGLE_LINE_FX:
+            return "Single Line Fx";
+         case ITechStringer.TYPE_2_BREAKS:
+            return "Line Breaks";
+         case ITechStringer.TYPE_3_BREAKS_FX:
+            return "Line Breaks Fx";
+         case ITechStringer.TYPE_7_LINE_BREAKS_WORD_BREAKS_FX:
+            return "Line Breaks Work Breaks Fx";
+         default:
+            return null;
+      }
+   }
+
    public static String debugPass(int p) {
       switch (p) {
          case ITechPass.PASS_0_FIGURE:
@@ -72,7 +194,7 @@ public class ToStringStaticDraw extends ToStringStaticBase {
       }
    }
 
-   public static String debugStyleAnchor(int i) {
+   public static String styleAnchor(int i) {
       switch (i) {
          case ITechStyle.STYLE_ANC_0_BORDER:
             return "AT_BORDER";
@@ -115,13 +237,13 @@ public class ToStringStaticDraw extends ToStringStaticBase {
 
    public static String debugDiagDir(int type) {
       switch (type) {
-         case C.DIAG_DIR_0TOP_LEFT:
+         case C.DIAG_DIR_0_TOP_LEFT:
             return "TopLeft";
-         case C.DIAG_DIR_1TOP_RIGHT:
+         case C.DIAG_DIR_1_TOP_RIGHT:
             return "TopRight";
-         case C.DIAG_DIR_2BOT_LEFT:
+         case C.DIAG_DIR_2_BOT_LEFT:
             return "BotLeft";
-         case C.DIAG_DIR_3BOT_RIGHT:
+         case C.DIAG_DIR_3_BOT_RIGHT:
             return "BotRight";
          default:
             return "UnknownDiagDir";
@@ -223,7 +345,7 @@ public class ToStringStaticDraw extends ToStringStaticBase {
       return "(" + ((c >> 24) & 0xFF) + "," + ((c >> 16) & 0xFF) + "," + ((c >> 8) & 0xFF) + "," + (c & 0xFF) + ")";
    }
 
-   public static String debugStrGradEllipse(int value) {
+   public static String gradEllipse(int value) {
       switch (value) {
          case ITechGradient.GRADIENT_TYPE_ELLIPSE_00_NORMAL:
             return "Normal";
@@ -326,8 +448,32 @@ public class ToStringStaticDraw extends ToStringStaticBase {
             return "Unknown" + value;
       }
    }
-
-   public static String debugStrGradRect(int value) {
+   public static String gradLosange(int value) {
+      switch (value) {
+         case ITechGradient.GRADIENT_TYPE_LOSANGE_0_SQUARE:
+            return "Square";
+         case ITechGradient.GRADIENT_TYPE_LOSANGE_1_FULLVERTICAL:
+            return "FullVertical";
+         case ITechGradient.GRADIENT_TYPE_LOSANGE_2_FULLHORIZ:
+            return "FullHoriz";
+         case ITechGradient.GRADIENT_TYPE_LOSANGE_3_FULLDIAGDOWN:
+            return "FullDiagDown";
+         case ITechGradient.GRADIENT_TYPE_LOSANGE_4_FULLDIAGUP:
+            return "FullDiagUp";
+         case ITechGradient.GRADIENT_TYPE_LOSANGE_5_LEFT:
+            return "Left";
+         case ITechGradient.GRADIENT_TYPE_LOSANGE_6_RIGHT:
+            return "Right";
+         case ITechGradient.GRADIENT_TYPE_LOSANGE_7_TOP:
+            return "Top";
+         case ITechGradient.GRADIENT_TYPE_LOSANGE_8_BOT:
+            return "Bot";
+         default:
+            return "Unknown " + value;
+      }
+   }
+   
+   public static String gradRect(int value) {
       switch (value) {
          case ITechGradient.GRADIENT_TYPE_RECT_05_BOTLEFT:
             return "BotLeft";
@@ -351,13 +497,12 @@ public class ToStringStaticDraw extends ToStringStaticBase {
             return "L Left";
          case ITechGradient.GRADIENT_TYPE_RECT_10_L_RIGHT:
             return "L Right";
-
          default:
             return "Unknown " + value;
       }
    }
 
-   public static String debugStrGradTrig(int value) {
+   public static String gradTrig(int value) {
       switch (value) {
          case ITechGradient.GRADIENT_TYPE_TRIG_00_TENT:
             return "Tent";
@@ -387,7 +532,7 @@ public class ToStringStaticDraw extends ToStringStaticBase {
       }
    }
 
-   public static String debugScaleType(int type) {
+   public static String scaleType(int type) {
       switch (type) {
          case ITechScaler.SCALER_TYPE_0_FIT_NONE:
             return "None";
@@ -602,6 +747,23 @@ public class ToStringStaticDraw extends ToStringStaticBase {
             return "clear";
          default:
             return "Unknown " + op;
+      }
+   }
+
+   public static String toStringFxScope(int scope) {
+      switch (scope) {
+         case IBOFxStr.FX_SCOPE_0_CHAR:
+            return "Char";
+         case IBOFxStr.FX_SCOPE_2_LINE:
+            return "Line";
+         case IBOFxStr.FX_SCOPE_1_WORD:
+            return "Word";
+         case IBOFxStr.FX_SCOPE_3_PARA:
+            return "Paragraph";
+         case IBOFxStr.FX_SCOPE_4_TEXT:
+            return "Text";
+         default:
+            return "Unknown scope " + scope;
       }
    }
 }

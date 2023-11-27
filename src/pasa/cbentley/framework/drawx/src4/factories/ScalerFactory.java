@@ -8,11 +8,12 @@ import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
+import pasa.cbentley.framework.drawx.src4.tech.IBOScaler;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMosaic;
 import pasa.cbentley.framework.drawx.src4.tech.ITechPass;
 import pasa.cbentley.framework.drawx.src4.tech.ITechScaler;
 import pasa.cbentley.framework.drawx.src4.tech.ITechSkewer;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 
 public class ScalerFactory extends AbstractDrwFactory {
 
@@ -27,8 +28,8 @@ public class ScalerFactory extends AbstractDrwFactory {
     * @return
     */
    public ByteObject getScaler(int type, ByteObject postRGBFilter) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_055_SCALE, ITechScaler.SCALE_BASIC_SIZE);
-      p.setValue(ITechScaler.SCALE_OFFSET_02_FIT_TYPE1, type, 1);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_055_SCALE, IBOScaler.SCALE_BASIC_SIZE);
+      p.setValue(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1, type, 1);
       if (postRGBFilter != null) {
          p.setFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_2_POST_FILTER, true);
          p.addSub(postRGBFilter);
@@ -44,9 +45,9 @@ public class ScalerFactory extends AbstractDrwFactory {
    }
 
    public ByteObject getScaler(int type, int id) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_055_SCALE, ITechScaler.SCALE_BASIC_SIZE);
-      p.setValue(ITechScaler.SCALE_OFFSET_02_FIT_TYPE1, type, 1);
-      p.setValue(ITechScaler.SCALE_OFFSET_03_ID1, id, 1);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_055_SCALE, IBOScaler.SCALE_BASIC_SIZE);
+      p.setValue(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1, type, 1);
+      p.setValue(IBOScaler.SCALE_OFFSET_03_ID1, id, 1);
       return p;
    }
    
@@ -63,16 +64,16 @@ public class ScalerFactory extends AbstractDrwFactory {
     * <br>
     * <br>
     * 
-    * @param id {@link ITechScaler#SCALE_OFFSET_03_ID1} {@link ITechScaler#SCALER_ID_0_LINEAR}
-    * @param type {@link ITechScaler#SCALE_OFFSET_02_FIT_TYPE1} => {@link ITechScaler#SCALER_TYPE_1_FIT_BOTH} {@link ITechScaler#SCALER_TYPE_4_FIT_FIRST}
+    * @param id {@link IBOScaler#SCALE_OFFSET_03_ID1} {@link ITechScaler#SCALER_ID_0_LINEAR}
+    * @param type {@link IBOScaler#SCALE_OFFSET_02_FIT_TYPE1} => {@link ITechScaler#SCALER_TYPE_1_FIT_BOTH} {@link ITechScaler#SCALER_TYPE_4_FIT_FIRST}
     * @param preRGBFilter
     * @param postRGBFilter
     * @return
     */
    public ByteObject getScaler(int id, int type, ByteObject preRGBFilter, ByteObject postRGBFilter) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_055_SCALE, ITechScaler.SCALE_BASIC_SIZE);
-      p.setValue(ITechScaler.SCALE_OFFSET_02_FIT_TYPE1, type, 1);
-      p.setValue(ITechScaler.SCALE_OFFSET_03_ID1, id, 1);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_055_SCALE, IBOScaler.SCALE_BASIC_SIZE);
+      p.setValue(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1, type, 1);
+      p.setValue(IBOScaler.SCALE_OFFSET_03_ID1, id, 1);
       if (preRGBFilter != null) {
          p.setFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_1_PRE_FILTER, true);
          p.addSub(preRGBFilter);
@@ -92,10 +93,10 @@ public class ScalerFactory extends AbstractDrwFactory {
       if (bo.hasFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_2_POST_FILTER)) {
          sb.append("PostFilter");
       }
-      int type = bo.get1(ITechScaler.SCALE_OFFSET_02_FIT_TYPE1);
-      sb.append(" Type:" + ToStringStaticDraw.debugScaleType(type));
-      int id = bo.get1(ITechScaler.SCALE_OFFSET_03_ID1);
-      sb.append(" ID:" + ToStringStaticDraw.debugScaleID(id));
+      int type = bo.get1(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1);
+      sb.append(" Type:" + ToStringStaticDrawx.scaleType(type));
+      int id = bo.get1(IBOScaler.SCALE_OFFSET_03_ID1);
+      sb.append(" ID:" + ToStringStaticDrawx.debugScaleID(id));
    }
 
 }

@@ -69,7 +69,9 @@ public interface ITechFilter extends ITechByteObject {
 
    /**
     * The type of alpha filter
-    * All,Touches, TBLR
+    * <li>{@link ITechFilter#FILTER_TYPE_00_FUNCTION_ALL}
+    * <li>{@link ITechFilter#FILTER_TYPE_01_GRAYSCALE}
+    * <li>{@link ITechFilter#FILTER_TYPE_02_BILINEAR}
     */
    public static final int FILTER_OFFSET_01_TYPE1            = A_OBJECT_BASIC_SIZE;
 

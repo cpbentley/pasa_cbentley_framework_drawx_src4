@@ -15,10 +15,12 @@ import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.string.StringDrawUtils;
+import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
@@ -66,7 +68,7 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
       IImage img = drc.getImageFactory().createImage(w, h, IColors.FULLY_TRANSPARENT_BLACK);
       IGraphics g = img.getGraphics();
       g.setColor(IColors.FULLY_OPAQUE_WHITE);
-      g.drawChar(c, 0, 0, IGraphics.TOP | IGraphics.LEFT);
+      g.drawChar(c, 0, 0, ITechGraphics.TOP | ITechGraphics.LEFT);
       img.getRGB(imgData, 0, w, 0, 0, w, h);
       int start = 0;
       int end = h;
@@ -168,7 +170,7 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
       int imgW = img.getWidth();
       IGraphics g = img.getGraphics();
       g.setColor(0);
-      g.drawChar(c, 3, 3, IGraphics.TOP | IGraphics.LEFT);
+      g.drawChar(c, 3, 3, ITechGraphics.TOP | ITechGraphics.LEFT);
       int[] rgb = new int[imgW * imgH];
       img.getRGB(rgb, 0, imgW, 0, 0, imgW, imgH);
       wh[1] = StringDrawUtils.countLinesWithBlack(imgH, imgW, rgb);
@@ -216,9 +218,9 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
       if (strFig == null) {
          return drc.getFontFactory().getDefaultFont();
       }
-      int face = strFig.getValue(ITechFigure.FIG_STRING_OFFSET_02_FACE1, 1);
-      int style = strFig.getValue(ITechFigure.FIG_STRING_OFFSET_03_STYLE1, 1);
-      int size = strFig.getValue(ITechFigure.FIG_STRING_OFFSET_04_SIZE1, 1);
+      int face = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_02_FACE1, 1);
+      int style = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_03_STYLE1, 1);
+      int size = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_04_SIZE1, 1);
 
       IMFont f = drc.getFontFactory().getFont(face, style, size);
       return f;

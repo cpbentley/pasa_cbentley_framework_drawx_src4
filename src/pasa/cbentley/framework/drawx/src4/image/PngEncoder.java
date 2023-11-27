@@ -3,7 +3,7 @@
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
 
-package pasa.cbentley.framework.drawx.src4.base;
+package pasa.cbentley.framework.drawx.src4.image;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -17,6 +17,11 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 
+/**
+ * Move it to its own code context for imaging ?
+ * @author Charles Bentley
+ *
+ */
 public class PngEncoder {
 
    public static final String CHUNK_DATA_LOAD_AS_TEXT = "tEXt";

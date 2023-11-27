@@ -2,22 +2,23 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.engine;
+package pasa.cbentley.framework.drawx.src4.ctx;
 
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IDLog;
 import pasa.cbentley.core.src4.logging.IStringable;
-import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 
+/**
+ * 
+ * @author Charles Bentley
+ *
+ */
 public abstract class ObjectDrw implements IStringable {
    protected final DrwCtx drc;
 
-   protected final DrwCtx dc;
-
    public ObjectDrw(DrwCtx drc) {
       this.drc = drc;
-      this.dc = drc;
    }
 
    //#mdebug
@@ -30,7 +31,7 @@ public abstract class ObjectDrw implements IStringable {
    }
 
    public void toString(Dctx dc) {
-      dc.root(this, ObjectDrw.class, "@line5");
+      dc.root(this, ObjectDrw.class, "@line35");
       toStringPrivate(dc);
    }
 
@@ -48,7 +49,7 @@ public abstract class ObjectDrw implements IStringable {
    }
 
    public UCtx toStringGetUCtx() {
-      return dc.getUCtx();
+      return drc.getUCtx();
    }
 
    //#enddebug

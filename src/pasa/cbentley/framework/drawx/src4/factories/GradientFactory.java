@@ -9,10 +9,10 @@ import pasa.cbentley.byteobjects.src4.tech.ITechFunction;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.tech.ITechArtifact;
 import pasa.cbentley.framework.drawx.src4.tech.ITechColorFunction;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGradient;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 
 /**
  * Wrapper around the {@link GradientC}.
@@ -235,7 +235,7 @@ public class GradientFactory extends AbstractDrwFactory implements ITechFunction
    
    public void toStringGradient(ByteObject bo, Dctx sb) {
       sb.append("#Gradient");
-      sb.append(" scolor=" + (ToStringStaticDraw.toStringColor(bo.get4(ITechGradient.GRADIENT_OFFSET_04_COLOR4))));
+      sb.append(" scolor=" + (ToStringStaticDrawx.toStringColor(bo.get4(ITechGradient.GRADIENT_OFFSET_04_COLOR4))));
       sb.append(" maxSec=" + (bo.getValue(ITechGradient.GRADIENT_OFFSET_05_SEC1, 1)));
       sb.append(" type=" + (bo.getValue(ITechGradient.GRADIENT_OFFSET_06_TYPE1, 1)));
       sb.append(" step=" + (bo.getValue(ITechGradient.GRADIENT_OFFSET_07_STEP1, 1)));

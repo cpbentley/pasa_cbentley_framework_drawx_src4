@@ -11,10 +11,15 @@ import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 public interface ITechBlend extends ITechByteObject {
 
    /**
-    * Default Behaviour. All alphas are treated equally in the blender
+    * All alphas are treated equally in the blender
     * and are merged using the OVER function
     */
    public static final int ALPHA_0_OVER                   = 0;
+
+   /**
+    * The alphas are merged using the same function as the RGB components
+    */
+   public static final int ALPHA_1_MERGE                  = 1;
 
    /**
     * The merge ignores alpha values.
@@ -22,11 +27,6 @@ public interface ITechBlend extends ITechByteObject {
     * Return pixel's alpha is always 255.
     */
    public static final int ALPHA_2_255                    = 2;
-
-   /**
-    * The alphas are merged using the same function as the RGB components
-    */
-   public static final int ALPHA_1_MERGE                  = 1;
 
    /**
     * Inverse function on the alpha
@@ -78,7 +78,14 @@ public interface ITechBlend extends ITechByteObject {
     * <br>
     * <li> {@link ITechBlend#OP_00_SRC_OVER}
     * <li> {@link ITechBlend#OP_01_SRC}
+    * <li> {@link ITechBlend#OP_02_SRC_IN}
+    * <li> {@link ITechBlend#OP_03_SRC_OUT}
+    * <li> {@link ITechBlend#OP_04_SRC_ATOP}
+    * <li> {@link ITechBlend#OP_05_DST_OVER}
     * <li> {@link ITechBlend#OP_06_DST}
+    * <li> {@link ITechBlend#OP_07_DST_IN}
+    * <li> {@link ITechBlend#OP_08_DST_OUT}
+    * <li> {@link ITechBlend#OP_09_DST_ATOP}
     * <li> {@link ITechBlend#OP_10_XOR}
     * <br>
     * <br>
@@ -128,14 +135,15 @@ public interface ITechBlend extends ITechByteObject {
    public static final int BLEND_OFFSET_07_FLAG1          = A_OBJECT_BASIC_SIZE + 7;
 
    /**
-    * Blends using simple {@link BlendOp#blendPixel(int, int, int)}.
-    * <br>
-    * Default behavior: Blend Opaque pixels replace the base, semi-transparent pixels are merged.
+    * Blend Opaque pixels replace the base, semi-transparent pixels are merged.
+    * <li>{@link BlendOp#blendPixel(int, int, int)}.
+    * <li>Default behavior.
+    * <li>Ignore Alpha mode since it defines its own mode by nature.
     */
    public static final int BLENDING_00_OVER               = 0;
 
    /**
-    * Force the replace of destination with source/blend pixels.
+    * Blend pixels replace destination.
     * <br>
     * <br>
     * Except for background color/ pseudo T color.
@@ -283,6 +291,8 @@ public interface ITechBlend extends ITechByteObject {
     * Effect of
     */
    public static final int BLENDING_25_DIVIDE             = 25;
+
+   public static final int BLENDING_255_INVALID           = 255;
 
    public static final int BLENDING_26_                   = 26;
 

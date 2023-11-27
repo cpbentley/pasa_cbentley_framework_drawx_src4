@@ -6,7 +6,7 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 public interface ITechStringDrw {
    /**
-    * No breaking at all.
+    * No breaking at all. Special characters like '\n'
     */
    public static final int BREAK_0_NONE             = 0;
 
@@ -22,6 +22,7 @@ public interface ITechStringDrw {
 
    /**
     * Overrides ViewPane to expand
+    * Removes all new lines characters
     */
    public static final int BREAK_3_ONE_LINE         = 3;
 

@@ -919,7 +919,7 @@ public class RgbCache implements IMemFreeable {
     */
    public RgbImage createRGB(GraphicsX g, int w, int h, int color, ByteObject fig) {
       boolean isWhiteOpaque = false;
-      RgbImage ri = drc.getFigureOperator().getFigImage(g, fig, w, h, false, isWhiteOpaque, 0);
+      RgbImage ri = drc.getFigureOperator().getFigImage(fig, w, h, false, isWhiteOpaque, 0);
       ri.source = fig;
       return ri;
    }

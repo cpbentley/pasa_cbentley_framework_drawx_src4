@@ -7,10 +7,8 @@ package pasa.cbentley.framework.drawx.src4.tech;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
 import pasa.cbentley.core.src4.interfaces.C;
-import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFont;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
-import pasa.cbentley.framework.drawx.src4.string.ITechStrFx;
 
 public interface ITechFigure extends ITechByteObject {
    /**
@@ -44,14 +42,14 @@ public interface ITechFigure extends ITechByteObject {
 
    /**
     * <b>4 bits</b> for dir type def
-    * <li> {@link C#DIR_0TOP}
-    * <li> {@link C#DIR_1BOTTOM}
-    * <li> {@link C#DIR_2LEFT}
-    * <li> {@link C#DIR_3RIGHT}
-    * <li> {@link C#DIR_4TopLeft}
-    * <li> {@link C#DIR_5TopRight}
-    * <li> {@link C#DIR_6BotLeft}
-    * <li> {@link C#DIR_7BotRight}
+    * <li> {@link C#DIR_0_TOP}
+    * <li> {@link C#DIR_1_BOTTOM}
+    * <li> {@link C#DIR_2_LEFT}
+    * <li> {@link C#DIR_3_RIGHT}
+    * <li> {@link C#DIR_4_TopLeft}
+    * <li> {@link C#DIR_5_TopRight}
+    * <li> {@link C#DIR_6_BotLeft}
+    * <li> {@link C#DIR_7_BotRight}
     * <br>
     * <br>
     * 
@@ -148,6 +146,12 @@ public interface ITechFigure extends ITechByteObject {
     */
    public static final int FIG_BORDER_OFFSET_3STROKE_STYLE1   = FIG__BASIC_SIZE + 2;
 
+   public static final int FIG_CARREAU_BASIC_SIZE             = FIG__BASIC_SIZE + 7;
+
+   public static final int FIG_COEUR_BASIC_SIZE               = FIG__BASIC_SIZE + 7;
+
+   public static final int FIG_COEUR_OFFSET_3SIZE4            = FIG__BASIC_SIZE + 5;
+
    public static final int FIG_CROSS_BASIC_SIZE               = FIG__BASIC_SIZE + 9;
 
    public static final int FIG_CROSS_FLAG_8CROSS              = 128;
@@ -242,37 +246,37 @@ public interface ITechFigure extends ITechByteObject {
     * The Box may ask the figure for its preferred dimension. 0 is returned unless anchor has a W or H definition
     * When the Box
     */
-   public static final int FIG_FLAG_1_ANCHOR                   = 1 << 0;
+   public static final int FIG_FLAG_1_ANCHOR                  = 1 << 0;
 
-   public static final int FIG_FLAG_2_GRADIENT                 = 1 << 1;
+   public static final int FIG_FLAG_2_GRADIENT                = 1 << 1;
 
    /**
     * Set this flag to true if the figure should be cached for performant
     * repetitive drawing. If not set, figure is not cached
     */
-   public static final int FIG_FLAG_3_COLOR_ARRAY              = 1 << 2;
+   public static final int FIG_FLAG_3_COLOR_ARRAY             = 1 << 2;
 
    /**
     */
-   public static final int FIG_FLAG_4_MASK                     = 1 << 3;
+   public static final int FIG_FLAG_4_MASK                    = 1 << 3;
 
    /**
     * When set, the figure has a color filter in the ByteObject array
     */
-   public static final int FIG_FLAG_5_FILTER                   = 1 << 4;
+   public static final int FIG_FLAG_5_FILTER                  = 1 << 4;
 
    /**
     * Flag set when the figure defines one or several Animation {@link ByteObject} of type {@link IBOTypesDrw#TYPE_ANIMATION}.
     * 
     */
-   public static final int FIG_FLAG_6_ANIMATED                 = 1 << 5;
+   public static final int FIG_FLAG_6_ANIMATED                = 1 << 5;
 
    /**
     * Flag telling sub figures parameters are defined after the optional anchor definition. <br>
     * <br>
     * Sub figures are defined and will be drawn along specified anchors. <br>
     */
-   public static final int FIG_FLAG_7_SUB_FIGURE               = 1 << 6;
+   public static final int FIG_FLAG_7_SUB_FIGURE              = 1 << 6;
 
    /**
     * Flag if this figure definition supports Directional drawing.
@@ -284,10 +288,10 @@ public interface ITechFigure extends ITechByteObject {
     * <br>
     * <br>
     *  TODO to be decided
-    * {@link ITechFigure#FIG_TRIANGLE_OFFSET_2ANGLE2}
+    * {@link ITechFigure#FIG_TRIANGLE_OFFSET_2_ANGLE2}
     * 
     */
-   public static final int FIG_FLAG_8_TBLR_DIR                 = 1 << 7;
+   public static final int FIG_FLAG_8_TBLR_DIR                = 1 << 7;
 
    /**
     * If set, the figure creates blank int[] array and build itself on it with no primitives.
@@ -363,18 +367,6 @@ public interface ITechFigure extends ITechByteObject {
     */
    public static final int FIG_FLAGX_1AREA_FUNCTION           = 1;
 
-   /**
-    * When set, paint method of figure clips on the figure area during the figure's drawing process.
-    * <br>
-    * Extra boundary pixels will thus not be drawn.
-    */
-   public static final int FIG_FLAGX_2CLIP                    = 2;
-
-   /**
-    * Genetic flag set when figure's shape covers the whole area
-    */
-   public static final int FIG_FLAGX_3OPAQUE_SHAPE            = 4;
-
    //   /**
    //    * 1 byte flag
    //    * 1 byte maxsec
@@ -403,6 +395,18 @@ public interface ITechFigure extends ITechByteObject {
    //    * 4 bytes
    //    */
    //   public static final int FIG_GRADIENT_OFFSET_3SCOLOR4                  = FIG__BASIC_SIZE + 2;
+
+   /**
+    * When set, paint method of figure clips on the figure area during the figure's drawing process.
+    * <br>
+    * Extra boundary pixels will thus not be drawn.
+    */
+   public static final int FIG_FLAGX_2CLIP                    = 2;
+
+   /**
+    * Genetic flag set when figure's shape covers the whole area
+    */
+   public static final int FIG_FLAGX_3OPAQUE_SHAPE            = 4;
 
    /**
     * When colors from figure and gradient all drawn opaque.
@@ -479,42 +483,53 @@ public interface ITechFigure extends ITechByteObject {
 
    public static final int FIG_LOSANGE_BASIC_SIZE             = FIG__BASIC_SIZE + 6;
 
-   public static final int FIG_LOSANGE_FLAG_1HORIZ            = 1;
+   /**
+    * 
+    */
+   public static final int FIG_LOSANGE_FLAG_1_HORIZ           = 1;
 
-   public static final int FIG_LOSANGE_FLAG_2NEG_OVERSTEP     = 2;
+   public static final int FIG_LOSANGE_FLAG_2_NEG_OVERSTEP    = 2;
 
    /**
     * Draws the inverse
     * 
     */
-   public static final int FIG_LOSANGE_FLAG_3CONTOUR          = 4;
+   public static final int FIG_LOSANGE_FLAG_3_CONTOUR         = 4;
 
    /**
     * Instead of opposing bases, code oppose the point.
     */
-   public static final int FIG_LOSANGE_FLAG_4NOED_PAPILLION   = 8;
+   public static final int FIG_LOSANGE_FLAG_4_NOED_PAPILLION  = 8;
 
-   public static final int FIG_LOSANGE_OFFSET_1FLAG           = FIG__BASIC_SIZE;
+   public static final int FIG_LOSANGE_OFFSET_1_FLAG          = FIG__BASIC_SIZE;
 
    /**
     * Defines overstep for the two triangels
     */
-   public static final int FIG_LOSANGE_OFFSET_2OVERSTEP2      = FIG__BASIC_SIZE + 1;
+   public static final int FIG_LOSANGE_OFFSET_2_OVERSTEP2     = FIG__BASIC_SIZE + 1;
 
    /**
     * size of fill.
     * 0 = no fill.
     */
-   public static final int FIG_LOSANGE_OFFSET_3FILL2          = FIG__BASIC_SIZE + 3;
+   public static final int FIG_LOSANGE_OFFSET_3_FILL2         = FIG__BASIC_SIZE + 3;
 
    /**
     * Type of base triangle.
     * <br>
-    * <li>0 none trig def
-    * <li>1 one trig def both both triangles
-    * <li>2 two ByteObject figure triangles
+    * <li> {@link ITechFigure#FIG_LOSANGE_TYPE_0_COLOR} 
+    * <li> {@link ITechFigure#FIG_LOSANGE_TYPE_1_TRIANGLE} 
+    * <li> {@link ITechFigure#FIG_LOSANGE_TYPE_2_TRIANGLES} 
     */
-   public static final int FIG_LOSANGE_OFFSET_4TYPE1          = FIG__BASIC_SIZE + 5;
+   public static final int FIG_LOSANGE_OFFSET_4_TYPE1         = FIG__BASIC_SIZE + 5;
+
+   public static final int FIG_LOSANGE_TYPE_0_COLOR           = 0;
+
+   public static final int FIG_LOSANGE_TYPE_1_TRIANGLE        = 1;
+
+   public static final int FIG_LOSANGE_TYPE_2_TRIANGLES       = 2;
+
+   public static final int FIG_PIQUE_BASIC_SIZE               = FIG__BASIC_SIZE + 7;
 
    /**
     * 1 byte for flag
@@ -568,27 +583,27 @@ public interface ITechFigure extends ITechByteObject {
     */
    public static final int FIG_RECTANGLE_BASIC_SIZE           = FIG__BASIC_SIZE + 4;
 
-   public static final int FIG_RECTANGLE_FLAG_1ROUND          = 1;
+   public static final int FIG_RECTANGLE_FLAG_1_ROUND         = 1;
 
    /**
     * Round inside
     */
-   public static final int FIG_RECTANGLE_FLAG_2ROUND_INSIDE   = 2;
+   public static final int FIG_RECTANGLE_FLAG_2_ROUND_INSIDE  = 2;
 
-   public static final int FIG_RECTANGLE_FLAG_7ARCW1          = 64;
+   public static final int FIG_RECTANGLE_FLAG_7_ARCW1         = 64;
 
-   public static final int FIG_RECTANGLE_FLAG_8ARCH1          = 128;
+   public static final int FIG_RECTANGLE_FLAG_8_ARCH1         = 128;
 
-   public static final int FIG_RECTANGLE_OFFSET_1FLAG         = FIG__BASIC_SIZE;
+   public static final int FIG_RECTANGLE_OFFSET_1_FLAG        = FIG__BASIC_SIZE;
 
-   public static final int FIG_RECTANGLE_OFFSET_2ARCW1        = FIG__BASIC_SIZE + 1;
+   public static final int FIG_RECTANGLE_OFFSET_2_ARCW1       = FIG__BASIC_SIZE + 1;
 
-   public static final int FIG_RECTANGLE_OFFSET_3ARCH1        = FIG__BASIC_SIZE + 2;
+   public static final int FIG_RECTANGLE_OFFSET_3_ARCH1       = FIG__BASIC_SIZE + 2;
 
    /**
     * When différent from 0, draws "Border" rectangle.
     */
-   public static final int FIG_RECTANGLE_OFFSET_4SIZEF1       = FIG__BASIC_SIZE + 3;
+   public static final int FIG_RECTANGLE_OFFSET_4_SIZEF1      = FIG__BASIC_SIZE + 3;
 
    /**
     * 1 byte flag
@@ -597,21 +612,21 @@ public interface ITechFigure extends ITechByteObject {
     */
    public static final int FIG_REPEATER_BASIC_SIZE            = FIG__BASIC_SIZE + 5;
 
-   public static final int FIG_REPEATER_FLAG_1FORCECOPYAREA   = 1;
+   public static final int FIG_REPEATER_FLAG_1_FORCECOPYAREA  = 1;
 
    /**
     * Else transparent
     */
-   public static final int FIG_REPEATER_FLAG_2USE_BGCOLOR     = 2;
+   public static final int FIG_REPEATER_FLAG_2_USE_BGCOLOR    = 2;
 
-   public static final int FIG_REPEATER_OFFSET_1FLAG          = FIG__BASIC_SIZE;
+   public static final int FIG_REPEATER_OFFSET_1_FLAG         = FIG__BASIC_SIZE;
 
    /**
     * Width for the Unit
     */
-   public static final int FIG_REPEATER_OFFSET_2W2            = FIG__BASIC_SIZE + 1;
+   public static final int FIG_REPEATER_OFFSET_2_W2           = FIG__BASIC_SIZE + 1;
 
-   public static final int FIG_REPEATER_OFFSET_3H2            = FIG__BASIC_SIZE + 3;
+   public static final int FIG_REPEATER_OFFSET_3_H2           = FIG__BASIC_SIZE + 3;
 
    /**
     * 1 byte flag
@@ -655,115 +670,16 @@ public interface ITechFigure extends ITechByteObject {
     */
    public static final int FIG_SL_OFFSET_4SEPARATION2         = FIG__BASIC_SIZE + 4;
 
-   /**
-    * Minimum for drawing a string
-    * 1 existence flag
-    * 3 bytes for font
-    * 2 bytes for char
-    */
-   public static final int FIG_STRING_BASIC_SIZE              = FIG__BASIC_SIZE + 8;
+   public static final int FIG_TREFLE_BASIC_SIZE              = FIG__BASIC_SIZE + 7;
+
+   public static final int FIG_TREFLE_OFFSET_1_FLAG           = FIG__BASIC_SIZE + 0;
+
+   public static final int FIG_TREFLE_OFFSET_2_BASE2          = FIG__BASIC_SIZE + 1;
 
    /**
-    * Scaling switch. <br>
-    * <li>scaler type : 
-    * <li>scale id (linear,bilinear
-    */
-   public static final int FIG_STRING_FLAG_1_SCALING           = 1 << 0;
-
-   public static final int FIG_STRING_FLAG_4_RAW               = 1 << 3;
-
-   /**
-    * Set when an extra effect like 
-    * <li>mask
-    * <li>shadow
-    * <li>vertical/diagonal text
-    */
-   public static final int FIG_STRING_FLAG_5_EFFECT            = 1 << 4;
-
-   /**
-    * Set if a RawType string is present.
-    * Must check for {@link ITechFigure#FIG_STRING_FLAG_7_CHAR} or  {@link ITechFigure#FIG_STRING_FLAG_4_RAW}
-    * <br>
-    * <br>
     * 
     */
-   public static final int FIG_STRING_FLAG_6_EXPLICIT          = 1 << 5;
-
-   /**
-    * Figure is just one char defined at {@link ITechFigure#FIG_STRING_OFFSET_05_CHAR2}.
-    * <br>
-    * <br>
-    * Text effect are applied
-    */
-   public static final int FIG_STRING_FLAG_7_CHAR              = 1 << 6;
-
-   public static final int FIG_STRING_OFFSET_01_FLAG          = FIG__BASIC_SIZE;
-
-   /**
-    * MM: flag 1 of offset 6.
-    * <li>{@link ITechFont#FACE_MONOSPACE} 
-    * <li>{@link ITechFont#FACE_PROPORTIONAL}
-    * <li>{@link ITechFont#FACE_SYSTEM}
-    * <br>
-    * Bigger values means a custom font
-    */
-   public static final int FIG_STRING_OFFSET_02_FACE1         = FIG__BASIC_SIZE + 1;
-
-   /**
-    * MM: flag 2 of offset 6.
-    * <li>{@link ITechFont#STYLE_BOLD} 
-    * <li>{@link ITechFont#STYLE_ITALIC}
-    * <li>{@link ITechFont#STYLE_PLAIN}
-    */
-   public static final int FIG_STRING_OFFSET_03_STYLE1          = FIG__BASIC_SIZE + 2;
-
-   /**
-    * MM: flag 3 of offset 6.
-    * <br>
-    * <br>
-    * <li>{@link ITechFont#SIZE_0_DEFAULT} 16
-    * <li>{@link ITechFont#SIZE_1_TINY} 16
-    * <li>{@link ITechFont#SIZE_2_SMALL} 16
-    * <li>{@link ITechFont#SIZE_3_MEDIUM} 0
-    * <li>{@link ITechFont#SIZE_4_LARGE} 8
-    * <li>{@link ITechFont#SIZE_5_HUGE} 8
-    * <br>
-    * <br>
-    * When a value is different than those, it is used a such if the platform
-    * has a integer font size granularity. Otherwise it is automatically moved to one
-    * of those 3 choices.
-    * <li> Values of 16 and above are large.
-    * <li>Values of 0, 9 to 15 are medium
-    * <li>Values of 1 to to 8 are small
-    * <br>
-    * <br>
-    * 
-    */
-   public static final int FIG_STRING_OFFSET_04_SIZE1           = FIG__BASIC_SIZE + 3;
-
-   /**
-    * Character Unicode. <br>
-    * Often used with a scaler to draw big numbers. Centered and scaled on the drawing area
-    */
-   public static final int FIG_STRING_OFFSET_05_CHAR2           = FIG__BASIC_SIZE + 4;
-
-   /**
-    * 4 bits for type:
-    * <li>0 none
-    * 
-    */
-   public static final int FIG_STRING_OFFSET_06_SCALE1          = FIG__BASIC_SIZE + 6;
-
-   /**
-    * Number of dynamic text effects. i.e. differiante from static text effects.
-    * <br>
-    * <br>
-    * Convenience that counts subs which have the flag {@link ITechStrFx#FX_FLAGX_2_DYNAMIC}
-    * <br>
-    * <br>
-    * 
-    */
-   public static final int FIG_STRING_OFFSET_07_NUM_DYNAMIC1    = FIG__BASIC_SIZE + 7;
+   public static final int FIG_TREFLE_OFFSET_3_LEAF2          = FIG__BASIC_SIZE + 3;
 
    /**
     * 1 byte flag
@@ -771,38 +687,50 @@ public interface ITechFigure extends ITechByteObject {
    public static final int FIG_TRIANGLE_BASIC_SIZE            = FIG__BASIC_SIZE + 7;
 
    /**
-    * Set when complex angle i.e. not Up,Down,Left,Right
-    * or <br>
-    * Predefined anchor
-    */
-   public static final int FIG_TRIANGLE_FLAG_2ANGLE           = 2;
-
-   /**
     * Anchor Points
     */
-   public static final int FIG_TRIANGLE_FLAG_3ANCHOR_POINTS   = 4;
-
-   public static final int FIG_TRIANGLE_OFFSET_1FLAG1         = FIG__BASIC_SIZE;
+   public static final int FIG_TRIANGLE_FLAG_1_ANCHOR_POINTS  = 1 << 0;
 
    /**
-    * 2 bytes degree when {@link ITechFigure#FIG_TRIANGLE_FLAG_2ANGLE}
-    * or type
-    * <li> {@link C#TYPE_00TOP}
-    * <li> {@link C#TYPE_01BOTTOM}
-    * <li> {@link C#TYPE_02LEFT}
-    * <li> {@link C#TYPE_03RIGHT}
-    * <li> {@link C#TYPE_04TopLeft}
-    * <li> {@link C#TYPE_05TopRight}
-    * <li> {@link C#TYPE_06BotLeft}
-    * <li> {@link C#TYPE_07BotRight}
-    * <li> {@link C#TYPE_08MID_TopLeft}
-    * <li> {@link C#TYPE_09MID_TopRight}
-    * <li> {@link C#TYPE_10MID_BotLeft}
-    * <li> {@link C#TYPE_11MID_BotRight}
+    * When set, the value {@link ITechFigure#FIG_TRIANGLE_OFFSET_2_ANGLE2} is a int based 360 degree angle.
+    */
+   public static final int FIG_TRIANGLE_FLAG_2_ANGLE360       = 1 << 1;
+
+   /**
+    * When set, the value {@link ITechFigure#FIG_TRIANGLE_OFFSET_2_ANGLE2} is a ratio.
+    * 
+    * float angle = valuef / 0xFFFFf;
+    */
+   public static final int FIG_TRIANGLE_FLAG_3_ANGLE_RATIO    = 1 << 2;
+
+   public static final int FIG_TRIANGLE_FLAG_4_ANGLE_RAD      = 1 << 3;
+
+   public static final int FIG_TRIANGLE_OFFSET_1_FLAG1        = FIG__BASIC_SIZE;
+
+   /**
+    * Meaning depends on flags
+    * <li> {@link ITechFigure#FIG_TRIANGLE_FLAG_2_ANGLE360}
+    * <li> {@link ITechFigure#FIG_TRIANGLE_FLAG_3_ANGLE_RATIO}
+    * <li> {@link ITechFigure#FIG_TRIANGLE_FLAG_4_ANGLE_RAD}
+    * When true -> value is a 0-360 angle
+    * <br>
+    * When false ->
+    * <li> {@link C#TYPE_00_TOP}
+    * <li> {@link C#TYPE_01_BOTTOM}
+    * <li> {@link C#TYPE_02_LEFT}
+    * <li> {@link C#TYPE_03_RIGHT}
+    * <li> {@link C#TYPE_04_TopLeft}
+    * <li> {@link C#TYPE_05_TopRight}
+    * <li> {@link C#TYPE_06_BotLeft}
+    * <li> {@link C#TYPE_07_BotRight}
+    * <li> {@link C#TYPE_08_MID_TopLeft}
+    * <li> {@link C#TYPE_09_MID_TopRight}
+    * <li> {@link C#TYPE_10_MID_BotLeft}
+    * <li> {@link C#TYPE_11_MID_BotRight}
     * <li> ..
     * 
     */
-   public static final int FIG_TRIANGLE_OFFSET_2ANGLE2        = FIG__BASIC_SIZE + 1;
+   public static final int FIG_TRIANGLE_OFFSET_2_ANGLE2       = FIG__BASIC_SIZE + 1;
 
    /**
     * Value that will be read according to the {@link ISizer} definition.
@@ -810,7 +738,7 @@ public interface ITechFigure extends ITechByteObject {
     * <br>
     * H Size
     */
-   public static final int FIG_TRIANGLE_OFFSET_3h4            = FIG__BASIC_SIZE + 3;
+   public static final int FIG_TRIANGLE_OFFSET_3_h4           = FIG__BASIC_SIZE + 3;
 
    /**
     * Most basic shape.
@@ -818,7 +746,7 @@ public interface ITechFigure extends ITechByteObject {
     * Without a gradient, rectangle shape is direction agnostic.
     * <br>
     * Direction depends on gradient. <br>
-    * {@link C#DIR_0TOP}
+    * {@link C#DIR_0_TOP}
     * <br>
     * value 0
     */
@@ -908,6 +836,14 @@ public interface ITechFigure extends ITechByteObject {
     * filters (gradient, trans).
     */
    public static final int FIG_TYPE_3_TRIANGLE                = 3;
+
+   public static final int FIG_TYPE_30_COEUR                  = 30;
+
+   public static final int FIG_TYPE_31_CARREAU                = 31;
+
+   public static final int FIG_TYPE_32_PIQUE                  = 32;
+
+   public static final int FIG_TYPE_33_TREFLE                 = 33;
 
    public static final int STROKE_0_SOLID                     = 0;
 

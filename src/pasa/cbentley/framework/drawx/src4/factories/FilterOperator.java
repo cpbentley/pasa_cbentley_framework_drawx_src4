@@ -7,13 +7,13 @@ package pasa.cbentley.framework.drawx.src4.factories;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.functions.Function;
 import pasa.cbentley.core.src4.utils.ColorUtils;
-import pasa.cbentley.framework.drawx.src4.base.TransformUtilz;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.BlendOp;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFilter;
 import pasa.cbentley.framework.drawx.src4.utils.DrawUtilz;
+import pasa.cbentley.framework.drawx.src4.utils.TransformUtils;
 
 public class FilterOperator extends AbstractDrwOperator implements ITechFilter {
 
@@ -559,7 +559,7 @@ public class FilterOperator extends AbstractDrwOperator implements ITechFilter {
             int hOffset = filter.get2(FILTER_OFFSET_13_H2);
             BlendOp bo = new BlendOp(drc, blendop, blendAlpa);
             int[] rgbTransformed = RgbImage.getRGBCheck(rgb, offset, scanlength, m, transform, w, h);
-            rgbTransformed = TransformUtilz.transform(rgb, w, h, transform);
+            rgbTransformed = TransformUtils.transform(rgb, w, h, transform);
             int count = 0;
             for (int i = 0; i < h; i++) {
                index = offset + m + (scanlength * (n + i));

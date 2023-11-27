@@ -10,9 +10,9 @@ import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
 import pasa.cbentley.layouter.src4.tech.ITechPozer;
@@ -239,14 +239,14 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITech
    public void toStringBox(ByteObject bo, Dctx sb) {
       sb.append("#Box ");
       sb.append("[H V]=[");
-      sb.append(ToStringStaticDraw.debugAlign(bo.get4(BOX_OFFSET_02_HORIZ_ALIGN4)));
+      sb.append(ToStringStaticDrawx.debugAlign(bo.get4(BOX_OFFSET_02_HORIZ_ALIGN4)));
       if (bo.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_7_DEF_HORIZ_ALIGN)) {
 
       } else {
          sb.append(" undef");
       }
       sb.append(' ');
-      sb.append(ToStringStaticDraw.debugAlign(bo.get4(BOX_OFFSET_03_VERTICAL_ALIGN4)));
+      sb.append(ToStringStaticDrawx.debugAlign(bo.get4(BOX_OFFSET_03_VERTICAL_ALIGN4)));
       if (bo.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_8_DEF_VERT_ALIGN)) {
 
       } else {

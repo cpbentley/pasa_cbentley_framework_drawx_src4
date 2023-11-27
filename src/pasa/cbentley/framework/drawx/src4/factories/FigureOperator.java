@@ -16,11 +16,13 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.drawx.src4.color.ColorIterator;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.BlendOp;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
-import pasa.cbentley.framework.drawx.src4.factories.drawer.DrawerTriangle;
 import pasa.cbentley.framework.drawx.src4.factories.drawer.DrawerString;
+import pasa.cbentley.framework.drawx.src4.factories.drawer.DrawerTriangle;
+import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechArtifact;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
@@ -30,7 +32,6 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
-import pasa.cbentley.framework.drawx.src4.utils.ToStringStaticDraw;
 import pasa.cbentley.layouter.src4.ctx.LayouterCtx;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.interfaces.IBOTypesLayout;
@@ -82,7 +83,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       MergeMaskFactory mm = boc.getMergeMaskFactory();
       if (merge.getType() == IBOTypesDrw.TYPE_050_FIGURE) {
          ByteObject mergeMask = merge.getSubFirst(IBOTypesBOC.TYPE_011_MERGE_MASK);
-         if(mergeMask == null) {
+         if (mergeMask == null) {
             //figure is opaque
             return merge;
          }
@@ -113,7 +114,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
                newFigure = mergeFigRectangle(root, merge, mergeMask);
                break;
             default:
-               throw new RuntimeException("Not implemented Merge Method for Figure " + ToStringStaticDraw.debugFigType(fig));
+               throw new RuntimeException("Not implemented Merge Method for Figure " + ToStringStaticDrawx.debugFigType(fig));
          }
          ByteObject grad = root.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
          //TODO when merging figure has a gradient. what happens if root figure also has a gradient? override or merge gradients?
@@ -142,17 +143,17 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @return
     */
    public ByteObject mergeFigRectangle(ByteObject root, ByteObject merge, ByteObject mm) {
-      int arcw = root.get1(ITechFigure.FIG_RECTANGLE_OFFSET_2ARCW1);
-      int arch = root.get1(ITechFigure.FIG_RECTANGLE_OFFSET_3ARCH1);
-      int size = root.get1(ITechFigure.FIG_RECTANGLE_OFFSET_4SIZEF1);
+      int arcw = root.get1(ITechFigure.FIG_RECTANGLE_OFFSET_2_ARCW1);
+      int arch = root.get1(ITechFigure.FIG_RECTANGLE_OFFSET_3_ARCH1);
+      int size = root.get1(ITechFigure.FIG_RECTANGLE_OFFSET_4_SIZEF1);
       if (mm.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG5_1)) {
-         arcw = merge.get1(ITechFigure.FIG_RECTANGLE_OFFSET_2ARCW1);
+         arcw = merge.get1(ITechFigure.FIG_RECTANGLE_OFFSET_2_ARCW1);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG5_2)) {
-         arch = merge.get1(ITechFigure.FIG_RECTANGLE_OFFSET_3ARCH1);
+         arch = merge.get1(ITechFigure.FIG_RECTANGLE_OFFSET_3_ARCH1);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG5_3)) {
-         size = merge.get1(ITechFigure.FIG_RECTANGLE_OFFSET_4SIZEF1);
+         size = merge.get1(ITechFigure.FIG_RECTANGLE_OFFSET_4_SIZEF1);
       }
       return drc.getFigureFactory().getFigRect(0, arcw, arch, size, null, null, null, null);
 
@@ -166,26 +167,26 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @return
     */
    public ByteObject mergeFigString(ByteObject root, ByteObject merge, ByteObject mergeMask) {
-      int rface = root.get1(ITechFigure.FIG_STRING_OFFSET_02_FACE1);
-      int rstyle = root.get1(ITechFigure.FIG_STRING_OFFSET_03_STYLE1);
-      int rsize = root.get1(ITechFigure.FIG_STRING_OFFSET_04_SIZE1);
+      int rface = root.get1(IBOFigString.FIG_STRING_OFFSET_02_FACE1);
+      int rstyle = root.get1(IBOFigString.FIG_STRING_OFFSET_03_STYLE1);
+      int rsize = root.get1(IBOFigString.FIG_STRING_OFFSET_04_SIZE1);
 
       if (mergeMask.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG6_1)) {
-         rface = merge.get1(ITechFigure.FIG_STRING_OFFSET_02_FACE1);
+         rface = merge.get1(IBOFigString.FIG_STRING_OFFSET_02_FACE1);
       }
       if (mergeMask.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG6_2)) {
-         rstyle = merge.get1(ITechFigure.FIG_STRING_OFFSET_03_STYLE1);
+         rstyle = merge.get1(IBOFigString.FIG_STRING_OFFSET_03_STYLE1);
       }
       if (mergeMask.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG6_3)) {
-         rsize = merge.get1(ITechFigure.FIG_STRING_OFFSET_04_SIZE1);
+         rsize = merge.get1(IBOFigString.FIG_STRING_OFFSET_04_SIZE1);
       }
 
       String str = null;
-      if (root.hasFlag(ITechFigure.FIG_STRING_OFFSET_01_FLAG, ITechFigure.FIG_STRING_FLAG_6_EXPLICIT)) {
+      if (root.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_6_EXPLICIT)) {
          ByteObject raw = root.getSubFirst(IBOTypesBOC.TYPE_003_LIT_STRING);
          str = boc.getLitteralStringOperator().getLitteralString(raw);
       }
-      if (merge.hasFlag(ITechFigure.FIG_STRING_OFFSET_01_FLAG, ITechFigure.FIG_STRING_FLAG_6_EXPLICIT)) {
+      if (merge.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_6_EXPLICIT)) {
          ByteObject raw = merge.getSubFirst(IBOTypesBOC.TYPE_003_LIT_STRING);
          str = boc.getLitteralStringOperator().getLitteralString(raw);
       }
@@ -193,7 +194,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       ByteObject effects = root.getSubFirst(IBOTypesDrw.TYPE_070_TEXT_EFFECTS);
       ByteObject mask = root.getSubFirst(IBOTypesDrw.TYPE_058_MASK);
       ByteObject scale = root.getSubFirst(IBOTypesDrw.TYPE_055_SCALE);
-      if (root.hasFlag(ITechFigure.FIG_STRING_OFFSET_01_FLAG, ITechFigure.FIG_STRING_FLAG_5_EFFECT)) {
+      if (root.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_5_EFFECT)) {
 
       }
       int rcolor = getMergeColor(root, merge, mergeMask);
@@ -209,15 +210,13 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       return rcolor;
    }
 
-   private final String STRING = "sada";
-
    public ByteObject cloneFigDirectionanl(ByteObject fig, int dir) {
       int type = fig.get1(ITechFigure.FIG__OFFSET_01_TYPE1);
       ByteObject clone = fig.cloneCopyHeadRefParams();
       switch (type) {
          case ITechFigure.FIG_TYPE_3_TRIANGLE:
-            clone.set1(ITechFigure.FIG_TRIANGLE_OFFSET_2ANGLE2, dir);
-            clone.setFlag(ITechFigure.FIG_TRIANGLE_OFFSET_1FLAG1, ITechFigure.FIG_TRIANGLE_FLAG_2ANGLE, false);
+            clone.set1(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, dir);
+            clone.setFlag(ITechFigure.FIG_TRIANGLE_OFFSET_1_FLAG1, ITechFigure.FIG_TRIANGLE_FLAG_2_ANGLE360, false);
             clone.setValue4Bits1(ITechFigure.FIG__OFFSET_05_DIR1, dir);
             break;
          case ITechFigure.FIG_TYPE_01_RECTANGLE:
@@ -321,7 +320,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
             if (rect == null) {
                throw new NullPointerException("Rectangle Definition for Border is null");
             }
-            rect.setValue(ITechFigure.FIG_RECTANGLE_OFFSET_4SIZEF1, size, 1);
+            rect.setValue(ITechFigure.FIG_RECTANGLE_OFFSET_4_SIZEF1, size, 1);
             paintFigureSwitch(g, dx, dy, w, h, rect);
          } else {
             if (cornerShift >= size) {
@@ -424,9 +423,9 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
       boolean grad = p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT);
       ByteObject gradient = null;
-      int arcw = p.getValue(ITechFigure.FIG_RECTANGLE_OFFSET_2ARCW1, 1);
-      int arch = p.getValue(ITechFigure.FIG_RECTANGLE_OFFSET_3ARCH1, 1);
-      int sizeFill = p.getValue(ITechFigure.FIG_RECTANGLE_OFFSET_4SIZEF1, 1);
+      int arcw = p.getValue(ITechFigure.FIG_RECTANGLE_OFFSET_2_ARCW1, 1);
+      int arch = p.getValue(ITechFigure.FIG_RECTANGLE_OFFSET_3_ARCH1, 1);
+      int sizeFill = p.getValue(ITechFigure.FIG_RECTANGLE_OFFSET_4_SIZEF1, 1);
       if (grad) {
          gradient = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
       }
@@ -435,7 +434,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       } else {
          if (sizeFill != 0) {
             //draw method =>  it with d
-            if (p.hasFlag(ITechFigure.FIG_RECTANGLE_OFFSET_1FLAG, ITechFigure.FIG_RECTANGLE_FLAG_2ROUND_INSIDE)) {
+            if (p.hasFlag(ITechFigure.FIG_RECTANGLE_OFFSET_1_FLAG, ITechFigure.FIG_RECTANGLE_FLAG_2_ROUND_INSIDE)) {
                //color = 0xFFFFFF;
                g.setColor(color);
                g.fillRoundRect(x, y, w, h, arcw, arch);
@@ -452,7 +451,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
                drawFigRectangleShape(g, x, y, w - 1, h - 1, color, sizeFill, arcw, arch);
             }
          } else {
-            if (p.hasFlag(ITechFigure.FIG_RECTANGLE_OFFSET_1FLAG, ITechFigure.FIG_RECTANGLE_FLAG_1ROUND)) {
+            if (p.hasFlag(ITechFigure.FIG_RECTANGLE_OFFSET_1_FLAG, ITechFigure.FIG_RECTANGLE_FLAG_1_ROUND)) {
                g.setColor(color);
                g.fillRoundRect(x, y, w, h, arcw, arch);
             } else {
@@ -523,8 +522,8 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       //#debug
       g.toDLog().pDraw("numX=" + numX + " numY=" + numY + " fw=" + fw + " fh=" + fh, p, FigureOperator.class, "drawFigRepeater");
 
-      if (p.hasFlag(ITechFigure.FIG_REPEATER_OFFSET_1FLAG, ITechFigure.FIG_REPEATER_FLAG_1FORCECOPYAREA) || figure.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAGP_3OPAQUE)) {
-         if (p.hasFlag(ITechFigure.FIG_REPEATER_OFFSET_1FLAG, ITechFigure.FIG_REPEATER_FLAG_2USE_BGCOLOR)) {
+      if (p.hasFlag(ITechFigure.FIG_REPEATER_OFFSET_1_FLAG, ITechFigure.FIG_REPEATER_FLAG_1_FORCECOPYAREA) || figure.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAGP_3OPAQUE)) {
+         if (p.hasFlag(ITechFigure.FIG_REPEATER_OFFSET_1_FLAG, ITechFigure.FIG_REPEATER_FLAG_2_USE_BGCOLOR)) {
             //fill bg background color
          }
          paintFigure(g, fx, fy, fw, fh, figure);
@@ -542,11 +541,11 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       } else {
          //create an image
          int color = 0;
-         if (p.hasFlag(ITechFigure.FIG_REPEATER_OFFSET_1FLAG, ITechFigure.FIG_REPEATER_FLAG_2USE_BGCOLOR)) {
+         if (p.hasFlag(ITechFigure.FIG_REPEATER_OFFSET_1_FLAG, ITechFigure.FIG_REPEATER_FLAG_2_USE_BGCOLOR)) {
             //fill bg background color
             color = bgColor;
          }
-         RgbImage img = getFigImage(g, figure, fw, fh, false, false, color);
+         RgbImage img = getFigImage(figure, fw, fh, false, false, color);
          int y_dest = fy;
          for (int i = 0; i < numY; i++) {
             int x_dest = fx;
@@ -579,7 +578,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param whiteopaque ignored if figure is full RGB. else if true, create a primitive only mutable image
     * @return image is in Rgb mode with black transparent pixels where the figure has not drawn
     */
-   public RgbImage getFigImage(GraphicsX g, ByteObject fig, int w, int h, boolean justSwitch, boolean whiteopaque, int bgColor) {
+   public RgbImage getFigImage(ByteObject fig, int w, int h, boolean justSwitch, boolean whiteopaque, int bgColor) {
       int mode = GraphicsX.MODE_1_IMAGE;
       RgbImage figImg = null;
       if (fig.hasFlag(ITechFigure.FIG__OFFSET_03_FLAGP, ITechFigure.FIG_FLAGP_1RGB)) {
@@ -604,8 +603,8 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       return figImg;
    }
 
-   public RgbImage getFigImageMutable(GraphicsX g, ByteObject fig, int w, int h, int color) {
-      return getFigImage(g, fig, w, h, false, true, color);
+   public RgbImage getFigImageMutable(ByteObject fig, int w, int h, int color) {
+      return getFigImage(fig, w, h, false, true, color);
    }
 
    /**
@@ -615,15 +614,15 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param h
     * @return
     */
-   public RgbImage getFigImageNonNull(GraphicsX g, ByteObject fig, int w, int h) {
-      return getFigImageNonNull(g, fig, w, h, false, true, 0);
+   public RgbImage getFigImageNonNull(ByteObject fig, int w, int h) {
+      return getFigImageNonNull(fig, w, h, false, true, 0);
    }
 
-   public RgbImage getFigImageNonNull(GraphicsX g, ByteObject fig, int w, int h, boolean justSwitch, boolean whiteopaque, int bgColor) {
+   public RgbImage getFigImageNonNull(ByteObject fig, int w, int h, boolean justSwitch, boolean whiteopaque, int bgColor) {
       if (w <= 0 || h <= 0) {
          return drc.getCache().NULL_IMAGE;
       }
-      return getFigImage(g, fig, w, h, justSwitch, whiteopaque, bgColor);
+      return getFigImage(fig, w, h, justSwitch, whiteopaque, bgColor);
    }
 
    /**
@@ -635,7 +634,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param bgColor
     * @return
     */
-   public RgbImage getFigImagePrimitve(GraphicsX g, ByteObject fig, int w, int h, boolean justSwitch, int bgColor) {
+   public RgbImage getFigImagePrimitve(ByteObject fig, int w, int h, boolean justSwitch, int bgColor) {
       RgbImage figImg = drc.getCache().createPrimitiveRgb(w, h, bgColor);
       GraphicsX figGraphics = figImg.getGraphicsX(GraphicsX.MODE_1_IMAGE);
       if (justSwitch) {
@@ -654,8 +653,8 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param h
     * @return
     */
-   public RgbImage getFigImageTrans(GraphicsX g, ByteObject fig, int w, int h) {
-      return getFigImage(g, fig, w, h, false, false, 0);
+   public RgbImage getFigImageTrans(ByteObject fig, int w, int h) {
+      return getFigImage(fig, w, h, false, false, 0);
    }
 
    /**
@@ -911,7 +910,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
          if (mask == null) {
             throw new IllegalArgumentException("Mask is null");
          }
-         rgbMask = drc.getMaskOperator().createMaskedFigure(g, mask, w, h, p);
+         rgbMask = drc.getMaskOperator().createMaskedFigure(mask, w, h, p);
          if (filter != null) {
             drc.getFilterOperator().applyColorFilter(filter, rgbMask);
          }
@@ -937,7 +936,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
                buffer = drc.getCache().createRGB(w, h, 0);
                gi = buffer.getGraphicsX(GraphicsX.MODE_2_RGB_IMAGE);
             }
-            gi.setDebugName("FilterLayer");
+            gi.toStringSetName("FilterLayer");
             //SystemLog.pDraw(gi);
             //SystemLog.pDraw(buffer);
             paintFigureSwitch(gi, 0, 0, w, h, p);
@@ -1023,6 +1022,12 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
             break;
          case ITechFigure.FIG_TYPE_10_STRING:
             stringDrawer.drawFigString(g, x, y, w, h, p);
+            break;
+         case ITechFigure.FIG_TYPE_33_TREFLE:
+            drawTrefle(g, x, y, w, h, p);
+            break;
+         case ITechFigure.FIG_TYPE_30_COEUR:
+            drawCoeur(g, x, y, w, h, p);
             break;
          default:
             throw new IllegalArgumentException("Unknown figure type " + type);
@@ -1456,6 +1461,105 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       dy = y + ((h - crossHheight) / 2);
       g.fillRect(dx, dy, w, crossHheight);
 
+   }
+
+   public void drawCoeur(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
+      int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+      int color2 = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+      int w2 = w / 2;
+      int w3_demi = w - w2;
+      int def = h / 3;
+      int p1 = 28; // ck.getValue(ClassKey.ROOT_28, 1, h, "Upper Part Size Pixels", 28, false, true, false);
+      boolean isHalf = true;
+      if (isHalf) {
+         p1 = h / 2;
+      }
+      int p2 = h - p1;
+
+      int rh1 = 2 * p1;
+      int flattener = 0; // ck.getValue(ClassKey.ROOT_46, -p1, p1, "Flattener/Reduce UpperPart Size", 0, false, true, false);
+
+      int rayonp = 43; //ck.getValue(ClassKey.ROOT_X, 0, 100, "Rayon", 43, false, true, false);
+
+      int ymod = 2 * flattener;
+
+      rh1 = rh1 - ymod;
+
+      int rh = 2 * p2;
+      g.setColor(color);
+      boolean isReal = true;
+      boolean isTwoColors = true;
+      boolean c = true;
+      boolean isDrawArc = true;
+      boolean isRayonMatch = true;
+      if (isReal) {
+         // draw a diamond
+         int halfH = p1;
+         int halfW = p2;
+         g.fillTriangle(x, y + halfH, x + w2, y, x + w, y + halfH);
+         g.fillTriangle(x, y + halfH, x + w2, y + h, x + w, y + halfH);
+         // draw circles in the middle
+         int cx = x + w / 4;
+         int cy = y + p1 / 2;
+         double hyp = halfH * halfH + halfW * halfW;
+         int rayon = (int) (Math.sqrt(hyp) / (double) 2);
+         if (isRayonMatch) {
+            rayon = rayonp;
+         }
+         int fx = cx - rayon;
+         int fy = cy - rayon;
+         int fw = 2 * rayon;
+         int fh = 2 * rayon;
+         if (isTwoColors) {
+            g.setColor(color2);
+         }
+         if (isDrawArc) {
+            g.fillArc(fx, fy, fw, fh, 0, 360);
+            fx = x + w - w / 4 - rayon;
+            g.fillArc(fx, fy, fw, fh, 0, 360);
+         }
+      } else {
+         g.fillArc(x, y + flattener, w2, rh1, 0, 180);
+         g.fillArc(x + w2 - 1, y + flattener, w3_demi, rh1, 0, 180);
+
+         if (isTwoColors) {
+            int ys = y + p1;
+            g.fillTriangle(x, ys, x + w2, y + h, x + w2, ys);
+            g.fillTriangle(x + w - 1, ys, x + w2, y + h, x + w2, ys);
+
+         } else {
+            g.fillArc(x, y + p1 - p2, w - 1, rh, 180, 90);
+            g.fillArc(x, y + p1 - p2, w - 1, rh, 270, 90);
+         }
+      }
+   }
+
+   public void drawTrefle(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
+      int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+      //2 bytes sizer
+      int base = p.get2(ITechFigure.FIG_TREFLE_OFFSET_2_BASE2);
+      if (base == 0) {
+         base = w / 4;
+      }
+      int leafSize = p.get2(ITechFigure.FIG_TREFLE_OFFSET_3_LEAF2);
+      if (leafSize == 0) {
+         leafSize = w / 2;
+      }
+      int w2 = w / 2;
+      int h2 = h / 2;
+      int sizeBase = base;
+      int rayon = leafSize / 2;
+      int midX = x + w2;
+      int midY = y + h2;
+      int bot = y + h;
+      g.setColor(color);
+      int x1 = midX - sizeBase / 2;
+      g.fillTriangle(x1, bot, midX, midY - rayon, x1 + sizeBase, bot);
+
+      g.fillArc(midX - leafSize, midY - rayon, leafSize, leafSize, 0, 360);
+      g.fillArc(midX, midY - rayon, leafSize, leafSize, 0, 360);
+
+      g.fillArc(midX - rayon, midY - leafSize, leafSize, leafSize, 0, 360);
    }
 
    /**

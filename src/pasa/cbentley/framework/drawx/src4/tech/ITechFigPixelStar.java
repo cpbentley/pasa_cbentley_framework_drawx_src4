@@ -4,9 +4,7 @@
  */
 package pasa.cbentley.framework.drawx.src4.tech;
 
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
-
-public interface ITechFigPixelStar extends ITechByteObject {
+public interface ITechFigPixelStar extends ITechFigure {
    
    public static final int PIXSTAR_BASIC_SIZE                = A_OBJECT_BASIC_SIZE + 6;
 
