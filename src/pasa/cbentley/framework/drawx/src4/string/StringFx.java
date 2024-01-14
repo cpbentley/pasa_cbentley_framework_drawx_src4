@@ -6,27 +6,45 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.objects.color.ColorFunction;
+import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.structs.IntBuffer;
+import pasa.cbentley.core.src4.text.StringInterval;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
-import pasa.cbentley.framework.drawx.src4.color.ColorFunction;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
+import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
+import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
 
 /**
- * Manages a FX group which is the merge of several {@link IDrwTypes#TYPE_070_TEXT_EFFECTS} definitions.
- * <br>
- * <br>
- * Unwraps the values stored in a text effect definition {@link IBOFxStr}.
- * <br>
- * <br>
+ * Java object wrapper of the ByteObject {@link IBOTypesDrw#TYPE_070_TEXT_EFFECTS} or {@link IBOTypesDrw#TYPE_050_FIGURE}  whose responsabilities are :
+ * 
+ * <ul>
+ * <li> Manages a FX group which is the merge of several {@link IDrwTypes#TYPE_070_TEXT_EFFECTS} definitions.
+ * <li> Unwraps the values stored in a text effect definition {@link IBOFxStr}.
+ * <ul>
+ *      <li>Font face, size and color
+ *      <li>asdsa
+ * </ul>
+ * <li> Tracks the styles definition layers that apply to it.
+ *      <ul>
+ *      <li>{@link StringFx#srcFigure} is therefore never null. provide the root color and font
+ *      <li>{@link StringFx#srcFigure}
+ *      </ul>
+ * <li>
+ * </ul>
+ * 
+ * <p>
  * A {@link StringFx} tracks information of style for an index class. Several FX definition may apply to such a class.
+ * </p>
+ * 
  * <br>
  * <li><b>B</b>onjour with the B in bold will have 2 {@link StringFx} . A base {@link StringFx} defining the font and color and the {@link StringFx} specific to the B index.
  * <br>
@@ -48,9 +66,9 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
  * <b>String selection</b>
  * <br>
  * <br>
- * String selection is implemented with an {@link StringInterval} of a {@link StringLayerStyle} which is rendered using an additional Text Fx.
+ * String selection is implemented with an {@link StringInterval} of a {@link StringStyleLayer} which is rendered using an additional Text Fx.
  * <br>
- * The {@link Stringer} engine breaks down consistent style units into {@link StringLeaf}
+ * The {@link Stringer} engine breaks down consistent style units into {@link StringFxLeaf}
  * 
  * Upon interval selection, the FX definition is merged over the given StringFX to produce new {@link StringFx}s.
  * 
@@ -59,7 +77,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
  * </p>
  * <br>
  * <br>
- * When {@link IBOFxStr#FX_FLAGZ_7_STYLE} is used
+ * When {@link IBOFxStr#FX_FLAGY_7_STYLE} is used
  * <br>
  * A {@link StringFx} is font stable. One Font
  * <br>
@@ -68,19 +86,21 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
  */
 public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOTypesDrw {
 
-   public int       anchor = ITechBox.ANCHOR;
+   public int         anchor = ITechBox.ANCHOR;
 
-   ByteObject       bgFigure;
+   ByteObject         bgFigure;
 
    /**
     * How should this figure be drawn
-    * {@link IBOFxStr#FX_SCOPE_0_CHAR}
-    * {@link IBOFxStr#FX_SCOPE_1_WORD}
+    * {@link IBOFxStr#FX_SCOPE_1_CHAR}
+    * {@link IBOFxStr#FX_SCOPE_2_WORD}
     * {@link IBOFxStr#FX_SCOPE_2_LINE}
     * {@link IBOFxStr#FX_SCOPE_3_PARA}
     * {@link IBOFxStr#FX_SCOPE_5_FRAZ}
     */
-   int              bgFigureScope;
+   int                bgFigureScope;
+
+   ColorFunction      cf;
 
    /**
     * Main RGB color used by {@link Stringer}.
@@ -94,236 +114,176 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
     * <br>
     * 
     */
-   int              color;
+   int                color;
 
-   IntBuffer        dynIDs = null;
+   /**
+    * Figure to be drawn before on the area of the line width
+    */
+   ByteObject         figureLineWidth;
+
+   private int        flags;
 
    /**
     * Main Font used by {@link Stringer}.
     * Prevent nulls by setting default
     */
-   IMFont           f      = null;
+   IMFont             font   = null;
+
+   int                fxLineExtraBetween;
+
+   int                fxLineExtraH;
+
+   int                fxLineExtraW;
+
+   int                fxLineOffsetX;
+
+   int                fxLineOffsetY;
 
    /**
-    * Figure to be drawn before on the area of the line width
+    * <li> {@link IBOFxStr#FX_SCOPE_1_CHAR}
+    * <li> {@link IBOFxStr#FX_SCOPE_2_WORD}
+    * <li> {@link IBOFxStr#FX_SCOPE_2_LINE}
     */
-   ByteObject       figureLineWidth;
-
-   private int      flags;
+   int                maskScope;
 
    /**
-    * By default a fxBlock force a full reapint whenever a character is modified on a given fxed block.
-    */
-   ByteObject       fxBlock;
-
-   /**
-    * Fx effect for every characters of this interval. Merged of all the {@link IBOFxStr#FX_SCOPE_0_CHAR}
-    * definitions.
-    */
-   ByteObject       fxChar;
-
-   /**
-    * null when {@link StringFx} is wrapping a simple {@link IDrwTypes#TYPE_050_FIGURE}.
+    * The very first Fx bo from the constructor. cannot be null
     * <br>
     * <br>
+    * Its never incomplete. The merge must be done before consturction
+    */
+   ByteObject         srcFx;
+
+   /**
     * 
     */
-   ByteObject       fxDefinition;
+   ByteObject         tblr;
 
-   /**
-    * Special effects defined at the line.
-    * <br>
-    * {@link IBOFxStr#FXLINE_OFFSET_02_CHAR_X_OFFSET1}
-    * {@link IBOFxStr#FXLINE_OFFSET_03_CHAR_Y_OFFSET1}
-    * <br>
-    * <br>
-    * By default, a fxLine effect force a full repaint when any character is modified on the line.
-    */
-   ByteObject       fxLine;
+   private Stringer   stringer;
 
-   int              fxLineExtraBetween;
+   private int        typeStruct;
 
-   int              fxLineExtraH;
+   private ByteObject mask;
 
-   int              fxLineExtraW;
-
-   int              fxLineOffsetX;
-
-   int              fxLineOffsetY;
-
-   /**
-    * The different FX definition. starts by the root.
-    * <br>
-    * <br>
-    * Last one is the most significant and is merged last.
-    * <br>
-    * <br>
-    * 
-    */
-   ByteObject[]     fxRoots;
-
-   /**
-    * Fx for every word as broken by {@link StringUtils#getBreaksWord(char[], int, int, boolean)}
-    * <br>
-    * <br>
-    * 
-    */
-   ByteObject       fxWord;
-
-   ByteObject       maskBlock;
-
-   /**
-    * Mask object to use on characters using this Fx.
-    */
-   ByteObject       maskChar;
-
-   /**
-    * Mask object to use on lines
-    */
-   ByteObject       maskLine;
-
-   ByteObject       maskWord;
-
-   ByteObject       scale;
-
-   private Stringer stringer;
-
-   public StringFx(DrwCtx drc, Stringer st) {
+   public StringFx(DrwCtx drc, Stringer st, ByteObject src) {
       super(drc);
       stringer = st;
+      if (src == null) {
+         throw new NullPointerException();
+      }
+      this.initFx(src);
    }
 
    /**
-    * Adds 
-    * @param stringFx
+    * The scope of this {@link StringFx}
+    * <li> {@link IBOFxStr#FX_FIG_SCOPE_0_TEXT}
+    * <li> {@link IBOFxStr#FX_FIG_SCOPE_1_CHAR}
+    * <li> {@link IBOFxStr#FX_FIG_SCOPE_2_WORD}
     * @return
     */
-   public StringFx add(StringFx fx) {
-      fxRoots = drc.getBOC().getBOU().addByteObject(fxRoots, fx.fxDefinition);
-      maskChar = fx.maskChar;
-      maskLine = fx.maskLine;
-      maskWord = fx.maskWord;
-      bgFigure = fx.bgFigure;
-      int scope = fx.fxDefinition.get1(FX_OFFSET_04_TYPE_SCOPE1);
-      if (scope == FX_SCOPE_0_CHAR) {
-         fxChar = drc.getBOC().getModule().merge(fxChar, fx.fxDefinition);
-      } else if (scope == FX_SCOPE_1_WORD) {
-         fxWord = drc.getBOC().getModule().merge(fxWord, fx.fxDefinition);
-      } else if (scope == FX_SCOPE_2_LINE) {
-         fxLine = drc.getBOC().getModule().merge(fxLine, fx.fxDefinition);
-      }
-      return this;
+   public int getScope() {
+      return srcFx.get1(FX_OFFSET_05_SCOPE_FX1);
    }
 
    /**
-    * 
-    * @param fxLine
+    * Compute the width for the character according to FX parameters
+    * @param c
+    * @return
     */
-   public void addFxLine(ByteObject fxLine) {
-      if (fxLine == null) {
-         this.fxLine = fxLine;
-      }
-   }
-
-   public StringFx cloneMerge(StringFx stringFx) {
-      return this;
+   public int getCharWidth(char c) {
+      return font.charWidth(c) + getExtraCharWLeft() + getExtraCharWRight();
    }
 
    /**
-    * Clone this {@link StringFx} by adding this definition.
-    * <br>
-    * <br>
-    * How does merging remove any Mask? By defining a color. A Mask is a way to drawing a color.
-    * <br>
-    * <br>
-    * The Background figure can also be used as a bg figure when {@link IDrw#MASK_OFFSET_8_ALPHA_BG1} is not zero.
-    * <br>
-    * <br>
-    * @param dynDef
-    * @return {@link StringFx} different from this
+    * The definition of this effect
+    * @return
     */
-   public StringFx cloneMergeTop(ByteObject dynDef, int id) {
-      StringFx fx = new StringFx(drc, stringer);
-      if (dynDef.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_7_INCOMPLETE)) {
-         int scope = dynDef.get1(FX_OFFSET_04_TYPE_SCOPE1);
-         ByteObject bo = dynDef.getSubFirst(IBOTypesBOC.TYPE_011_MERGE_MASK);
-         if (bo != null) {
-            ByteObject mask = dynDef.getSubFirst(TYPE_058_MASK);
-            fx.maskChar = mask;
-         }
-      } else {
-         fx.init(dynDef);
-      }
-      if (id != 0) {
-         dynIDs.addInt(id);
-      }
-      return fx;
+   public ByteObject getSrcFx() {
+      return srcFx;
    }
 
+   /**
+    * The base color of this effect
+    * @return
+    */
    public int getColor() {
       return color;
    }
 
    /**
-    * Effect may draw extra stuff around each characters
+    * TBLR effect on each character 
     * @return
     */
-   public int getExtraCharWidth() {
-      return 0;
+   public int getExtraCharWLeft() {
+      if (tblr == null) {
+         return 0;
+      } else {
+         return drc.getTblrFactory().getTBLRValue(tblr, C.POS_2_LEFT);
+      }
    }
 
+   public int getExtraCharWRight() {
+      if (tblr == null) {
+         return 0;
+      } else {
+         return drc.getTblrFactory().getTBLRValue(tblr, C.POS_3_RIGHT);
+      }
+   }
+
+   public int getExtraCharHBot() {
+      if (tblr == null) {
+         return 0;
+      } else {
+         return drc.getTblrFactory().getTBLRValue(tblr, C.POS_1_BOT);
+      }
+   }
+
+   public int getExtraCharHTop() {
+      if (tblr == null) {
+         return 0;
+      } else {
+         return drc.getTblrFactory().getTBLRValue(tblr, C.POS_0_TOP);
+      }
+   }
+
+   /**
+    * not null once method
+    * @return
+    */
    public IMFont getFont() {
-      return f;
+      return font;
    }
 
+   /**
+    * 
+    * @return -1 if font is not defined
+    */
    public int getFontHeight() {
-      if (f == null) {
-
+      if (font == null) {
+         return -1;
       }
-      return f.getHeight();
+      return font.getHeight();
    }
 
    /**
-    * <li>{@link ITechStringer#FX_MASKDRAW_TYPE_0_NONE}
-    * <li>{@link ITechStringer#FX_MASKDRAW_TYPE_1_CHAR}
-    * <li>{@link ITechStringer#FX_MASKDRAW_TYPE_2_WORD}
+    * Returns a value indicating the style XY structure for drawing purposes.
+    * 
+    * <li> {@link ITechStringer#FX_STRUCT_TYPE_0_BASIC_HORIZONTAL}
+    * <li> {@link ITechStringer#FX_STRUCT_TYPE_1_METRICS_X}
+    * <li> {@link ITechStringer#FX_STRUCT_TYPE_2_METRICS_XY}
     * @return
     */
-   public int getMaskType() {
-      int type = FX_MASKDRAW_TYPE_0_NONE;
-      if (maskChar != null) {
-         type = FX_MASKDRAW_TYPE_1_CHAR;
-      }
-      if (maskWord != null) {
-         type = FX_MASKDRAW_TYPE_2_WORD;
-      }
-      if (maskLine != null) {
-         type = FX_MASKDRAW_TYPE_3_LINE;
-      }
-      return type;
-   }
-
    public int getTypeStruct() {
-      int type = FX_STRUCT_TYPE_0_BASIC;
-
-      return type;
+      return typeStruct;
    }
 
    /**
-    * 
-    * @param id
-    * @return
-    */
-   public boolean hasDynamicID(int id) {
-      boolean has = false;
-      if (dynIDs != null) {
-         has = dynIDs.contains(id);
-      }
-      return has;
-   }
-
-   /**
-    * 
+    * <li> {@link ITechStringer#FX_FLAG_01_SAME_HEIGHTS}
+    * <li> {@link ITechStringer#FX_FLAG_02_HAS_LINE_VISUAL_ARTIFACTS}
+    * <li> {@link ITechStringer#FX_FLAG_03_HAS_WORD_VISUALS}
+    * <li> {@link ITechStringer#FX_FLAG_04_HAS_CHAR_VISUALS}
+    * <li> {@link ITechStringer#FX_FLAG_05_UNSTABLE_COLOR}
+    * <li> {@link ITechStringer#FX_FLAG_06_PROTECTED_CHARS}
     * @param state
     * @return
     */
@@ -337,99 +297,42 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
     * <br>
     * <br>
     * 
-    * @param text
+    * @param fx
     */
-   public void init(ByteObject text) {
-      //System.out.println(text);
-      scale = text.getSubFirst(TYPE_055_SCALE);
-      bgFigure = text.getSubFirst(TYPE_050_FIGURE);
-      int type = text.getType();
-      if (type == TYPE_050_FIGURE) {
-         f = drc.getFxStringOperator().getStringFont(text);
-         color = drc.getFxStringOperator().getStringColor(text);
-      } else if (type == TYPE_070_TEXT_EFFECTS) {
-         initTextEffect(text);
-      } else {
-         throw new IllegalArgumentException("StringFx incorrect type " + type);
-      }
-
-      //font cannot be null after this
-   }
-
-   public void initFigure(ByteObject text) {
+   public void initFx(ByteObject fx) {
       //#debug
-      text.checkType(TYPE_050_FIGURE);
-      scale = text.getSubFirst(TYPE_055_SCALE);
-      bgFigure = text.getSubFirst(TYPE_050_FIGURE);
-      f = drc.getFxStringOperator().getStringFont(text);
-      color = drc.getFxStringOperator().getStringColor(text);
-   }
+      fx.checkType(TYPE_070_TEXT_EFFECTS);
+      srcFx = fx;
 
-   public void initFxChar() {
-      //check the type of char fx. if a different fx for all chars.
-      if (fxDefinition.hasFlag(IBOFxStr.FX_OFFSET_03_FLAGZ, IBOFxStr.FX_FLAGZ_3_MASK)) {
-         maskChar = fxDefinition.getSubFirst(TYPE_058_MASK);
-         setState(FX_FLAG_02_HAS_LINE_VISUAL_ARTIFACTS, true);
-         setState(FX_FLAG_04_HAS_CHAR_VISUALS, true);
+      mask = srcFx.getSubFirst(TYPE_058_MASK);
+      bgFigure = srcFx.getSubFirst(TYPE_050_FIGURE);
+      color = srcFx.get4(IBOFxStr.FX_OFFSET_09_COLOR4);
+      ByteObject colorFunctionDef = srcFx.getSubFirst(TYPE_021_FUNCTION);
+      if (colorFunctionDef != null) {
+         cf = drc.getColorFunctionFactory().createColorFunction(colorFunctionDef);
+         setState(ITechStringer.FX_FLAG_05_UNSTABLE_COLOR, true);
       }
-      fxChar = fxDefinition;
-      stringer.setState(ITechStringer.STATE_01_CHAR_EFFECTS, true);
-      if (fxDefinition.hasFlag(IBOFxStr.FX_OFFSET_02_FLAGX, IBOFxStr.FX_FLAGX_6_DEFINED_INDEX)) {
-         int indexs = fxDefinition.get2(FX_OFFSET_04_INDEX2);
+      int face = srcFx.get1(IBOFxStr.FX_OFFSET_06_FACE1);
+      int style = srcFx.get1(IBOFxStr.FX_OFFSET_07_STYLE1);
+      int size = srcFx.get1(IBOFxStr.FX_OFFSET_08_SIZE1);
+      font = drc.getFxStringOperator().getFont(face, style, size);
 
-      } else {
-
+      if (srcFx.hasFlag(FX_OFFSET_01_FLAG, FX_FLAG_4_EXTRA_SPACE_TBLR)) {
+         tblr = srcFx.getSubFirst(TYPE_060_TBLR);
       }
-      if (fxDefinition.hasFlag(FX_OFFSET_01_FLAG, FX_FLAG_4_EXTRA_SPACE_TBLR)) {
-         ByteObject tblr = fxDefinition.getSubFirst(TYPE_060_TBLR);
-      }
+      typeStruct = FX_STRUCT_TYPE_0_BASIC_HORIZONTAL;
+      bgFigureScope = srcFx.get1(FX_OFFSET_05_SCOPE_FX1);
    }
 
    /**
-    * 
+    * Not null when  {@link IBOFxStr#FX_FLAG_4_EXTRA_SPACE_TBLR} is true
+    * @return
     */
-   public void initFxLine() {
-      //check the type of char fx. if a different fx for all chars.
-      if (fxDefinition.hasFlag(IBOFxStr.FX_OFFSET_03_FLAGZ, IBOFxStr.FX_FLAGZ_3_MASK)) {
-         maskLine = fxDefinition.getSubFirst(TYPE_058_MASK);
-         setState(StringFx.FX_FLAG_02_HAS_LINE_VISUAL_ARTIFACTS, true);
-      }
-      fxLine = fxDefinition;
-      int indexs = fxDefinition.get2(FX_OFFSET_04_INDEX2);
+   public ByteObject getTBLR() {
+      return tblr;
    }
 
-   public void initFxWord() {
-      //check the type of char fx. if a different fx for all chars.
-      if (fxDefinition.hasFlag(IBOFxStr.FX_OFFSET_03_FLAGZ, IBOFxStr.FX_FLAGZ_3_MASK)) {
-         maskWord = fxDefinition.getSubFirst(TYPE_058_MASK);
-         setState(StringFx.FX_FLAG_03_HAS_WORD_VISUALS, true);
-      }
-      fxWord = fxDefinition;
-      int indexs = fxDefinition.get2(FX_OFFSET_04_INDEX2);
-   }
-
-   /**
-    * 
-    * @param fx {@link IDrwTypes#TYPE_070_TEXT_EFFECTS}
-    */
-   private void initTextEffect(ByteObject fx) {
-      //how do you distinguish between bgFigure and fx styles?
-      fxDefinition = fx;
-      int scope = fxDefinition.get1(FX_OFFSET_04_TYPE_SCOPE1);
-      if (fxDefinition != null) {
-         fxLineExtraBetween = drc.getFxStringOperator().getLineExtraBetween(fxLine);
-      } else {
-         //reset all fxFields
-         reset();
-      }
-      if (scope == FX_SCOPE_0_CHAR) {
-         initFxChar();
-      } else if (scope == FX_SCOPE_1_WORD) {
-         initFxWord();
-      } else if (scope == FX_SCOPE_2_LINE) {
-         initFxLine();
-      }
-   }
+   //#enddebug
 
    /**
     * True when the color of this {@link StringFx} is the same for all characters
@@ -444,38 +347,32 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
       return !hasState(ITechStringer.FX_FLAG_05_UNSTABLE_COLOR);
    }
 
-   private void reset() {
-      fxBlock = null;
-      fxLine = null;
-      fxChar = null;
-      fxLine = null;
-      fxLineExtraBetween = 0;
+   public boolean isFontMonospace() {
+      return font.isMonospace();
    }
-
-   //#enddebug
-
-   ColorFunction cf;
-
-   int           wordColorType;
 
    /**
     * Returns the number of characters to be drawn
     * @param g
-    * @param index
+    * @param index the index relative to the interval of style
     * @return
     */
    public int setColor(GraphicsX g, int index) {
       //color provider delegate or fixed array
       //color function
       //word color/ sentence color
-      if (index == 0) {
+      if (cf == null) {
          g.setColor(color);
+         return Integer.MAX_VALUE;
       } else {
-
+         int color = cf.fx(index);
+         g.setColor(color);
+         return 1;
       }
-      // TODO Auto-generated method stub
-      int color = cf.fx(index);
-      return 0;
+   }
+
+   public void setFont(GraphicsX g, int count) {
+      g.setFont(this.font);
    }
 
    void setState(int state, boolean v) {
@@ -487,7 +384,7 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
       dc.root(this, StringFx.class, 412);
       dc.nl();
       dc.appendVarWithSpace("color", ToStringStaticDrawx.toStringColor(color));
-      dc.appendVarWithSpace("font", ToStringStaticDrawx.debugFontBrackets(f));
+      dc.appendVarWithSpace("font", ToStringStaticDrawx.debugFontBrackets(font));
 
       dc.appendVarWithSpace("fxLineExtraBetween", fxLineExtraBetween);
       dc.appendVarWithSpace("fxLineExtraW", fxLineExtraW);
@@ -495,28 +392,33 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
       dc.appendVarWithSpace("fxLineOffsetX", fxLineOffsetX);
       dc.appendVarWithSpace("fxLineOffsetY", fxLineOffsetY);
       dc.nlLvl(bgFigure, "bgFigure");
-      dc.nlLvl(fxDefinition, "fxDefinition");
-      dc.appendVarWithSpace("getExtraCharWidth()", getExtraCharWidth());
+      dc.nlLvl(srcFx, "fxDefinition");
+      dc.appendVarWithSpace("getExtraCharWidth()", getExtraCharWLeft());
 
-      dc.nlLvl(maskBlock, "maskBlock");
-      dc.nlLvl(maskLine, "maskLine");
-      dc.nlLvl(maskWord, "maskWord");
-      dc.nlLvl(maskChar, "maskChar");
-
-      dc.nlLvl(scale, "Scaler");
-      dc.nlLvl(fxBlock, "fxBlock");
-      dc.nlLvl(fxLine, "fxLine");
-      dc.nlLvl(fxWord, "fxWord");
-      dc.nlLvl(fxChar, "fxChar");
    }
 
    public void toString1Line(Dctx dc) {
       dc.root1Line(this, "StringFx");
    }
 
-   public void setFont(GraphicsX g, int count) {
-      // TODO Auto-generated method stub
+   /**
+    * True is there is some masking done
+    * @return
+    */
+   public boolean isMasked() {
+      return mask != null;
+   }
 
+   public ByteObject getMask() {
+      return mask;
+   }
+
+   /**
+    * The figure to drawn as bg over the whole interval. Specifically scoped to it.
+    * @return
+    */
+   public ByteObject getFigureBG() {
+      return bgFigure;
    }
 
 }

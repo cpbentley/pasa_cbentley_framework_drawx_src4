@@ -5,13 +5,16 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.objects.color.FilterOperator;
+import pasa.cbentley.byteobjects.src4.objects.color.IBOFilter;
+import pasa.cbentley.byteobjects.src4.objects.color.ITechFilter;
+import pasa.cbentley.byteobjects.src4.objects.function.Function;
 import pasa.cbentley.core.src4.utils.ColorUtils;
+import pasa.cbentley.core.src4.utils.RgbUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
-import pasa.cbentley.framework.drawx.src4.utils.DrawUtilz;
-import pasa.cbentley.framework.drawx.src4.utils.RgbUtils;
 
 public class RgbImageOperator extends AbstractDrwOperator {
 
@@ -28,6 +31,65 @@ public class RgbImageOperator extends AbstractDrwOperator {
       return drc.getScaleOperator().scaleRgbImage(rgbImage, newWidth, newHeight, scaler);
    }
 
+   public void filterTBLR(RgbImage img, ByteObject filter) {
+      if (img == null) {
+         throw new NullPointerException("RgbImage is null");
+      }
+      //we have to manage the filter acceptor mask color here.? TODO 
+      drc.getFilterOperator().filterTBLR(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), filter);
+   }
+
+   /**
+    * Applies the function
+    * @param img
+    * @param fct
+    */
+   public void filterRGB(RgbImage img, Function fct) {
+      FilterOperator filterOperator = drc.getFilterOperator();
+      if (img.isRegion()) {
+         filterOperator.filterRGB(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), fct);
+      } else {
+         filterOperator.filterRGB(img.getRgbData(), img.getOffset(), img.getLength(), fct);
+      }
+   }
+
+   /**
+    * {@link ITechFilter#FILTER_TYPE_08_TOUCHES}
+    * @param img
+    * @param filter
+    */
+   public void filterTouches(RgbImage img, ByteObject filter) {
+      //function for Touch filter is f(x=pixel,y=count)
+      FilterOperator filterOperator = drc.getFilterOperator();
+      Function fct = getFilterFactory().getFilterFunction(filter);
+      int touchColor = filter.getValue(IBOFilter.FILTER_OFFSET_05_COLOR4, 4);
+      boolean or48 = filter.hasFlag(IBOFilter.FILTER_OFFSET_03_FLAGP1, IBOFilter.FILTER_FLAGP_1_TOP);
+      filterOperator.filterTouches(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), touchColor, or48, fct);
+   }
+
+   /**
+    * Applies the filter on the RgbImage. Returns immediately if filter is null
+    * @param filter
+    * @param img It may be in Primitive Mode
+    * POST: Output mode of Image is Rgb.
+    */
+   public void applyColorFilter(ByteObject filter, RgbImage img) {
+      if (filter == null)
+         return;
+      int[] ar = img.getRgbData();
+      drc.getFilterOperator().applyColorFilter(filter, ar, img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight());
+
+      //     SystemLog.printDraw(RgbImage.debugAlphas(ar, img.getWidth(), img.getHeight()));
+      //     if(ar != img.getRgbData()) {
+      //        SystemLog.printDraw("DIFFERENT");
+      //     }
+      //     SystemLog.printDraw(img);
+      //     SystemLog.printDraw(RgbImage.debugAlphas(img.getRgbData(), img.getWidth(), img.getHeight()));
+      //        
+      //SystemLog.printDraw(img.debugAlpha());
+
+   }
+
    /**
     * Returns the smallest rectangle removing external blocks of color
     * @param img
@@ -38,7 +100,7 @@ public class RgbImageOperator extends AbstractDrwOperator {
       int[] rgb = img.getRgbData();
       int w = img.getWidth();
       int h = img.getHeight();
-      int[] vals = DrawUtilz.cropTBLRDistances(rgb, w, h, color);
+      int[] vals = RgbUtils.cropTBLRDistances(rgb, w, h, color);
       int minLeftCount = vals[2];
       int minRightCount = vals[3];
       int minTopCount = vals[0];
@@ -52,11 +114,11 @@ public class RgbImageOperator extends AbstractDrwOperator {
    }
 
    public void setAlpha(RgbImage img, int alpha) {
-      DrawUtilz.setAlpha(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), alpha);
+      RgbUtils.setAlpha(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), alpha);
    }
 
    public void setAlphaToColorARGB(RgbImage img, int alpha, int color) {
-      DrawUtilz.setAlphaToColorARGB(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), alpha, color);
+      RgbUtils.setAlphaToColorARGB(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), alpha, color);
    }
 
    /**
@@ -66,19 +128,18 @@ public class RgbImageOperator extends AbstractDrwOperator {
     * @param color
     */
    public void setAlphaToColorRGB(RgbImage img, int alpha, int color) {
-      DrawUtilz.setAlphaToColorRGB(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), alpha, color);
+      RgbUtils.setAlphaToColorRGB(img.getRgbData(), img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight(), alpha, color);
    }
 
-   
    public void apply(RgbImage img, int numBits, int size, int[] rgbs, int[] indexes, int offset, int len, int width) {
       int iterateSize = offset + len;
       for (int i = offset; i < iterateSize; i++) {
          int pixelIndex = indexes[i];
          int pixelData = rgbs[pixelIndex];
-         
+
       }
    }
-   
+
    /**
     * Empty array if all rgb value equal color
     * @param rgb

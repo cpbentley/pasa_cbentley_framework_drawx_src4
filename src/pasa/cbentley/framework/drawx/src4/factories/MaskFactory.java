@@ -5,13 +5,13 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.objects.color.ITechGradient;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
-import pasa.cbentley.framework.drawx.src4.tech.ITechGradient;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
 
 public class MaskFactory extends AbstractDrwFactory implements ITechMask {
@@ -33,6 +33,8 @@ public class MaskFactory extends AbstractDrwFactory implements ITechMask {
    /**
     * Mask presets the colors, blending and alpha value to give a preset effect.
     * @param type
+    * @param filter can be null
+    * @param figure can be null
     * @return
     */
    public ByteObject getMaskPreset(int type, ByteObject filter, ByteObject figure) {
@@ -62,8 +64,8 @@ public class MaskFactory extends AbstractDrwFactory implements ITechMask {
     * @param blendBg
     * @param blendMid
     * @param blendShape
-    * @param filter
-    * @param bgFigure
+    * @param filter can be null
+    * @param bgFigure can be null
     * @return
     */
    public ByteObject getMask(int colorBg, int colorMid, int colorShape, int alphaBg, int alphaShape, int blendBg, int blendMid, int blendShape, ByteObject filter, ByteObject bgFigure) {

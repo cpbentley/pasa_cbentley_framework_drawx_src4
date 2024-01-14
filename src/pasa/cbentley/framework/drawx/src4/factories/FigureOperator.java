@@ -8,16 +8,20 @@ import java.util.Random;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.extra.MergeMaskFactory;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
+import pasa.cbentley.byteobjects.src4.objects.color.ColorIterator;
+import pasa.cbentley.byteobjects.src4.objects.color.GradientOperator;
+import pasa.cbentley.byteobjects.src4.objects.color.IBOGradient;
+import pasa.cbentley.byteobjects.src4.objects.color.ITechGradient;
+import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
+import pasa.cbentley.byteobjects.src4.objects.pointer.MergeMaskFactory;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
-import pasa.cbentley.framework.drawx.src4.color.ColorIterator;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
-import pasa.cbentley.framework.drawx.src4.engine.BlendOp;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.factories.drawer.DrawerString;
@@ -27,7 +31,6 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechArtifact;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
-import pasa.cbentley.framework.drawx.src4.tech.ITechGradient;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
@@ -114,7 +117,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
                newFigure = mergeFigRectangle(root, merge, mergeMask);
                break;
             default:
-               throw new RuntimeException("Not implemented Merge Method for Figure " + ToStringStaticDrawx.debugFigType(fig));
+               throw new RuntimeException("Not implemented Merge Method for Figure " + ToStringStaticDrawx.toStringFigType(fig));
          }
          ByteObject grad = root.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
          //TODO when merging figure has a gradient. what happens if root figure also has a gradient? override or merge gradients?
@@ -163,22 +166,22 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * 
     * @param root
     * @param merge object on top being inprinted on root
-    * @param mergeMask the {@link IMergeMask} definition.
+    * @param mergeMask the {@link IBOMergeMask} definition.
     * @return
     */
    public ByteObject mergeFigString(ByteObject root, ByteObject merge, ByteObject mergeMask) {
-      int rface = root.get1(IBOFigString.FIG_STRING_OFFSET_02_FACE1);
-      int rstyle = root.get1(IBOFigString.FIG_STRING_OFFSET_03_STYLE1);
-      int rsize = root.get1(IBOFigString.FIG_STRING_OFFSET_04_SIZE1);
+      int rface = root.get1(IBOFigString.FIG_STRING_OFFSET_03_FACE1);
+      int rstyle = root.get1(IBOFigString.FIG_STRING_OFFSET_04_STYLE1);
+      int rsize = root.get1(IBOFigString.FIG_STRING_OFFSET_05_SIZE1);
 
       if (mergeMask.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG6_1)) {
-         rface = merge.get1(IBOFigString.FIG_STRING_OFFSET_02_FACE1);
+         rface = merge.get1(IBOFigString.FIG_STRING_OFFSET_03_FACE1);
       }
       if (mergeMask.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG6_2)) {
-         rstyle = merge.get1(IBOFigString.FIG_STRING_OFFSET_03_STYLE1);
+         rstyle = merge.get1(IBOFigString.FIG_STRING_OFFSET_04_STYLE1);
       }
       if (mergeMask.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG6_3)) {
-         rsize = merge.get1(IBOFigString.FIG_STRING_OFFSET_04_SIZE1);
+         rsize = merge.get1(IBOFigString.FIG_STRING_OFFSET_05_SIZE1);
       }
 
       String str = null;
@@ -710,6 +713,14 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       data.dispose();
    }
 
+   public void addFilter(ByteObject figure, ByteObject filter) {
+      if (filter != null) {
+         figure.addSub(filter);
+         figure.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER, true);
+      }
+
+   }
+
    /**
     * Many rules for updating existing pixels
     * @param rgb
@@ -742,7 +753,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       int baseColor = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
       int gradSize = p.get1(ITechFigure.FIG_PIXEL_OFFSET_09_GRAD_SIZE1);
 
-      ColorIterator ci = new ColorIterator(drc, colors);
+      ColorIterator ci = new ColorIterator(boc, colors);
       if (grad != null) {
          ColorIterator cigrad = drc.getColorFunctionFactory().getColorIterator(baseColor, grad, gradSize);
          //rules for mixing 2 color iterator
@@ -753,7 +764,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       int seed = p.get4(ITechFigure.FIG_PIXEL_OFFSET_03_SEED4);
       Random r = drc.getUCtx().getRandom(seed);
       //SystemLog.pDraw("#DrwParamFig#drawPixels m=" + m + " n=" + n + " w=" + w + " h=" + h + " scan=" + scan + " offset=" + offset);
-      BlendOp bop = new BlendOp(drc, blendMode);
+      BlendOp bop = new BlendOp(boc, blendMode);
 
       //for all lines
       for (int j = 0; j < h; j++) {
@@ -912,7 +923,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
          }
          rgbMask = drc.getMaskOperator().createMaskedFigure(mask, w, h, p);
          if (filter != null) {
-            drc.getFilterOperator().applyColorFilter(filter, rgbMask);
+            drc.getRgbImageOperator().applyColorFilter(filter, rgbMask);
          }
          g.drawRgbImage(rgbMask, x, y);
          rgbMask.dispose();
@@ -942,7 +953,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
             paintFigureSwitch(gi, 0, 0, w, h, p);
             //SystemLog.pDraw(buffer.debugColors());
             //the color Filter will query the background color of the RgbImage for applying any filter
-            drc.getFilterOperator().applyColorFilter(filter, buffer);
+            drc.getRgbImageOperator().applyColorFilter(filter, buffer);
             //SystemLog.pDraw(buffer);
             //TODO white is kept. make pseudo alpha for mutable white image
             //SystemLog.pDraw(buffer.debugAlpha());
@@ -1597,7 +1608,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    }
 
    public void drawEllipseGradient(GraphicsX g, int x, int y, int w, int h, ByteObject p, int color, ByteObject grad) {
-      final int type = grad.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
+      final int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
       int gradSize = GradientOperator.getEllipseGradSize(w, h, grad);
       int count = 0;
       int start = p.get2(ITechFigure.FIG_ELLIPSE_OFFSET_05_ANGLE_START2);
@@ -1609,7 +1620,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
          g.fillRect(x, y, w, h);
       }
       int[] types = new int[] { type };
-      if (grad.hasFlag(ITechGradient.GRADIENT_OFFSET_09_FLAGX1, ITechGradient.GRADIENT_FLAGX_8_MANY_TYPES)) {
+      if (grad.hasFlag(IBOGradient.GRADIENT_OFFSET_09_FLAGX1, IBOGradient.GRADIENT_FLAGX_8_MANY_TYPES)) {
          ByteObject ar = grad.getSubAtIndex(type);
          types = boc.getLitteralIntOperator().getLitteralArray(ar);
       }
@@ -1779,7 +1790,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    }
 
    public void drawRectangleGradient(GraphicsX g, int x, int y, int w, int h, int arcw, int arch, int color, ByteObject grad) {
-      int type = grad.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
+      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
       int gradSize = GradientOperator.getRectGradSize(w, h, arcw, arch, type); //number of iteration
       drawRectangleGradient(g, x, y, w, h, arcw, arch, color, gradSize, grad);
    }
@@ -1798,8 +1809,8 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param grad non null definition of a color gradient.
     */
    public void drawRectangleGradient(GraphicsX g, int x, int y, int w, int h, int arcw, int arch, int color, int gradSize, ByteObject grad) {
-      int type = grad.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
-      if (grad.hasFlag(ITechGradient.GRADIENT_OFFSET_01_FLAG, ITechGradient.GRADIENT_FLAG_7_ARTIFACTS)) {
+      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
+      if (grad.hasFlag(IBOGradient.GRADIENT_OFFSET_01_FLAG, IBOGradient.GRADIENT_FLAG_7_ARTIFACTS)) {
          //artifact definition
          ByteObject art = grad.getSubFirst(IBOTypesDrw.TYPE_052_ARTIFACT);
          drawRectangleGradientArt(g, x, y, w, h, arcw, arch, color, gradSize, grad, art);
@@ -1854,7 +1865,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    }
 
    public void drawRectangleGradientArt(GraphicsX g, int x, int y, int width, int height, int arcw, int arch, int color, int gradSize, ByteObject grad, ByteObject art) {
-      int type = grad.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
+      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
       int aw = art.get1(ITechArtifact.ARTIFACT_OFFSET_2W1);
       int ah = art.get1(ITechArtifact.ARTIFACT_OFFSET_3H1);
       int aspace = art.get1(ITechArtifact.ARTIFACT_OFFSET_4SPACING_CAP1);

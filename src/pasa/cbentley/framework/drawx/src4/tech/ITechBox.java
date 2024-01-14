@@ -5,7 +5,7 @@
 package pasa.cbentley.framework.drawx.src4.tech;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.BOModuleDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.BoxFactory;
@@ -23,7 +23,7 @@ import pasa.cbentley.framework.drawx.src4.factories.BoxFactory;
  * @author Charles Bentley
  *
  */
-public interface ITechBox extends ITechByteObject {
+public interface ITechBox extends IByteObject {
 
    /**
     * Default anchors

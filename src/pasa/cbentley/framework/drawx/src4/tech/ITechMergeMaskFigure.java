@@ -4,9 +4,9 @@
  */
 package pasa.cbentley.framework.drawx.src4.tech;
 
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 
-public interface ITechMergeMaskFigure extends ITechByteObject {
+public interface ITechMergeMaskFigure extends IByteObject {
    /**
     * Sizer of a merge mask for a string figure
     */

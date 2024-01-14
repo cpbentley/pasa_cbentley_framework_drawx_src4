@@ -5,18 +5,19 @@
 package pasa.cbentley.framework.drawx.src4.factories.drawer;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.objects.color.ColorIterator;
+import pasa.cbentley.byteobjects.src4.objects.color.IBOGradient;
+import pasa.cbentley.byteobjects.src4.objects.color.ITechGradient;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.core.src4.utils.MathUtils;
-import pasa.cbentley.framework.drawx.src4.color.ColorIterator;
+import pasa.cbentley.core.src4.utils.RgbUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
-import pasa.cbentley.framework.drawx.src4.tech.ITechGradient;
-import pasa.cbentley.framework.drawx.src4.utils.DrawUtilz;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
 
 public class DrawerTriangle {
@@ -197,7 +198,7 @@ public class DrawerTriangle {
    private void drawTriangleGradient_4_7(GraphicsX g, int x, int y, int w, int h, ByteObject fig) {
       int color = fig.getValue(ITechFigure.FIG__OFFSET_06_COLOR4, 4);
       ByteObject grad = fig.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
-      int type = grad.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
+      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
       int trigType = fig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2);
       int gradSize = getTrigGradSize_4_7(grad, type, w, h, trigType);
       double alpha = MathUtils.aTan((double) w / 2, (double) h / 2);
@@ -305,7 +306,7 @@ public class DrawerTriangle {
    private void drawTriangleGradient_8_11(GraphicsX g, int x, int y, int w, int h, ByteObject fig) {
       int color = fig.getValue(ITechFigure.FIG__OFFSET_06_COLOR4, 4);
       ByteObject grad = fig.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
-      int type = grad.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
+      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
       int trigType = fig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2);
       int gradSize = getTrigGradSize(grad, type, w, h, trigType);
       double alpha = MathUtils.aTan((double) w / 2, (double) h / 2);
@@ -345,9 +346,9 @@ public class DrawerTriangle {
    private void drawTriangleGradient_0_3(GraphicsX g, int x, int y, int w, int h, ByteObject fig) {
       int color = fig.getValue(ITechFigure.FIG__OFFSET_06_COLOR4, 4);
       ByteObject grad = fig.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
-      int type = grad.get1(ITechGradient.GRADIENT_OFFSET_06_TYPE1);
+      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
       int trigType = fig.get2(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2);
-      boolean isWire = grad.hasFlag(ITechGradient.GRADIENT_OFFSET_09_FLAGX1, ITechGradient.GRADIENT_FLAGX_5_WIRE);
+      boolean isWire = grad.hasFlag(IBOGradient.GRADIENT_OFFSET_09_FLAGX1, IBOGradient.GRADIENT_FLAGX_5_WIRE);
       int gradSize = getTrigGradSize(grad, type, w, h, trigType);
       double alpha = MathUtils.aTan((double) w / 2, (double) h / 2);
       int count = 0;
@@ -513,9 +514,9 @@ public class DrawerTriangle {
          drawTriangleIso(gr, dir, color, H, base, base, H);
 
       int[] rgb = img.getRgbData();
-      DrawUtilz.setAlphaToColorRGB(rgb, -1, 0);
+      RgbUtils.setAlphaToColorRGB(rgb, -1, 0);
       int maskColor = ColorUtils.FULLY_TRANSPARENT_WHITE;
-      DrawUtilz.setAlphaGradient(rgb, img.getWidth(), img.getHeight(), maskColor, tsize, borderOnBg);
+      RgbUtils.setAlphaGradient(rgb, img.getWidth(), img.getHeight(), maskColor, tsize, borderOnBg);
       if (dir == C.ANGLE_UP_90)
          g.drawRGB(rgb, 0, w, x - base, y, w, h, true);
       else if (dir == C.ANGLE_DOWN_270)

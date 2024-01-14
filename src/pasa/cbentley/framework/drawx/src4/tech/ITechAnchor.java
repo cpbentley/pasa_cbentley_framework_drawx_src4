@@ -4,9 +4,9 @@
  */
 package pasa.cbentley.framework.drawx.src4.tech;
 
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 
 /**
  * A {@link ITechAnchor} defines how to position some content relative to a Box.
@@ -16,7 +16,7 @@ import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
  * @author Charles Bentley
  *
  */
-public interface ITechAnchor extends ITechByteObject {
+public interface ITechAnchor extends IByteObject {
 
    public static final int ANCHOR_TYPE                      = IBOTypesDrw.TYPE_069_ANCHOR;
 

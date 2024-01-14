@@ -4,9 +4,9 @@
  */
 package pasa.cbentley.framework.drawx.src4.ctx;
 
-import pasa.cbentley.byteobjects.src4.tech.ITechCtxSettings;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IBOCtxSettings;
 
-public interface ITechCtxSettingsDrwx extends ITechCtxSettings {
+public interface ITechCtxSettingsDrwx extends IBOCtxSettings {
 
    public static final int CTX_DRW_BASIC_SIZE              = CTX_BASIC_SIZE + 5;
 

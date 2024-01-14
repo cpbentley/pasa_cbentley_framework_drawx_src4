@@ -4,9 +4,9 @@
  */
 package pasa.cbentley.framework.drawx.src4.tech;
 
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 
-public interface ITechTblr extends ITechByteObject {
+public interface ITechTblr extends IByteObject {
 
    public static final int TBLR_UNDEF              = -1;
 

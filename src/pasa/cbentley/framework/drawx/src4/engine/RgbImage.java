@@ -5,7 +5,8 @@
 package pasa.cbentley.framework.drawx.src4.engine;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.core.src4.ctx.IFlagsToString;
+import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
+import pasa.cbentley.core.src4.ctx.IToStringFlags;
 import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
@@ -15,17 +16,17 @@ import pasa.cbentley.core.src4.logging.ITechLvl;
 import pasa.cbentley.core.src4.structs.IntToStrings;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.ColorUtils;
+import pasa.cbentley.core.src4.utils.RgbUtils;
+import pasa.cbentley.core.src4.utils.TransformUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
-import pasa.cbentley.framework.drawx.src4.interfaces.IDLogDraw;
 import pasa.cbentley.framework.drawx.src4.interfaces.IRgbLoader;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGraphicsX;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
-import pasa.cbentley.framework.drawx.src4.utils.DrawUtilz;
-import pasa.cbentley.framework.drawx.src4.utils.TransformUtils;
 
 /**
  * Framework {@link IImage} encapuslation class. It provides services:<br>
@@ -83,103 +84,6 @@ import pasa.cbentley.framework.drawx.src4.utils.TransformUtils;
  * 
  */
 public class RgbImage implements IStringable, ITechRgbImage {
-
-   public static void blendOverAccept(int[] src, int srcOffset, int srcScan, int srcM, int srcN, int srcW, int srcH, int[] dest, int destIndex, int minDest, int srcIndex, int minSrc, int srcExclude) {
-      int srcPixel = 0;
-      int destPixel = 0;
-      int destA = 0;
-      int destR = 0;
-      int destG = 0;
-      int destB = 0;
-      int srcR = 0;
-      int srcG = 0;
-      int srcB = 0;
-      float alphaFix = 0;
-      float invAlphaFix = 0;
-      int resR = 0;
-      int resG = 0;
-      int resB = 0;
-      int resA = 0;
-      for (int i = 0; i < srcH; i++) {
-         for (int j = 0; j < srcW; j++) {
-            srcPixel = src[srcIndex];
-            if (srcExclude != srcPixel) {
-               int srcA = ((srcPixel >> 24) & 0xFF);
-               if (srcA != 0) {
-                  if (srcA == 255) {
-                     dest[destIndex] = srcPixel;
-                  } else {
-                     destPixel = dest[destIndex];
-                     destA = ((destPixel >> 24) & 0xFF);
-                     destR = (destPixel >> 16) & 0xFF;
-                     destG = (destPixel >> 8) & 0xFF;
-                     destB = (destPixel >> 0) & 0xFF;
-                     srcR = (srcPixel >> 16) & 0xFF;
-                     srcG = (srcPixel >> 8) & 0xFF;
-                     srcB = (srcPixel >> 0) & 0xFF;
-                     //merger
-                     alphaFix = (float) srcA / (float) 255;
-                     invAlphaFix = ((float) 1) - alphaFix;
-                     //mix
-                     resR = ((int) ((destR * invAlphaFix) + (srcR * alphaFix))) & 0xFF;
-                     resG = ((int) ((destG * invAlphaFix) + (srcG * alphaFix))) & 0xFF;
-                     resB = ((int) ((destB * invAlphaFix) + (srcB * alphaFix))) & 0xFF;
-                     //work in base 256
-                     resA = ((srcA << 8) + (destA << 8) - (srcA * destA)) & 0xFF00;
-                     //alpha is shifted 16 before already in base + 8
-                     dest[destIndex] = (resA << 16) + (resR << 16) + (resG << 8) + resB;
-                  }
-               }
-            }
-            destIndex++;
-            srcIndex++;
-         }
-         destIndex += minDest;
-         srcIndex += minSrc;
-      }
-   }
-
-   /**
-    * Create a lone copy remove m and n parameters
-    * @param rgb
-    * @param offset
-    * @param scanlength
-    * @param m
-    * @param n
-    * @param w
-    * @param h
-    * @return
-    */
-   public static int[] getRGB(int[] rgb, int offset, int scanlength, int m, int n, int w, int h) {
-      int[] trgb = new int[w * h];
-      for (int i = 0; i < h; i++) {
-         int index = offset + m + (scanlength * (n + i));
-         for (int j = 0; j < w; j++) {
-            trgb[i] = rgb[index];
-            index++;
-         }
-      }
-      return trgb;
-   }
-
-   /**
-    * Create a lone copy only if m n and scanlength is not fitting the whole array
-    * @param rgb
-    * @param offset
-    * @param scanlength
-    * @param m
-    * @param n
-    * @param w
-    * @param h
-    * @return
-    */
-   public static int[] getRGBCheck(int[] rgb, int offset, int scanlength, int m, int n, int w, int h) {
-      int[] trgb = rgb;
-      if (m != 0 || n != 0 || scanlength != w) {
-         trgb = getRGB(trgb, offset, scanlength, m, n, w, h);
-      }
-      return trgb;
-   }
 
    /**
     * When a RGB Image is created, it is initialized with a background color.
@@ -629,7 +533,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       int[] rgb = this.getRgbData();
       int w = this.getWidth();
       int h = this.getHeight();
-      int[] vals = DrawUtilz.cropTBLRDistances(rgb, w, h, color);
+      int[] vals = RgbUtils.cropTBLRDistances(rgb, w, h, color);
       int minLeftCount = vals[2];
       int minRightCount = vals[3];
       int minTopCount = vals[0];
@@ -903,7 +807,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
          //special graphics that doesn't draw anything
          graphicsX = new GraphicsX(drc, cache, this, true);
          //#debug
-         graphicsX.toStringSetName("RgbImage_" + ToStringStaticDrawx.debugPaintMode(paintingMode));
+         graphicsX.toStringSetName("RgbImage_" + ToStringStaticDrawx.toStringPaintMode(paintingMode));
          return graphicsX;
       }
       if (graphicsX != null) {
@@ -914,7 +818,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       } else {
          graphicsX = new GraphicsX(drc, cache, this, paintingMode);
          //#debug
-         graphicsX.toStringSetName("RgbImage_" + ToStringStaticDrawx.debugPaintMode(paintingMode));
+         graphicsX.toStringSetName("RgbImage_" + ToStringStaticDrawx.toStringPaintMode(paintingMode));
       }
       return graphicsX;
    }
@@ -1632,7 +1536,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       } else {
          dc.append("Primitive");
       }
-      if (dc.hasFlagData(drc, IFlagsToString.FLAG_DATA_06_SHOW_NULLS)) {
+      if (dc.hasFlagData(drc, IToStringFlags.FLAG_DATA_06_SHOW_NULLS)) {
          if (img == null) {
             dc.append(" Img=null");
          }
@@ -1669,14 +1573,14 @@ public class RgbImage implements IStringable, ITechRgbImage {
 
       dc.nlLvlO(sourceLocator, "Locator");
 
-      if (dc.hasFlagData(drc, IDLogDraw.DATA_FLAG_20_HIDE_CACHE)) {
+      if (dc.hasFlagData(drc, IFlagsToStringDrw.DATA_FLAG_20_HIDE_CACHE)) {
          dc.append(" Cache Ignored ");
       } else {
          dc.nl();
          dc.appendVar("cacheIntID", cacheIntID);
          dc.appendVar("cacheRgbIndex", cacheRgbIndex);
       }
-      if (dc.hasFlagData(drc, IDLogDraw.DATA_FLAG_22_HIDE_GRAPHICS)) {
+      if (dc.hasFlagData(drc, IFlagsToStringDrw.DATA_FLAG_22_HIDE_GRAPHICS)) {
          dc.append(" GraphicsX Ignored ");
       } else {
          dc.nlLvl(graphicsX, "graphicsX");
@@ -1735,7 +1639,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       toStringFlag(sb, ITechRgbImage.FLAG_07_READ_LOCK, " ReadLock");
       toStringFlag(sb, ITechRgbImage.FLAG_16_VIRGIN, " Virgin");
       if (graphicsX != null) {
-         sb.append(" g=" + ToStringStaticDrawx.debugPaintMode(graphicsX.getPaintMode()));
+         sb.append(" g=" + ToStringStaticDrawx.toStringPaintMode(graphicsX.getPaintMode()));
       }
       if (backgroundColor != 0) {
          sb.append(" c=" + ToStringStaticDrawx.toStringColor(backgroundColor));

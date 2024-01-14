@@ -6,6 +6,7 @@ package pasa.cbentley.framework.drawx.src4.factories.drawer;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
@@ -17,9 +18,9 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.string.StringDrawUtils;
+import pasa.cbentley.framework.drawx.src4.string.Stringer;
 import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
@@ -126,19 +127,34 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
       }
    }
 
+   /**
+    * Send figure to Stringer 
+    * @param g
+    * @param x
+    * @param y
+    * @param w
+    * @param h
+    * @param fig
+    * @param chars
+    * @param offset
+    * @param len
+    */
    public void drawFigString(GraphicsX g, int x, int y, int w, int h, ByteObject fig, char[] chars, int offset, int len) {
-      IMFont f = getStringFont(fig);
-      int color = getStringColor(fig);
-      int anchor = GraphicsX.ANCHOR;
-      if (fig.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_1_ANCHOR)) {
-         //this anchor is different than the box one.
-         ByteObject banchor = fig.getSubFirst(IBOTypesDrw.TYPE_051_BOX);
-      }
-      g.setColor(color);
-      g.setFont(f);
-      g.drawChars(chars, offset, len, x, y, anchor);
+      Stringer st = new Stringer(drc);
+      st.setAreaXYWH(x, y, w, h);
+      st.setString(chars, offset, len);
+      st.buildForDisplayWith(fig);
+      st.draw(g);
    }
 
+   /**
+    * 
+    * @param g
+    * @param x
+    * @param y
+    * @param s
+    * @param strFigure
+    */
    public void drawString(GraphicsX g, int x, int y, String[] s, ByteObject strFigure) {
       ByteObject sc = strFigure.getSubFirst(IBOTypesDrw.TYPE_055_SCALE);
       ByteObject anchor = strFigure.getSubFirst(IBOTypesDrw.TYPE_051_BOX);
@@ -218,9 +234,9 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
       if (strFig == null) {
          return drc.getFontFactory().getDefaultFont();
       }
-      int face = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_02_FACE1, 1);
-      int style = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_03_STYLE1, 1);
-      int size = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_04_SIZE1, 1);
+      int face = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_03_FACE1, 1);
+      int style = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_04_STYLE1, 1);
+      int size = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_05_SIZE1, 1);
 
       IMFont f = drc.getFontFactory().getFont(face, style, size);
       return f;

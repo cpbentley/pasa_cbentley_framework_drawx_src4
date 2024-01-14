@@ -6,10 +6,10 @@ package pasa.cbentley.framework.drawx.src4.style;
 
 import pasa.cbentley.byteobjects.src4.core.BOAbstractFactory;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.factories.TblrFactory;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigureString;

@@ -7,17 +7,21 @@ package pasa.cbentley.framework.drawx.src4.ctx;
 import pasa.cbentley.byteobjects.src4.core.BOModuleAbstract;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.ctx.IDebugStringable;
-import pasa.cbentley.byteobjects.src4.tech.ITechFunction;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.ctx.ToStringStaticBO;
+import pasa.cbentley.byteobjects.src4.objects.color.ColorFunction;
+import pasa.cbentley.byteobjects.src4.objects.color.GradientFunction;
+import pasa.cbentley.byteobjects.src4.objects.color.IBOFilter;
+import pasa.cbentley.byteobjects.src4.objects.function.ITechFunction;
 import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
 import pasa.cbentley.core.src4.logging.Dctx;
-import pasa.cbentley.framework.drawx.src4.color.ColorFunction;
-import pasa.cbentley.framework.drawx.src4.color.GradientFunction;
+import pasa.cbentley.core.src4.logging.IDebugStringable;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbCache;
-import pasa.cbentley.framework.drawx.src4.interfaces.IDIDsDrwBase;
+import pasa.cbentley.framework.drawx.src4.interfaces.IToStringsDIDsDraw;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
-import pasa.cbentley.framework.drawx.src4.tech.ITechFilter;
+import pasa.cbentley.framework.drawx.src4.tech.ITechFunctionDraw;
+import pasa.cbentley.framework.drawx.src4.utils.ShaderFunction;
 
 /**
  * Drawing Parameter class encapsulates a byte array for declarative definitions of Drawables.
@@ -103,9 +107,9 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFilter;
  * @author Charles-Philip Bentley
  *
  */
-public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOTypesDrw, IDebugStringable, IDIDsDrwBase, ITechFilter {
+public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOTypesDrw, IDebugStringable, IToStringsDIDsDraw, IBOFilter {
 
-   private DrwCtx drc;
+   protected final DrwCtx drc;
 
    /**
     * Contructor for the .
@@ -118,7 +122,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
       this.drc = drc;
    }
 
-   public ByteObject getFlagOrdered(ByteObject bo, int offset, int flag) {
+   public ByteObject getFlagOrderedBO(ByteObject bo, int offset, int flag) {
       int type = bo.getType();
       switch (type) {
          case TYPE_071_STYLE:
@@ -131,40 +135,20 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    /**
     * Returns the String associated with the DID.
     */
-   public String getIDString(int did, int value) {
+   public String toStringGetDIDString(int did, int value) {
       switch (did) {
-         case IDIDsDrwBase.DID_07_DRAWABLE_IMPLICIT_W_H:
-            return ToStringStaticDrawx.getImplit(value);
-         case IDIDsDrwBase.DID_01_GRAD_RECT:
-            return ToStringStaticDrawx.gradRect(value);
-         case IDIDsDrwBase.DID_02_GRAD_TRIG:
-            return ToStringStaticDrawx.gradTrig(value);
-         case IDIDsDrwBase.DID_03_IMAGE_TRANSFORM:
-            return ToStringStaticUc.toStringTransform(value);
-         case IDIDsDrwBase.DID_04_GRAD_ELLIPSE:
-            return ToStringStaticDrawx.gradEllipse(value);
-         case IDIDsDrwBase.DID_05_MASK_BLEND:
-            return ToStringStaticDrawx.debugMaskBlend(value);
-         case IDIDsDrwBase.DID_06_MASK_PRESET:
-            return ToStringStaticDrawx.debugMaskPreset(value);
-         case IDIDsDrwBase.DID_08_DIAG_DIR:
-            return ToStringStaticDrawx.debugDiagDir(value);
-         case IDIDsDrwBase.DID_09_BLEND_OP:
-            return ToStringStaticDrawx.debugBlend(value);
-         case IDIDsDrwBase.DID_10_TRANSFORMATION:
-            return ToStringStaticUc.toStringTrans(value);
-         case IDIDsDrwBase.DID_12_SKEW_EDGE_TYPES:
+         case IToStringsDIDsDraw.DID_07_DRAWABLE_IMPLICIT_W_H:
+            return ToStringStaticDrawx.toStringImplicit(value);
+         case IToStringsDIDsDraw.DID_05_MASK_BLEND:
+            return ToStringStaticDrawx.toStringMaskBlend(value);
+         case IToStringsDIDsDraw.DID_06_MASK_PRESET:
+            return ToStringStaticDrawx.toStringMaskPreset(value);
+         case IToStringsDIDsDraw.DID_12_SKEW_EDGE_TYPES:
             return ToStringStaticDrawx.toStringEdge(value);
-         case IDIDsDrwBase.DID_11_INTERPOLATION:
+         case IToStringsDIDsDraw.DID_11_INTERPOLATION:
             return ToStringStaticDrawx.toStringInterpol(value);
-         case IDIDsDrwBase.DID_13_RND_COLORS:
-            return ToStringStaticDrawx.debugColoRnd(value);
-         case IDIDsDrwBase.DID_14_PASS:
-            return ToStringStaticDrawx.debugPass(value);
-         case IDIDsDrwBase.DID_15_FILTER_TYPE:
-            return toStringFilterType(value);
-         case IDIDsDrwBase.DID_16_GRAD_PREDEFINES:
-            return ToStringStaticDrawx.toStringGradPre(value);
+         case IToStringsDIDsDraw.DID_14_PASS:
+            return ToStringStaticDrawx.toStringPass(value);
          default:
             return null;
       }
@@ -178,8 +162,6 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
             return drc.getFigureOperator().mergeFigure(root, merge);
          case TYPE_051_BOX:
             return drc.getBoxFactory().mergeBox(root, merge);
-         case TYPE_059_GRADIENT:
-            return drc.getGradientOperator().mergeGradient(root, merge);
          case TYPE_058_MASK:
             return drc.getMaskOperator().mergeMask(root, merge);
          case TYPE_060_TBLR:
@@ -202,16 +184,14 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
     * <li>{@link ColorFunction}
     * 
     */
-   public Object subExtension(int type, ByteObject def) {
+   public Object createExtension(int type, ByteObject def) {
       switch (type) {
          case IBOTypesBOC.TYPE_021_FUNCTION:
             //check the def if gradient create
-            int ftype = def.get1(ITechFunction.FUN_OFFSET_09_EXTENSION_TYPE1);
+            int ftype = def.get2(ITechFunction.FUN_OFFSET_09_EXTENSION_TYPE2);
             switch (ftype) {
-               case IBOTypesDrw.TYPE_057_COLOR_FUNCTION:
-                  return drc.getColorFunctionFactory().createColorFunction(def);
-               case IBOTypesDrw.TYPE_059_GRADIENT:
-                  return new GradientFunction(drc);
+               case ITechFunctionDraw.TYPEX_FUN_400_SHADER:
+                  return new ShaderFunction(drc,def);
                default:
                   return null;
             }
@@ -221,11 +201,11 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
       return null;
    }
 
-   public int[] subGenerateArray(ByteObject bo, int[] param) {
+   public int[] getArrayFrom(ByteObject bo, int[] param) {
       final int type = bo.getType();
       switch (type) {
          case IBOTypesDrw.TYPE_059_GRADIENT:
-            GradientFunction gf = new GradientFunction(drc);
+            GradientFunction gf = new GradientFunction(boc);
             int gradSize = param[0];
             int primaryColor = param[1];
             gf.init(primaryColor, gradSize, bo);
@@ -279,7 +259,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
             drc.getScalerFactory().toStringScaler(bo, sb);
             break;
          case IBOTypesDrw.TYPE_052_ARTIFACT:
-            drc.getGradientFactory().toStringArtifact(bo, sb);
+            drc.getArtifactFactory().toStringArtifact(bo, sb);
             break;
          case IBOTypesDrw.TYPE_050_FIGURE:
             drc.getFigureFactory().toStringFigure(bo, sb);
@@ -294,9 +274,6 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IBOTypesDrw.TYPE_060_TBLR:
             drc.getTblrFactory().toStringTBLR(bo, sb);
             break;
-         case IBOTypesDrw.TYPE_056_COLOR_FILTER:
-            drc.getFilterFactory().toStringFilter(bo, sb);
-            break;
          case IBOTypesDrw.TYPE_069_ANCHOR:
             drc.getAnchorFactory().toStringAnchor(bo, sb);
             break;
@@ -306,11 +283,8 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case TYPE_070_TEXT_EFFECTS:
             drc.getFxStringOperator().toStringTxtEffect(bo, sb);
             break;
-         case IBOTypesDrw.TYPE_059_GRADIENT:
-            drc.getGradientFactory().toStringGradient(bo, sb);
-            break;
-         case TYPE_061_COLOR_RANDOM:
-            sb.append("#ColorRandom");
+         case TYPE_072_FX_APPLICATOR:
+            drc.getFxStringOperator().toStringFxApplicator(bo, sb);
             break;
          default:
             return false;
@@ -324,86 +298,43 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
       super.toString1Line(dc.sup1Line());
    }
 
-   public boolean toString1Line(Dctx sb, ByteObject bo) {
+   public boolean toString1Line(Dctx dc, ByteObject bo) {
       final int type = bo.getType();
       switch (type) {
          case IBOTypesDrw.TYPE_050_FIGURE:
-            drc.getFigureFactory().toStringFigure1Line(bo, sb);
+            drc.getFigureFactory().toStringFigure1Line(bo, dc);
             break;
          case IBOTypesDrw.TYPE_051_BOX:
-            drc.getBoxFactory().toStringBox(bo, sb);
+            drc.getBoxFactory().toStringBox(bo, dc);
             break;
          case IBOTypesDrw.TYPE_052_ARTIFACT:
-            drc.getGradientFactory().toStringArtifact(bo, sb);
+            drc.getArtifactFactory().toStringArtifact(bo, dc);
             break;
          case IBOTypesDrw.TYPE_055_SCALE:
-            drc.getScalerFactory().toStringScaler(bo, sb);
+            drc.getScalerFactory().toStringScaler(bo, dc);
             break;
          case IBOTypesDrw.TYPE_058_MASK:
-            drc.getMaskFactory().toStringMask(bo, sb);
-            break;
-         case IBOTypesDrw.TYPE_056_COLOR_FILTER:
-            drc.getFilterFactory().toStringFilter(bo, sb);
-            break;
-         case IBOTypesDrw.TYPE_059_GRADIENT:
-            drc.getGradientFactory().toStringGradient(bo, sb);
+            drc.getMaskFactory().toStringMask(bo, dc);
             break;
          case IBOTypesDrw.TYPE_060_TBLR:
-            drc.getTblrFactory().toStringTBLR(bo, sb);
+            drc.getTblrFactory().toStringTBLR(bo, dc);
             break;
          case IBOTypesDrw.TYPE_069_ANCHOR:
-            drc.getAnchorFactory().toStringAnchor(bo, sb);
+            drc.getAnchorFactory().toStringAnchor(bo, dc);
             break;
          case TYPE_071_STYLE:
-            drc.getStyleOperator().toString1LineStyle(bo, sb);
+            drc.getStyleOperator().toString1LineStyle(bo, dc);
             break;
          case TYPE_070_TEXT_EFFECTS:
-            drc.getFxStringOperator().toStringTxtEffect(bo, sb);
+            drc.getFxStringOperator().toString1LineTxtEffect(bo, dc);
             break;
-         case TYPE_061_COLOR_RANDOM:
-            sb.append("#ColorRandom");
+         case TYPE_072_FX_APPLICATOR:
+            drc.getFxStringOperator().toString1LineFxApplicator(bo, dc);
             break;
          default:
             return false;
       }
       return true;
-   }
-
-   public String toStringFilterType(int val) {
-      switch (val) {
-         case FILTER_TYPE_00_FUNCTION_ALL:
-            return "GenericFunctionOnAllPixels";
-         case FILTER_TYPE_01_GRAYSCALE:
-            return "";
-         case FILTER_TYPE_02_BILINEAR:
-            return "";
-         case FILTER_TYPE_03_ALPHA_TO_COLOR:
-            return "";
-         case FILTER_TYPE_04_SIMPLE_ALPHA:
-            return "";
-         case FILTER_TYPE_05_REPEAT_PIXEL:
-            return "";
-         case FILTER_TYPE_06_STEP_SMOOTH:
-            return "";
-         case FILTER_TYPE_07_TBLR:
-            return "";
-         case FILTER_TYPE_08_TOUCHES:
-            return "";
-         case FILTER_TYPE_09_STICK:
-            return "";
-         case FILTER_TYPE_10_SEPIA:
-            return "";
-         case FILTER_TYPE_11_HORIZ_AVERAGE:
-            return "";
-         case FILTER_TYPE_12_HORIZ_AVERAGE_NEOM:
-            return "";
-         case FILTER_TYPE_13_CHANNEL_MOD:
-            return "";
-         case FILTER_TYPE_14_BLEND_SELF:
-            return "";
-         default:
-            return "Unknown Filter Type " + val;
-      }
    }
 
    public String toStringOffset(ByteObject o, int offset) {

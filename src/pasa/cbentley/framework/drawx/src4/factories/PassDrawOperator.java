@@ -5,14 +5,14 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
+import pasa.cbentley.byteobjects.src4.objects.color.IBOFilter;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
-import pasa.cbentley.framework.drawx.src4.engine.BlendOp;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
-import pasa.cbentley.framework.drawx.src4.tech.ITechFilter;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMosaic;
 import pasa.cbentley.framework.drawx.src4.tech.ITechPass;
 import pasa.cbentley.framework.drawx.src4.tech.ITechSkewer;
@@ -134,8 +134,8 @@ public class PassDrawOperator extends AbstractDrwOperator {
 
    protected void applyPreFilter(ByteObject pass, RgbImage ri) {
       if (pass.hasFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_1_PRE_FILTER)) {
-         ByteObject filter = pass.getSubValueMatch(IBOTypesDrw.TYPE_056_COLOR_FILTER, ITechFilter.FILTER_OFFSET_07_ID1, 1, ITechFilter.FILTER_ID_1_PRE);
-         drc.getFilterOperator().applyColorFilter(filter, ri);
+         ByteObject filter = pass.getSubValueMatch(IBOTypesDrw.TYPE_056_COLOR_FILTER, IBOFilter.FILTER_OFFSET_07_ID1, 1, IBOFilter.FILTER_ID_1_PRE);
+         drc.getRgbImageOperator().applyColorFilter(filter, ri);
       }
    }
 

@@ -4,9 +4,9 @@
  */
 package pasa.cbentley.framework.drawx.src4.tech;
 
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 
-public interface ITechPass extends ITechByteObject {
+public interface ITechPass extends IByteObject {
 
    public static final int PASS_0_FIGURE           = 0;
 

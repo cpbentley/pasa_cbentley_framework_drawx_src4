@@ -75,6 +75,15 @@ public interface IBOFxStrLine extends IBOFxStr {
    public static final int FXLINE_OFFSET_02_CHAR_X_OFFSET1 = A_OBJECT_BASIC_SIZE + 2;
 
    /**
+    * 360 value defining the angle chosen 
+    * 
+    * 
+    */
+   public static final int FXLINE_OFFSET_04_CHAR_ANGLE2    = A_OBJECT_BASIC_SIZE + 2;
+
+   public static final int FXLINE_OFFSET_05_CHAR_DISTANCE2 = A_OBJECT_BASIC_SIZE + 2;
+
+   /**
     * Additional y offset between chars in a line
     * 0 -> horizontal
     */

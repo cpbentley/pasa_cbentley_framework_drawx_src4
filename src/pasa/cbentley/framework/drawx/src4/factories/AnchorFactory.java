@@ -5,11 +5,11 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
@@ -135,14 +135,14 @@ public class AnchorFactory extends AbstractDrwFactory implements ITechAnchor {
    public void toStringAnchor(ByteObject bo, Dctx sb) {
       sb.append("#Anchor ");
       sb.append("[H V]=[");
-      sb.append(ToStringStaticDrawx.debugAlign(bo.get1(ANCHOR_OFFSET_02_HORIZ_ALIGN1)));
+      sb.append(ToStringStaticDrawx.toStringAlign(bo.get1(ANCHOR_OFFSET_02_HORIZ_ALIGN1)));
       if (bo.hasFlag(ANCHOR_OFFSET_01_FLAG, ANCHOR_FLAG_7_DEF_HORIZ_ALIGN)) {
 
       } else {
          sb.append(" undef");
       }
       sb.append(' ');
-      sb.append(ToStringStaticDrawx.debugAlign(bo.get1(ANCHOR_OFFSET_03_VERTICAL_ALIGN1)));
+      sb.append(ToStringStaticDrawx.toStringAlign(bo.get1(ANCHOR_OFFSET_03_VERTICAL_ALIGN1)));
       if (bo.hasFlag(ANCHOR_OFFSET_01_FLAG, ANCHOR_FLAG_8_DEF_VERT_ALIGN)) {
 
       } else {

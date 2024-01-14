@@ -5,9 +5,9 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.tech.IBOScaler;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMosaic;
@@ -44,6 +44,12 @@ public class ScalerFactory extends AbstractDrwFactory {
       return skewer;
    }
 
+   /**
+    * 
+    * @param type {@link IBOScaler#SCALE_OFFSET_02_FIT_TYPE1}
+    * @param id {@link IBOScaler#SCALE_OFFSET_03_ID1}
+    * @return
+    */
    public ByteObject getScaler(int type, int id) {
       ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_055_SCALE, IBOScaler.SCALE_BASIC_SIZE);
       p.setValue(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1, type, 1);
@@ -94,9 +100,9 @@ public class ScalerFactory extends AbstractDrwFactory {
          sb.append("PostFilter");
       }
       int type = bo.get1(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1);
-      sb.append(" Type:" + ToStringStaticDrawx.scaleType(type));
+      sb.append(" Type:" + ToStringStaticDrawx.toStringScaleType(type));
       int id = bo.get1(IBOScaler.SCALE_OFFSET_03_ID1);
-      sb.append(" ID:" + ToStringStaticDrawx.debugScaleID(id));
+      sb.append(" ID:" + ToStringStaticDrawx.toStringScaleID(id));
    }
 
 }

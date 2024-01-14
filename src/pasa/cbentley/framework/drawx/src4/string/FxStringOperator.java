@@ -5,12 +5,15 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
+import pasa.cbentley.core.src4.utils.ColorUtils;
+import pasa.cbentley.core.src4.utils.RgbUtils;
+import pasa.cbentley.framework.coredraw.src4.ctx.ToStringStaticCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IFontFactory;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
@@ -18,10 +21,8 @@ import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwOperator;
 import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
-import pasa.cbentley.framework.drawx.src4.tech.ITechFigureString;
-import pasa.cbentley.framework.drawx.src4.utils.DrawUtilz;
 
-public class FxStringOperator extends AbstractDrwOperator implements ITechFigure, ITechFigureString, IBOTypesDrw, IBOFxStr, IBOFxStrLine, IBOFxStrWord, IBOFxStrPara {
+public class FxStringOperator extends AbstractDrwOperator implements ITechFigure, IBOTypesDrw, IBOFxStr, IBOFxApplicator, IBOFxStrLine, IBOFxStrWord, IBOFxStrPara {
 
    public FxStringOperator(DrwCtx drc) {
       super(drc);
@@ -50,45 +51,67 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
     * Merge definitions of text effects.
     * <br>
     * <br>
-    * Must be of the same scope otherwise root is returned.
+    * The scope of the merged object is the root scope.
     * <br>
     * <br>
     * @param root
-    * @param merge
-    * @return
+    * @param merge Fx on top, merged into root
+    * @return a new {@link ByteObject}, root and merge are not modified in any ways.
     */
    public ByteObject mergeTxtEffects(ByteObject root, ByteObject merge) {
-      int scopeRoot = root.get1(FX_OFFSET_04_TYPE_SCOPE1);
-      if (scopeRoot != merge.get1(FX_OFFSET_04_TYPE_SCOPE1)) {
-         return root;
-      }
       //merge the base
       ByteObject ntx = root.cloneCopyHeadRefParams();
-      ntx.set1(FX_OFFSET_04_TYPE_SCOPE1, scopeRoot);
-      if (merge.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_4_DEFINED_FONT)) {
-         ntx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_4_DEFINED_FONT, true);
-         ntx.set1(FX_OFFSET_06_FACE1, merge.get1(FX_OFFSET_06_FACE1));
-         ntx.set1(FX_OFFSET_07_STYLE1, merge.get1(FX_OFFSET_07_STYLE1));
-         ntx.set1(FX_OFFSET_08_SIZE1, merge.get1(FX_OFFSET_08_SIZE1));
 
+      boolean isIncomplete = false;
+      if (merge.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_1_UNDEFINED_FONT_FACE)) {
+         boolean isRootFace = root.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_1_UNDEFINED_FONT_FACE);
+         ntx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_1_UNDEFINED_FONT_FACE, isRootFace);
+         isIncomplete |= isRootFace;
+      } else {
+         ntx.set1(FX_OFFSET_06_FACE1, merge.get1(FX_OFFSET_06_FACE1));
       }
-      if (merge.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_5_DEFINED_COLOR)) {
+      if (merge.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_2_UNDEFINED_FONT_STYLE)) {
+         boolean isRootStyle = root.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_2_UNDEFINED_FONT_STYLE);
+         ntx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_2_UNDEFINED_FONT_STYLE, isRootStyle);
+         isIncomplete |= isRootStyle;
+      } else {
+         ntx.set1(FX_OFFSET_07_STYLE1, merge.get1(FX_OFFSET_07_STYLE1));
+      }
+      
+      if (merge.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_3_UNDEFINED_FONT_SIZE)) {
+         boolean isRootSize = root.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_3_UNDEFINED_FONT_SIZE);
+         ntx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_3_UNDEFINED_FONT_SIZE, isRootSize);
+         isIncomplete |= isRootSize;
+      } else {
+         ntx.set1(FX_OFFSET_08_SIZE1, merge.get1(FX_OFFSET_08_SIZE1));
+      }
+      
+      if (merge.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_4_UNDEFINED_COLOR)) {
+         boolean isRootColor = root.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_4_UNDEFINED_COLOR);
+         ntx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_4_UNDEFINED_COLOR, isRootColor);
+         isIncomplete |= isRootColor;
+      } else {
          ntx.set4(FX_OFFSET_09_COLOR4, merge.get4(FX_OFFSET_09_COLOR4));
       }
+      
+      if (merge.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_5_UNDEFINED_SCOPE)) {
+         boolean isRootScope = root.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_5_UNDEFINED_SCOPE);
+         ntx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_5_UNDEFINED_SCOPE, isRootScope);
+         isIncomplete |= isRootScope;
+      } else {
+         ntx.set1(FX_OFFSET_05_SCOPE_FX1, merge.get1(FX_OFFSET_05_SCOPE_FX1));
+      }
+      if (merge.hasFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE)) {
+         ByteObject fig = merge.getSubFirst(TYPE_050_FIGURE);
+         drc.getFxStringFactory().setFxFigure(ntx, fig);
+      }
 
-      if (merge.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_6_DEFINED_INDEX)) {
-         ntx.set1(FX_OFFSET_05_INDEX_PATTERN1, merge.get2(FX_OFFSET_05_INDEX_PATTERN1));
-         ntx.set2(FX_OFFSET_04_INDEX2, merge.get2(FX_OFFSET_04_INDEX2));
+      if (merge.hasFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_3_MASK)) {
+         ByteObject mask = merge.getSubFirst(TYPE_058_MASK);
+         drc.getFxStringFactory().setMaskToFx(ntx, mask);
       }
-      if (merge.hasFlag(FX_OFFSET_03_FLAGZ, FX_FLAGZ_2_FIGURE)) {
-         ntx.addByteObject(merge.getSubAtIndex(TYPE_050_FIGURE));
-         ntx.setFlag(FX_OFFSET_03_FLAGZ, FX_FLAGZ_2_FIGURE, true);
-
-      }
-      if (merge.hasFlag(FX_OFFSET_03_FLAGZ, FX_FLAGZ_3_MASK)) {
-         ntx.addByteObject(merge.getSubAtIndex(TYPE_058_MASK));
-         ntx.setFlag(FX_OFFSET_03_FLAGZ, FX_FLAGZ_3_MASK, true);
-      }
+      //merged cannot be incomplete
+      ntx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_8_INCOMPLETE, isIncomplete);
       return ntx;
    }
 
@@ -107,7 +130,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
          for (int i = 0; i < param.length; i++) {
             ByteObject p = param[i];
             if (p != null) {
-               if (p.get1(FX_OFFSET_04_TYPE_SCOPE1) == type)
+               if (p.get1(FX_OFFSET_05_SCOPE_FX1) == type)
                   return p;
             }
          }
@@ -155,7 +178,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
 
          }
          line = getSubFxEffect(effect, FX_SCOPE_2_LINE, FX_FLAG_7_LINE);
-         ch = getSubFxEffect(effect, FX_SCOPE_0_CHAR, FX_FLAG_8_CHAR);
+         ch = getSubFxEffect(effect, FX_SCOPE_1_CHAR, FX_FLAG_8_CHAR);
          GraphicsX sg = g;
          int lineShiftX = 0;
          int lineShiftY = 0;
@@ -214,7 +237,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
    }
 
    public ByteObject getSubCharFx(ByteObject fx) {
-      return getSubFxEffect(fx, FX_SCOPE_0_CHAR, FX_FLAG_8_CHAR);
+      return getSubFxEffect(fx, FX_SCOPE_1_CHAR, FX_FLAG_8_CHAR);
    }
 
    /**
@@ -228,10 +251,6 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
 
    public void drawStringChar(GraphicsX g, int count, char c, int x, int y, ByteObject fx) {
       if (fx != null) {
-         int index = fx.get2(FX_OFFSET_04_INDEX2);
-         if (count == index) {
-
-         }
       } else {
          g.drawChar(c, x, y, ITechBox.ANCHOR);
       }
@@ -272,10 +291,16 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       if (strFig == null) {
          return fontFactory.getDefaultFont();
       }
-      int face = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_02_FACE1, 1);
-      int style = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_03_STYLE1, 1);
+      int face = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_03_FACE1, 1);
+      int style = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_04_STYLE1, 1);
 
-      int size = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_04_SIZE1, 1);
+      int size = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_05_SIZE1, 1);
+      IMFont f = fontFactory.getFont(face, style, size);
+      return f;
+   }
+
+   public IMFont getFont(int face, int style, int size) {
+      IFontFactory fontFactory = drc.getFontFactory();
       IMFont f = fontFactory.getFont(face, style, size);
       return f;
    }
@@ -371,13 +396,12 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
          xy[0] += fw;
       } else {
          //mask
-         if (charFx.hasFlag(FX_OFFSET_03_FLAGZ, FX_FLAGZ_3_MASK)) {
+         if (charFx.hasFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_3_MASK)) {
             ByteObject mask = charFx.getSubFirst(TYPE_058_MASK);
             drc.getMaskOperator().drawMask(g, x, y, mask, String.valueOf(c), g.getFont());
          }
       }
    }
-
 
    /**
     * Returns a new string whose width fits the size and the style
@@ -447,7 +471,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       if (trans) {
          int[] rgb = i.getRgbData();
          bgColor = (gi.getDisplayColor(bgColor) & 0xFFFFFF);
-         DrawUtilz.setAlphaToColorRGB(rgb, bgColor, 0);
+         RgbUtils.setAlphaToColorRGB(rgb, bgColor, 0);
          g.drawRGB(rgb, 0, cw, x, y, cw, ch, true);
       } else {
          i.draw(g, x, y);
@@ -455,16 +479,54 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       return cw;
    }
 
-   public void toStringTxtEffect(ByteObject bo, Dctx sb) {
-      sb.append("#Text Effect ");
-      sb.append(" scope " + ToStringStaticDrawx.toStringFxScope(bo.get1(FX_OFFSET_04_TYPE_SCOPE1)));
+   public void toStringFxApplicator(ByteObject bo, Dctx dc) {
+      dc.rootN(bo, "FxApplicator");
+      dc.appendVarWithNewLine("index", bo.get2(FXA_OFFSET_02_INDEX2));
+      dc.appendVarWithSpace("flags", bo.hasFlag(FXA_OFFSET_01_FLAG, FXA_OFFSET_01_FLAG));
 
-      sb.append(" index " + bo.get2(FX_OFFSET_04_INDEX2));
-      sb.append(" pattern " + bo.get2(FX_OFFSET_05_INDEX_PATTERN1));
-      sb.append("Defined Font " + bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_4_DEFINED_FONT));
-      sb.append(" face " + bo.get1(FX_OFFSET_06_FACE1));
-      sb.append(" style " + bo.get1(FX_OFFSET_07_STYLE1));
-      sb.append(" size " + bo.get1(FX_OFFSET_08_SIZE1));
+   }
+
+   public void toString1LineFxApplicator(ByteObject bo, Dctx dc) {
+      dc.rootN(bo, "FxApplicator");
+      dc.appendVarWithNewLine("index", bo.get2(FXA_OFFSET_02_INDEX2));
+      dc.appendVarWithSpace("flags", bo.hasFlag(FXA_OFFSET_01_FLAG, FXA_OFFSET_01_FLAG));
+
+   }
+
+   public void toString1LineTxtEffect(ByteObject bo, Dctx dc) {
+      dc.rootN(bo, "TextFX");
+      dc.appendVarWithSpace("scope", ToStringStaticDrawx.toStringFxScope(bo.get1(FX_OFFSET_05_SCOPE_FX1)));
+
+   }
+
+   public void toStringTxtEffect(ByteObject bo, Dctx dc) {
+      dc.rootN(bo, "TextFX");
+      dc.appendVarWithSpace("scope", ToStringStaticDrawx.toStringFxScope(bo.get1(FX_OFFSET_05_SCOPE_FX1)));
+
+      dc.nl();
+      dc.appendColorWithName(bo.get4(FX_OFFSET_09_COLOR4));
+
+      dc.appendVarWithNewLine("face", bo.get1(FX_OFFSET_06_FACE1));
+      dc.append('[');
+      dc.append(ToStringStaticCoreDraw.debugFontFace(bo.get1(FX_OFFSET_06_FACE1)));
+      dc.append(']');
+      dc.appendVarWithNewLine("style", bo.get1(FX_OFFSET_07_STYLE1));
+      dc.append('[');
+      dc.append(ToStringStaticCoreDraw.debugFontStyle(bo.get1(FX_OFFSET_07_STYLE1)));
+      dc.append(']');
+      dc.appendVarWithNewLine("size", bo.get1(FX_OFFSET_08_SIZE1));
+      dc.append('[');
+      dc.append(ToStringStaticCoreDraw.debugFontSize(bo.get1(FX_OFFSET_08_SIZE1)));
+      dc.append(']');
+      dc.appendVarWithSpace("anchor", bo.get1(FX_OFFSET_11_ANCHOR1));
+
+      dc.appendVarWithNewLine("Incomplete", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_8_INCOMPLETE));
+      dc.nl();
+      dc.appendVarWithNewLine("FontFace", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_1_UNDEFINED_FONT_FACE));
+      dc.appendVarWithNewLine("FontStyle", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_2_UNDEFINED_FONT_STYLE));
+      dc.appendVarWithNewLine("FontSize", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_3_UNDEFINED_FONT_SIZE));
+      dc.appendVarWithNewLine("Color", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_4_UNDEFINED_COLOR));
+      dc.appendVarWithNewLine("Scope", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_5_UNDEFINED_SCOPE));
 
    }
 }

@@ -5,7 +5,7 @@
 package pasa.cbentley.framework.drawx.src4.style;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 
 /**
@@ -72,7 +72,7 @@ import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
  * <br>
  * @author Charles-Philip Bentley
  */
-public interface ITechStyle extends ITechByteObject {
+public interface ITechStyle extends IByteObject {
    /**
     * Default anchoring for style layers.
     * <br>

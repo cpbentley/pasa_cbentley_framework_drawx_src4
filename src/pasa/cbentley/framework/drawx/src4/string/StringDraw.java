@@ -5,14 +5,18 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.functions.Function;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.objects.function.Function;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.logging.ITechLvl;
+import pasa.cbentley.core.src4.structs.IntInterval;
+import pasa.cbentley.core.src4.structs.IntIntervals;
 import pasa.cbentley.core.src4.utils.ColorUtils;
+import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
@@ -32,72 +36,33 @@ import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
  * @author Charles-Philip Bentley
  *
  */
-public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechMask, ITechBox, ITechStringer {
+public class StringDraw extends ObjectDrw implements IStringable, ITechFigure, IBOTypesDrw, ITechMask, ITechBox, ITechStringer {
 
    /**
     * Tracks current char x coordinate
     */
-   int              cxTracker;
+   int                    cxTracker;
 
    /**
     * Tracks current char y coordinate
     */
-   int              cyTracker;
+   int                    cyTracker;
 
-   private Stringer st;
+   int                    lineOffsetRelTracker;
 
-   private DrwCtx   drc;
+   private final Stringer st;
 
    public StringDraw(DrwCtx drc, Stringer stringer) {
-      this.drc = drc;
+      super(drc);
       this.st = stringer;
    }
 
-   /**
-    * Align line  from within the string area.
-    * <br>
-    * <br>
-    * Ask Stringer to know if align applies
-    * <br>
-    * When needed (char position are needed) compute a dxAlign and dyAlign for that line.
-    * <br>
-    * <br>
-    * TODO use and store string width computation
-    * <br>
-    * <br>
-    * @param anchor
-    * @param cs
-    * @param offset
-    * @param len
-    */
-   void align(char[] cs, int offset, int len) {
-   }
-
-   /**
-    * 
-    * @param g
-    * @param chars
-    * @param offset
-    * @param len
-    * @param breaks
-    */
-   public void drawBlock(GraphicsX g, char[] chars, int offset, int len, int[] breaks) {
-      int numLines = breaks[0];
-      int end = Math.min(numLines, 0);
-      for (int i = 0; i < end; i++) {
-         int index = 1 + (i * 2);
-         int startOffset = breaks[index];
-         int charNum = breaks[index + 1];
-         drawLine(g, startOffset, charNum, i);
-      }
-   }
-
-   public void drawChar(GraphicsX g, char c, int indexRelative) {
+   public void drawUniqueCharBasic(GraphicsX g, char c, int indexRelative) {
       StringFx fx = st.getCharFx(indexRelative);
       StringMetrics sm = st.getMetrics();
       int cx = cxTracker + sm.getCharX(indexRelative);
       int cy = cyTracker + sm.getCharY(indexRelative);
-      g.setFont(fx.f);
+      g.setFont(fx.font);
       g.setColor(fx.color);
 
       //#debug
@@ -107,68 +72,348 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
    }
 
    /**
-    * Draw char in {@link GraphicsX} and increase the cx tracker.
-    * <br>
+    * Draw char in {@link GraphicsX} as if it is drawn alone.
     * Uses char fx is any.
     * <br>
     * When special line structure effect applies, the cy tracker is also applied
     * <br>
     * <br>
+    * drawUnique are used when {@link Stringer} needs to redraw a single char.
     * @param g
     * @param c
     * @param indexRelative relative index
     */
-   void drawCharFx(GraphicsX g, char c, int indexRelative) {
+   void drawUniqueCharFx(GraphicsX g, char c, int indexRelative) {
       StringFx fx = st.getCharFx(indexRelative);
       StringMetrics sm = st.getMetrics();
       int cx = cxTracker + sm.getCharX(indexRelative);
       int cy = cyTracker + sm.getCharY(indexRelative);
+      int lineIndex = st.getLineIndexFromCharIndex(indexRelative);
       if (fx.bgFigure != null) {
          int cw = sm.getCharWidth(indexRelative);
          int ch = sm.getCharHeight(indexRelative);
          drc.getFigureOperator().paintFigure(g, cx, cy, cw, ch, fx.bgFigure);
       }
-      if (fx.maskChar != null) {
-         drc.getMaskOperator().drawMask(g, cx, cy, fx.maskChar, c, fx.f);
+      if (fx.getMask() != null) {
+         drc.getMaskOperator().drawMask(g, cx, cy, fx.getMask(), c, fx.font);
       } else {
-         g.setFont(fx.f);
-         g.setColor(fx.color);
+         g.setFont(fx.font);
+         fx.setColor(g, indexRelative);
          g.drawChar(c, cx, cy, ANCHOR);
       }
       endOfChar();
    }
 
+   private int          pixelsWidthDrawnOnCurrentLine;
+
+   private StringFx     fx;
+
+   private StringFxLeaf fxLeaf;
+
+   private IntInterval  interval;
+
+   private LineStringer line;
+
+   private int          numCharsInThisStyleInterval;
+
+   private int          firstCharOffsetRelLine;
+
+   private int          numberOfCharDrawnOnCurrentLine;
+
+   private int          intervalIndex;
+
+   private int          pixelsHeightDrawn;
+
+   private boolean      isCheckWidth;
+
+   private int          numCharsUndrawnLeftInTheLine;
+
+   private int          numCharsToBeDrawnNext;
+
+   private int          xLineTracker;
+
+   private int          yLineTracker;
+
    /**
-    * Called when y stays the same
+    * Return the number of characters drawn
     * @param g
-    * @param c
-    * @param charWidth
-    * @param index
-    * @param charXPositions
-    * @param y
+    * @param line
+    * @param wOffset
+    * @param len
+    * @param wSize, available pixel size.. we do not use character count because prop font can cram a lot
+    * of small characters, thus displaying a maximum of characters
+    * @return
     */
-   private void drawCharFx(GraphicsX g, char c, int charWidth, int index, int[] charXPositions, int y) {
+   void drawALine(GraphicsX g) {
+      //#debug
+      line.debugExIsInside(firstCharOffsetRequested, 1);
 
-   }
-
-   private void drawCharFx(GraphicsX g, char c, int index, int[] charXPositions, int[] yPos) {
-      //use this only when several different fx
-      StringFx fx = st.getCharFx(index);
-      int cx = charXPositions[index];
-      int cy = yPos[index];
-      if (fx.maskChar != null) {
-         drc.getMaskOperator().drawMask(g, cx, cy, fx.maskChar, c, fx.f);
+      /////////////////////////////////////
+      //line background figure
+      int dx = line.getX();
+      int dy = line.getY();
+      if (isAbsoluteXY) {
+         xLineTracker = cxTracker + dx;
+         yLineTracker = cyTracker + dy;
       } else {
-         g.setFont(fx.f);
-         g.setColor(fx.color);
-         g.drawChar(c, cx, cy, ITechBox.ANCHOR);
+         xLineTracker = cxTracker;
+         yLineTracker = cyTracker;
       }
-      endOfChar();
 
+      //area covering the whole line
+      if (line.getFigureBG() != null) {
+         int h = line.getPixelsH();
+         int w = line.getStringer().getAreaW();
+         if (pixelsWidthRequest > 0) {
+            w = Math.min(pixelsWidthRequest, w);
+         }
+         drc.getFigureOperator().paintFigure(g, xLineTracker, yLineTracker, w, h, line.getFigureBG());
+      }
+      //////////////////////////////////////
+
+      //its not always text will disappear 
+      isCheckWidth = st.getWordwrap() == WORDWRAP_0_NONE; //when wordwrap is none, string will be drawm
+
+      pixelsWidthDrawnOnCurrentLine = 0;
+      numberOfCharDrawnOnCurrentLine = 0;
+
+      firstCharOffsetRelLine = firstCharOffsetRequested;
+      IntIntervals intervalsOfLeaves = st.getIntervalsOfLeaves();
+      //the interval that contains the first character to be drawn here
+      intervalIndex = intervalsOfLeaves.getIntervalIntersectIndex(firstCharOffsetRelLine);
+      interval = intervalsOfLeaves.getInterval(intervalIndex);
+      lineOffsetRelTracker = firstCharOffsetRelLine;
+      //now we have the offset, we must compute the number of chars from that interval to draw
+      //depends on the pixelsW if not zero
+      numCharsInThisStyleInterval = interval.getDistanceToEnd(firstCharOffsetRelLine);
+      numCharsUndrawnLeftInTheLine = line.getLen() - firstCharOffsetRelLine;
+      numCharsToBeDrawnNext = Math.min(numCharsInThisStyleInterval, numCharsUndrawnLeftInTheLine);
+      if (pixelsWidthRequest != 0) {
+         //reduce number of char based on 
+      }
+      if(numberOfCharsRequested != 0) {
+         numCharsToBeDrawnNext = Math.min(numberOfCharsRequested, numCharsToBeDrawnNext);
+      }
+      do {
+
+         fxLeaf = (StringFxLeaf) interval.getPayload();
+         fx = fxLeaf.getFx();
+
+         //we know the distance already
+         drawBgFigureText(g, xLineTracker, yLineTracker);
+         drawChoice(g);
+
+         numCharsUndrawnLeftInTheLine -= lastNumDrawnChars;
+         lineOffsetRelTracker += lastNumDrawnChars;
+         //learn how many chars we can draw on this interval and the size
+         numberOfCharDrawnOnCurrentLine += lastNumDrawnChars;
+
+      } while (isContinueOnCurrentLine());
    }
 
-   public void drawLine(char[] chars, int offset, int len) {
+   private boolean isContinueH() {
+      if (pixelsHeightRequest != 0) {
+         boolean isHeightDone = pixelsHeightDrawn >= pixelsHeightRequest;
+         if (isHeightDone) {
+            return false;
+         }
+      }
+      currentLineOffset++;
+      if (currentLineOffset >= firstLineOffsetRequested + numberOfLinesActual) {
+         return false;
+      }
+      return true;
+   }
 
+   private boolean isContinueOnCurrentLine() {
+      intervalIndex++;
+      IntIntervals intervalsOfLeaves = st.getIntervalsOfLeaves();
+      if (intervalIndex >= intervalsOfLeaves.getSize()) {
+         //TODO normally this should never occur if lenght is correct
+         return false;
+      } else {
+         interval = intervalsOfLeaves.getInterval(intervalIndex);
+         numCharsInThisStyleInterval = interval.getLen();
+         numCharsToBeDrawnNext = Math.min(numCharsInThisStyleInterval, numCharsUndrawnLeftInTheLine);
+         if (numCharsUndrawnLeftInTheLine <= 0) {
+            return false;
+         }
+      }
+
+      if (pixelsWidthRequest != 0) {
+         boolean isWidthDone = pixelsWidthDrawnOnCurrentLine >= pixelsWidthRequest;
+         if (isWidthDone) {
+            return false;
+         }
+      }
+      int lenLine = line.getLen();
+      boolean isLengthDone = numberOfCharDrawnOnCurrentLine >= lenLine;
+      if (isLengthDone) {
+         return false;
+      }
+      return true;
+   }
+
+   private void drawChoice(GraphicsX g) {
+      if (fx.isStableFont()) {
+
+      }
+      int type = fx.getTypeStruct();
+
+      //TODO special case.. justify with text mask.
+
+      ByteObject mask = fx.getMask();
+      if (fx.isMasked()) {
+         int scope = fx.getScope();
+         //can be masked on char,text, word
+         if (scope == IBOFxStr.FX_FIG_SCOPE_0_TEXT) {
+            //beware we can have scoped width
+            drawBasicLineMask(g, mask);
+         } else if (scope == IBOFxStr.FX_FIG_SCOPE_1_CHAR) {
+            drawBasicCharsFx(g, mask, fxLeaf, fx, interval, line, firstCharOffsetRelLine, fx.getFigureBG());
+         }
+      } else {
+         if (fx.getFigureBG() != null) {
+            int scope = fx.getScope();
+            if (scope == IBOFxStr.FX_FIG_SCOPE_0_TEXT) {
+               if (type == FX_STRUCT_TYPE_0_BASIC_HORIZONTAL) {
+                  drawBasic(g);
+               } else if (type == FX_STRUCT_TYPE_1_METRICS_X) {
+
+               }
+            } else if (scope == IBOFxStr.FX_FIG_SCOPE_1_CHAR) {
+               drawBasicCharsFx(g, mask, fxLeaf, fx, interval, line, firstCharOffsetRelLine, fx.getFigureBG());
+            }
+         } else {
+            //no bg, no mask
+            if (type == FX_STRUCT_TYPE_0_BASIC_HORIZONTAL) {
+               drawBasic(g);
+            } else if (type == FX_STRUCT_TYPE_1_METRICS_X) {
+
+            }
+         }
+      }
+   }
+
+   private void drawBgFigureText(GraphicsX g, int x, int y) {
+      if (fx.getFigureBG() != null) {
+         int scope = fx.getScope();
+         if (scope == IBOFxStr.FX_FIG_SCOPE_0_TEXT) {
+            int h = line.getPixelsH();
+            int w = line.getCharsWidthConsumed(lineOffsetRelTracker, numCharsToBeDrawnNext);
+            if (pixelsWidthRequest > 0) {
+               w = Math.min(pixelsWidthRequest, w);
+            }
+            drc.getFigureOperator().paintFigure(g, cxTracker, cyTracker, w, h, fx.getFigureBG());
+         } else if (scope == IBOFxStr.FX_FIG_SCOPE_2_WORD) {
+            int[] words = line.getWordBreaks();
+         } else {
+            //char scope
+         }
+      }
+   }
+
+   /**
+    * usually 0, but when drawing a scrolled text horizontally, each line starts at this offset.
+    * This value is never modified
+    */
+   private int     firstCharOffsetRequested;
+
+   private int     numberOfCharsRequested;
+
+   private int     pixelsWidthRequest;
+
+   private boolean isAbsoluteXY = true;
+
+   private int     numberOfLines;
+
+   private int     numberOfLinesRequested;
+
+   private int     numberOfLinesActual;
+
+   private int     firstLineOffsetRequested;
+
+   private int     pixelsHeightRequest;
+
+   private int     lastNumDrawnChars;
+
+   private int     currentLineOffset;
+
+   /**
+    * Draw basic for an intervla
+    * @param g
+    * @param fx
+    * @param line
+    * @param firstCharOffsetRelLine
+    */
+   private void drawBasic(GraphicsX g) {
+      //now only deals with color variance
+      g.setFont(fx.getFont());
+      int x = xLineTracker;
+      int y = yLineTracker;
+      char[] data = line.getCharArrayRef();
+      int offsetData = line.getCharArrayRefOffset() + lineOffsetRelTracker;
+      int lengthInData = numCharsToBeDrawnNext;
+      if (fx.isColorStable()) {
+         if (line.isJustified()) {
+
+         } else {
+            g.setColor(fx.getColor());
+            g.drawChars(data, offsetData, lengthInData, x, y, ANCHOR);
+         }
+      } else {
+         int count = 0;
+         while (count < lengthInData) {
+            int numChars = fx.setColor(g, count);
+            if (numChars < 0) {
+               numChars = 1;
+            } else if (numChars > lengthInData) {
+               numChars = lengthInData;
+            }
+            g.drawChars(data, offsetData + count, numChars, x, y, ANCHOR);
+            count += numChars;
+         }
+      }
+      lastNumDrawnChars = lengthInData;
+      int widthDrawn = line.getCharsWidthConsumed(lineOffsetRelTracker, lengthInData);
+      this.pixelsWidthDrawnOnCurrentLine += widthDrawn;
+      this.xLineTracker += widthDrawn;
+   }
+
+   private void drawBasicCharsFx(GraphicsX g, ByteObject mask, StringFxLeaf fxLeaf, StringFx fx, IntInterval interval, LineStringer line, int firstCharOffset, ByteObject bg) {
+      //now only deals with color variance
+
+      char[] data = line.getCharArrayRef();
+      int offset = line.getCharArrayRefOffset() + firstCharOffset;
+      int numCharsInThisStyle = interval.getDistanceToEnd(firstCharOffset);
+      int len = numCharsInThisStyle;
+
+      int ch = line.getPixelsH();
+
+      int cx = xLineTracker;
+      int cy = yLineTracker;
+      IMFont font = fx.getFont();
+      g.setColor(fx.getColor());
+      g.setFont(font);
+
+      for (int i = 0; i < len; i++) {
+         char c = data[offset + i];
+         int intervalOffset = firstCharOffset + i;
+         int cw = line.getCharWidth(intervalOffset);
+         if (bg != null) {
+            drc.getFigureOperator().paintFigure(g, cx, cy, cw, ch, bg);
+         }
+         if (mask == null) {
+            if (!fx.isColorStable()) {
+               fx.setColor(g, intervalOffset); //index of the interval
+            }
+            g.drawChar(c, cx, cy, ANCHOR);
+         } else {
+            drc.getMaskOperator().drawMask(g, cx, cy, mask, c, font);
+         }
+         pixelsWidthDrawnOnCurrentLine += cw;
+         cx += cw;
+      }
    }
 
    /**
@@ -194,7 +439,7 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
     * TODO in some case, when there is no charFx, line can be drawn in one go.
     * <br>
     * @param g
-    * @param offset relative to offset
+    * @param offset relative to charOffset
     * @param len additional char offset. caller makes sure value are not fail
     * @param wNum
     * <br>
@@ -204,342 +449,28 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
    void drawLine(GraphicsX g, int offset, int len, int lineIndex) {
       StringFx fxLine = st.getLineFx(lineIndex);
       lineStart(fxLine);
-      switch (st.drawLineType) {
-         case ITechStringer.TYPE_0_SINGLE_LINE:
-            drawLineSingle(g, offset, len);
-            break;
-         case ITechStringer.TYPE_1_SINGLE_LINE_FX:
-            //what StringFX to use? unless there is a specific StringFX. uses the default one
-            drawLineSingleFX(g, offset, len);
-
-            break;
-         case ITechStringer.TYPE_2_BREAKS:
-            drawLineInBreak(g, offset, len, lineIndex);
-            break;
-         case ITechStringer.TYPE_7_LINE_BREAKS_WORD_BREAKS_FX:
-            int[] bs = st.getMetrics().breaksWord; //offsets are relative (0 -based)
-            drawLineWords(g, lineIndex, bs);
-            break;
-         default:
-            break;
-      }
       lineEnd(fxLine);
    }
 
-   /**
-    * Draws a simple line (no fx) in a break configuration. The starting position of the line is provided by {@link StringMetrics}.
-    * which compute the alignment.
-    * <br>
-    * <br>
-    * The position of the first character
-    * 
-    * @param g
-    * @param offset
-    * @param len
-    */
-   void drawLineInBreak(GraphicsX g, int offset, int len, int lineIndex) {
-      //alignement is done? The StringMetric is not used for this setting.
-      int cx = cxTracker + st.getMetrics().getCharX(offset - st.offsetChars);
-      int cy = cyTracker + st.getMetrics().getCharY(offset - st.offsetChars);
-      g.setFont(st.stringFx.f);
-      g.setColor(st.stringFx.color);
-      g.drawChars(st.chars, offset, len, cx, cy, st.stringFx.anchor);
-   }
+   public void drawBasicLineMask(GraphicsX g, ByteObject mask) {
+      //char[] chars = line.getCharArrayRef();
+      //int numCharsInThisStyle = intervalFirst.getDistanceToEnd(firstCharOffset);
 
-   /**
-    * Draws the line of characters as a shape
-    * <br>
-    * <br>
-    * Returns the glyph to use for drawing the line mask. graphical context must be drawn before.
-    * <br>
-    * <br>
-    * 
-    * @param mask
-    */
-   public void drawLineMask(GraphicsX g, ByteObject mask, char[] chars, int offset, int len) {
+      char[] chars = line.getCharArrayRef();
+      int offset = line.getCharArrayRefOffset() + lineOffsetRelTracker;
+      int len = numCharsToBeDrawnNext;
+
       StringMetrics sm = st.getMetrics();
-      int w = sm.getWidthConsumed(offset, len); //the width needed to draw those chars. sum which is given StringMetrics
-      int h = st.getMetrics().getLineHeight();
-      int bgColor = -1;
-      RgbImage maskImg = drc.getCache().createPrimitiveRgb(w, h, bgColor);
-      GraphicsX figGraphics = maskImg.getGraphicsX(GraphicsX.MODE_1_IMAGE);
-      figGraphics.setColor(ColorUtils.FULLY_OPAQUE_BLACK);
-      //do we shift?
-      drawShapeString(figGraphics, chars, offset, len, 0, 0);
-      figGraphics.drawChars(chars, offset, len, 0, 0, ANCHOR);
+      int widthDrawn = line.getCharsWidthConsumed(lineOffsetRelTracker, len);
+      int w = widthDrawn;
+      int h = line.getPixelsH();
 
-      if (mask.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_1_MASK_FILTER)) {
-         ByteObject maskColorFilter = mask.getSubFirst(TYPE_056_COLOR_FILTER);
-         drc.getFilterOperator().applyColorFilter(maskColorFilter, maskImg);
-         //image will be switch to RGB mode.
-      }
-      RgbImage mak = drc.getMaskOperator().createMaskedFigure(mask, maskImg);
-      //get position of first character
-      int finalX = cxTracker + sm.getCharX(offset - st.offsetChars);
-      int finalY = cyTracker + sm.getCharY(offset - st.offsetChars);
-      //you still have to draw the image in the context FigDrawable or just bg image
-      g.drawImage(mak, finalX, finalY, ANCHOR);
-   }
+      IMFont f = fx.getFont();
+      drc.getMaskOperator().drawMask(g, xLineTracker, yLineTracker, mask, chars, offset, len, f, w, h);
 
-   /**
-    * Draw the string on {@link GraphicsX} 
-    * @param g
-    * @param offset
-    * @param len
-    */
-   public void drawLineSingle(GraphicsX g, int offset, int len) {
-      //alignement is done? The StringMetric is not used for this setting.
-      int day = AnchorUtils.getYAlign(st.anchor, 0, st.areaH, st.stringMetrics.getPrefHeight());
-      int dax = AnchorUtils.getXAlign(st.anchor, 0, st.areaW, st.stringMetrics.getPrefWidth());
-      int cx = cxTracker + dax;
-      int cy = cyTracker + day;
-      g.setFont(st.stringFx.f);
-      g.setColor(st.stringFx.color);
-      //
-      int clen = st.chars.length;
-
-      if (offset < 0 || offset >= clen || offset + len > clen) {
-         //#debug
-         g.toDLog().pNull("Error -> chars clen=" + clen + " offset=" + offset + " len=" + len, this, StringDraw.class, "drawLineSingle", ITechLvl.LVL_05_FINE, true);
-      } else {
-         g.drawChars(st.chars, offset, len, cx, cy, st.stringFx.anchor);
-      }
-   }
-
-   /**
-    * Single Line drawing without word breaks
-    * <br>
-    * <br>
-    * The line may have the following
-    * <li> specific char {@link StringFx}.
-    * <li> line mask
-    * @param g
-    * @param offset
-    * @param len
-    */
-   public void drawLineSingleFX(GraphicsX g, int offset, int len) {
-      StringFx fx = st.getCharFx(offset);
-
-      boolean maskDrawn = false;
-      if (fx.maskLine != null) {
-         drawLineMask(g, fx.maskLine, st.chars, offset, len);
-         maskDrawn = true;
-      }
-
-      if (st.hasState(ITechStringer.STATE_01_CHAR_EFFECTS)) {
-         //as soon as a char has a LineFX it becomes active?
-         //draw each char as itself
-         for (int i = 0; i < len; i++) {
-            int index = st.offsetChars + offset + i;
-            drawCharFx(g, st.chars[index], i);
-         }
-      }
-
-   }
-
-   /**
-    * Called when words have to be drawn separately.
-    * <br>
-    * <br>
-    * 
-    * @param g
-    * @param lineIndex
-    * @param wb array of word breaking specified by 
-    */
-   public void drawLineWords(GraphicsX g, int lineIndex, int[] wb) {
-      int numWords = (wb[0] - ITechStringer.BREAK_EXTRA_SIZE + 1) / ITechStringer.BREAK_WINDOW_SIZE;
-      for (int i = 0; i < numWords; i++) {
-         int index = ITechStringer.BREAK_HEADER_SIZE + (i * ITechStringer.BREAK_WINDOW_SIZE);
-         int numChars = wb[index + 1];
-         int woffset = wb[index];
-
-         drawWordSingle(g, woffset, numChars);
-      }
-   }
-
-   /**
-    * Draws the line as a shape using
-    * <br>
-    * <br>
-    * @param g
-    * @param chars
-    * @param offset
-    * @param len
-    * @param breaks the word breaks if not null means different fxs at the word level
-    * @param baseX
-    * @param baseY
-    */
-   public void drawShapeLine(GraphicsX g, char[] chars, int offset, int len, int[] breaks, int baseX, int baseY) {
-      if (breaks == null) {
-         drawShapeString(g, chars, offset, len, baseX, baseY);
-      } else {
-         //broken into words
-         int numWords = (breaks[0] - ITechStringer.BREAK_EXTRA_SIZE + 1) / ITechStringer.BREAK_WINDOW_SIZE;
-         for (int i = 0; i < numWords; i++) {
-            int index = ITechStringer.BREAK_HEADER_SIZE + (i + numWords) * ITechStringer.BREAK_WINDOW_SIZE;
-            int startOffset = breaks[index];
-            int charNum = breaks[index + 1];
-
-            //wOffset decides what to draw
-            drawShapeWord(g, chars, startOffset, charNum, baseX, baseY);
-            //draw non word characters
-
-            drawShapeString(g, chars, startOffset, len, baseX, baseY);
-         }
-      }
-   }
-
-   /**
-    * Method used to draw shape of word/line for masks.
-    * <br>
-    * <br>
-    * 
-    * @param g
-    * @param chars
-    * @param offset absolute index into char array
-    * @param len
-    */
-   public void drawShapeString(GraphicsX g, char[] chars, int offset, int len, int baseX, int baseY) {
-      StringMetrics sm = st.getMetrics();
-      if (st.hasState(ITechStringer.STATE_14_BASIC_POSITIONING)) {
-         g.drawChars(chars, offset, len, baseX, baseY, ANCHOR);
-      } else if (st.hasState(ITechStringer.STATE_11_DIFFERENT_FONTS)) {
-         drawShapeStringChars(g, chars, offset, len, baseX, baseY, sm);
-      }
-   }
-
-   public void drawShapeStringChars(GraphicsX g, char[] chars, int offset, int len, int baseX, int baseY, StringMetrics sm) {
-      for (int i = 0; i < len; i++) {
-         int index = offset + i;
-         StringFx fx = st.getCharFx(index);
-         char c = chars[index];
-         int cx = baseX + sm.getCharX(index);
-         int cy = baseY + sm.getCharY(index);
-         g.setFont(fx.f);
-         int anchor = fx.anchor;
-         g.drawChar(c, cx, cy, anchor);
-      }
-   }
-
-   /**
-    * Draws the shape of the whole text using current {@link GraphicsX} color.
-    * <br>
-    * <br>
-    * 
-    * @param g
-    */
-   public void drawShapeText(GraphicsX g, char[] chars, int offset, int len, int[] breaks) {
-      if (breaks == null) {
-         drawShapeString(g, chars, offset, len, 0, 0);
-      } else {
-         int numLines = st.getNumOfLines();
-         for (int i = 0; i < numLines; i++) {
-            int index = 1 + (i + numLines) * ITechStringer.BREAK_WINDOW_SIZE;
-            int startOffset = breaks[index];
-            int charNum = breaks[index + 1];
-            //wOffset decides what to draw
-            drawShapeLine(g, chars, startOffset, charNum, st.getWordBreaks(i), 0, 0);
-         }
-      }
-   }
-
-  
-   /**
-    * Maybe the first words of each line have a special font?
-    * <br>
-    * <br>
-    * 
-    * @param g
-    * @param chars
-    * @param offset
-    * @param len
-    * @param baseX
-    * @param baseY
-    */
-   public void drawShapeWord(GraphicsX g, char[] chars, int offset, int len, int baseX, int baseY) {
-      if (st.hasState(ITechStringer.STATE_09_WORD_FX)) {
-
-      }
-      drawShapeString(g, chars, offset, len, baseX, baseY);
-   }
-
-   /**
-    * Draws all the {@link Stringer} characters
-    * @param g
-    */
-   public void drawText(GraphicsX g) {
-
-   }
-
-   /**
-    * When Trimmed, len of chars is kept -2.
-    * <br>
-    * <br>
-    * What is the trim cue for word breaking? it is nothing.
-    * <br>
-    * <br>
-    * 
-    */
-   public void drawTrimCue(GraphicsX g, int step, int index) {
-      drawCharFx(g, '.', index);
-      drawCharFx(g, '.', index + 1);
-   }
-
-   public void drawWordMask(GraphicsX g, ByteObject mask) {
-      RgbImage maskImg = null;
-      if (mask.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_1_MASK_FILTER)) {
-         ByteObject maskColorFilter = mask.getSubFirst(TYPE_056_COLOR_FILTER);
-         drc.getFilterOperator().applyColorFilter(maskColorFilter, maskImg);
-         //image will be switch to RGB mode.
-      }
-      drc.getMaskOperator().createMaskedFigure(mask, maskImg);
-   }
-
-   /**
-    * Draw the given character interval as a word.
-    * <br>
-    * <br>
-    * This is only called when there is a {@link StringFx} scoped to {@link IBOFxStr#FX_SCOPE_1_WORD}.
-    * <br>
-    * <br>
-    * 
-    * @param g
-    * @param offset
-    * @param len
-    */
-   public void drawWordSingle(GraphicsX g, int offset, int len) {
-
-   }
-
-   /**
-    * Draws the word [offset,len]
-    * @param g
-    * @param offset
-    * @param len
-    */
-   public void drawWordSingleFX(GraphicsX g, int offset, int len) {
-      StringFx fx = st.getCharFx(offset);
-
-      if (fx.maskWord != null) {
-         int[] bs = st.getMetrics().breaksWord; //offsets are relative (0 -based)
-         int relOffset = offset - st.offsetChars;
-         int numWords = (bs[0] - ITechStringer.BREAK_EXTRA_SIZE + 1) / ITechStringer.BREAK_WINDOW_SIZE;
-         for (int i = 0; i < numWords; i++) {
-            int index = ITechStringer.BREAK_HEADER_SIZE + (i * ITechStringer.BREAK_WINDOW_SIZE);
-            int woffset = bs[index];
-            int wlen = bs[index + 1];
-            int firstChar = st.offsetChars + woffset;
-            int lastChar = st.offsetChars + woffset + wlen;
-            if (lastChar > offset && firstChar < offset + len) {
-
-               drawLineMask(g, fx.maskWord, st.chars, woffset, wlen);
-            }
-         }
-         if (st.hasState(ITechStringer.STATE_09_WORD_FX)) {
-            //line must be written word by word. and each word may have to be written char by char
-            drawLineWords(g, 0, bs);
-         }
-      }
+      lastNumDrawnChars = len;
+      this.pixelsWidthDrawnOnCurrentLine += widthDrawn;
+      this.xLineTracker += widthDrawn;
    }
 
    /**
@@ -560,7 +491,7 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
 
    }
 
-   public void init(int x, int y) {
+   public void initTrackerXY(int x, int y) {
       cxTracker = x;
       cyTracker = y;
    }
@@ -589,27 +520,88 @@ public class StringDraw implements IStringable, ITechFigure, IBOTypesDrw, ITechM
    }
 
    //#mdebug
-   public String toString() {
-      return Dctx.toString(this);
-   }
-
    public void toString(Dctx dc) {
-      dc.root(this, StringDraw.class, 591);
-      dc.append(" Tracker=[" + cxTracker + "," + cyTracker + "]");
+      dc.root(this, StringDraw.class, "@line5");
+      toStringPrivate(dc);
+      super.toString(dc.sup());
    }
 
-   public String toString1Line() {
-      return Dctx.toString1Line(this);
+   private void toStringPrivate(Dctx dc) {
+
    }
 
    public void toString1Line(Dctx dc) {
-      dc.root1Line(this, "StringDraw");
-      dc.append(" Tracker=[" + cxTracker + "," + cyTracker + "]");
+      dc.root1Line(this, StringDraw.class);
+      toStringPrivate(dc);
+      super.toString1Line(dc.sup1Line());
    }
-   //#enddebug
 
-   public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
+   /**
+    * 
+    * @param offsetStart 
+    * @param lengthChars number of chars.. algo will cap it to available chars
+    * so no need to check if it is overflowing
+    */
+   public void initRequestChars(int offsetStart, int lengthChars) {
+      this.firstCharOffsetRequested = offsetStart;
+      this.numberOfCharsRequested = lengthChars;
    }
+
+   /**
+    * Opti to stop drawing early when pixels W and H are exhausted
+    * @param pixelsWidth
+    * @param pixelsHeight
+    */
+   public void initRequestArea(int pixelsWidth, int pixelsHeight) {
+      this.pixelsWidthRequest = pixelsWidth;
+      this.pixelsHeightRequest = pixelsHeight;
+   }
+
+   public void initRequestLines(int firstLineOffset, int numOfLines) {
+      this.firstLineOffsetRequested = firstLineOffset;
+      this.numberOfLinesRequested = numOfLines;
+      numberOfLines = st.getNumOfLines();
+      numberOfLinesActual = Math.min(numberOfLines, numberOfLinesRequested);
+   }
+
+   private void initOffsets() {
+      //
+
+   }
+
+   public void drawOffsetsLines(GraphicsX g) {
+      StringMetrics sm = st.stringMetrics;
+      //      if (firstCharOffsetRequested != 0 || firstLineOffsetRequested != 0) {
+      //         if (firstCharOffsetRequested > 0) {
+      //            cxTracker -= sm.getCharX(firstCharOffsetRequested);
+      //         }
+      //         if (firstLineOffsetRequested > 0) {
+      //            cyTracker -= sm.getLineY(firstLineOffsetRequested);
+      //         }
+      //      }
+      pixelsHeightDrawn = 0;
+      currentLineOffset = firstLineOffsetRequested;
+      //draw at least 1 line
+      do {
+         line = sm.getLine(currentLineOffset);
+         if (line.getLen() == 0) {
+            //TODO draw line artifacts
+         } else {
+            drawALine(g);
+         }
+         pixelsHeightDrawn += line.getPixelsH();
+         cyTracker += line.getPixelsH();
+      } while (isContinueH());
+   }
+
+   public boolean isAbsoluteXY() {
+      return isAbsoluteXY;
+   }
+
+   public void setAbsoluteXY(boolean isAbsoluteXY) {
+      this.isAbsoluteXY = isAbsoluteXY;
+   }
+
+   //#enddebug
 
 }

@@ -5,6 +5,11 @@ import pasa.cbentley.byteobjects.src4.utils.ByteObjectUtilz;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 
+/**
+ * 
+ * @author Charles Bentley
+ *
+ */
 public class FxCache extends ObjectDrw {
 
    public FxCache(DrwCtx drc) {

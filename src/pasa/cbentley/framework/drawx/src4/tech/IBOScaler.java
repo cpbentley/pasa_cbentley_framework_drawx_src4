@@ -1,8 +1,8 @@
 package pasa.cbentley.framework.drawx.src4.tech;
 
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 
-public interface IBOScaler extends ITechByteObject, ITechScaler {
+public interface IBOScaler extends IByteObject, ITechScaler {
 
    public static final int SCALE_BASE_OFFSET         = ITechPass.PASS_BASIC_SIZE;
 
@@ -37,8 +37,9 @@ public interface IBOScaler extends ITechByteObject, ITechScaler {
    public static final int SCALE_OFFSET_02_FIT_TYPE1 = SCALE_BASE_OFFSET + 1;
 
    /**
-    * <li>linear
-    * <li>bi linear
+    * <li> {@link ITechScaler#SCALER_ID_0_LINEAR}
+    * <li> {@link ITechScaler#SCALER_ID_1_BI_LINEAR}
+    * <li> {@link ITechScaler#SCALER_ID_2_BI_CUBIC}
     */
    public static final int SCALE_OFFSET_03_ID1       = SCALE_BASE_OFFSET + 2;
 

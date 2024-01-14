@@ -5,8 +5,8 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.IBOScaler;
 import pasa.cbentley.framework.drawx.src4.tech.ITechPass;
@@ -85,7 +85,7 @@ public class ScaleOperator extends AbstractDrwOperator implements ITechScaler {
       int num = 0;
       if (scaler.hasFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_1_PRE_FILTER)) {
          ByteObject preFilter = scaler.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
-         drc.getFilterOperator().applyColorFilter(preFilter, rgb);
+         drc.getRgbImageOperator().applyColorFilter(preFilter, rgb);
          num++;
       }
       int type = scaler.get1(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1);

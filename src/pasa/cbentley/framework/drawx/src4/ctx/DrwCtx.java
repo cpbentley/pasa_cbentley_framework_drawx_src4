@@ -7,11 +7,21 @@ package pasa.cbentley.framework.drawx.src4.ctx;
 import java.util.Random;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IBOCtxSettings;
 import pasa.cbentley.byteobjects.src4.ctx.ABOCtx;
 import pasa.cbentley.byteobjects.src4.ctx.BOCtx;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.byteobjects.src4.ctx.IConfigBO;
-import pasa.cbentley.byteobjects.src4.extra.MergeMaskFactory;
-import pasa.cbentley.byteobjects.src4.tech.ITechCtxSettings;
+import pasa.cbentley.byteobjects.src4.ctx.IToStringsDIDsBoc;
+import pasa.cbentley.byteobjects.src4.objects.color.ColorFunctionFactory;
+import pasa.cbentley.byteobjects.src4.objects.color.FilterFactory;
+import pasa.cbentley.byteobjects.src4.objects.color.FilterOperator;
+import pasa.cbentley.byteobjects.src4.objects.color.GradientFactory;
+import pasa.cbentley.byteobjects.src4.objects.color.GradientOperator;
+import pasa.cbentley.byteobjects.src4.objects.color.IBOBlend;
+import pasa.cbentley.byteobjects.src4.objects.pointer.MergeMaskFactory;
+import pasa.cbentley.core.src4.ctx.CtxManager;
+import pasa.cbentley.core.src4.ctx.IStaticIDs;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.memory.IMemory;
 import pasa.cbentley.core.src4.utils.BitUtils;
@@ -19,17 +29,13 @@ import pasa.cbentley.framework.coredraw.src4.ctx.CoreDrawCtx;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IFontFactory;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImageFactory;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFeaturesDraw;
-import pasa.cbentley.framework.drawx.src4.color.ColorFunctionFactory;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbCache;
 import pasa.cbentley.framework.drawx.src4.factories.AnchorFactory;
+import pasa.cbentley.framework.drawx.src4.factories.ArtifactFactory;
 import pasa.cbentley.framework.drawx.src4.factories.BoxFactory;
 import pasa.cbentley.framework.drawx.src4.factories.FigureFactory;
 import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
-import pasa.cbentley.framework.drawx.src4.factories.FilterFactory;
-import pasa.cbentley.framework.drawx.src4.factories.FilterOperator;
-import pasa.cbentley.framework.drawx.src4.factories.GradientFactory;
-import pasa.cbentley.framework.drawx.src4.factories.GradientOperator;
 import pasa.cbentley.framework.drawx.src4.factories.MaskFactory;
 import pasa.cbentley.framework.drawx.src4.factories.MaskOperator;
 import pasa.cbentley.framework.drawx.src4.factories.PassDrawOperator;
@@ -40,11 +46,13 @@ import pasa.cbentley.framework.drawx.src4.factories.ScalerFactory;
 import pasa.cbentley.framework.drawx.src4.factories.ScalerOperatorTests;
 import pasa.cbentley.framework.drawx.src4.factories.TblrFactory;
 import pasa.cbentley.framework.drawx.src4.image.PngEncoder;
+import pasa.cbentley.framework.drawx.src4.interfaces.IToStringsDIDsDraw;
+import pasa.cbentley.framework.drawx.src4.string.FxCache;
 import pasa.cbentley.framework.drawx.src4.string.FxStringFactory;
 import pasa.cbentley.framework.drawx.src4.string.FxStringOperator;
+import pasa.cbentley.framework.drawx.src4.string.Stringer;
 import pasa.cbentley.framework.drawx.src4.style.StyleFactory;
 import pasa.cbentley.framework.drawx.src4.style.StyleOperator;
-import pasa.cbentley.framework.drawx.src4.tech.ITechBlend;
 import pasa.cbentley.framework.drawx.src4.utils.RgbImageRotateUtils;
 import pasa.cbentley.layouter.src4.ctx.LayouterCtx;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
@@ -52,92 +60,92 @@ import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 /**
  * Context Object for the Draw Base Module.
  * 
+ * Enhances the capabilities of {@link CoreDrawCtx} with {@link LayouterCtx}
+ * 
  * <p>
  * Noteworthy class of this module
  * <li> {@link GraphicsX} 
  * <li> {@link RgbCache} Creates the unique reference of {@link RgbCache} accross the whole {@link IAppli}.
  * <li> {@link CoreDrawCtx} the current user context using this Draw engine module.
+ * <li> Complex String drawings with {@link Stringer}
  * </p>
  * 
+ * <p>
+ * This module can be used without Input or specific other bentley GUI Tool kits
+ * It draws figures (rectangles, ellipses) using effects like gradients etc.
+ * </p>
  * @author Charles Bentley
  *
  */
-public class DrwCtx extends ABOCtx {
+public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
 
-   public static final int      CTX_ID = 485;
+   public static final int     CTX_ID = 485;
 
-   private final BOCtx          boc;
+   private AnchorFactory       anchorFactory;
 
-   private BoxFactory           bx;
+   private ArtifactFactory     artifactFactory;
 
-   private RgbCache             cache;
+   private final BOCtx         boc;
 
-   protected final CoreDrawCtx  cdc;
+   private BoxFactory          bx;
 
-   private ColorFunctionFactory colorFunctionFactory;
+   private RgbCache            cache;
 
-   private FigureFactory        facFig;
+   protected final CoreDrawCtx cdc;
 
-   private FigureOperator       figureOperator;
+   private IConfigDrawx        configDrawX;
 
-   private FilterFactory        filterFactory;
+   private FigureFactory       facFig;
 
-   private FilterOperator       filterOperator;
+   private FigureOperator      figureOperator;
 
-   private IImageFactory        fontImgCreator;
+   private FilterFactory       filterFactory;
 
-   private FxStringFactory      fxStringFactory;
+   private FilterOperator      filterOperator;
 
-   private FxStringOperator     fxStringOperator;
+   private IImageFactory       fontImgCreator;
 
-   private GradientFactory      grad;
+   private FxCache             fxCache;
 
-   private LayouterCtx          lac;
+   private FxStringFactory     fxStringFactory;
 
-   private MaskFactory          maskFactory;
+   private FxStringOperator    fxStringOperator;
 
-   private MaskOperator         maskOperator;
+   private LayouterCtx         lac;
 
-   private BOModuleDrawx        module;
+   private MaskFactory         maskFactory;
 
-   private PassDrawOperator     passDrawOperator;
+   private MaskOperator        maskOperator;
 
-   private PngEncoder           pngEncoder;
+   private BOModuleDrawx       module;
 
-   private RgbImageFactory      rgbImageFactory;
+   private PassDrawOperator    passDrawOperator;
 
-   private RgbImageOperator     rgbImageOperator;
+   private PngEncoder          pngEncoder;
 
-   private RgbImageRotateUtils  rotator;
+   private RgbImageFactory     rgbImageFactory;
 
-   private ScaleOperator        scaleOperator;
+   private RgbImageOperator    rgbImageOperator;
 
-   private ScalerOperatorTests  scaleOpTest;
+   private RgbImageRotateUtils rotator;
 
-   private ScalerFactory        scalerFactory;
+   private ScaleOperator       scaleOperator;
 
-   private StyleFactory         styleFactory;
+   private ScalerOperatorTests scaleOpTest;
 
-   private int                  styleFlags;
+   private ScalerFactory       scalerFactory;
 
-   private StyleOperator        styleOperator;
+   private StyleFactory        styleFactory;
 
-   private TblrFactory          tblrFactory;
+   private int                 styleFlags;
+
+   private StyleOperator       styleOperator;
+
+   private TblrFactory         tblrFactory;
 
    public DrwCtx(CoreDrawCtx cdc, LayouterCtx lac) {
       this(new ConfigDrawXDefault(cdc.getUCtx()), cdc, lac);
    }
-
-   private AnchorFactory anchorFactory;
-
-   public AnchorFactory getAnchorFactory() {
-      if (anchorFactory == null) {
-         anchorFactory = new AnchorFactory(this);
-      }
-      return anchorFactory;
-   }
-
-   private IConfigDrawx configDrawX;
 
    /**
     * Provides what this module needs in input to be usable
@@ -155,21 +163,22 @@ public class DrwCtx extends ABOCtx {
       this.cdc = cdc;
       this.boc = cdc.getBOC();
       this.lac = lac;
+      
       //we need a sizer and root
       module = new BOModuleDrawx(this);
 
       cache = new RgbCache(this);
       facFig = new FigureFactory(this);
       bx = new BoxFactory(this);
-      grad = new GradientFactory(this);
 
+      CtxManager c = cdc.getUCtx().getCtxManager();
+      //#debug
+      c.registerStaticRange(this, IStaticIDs.SID_DIDS, IToStringsDIDsDraw.A_DID_OFFSET_A_DRAW, IToStringsDIDsDraw.A_DID_OFFSET_Z_DRAW);
+     
+      
       if (this.getClass() == DrwCtx.class) {
          a_Init();
       }
-   }
-
-   public IConfigDrawx getConfigDrawX() {
-      return configDrawX;
    }
 
    public void a_Init() {
@@ -180,13 +189,18 @@ public class DrwCtx extends ABOCtx {
       cache.applySettings(settingsNew);
    }
 
-   private GradientOperator gradientOperator;
-
-   public GradientOperator getGradientOperator() {
-      if (gradientOperator == null) {
-         gradientOperator = new GradientOperator(this);
+   public AnchorFactory getAnchorFactory() {
+      if (anchorFactory == null) {
+         anchorFactory = new AnchorFactory(this);
       }
-      return gradientOperator;
+      return anchorFactory;
+   }
+
+   public ArtifactFactory getArtifactFactory() {
+      if (artifactFactory == null) {
+         artifactFactory = new ArtifactFactory(this);
+      }
+      return artifactFactory;
    }
 
    /**
@@ -197,9 +211,9 @@ public class DrwCtx extends ABOCtx {
     * @return
     */
    public ByteObject getBlender(int type, int alpha) {
-      ByteObject p = boc.getByteObjectFactory().createByteObject(IBOTypesDrw.TYPE_062_BLENDER, ITechBlend.BLEND_BASIC_SIZE);
-      p.set2(ITechBlend.BLEND_OFFSET_03_TYPE2, type);
-      p.set1(ITechBlend.BLEND_OFFSET_02_ALPHA1, alpha);
+      ByteObject p = boc.getByteObjectFactory().createByteObject(IBOTypesDrw.TYPE_062_BLENDER, IBOBlend.BLEND_BASIC_SIZE);
+      p.set2(IBOBlend.BLEND_OFFSET_03_TYPE2, type);
+      p.set1(IBOBlend.BLEND_OFFSET_02_ALPHA1, alpha);
       return p;
    }
 
@@ -220,10 +234,11 @@ public class DrwCtx extends ABOCtx {
    }
 
    public ColorFunctionFactory getColorFunctionFactory() {
-      if (colorFunctionFactory == null) {
-         colorFunctionFactory = new ColorFunctionFactory(this);
-      }
-      return colorFunctionFactory;
+      return boc.getColorFunctionFactory();
+   }
+
+   public IConfigDrawx getConfigDrawX() {
+      return configDrawX;
    }
 
    public CoreDrawCtx getCoreDrawCtx() {
@@ -246,21 +261,22 @@ public class DrwCtx extends ABOCtx {
    }
 
    public FilterFactory getFilterFactory() {
-      if (filterFactory == null) {
-         filterFactory = new FilterFactory(this);
-      }
-      return filterFactory;
+      return boc.getFilterFactory();
    }
 
    public FilterOperator getFilterOperator() {
-      if (filterOperator == null) {
-         filterOperator = new FilterOperator(this);
-      }
-      return filterOperator;
+      return boc.getFilterOperator();
    }
 
    public IFontFactory getFontFactory() {
       return cdc.getFontFactory();
+   }
+
+   public FxCache getFxCache() {
+      if (fxCache == null) {
+         fxCache = new FxCache(this);
+      }
+      return fxCache;
    }
 
    public FxStringFactory getFxStringFactory() {
@@ -278,7 +294,11 @@ public class DrwCtx extends ABOCtx {
    }
 
    public GradientFactory getGradientFactory() {
-      return grad;
+      return boc.getGradientFactory();
+   }
+
+   public GradientOperator getGradientOperator() {
+      return boc.getGradientOperator();
    }
 
    public IImageFactory getImageFactory() {
@@ -376,7 +396,7 @@ public class DrwCtx extends ABOCtx {
    }
 
    /**
-    * {@link ITechCtxSettingsDrwx} is a {@link ITechCtxSettings}
+    * {@link ITechCtxSettingsDrwx} is a {@link IBOCtxSettings}
     * 
     * @return
     */
@@ -428,7 +448,9 @@ public class DrwCtx extends ABOCtx {
    }
 
    protected void matchConfig(IConfigBO config, ByteObject settings) {
-
+      IConfigDrawx c = (IConfigDrawx) config;
+      int flags = c.getFlagsDrw();
+      settings.set1(CTX_DRW_OFFSET_01_FLAG1, flags);
    }
 
    //#mdebug
@@ -438,14 +460,14 @@ public class DrwCtx extends ABOCtx {
       super.toString(dc.sup());
    }
 
-   private void toStringPrivate(Dctx dc) {
-
-   }
-
    public void toString1Line(Dctx dc) {
       dc.root1Line(this, "DrwCtx");
       toStringPrivate(dc);
       super.toString1Line(dc.sup1Line());
+   }
+
+   private void toStringPrivate(Dctx dc) {
+
    }
 
    //#enddebug

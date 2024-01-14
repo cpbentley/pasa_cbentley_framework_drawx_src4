@@ -5,15 +5,16 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.BOCtx;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
-import pasa.cbentley.framework.drawx.src4.engine.BlendOp;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
@@ -51,6 +52,14 @@ public class MaskOperator extends AbstractDrwOperator implements ITechMask, ICol
    public void drawMask(GraphicsX g, int x, int y, ByteObject mask, char c, IMFont f) {
       int bgColor = FULLY_OPAQUE_WHITE;
       RgbImage figImg = drc.getRgbImageFactory().getCharImage(FULLY_OPAQUE_BLACK, c, f, bgColor);
+      RgbImage maskedImg = createMaskedFigure(mask, figImg);
+      g.drawRgbImage(maskedImg, x, y);
+      figImg.dispose();
+   }
+
+   public void drawMask(GraphicsX g, int x, int y, ByteObject mask, char[] chars, int offset, int len, IMFont f, int w, int h) {
+      int bgColor = FULLY_OPAQUE_WHITE;
+      RgbImage figImg = drc.getRgbImageFactory().getCharsImage(FULLY_OPAQUE_BLACK, chars, offset,len , f, bgColor, w, h);
       RgbImage maskedImg = createMaskedFigure(mask, figImg);
       g.drawRgbImage(maskedImg, x, y);
       figImg.dispose();
@@ -201,7 +210,7 @@ public class MaskOperator extends AbstractDrwOperator implements ITechMask, ICol
 
       if (mask.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_1_MASK_FILTER)) {
          ByteObject maskColorFilter = mask.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
-         drc.getFilterOperator().applyColorFilter(maskColorFilter, figImg);
+         drc.getRgbImageOperator().applyColorFilter(maskColorFilter, figImg);
          //image will be switch to RGB mode.
       }
       return figImg;
@@ -319,9 +328,10 @@ public class MaskOperator extends AbstractDrwOperator implements ITechMask, ICol
 
       //mask blending: 3 cases Shape,Bg or Halo.
       //each pixel can be blended
-      BlendOp blendOPShape = new BlendOp(drc, blendShape);
-      BlendOp blendOPBg = new BlendOp(drc, blendBg);
-      BlendOp blendOPMid = new BlendOp(drc, blendMid);
+      BOCtx boc = drc.getBOC();
+      BlendOp blendOPShape = new BlendOp(boc, blendShape);
+      BlendOp blendOPBg = new BlendOp(boc, blendBg);
+      BlendOp blendOPMid = new BlendOp(boc, blendMid);
 
       for (int i = 0; i < figData.length; i++) {
          if (maskData[i] == FULLY_OPAQUE_BLACK) {

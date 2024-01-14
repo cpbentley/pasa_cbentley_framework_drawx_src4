@@ -6,12 +6,12 @@ package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.BOModuleDrawx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
 import pasa.cbentley.layouter.src4.interfaces.ISizable;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
@@ -37,7 +37,7 @@ public class TblrFactory extends AbstractDrwFactory implements ITechTblr {
     * The ViewContext is the w and h
     * <br>
     * @param tblr
-    * @param pos
+    * @param pos {@link C#POS_0_TOP} ...
     * @return
     */
    public int getTBLRValue(ByteObject tblr, int pos) {

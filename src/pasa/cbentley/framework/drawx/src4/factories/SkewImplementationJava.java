@@ -9,51 +9,49 @@ import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechSkew;
 import pasa.cbentley.framework.drawx.src4.tech.ITechSkewer;
 
-public class SkewImplementationJava implements ITechSkewer {
+public class SkewImplementationJava extends ObjectDrw implements ITechSkewer {
 
-   public int         edgeAction    = ITechSkew.SKEW_EDGE_0_ZERO;
+   public int       edgeAction    = ITechSkew.SKEW_EDGE_0_ZERO;
 
-   public int         interpolation = ITechSkew.SKEW_TYPE_1_BILINEAR;
+   public int       interpolation = ITechSkew.SKEW_TYPE_1_BILINEAR;
 
    /**
     * Minimum 1
     */
-   public int         fuzzyBorder   = 1;
+   public int       fuzzyBorder   = 1;
 
-   protected int[]    transformedSpace;
+   protected int[]  transformedSpace;
 
-   protected int[]    originalSpace;
+   protected int[]  originalSpace;
 
    /**
     * Read from {@link ITechSkewer#SKEWER_OFFSET_08_COLOR_MOD4}
     */
-   public int         colorPixel;
+   public int       colorPixel;
 
-   private float      x0, y0, x1, y1, x2, y2, x3, y3;
+   private float    x0, y0, x1, y1, x2, y2, x3, y3;
 
-   private float      dx1, dy1, dx2, dy2, dx3, dy3;
+   private float    dx1, dy1, dx2, dy2, dx3, dy3;
 
-   private float      A, B, C, D, E, F, G, H, I;
+   private float    A, B, C, D, E, F, G, H, I;
 
-   private RgbImage   src;
+   private RgbImage src;
 
-   private RgbImage   dst;
-
-   private DrwCtx drc;
+   private RgbImage dst;
 
    public SkewImplementationJava(DrwCtx drc, RgbImage src) {
-
-      this.drc = drc;
+      super(drc);
       this.src = src;
 
    }
 
    public SkewImplementationJava(DrwCtx drc, RgbImage src, ByteObject tech) {
-      this.drc = drc;
+      super(drc);
       this.src = src;
       interpolation = tech.get1(SKEWER_OFFSET_03_INTERPOLATION_TYPE1);
       edgeAction = tech.get1(SKEWER_OFFSET_02_EDGE_TYPE1);
@@ -582,17 +580,10 @@ public class SkewImplementationJava implements ITechSkewer {
    }
 
    //#mdebug
-   public String toString() {
-      return Dctx.toString(this);
-   }
-
    public void toString(Dctx dc) {
-      dc.root(this, "Skew");
+      dc.root(this, SkewImplementationJava.class, "@line5");
       toStringPrivate(dc);
-   }
-
-   public String toString1Line() {
-      return Dctx.toString1Line(this);
+      super.toString(dc.sup());
    }
 
    private void toStringPrivate(Dctx dc) {
@@ -600,12 +591,9 @@ public class SkewImplementationJava implements ITechSkewer {
    }
 
    public void toString1Line(Dctx dc) {
-      dc.root1Line(this, "Skew");
+      dc.root1Line(this, SkewImplementationJava.class);
       toStringPrivate(dc);
-   }
-
-   public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
+      super.toString1Line(dc.sup1Line());
    }
 
    //#enddebug

@@ -50,8 +50,5 @@ public interface ITechStringDrw {
     */
    public static final int BREAK_6_WORD_LINE        = 6;
 
-   public static final int FONT_FACE_MONO           = 1;
-
-   public static final int FONT_FACE_PROP           = 2;
 
 }

@@ -21,6 +21,14 @@ public abstract class ObjectDrw implements IStringable {
       this.drc = drc;
    }
 
+   public DrwCtx getDRC() {
+      return drc;
+   }
+
+   public UCtx getUC() {
+      return drc.getUCtx();
+   }
+
    //#mdebug
    public IDLog toDLog() {
       return toStringGetUCtx().toDLog();

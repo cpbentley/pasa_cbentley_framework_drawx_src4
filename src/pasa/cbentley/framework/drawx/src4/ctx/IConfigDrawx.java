@@ -14,11 +14,14 @@ public interface IConfigDrawx extends IConfigBO {
     */
    public int getFlagsDrw();
 
+   public int getFlagsStringDrw();
+   
    public char getNewLine();
 
    /**
-    * 
+    *  
     * @return
+    * @see ConfigDrawXDefault#getLineBreakChars() for ideas
     */
    public char[] getLineBreakChars();
 

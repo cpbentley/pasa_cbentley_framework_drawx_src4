@@ -4,11 +4,12 @@
  */
 package pasa.cbentley.framework.drawx.src4.tech;
 
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
-import pasa.cbentley.framework.drawx.src4.engine.BlendOp;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
+import pasa.cbentley.byteobjects.src4.objects.color.ITechBlend;
 
-public interface ITechMask extends ITechByteObject {
+public interface ITechMask extends IByteObject {
 
    /**
     * 1 byte for flag

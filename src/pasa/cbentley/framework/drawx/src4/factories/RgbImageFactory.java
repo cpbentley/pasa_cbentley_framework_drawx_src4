@@ -19,15 +19,26 @@ public class RgbImageFactory extends AbstractDrwFactory {
       super(drc);
    }
 
-
    public RgbImage getCharImage(int color, char c, IMFont f, int bgColor) {
       int wi = f.charWidth(c);
       int hi = f.getHeight();
       RgbImage figImg = drc.getCache().createPrimitiveRgb(wi, hi, bgColor);
       GraphicsX figGraphics = figImg.getGraphicsX();
-      figGraphics.setColor(0);
+      figGraphics.setColor(color);
       figGraphics.setFont(f);
       figGraphics.drawChar(c, 0, 0, ITechBox.ANCHOR);
+      figImg.disposeGraphics();
+      return figImg;
+   }
+
+   public RgbImage getCharsImage(int color, char[] chars, int offset, int len, IMFont f, int bgColor, int w, int h) {
+      int wi = w;
+      int hi = h;
+      RgbImage figImg = drc.getCache().createPrimitiveRgb(wi, hi, bgColor);
+      GraphicsX figGraphics = figImg.getGraphicsX();
+      figGraphics.setColor(color);
+      figGraphics.setFont(f);
+      figGraphics.drawChars(chars, offset, len, 0, 0, ITechBox.ANCHOR);
       figImg.disposeGraphics();
       return figImg;
    }

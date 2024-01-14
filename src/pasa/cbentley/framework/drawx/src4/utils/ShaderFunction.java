@@ -2,12 +2,13 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.color;
+package pasa.cbentley.framework.drawx.src4.utils;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.functions.Acceptor;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.objects.color.ColorFunction;
+import pasa.cbentley.byteobjects.src4.objects.function.Acceptor;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigPixelStar;
 
 public class ShaderFunction extends ColorFunction {
@@ -132,7 +133,7 @@ public class ShaderFunction extends ColorFunction {
    protected Acceptor[] accs;
 
    public ShaderFunction(DrwCtx drc, ByteObject def) {
-      super(drc, def);
+      super(drc.getBOC(), def);
    }
 
    public int fxCombine(int original, int starOriginal, int starResult) {

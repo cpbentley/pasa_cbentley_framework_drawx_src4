@@ -1,9 +1,12 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.core.src4.ctx.UCtx;
+import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.ITechLvl;
+import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
@@ -11,29 +14,45 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
 
 /**
- * A {@link StringLeaf} has a consistent {@link StringFx} applied to all its characters 
+ * A {@link StringFxLeaf} has a consistent {@link StringFx} applied to all its characters.
+ * 
+ * It is the sum of FXs of the layers {@link StringStyleLayer} 
+ * 
+ * The {@link Stringer} simply draw all {@link StringFxLeaf} serially at the {@link IntInterval}
+ * 
+ * <p>
+ * What about line breaks which change lines and words potentially ?
+ * 
  * without line breaks ? If you have line fxs.. yes
  * 
  * if no line fx, A StringLeaf can encompasses line breaks / word breaks/ sentence breaks
+ * </p>
  * 
- * What happens when you select characters from 2 different {@link StringLeaf}?
+ * A {@link StringFxLeaf} can encompass words and lines
+ * If a background is to be drawn over a non rectangular shape ? Reason it must be full lines or not.
+ * You cannot have a leaf over 1.5 line. You will need a leaf over 1 and another over 0.5 ?
+ * 
+ * <p>
+ * What happens when you select characters from 2 different {@link StringFxLeaf}? It creates a new {@link IntInterval}
+ * on the selection layer {@link StringStyleLayer}. This invalidates fx states and a rebuild is done.
+ * The building phase creates 2 new intervals each with a new {@link StringFxLeaf}, adjacent leaves are updated.
+ * Same when an interval is removed, adjacent leaves offsets and lengths are updated or merged together
+ * </p>
  * 
  * You create new intervals and the select style is applied 
  * 
- * <li> The sizes inside a {@link StringLeaf}
+ * <li> The sizes inside a {@link StringFxLeaf}
  * <li> {@link StringDraw}
  * 
  * @author Charles Bentley
  *
  */
-public class StringLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, ITechMask, ITechBox, ITechStringer {
+public class StringFxLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, ITechMask, ITechBox, ITechStringer {
 
    /**
     * The style to be applied to all the characters in this interval
     */
    private StringFx         fx;
-
-   private ByteObject       boFx;
 
    /**
     * 
@@ -48,11 +67,11 @@ public class StringLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, I
    private int              offset;
 
    /**
-    * The {@link StringLeaf} in which
-    * this.offset < parent.offset
-    * this.len < parent.len
+    * The {@link StringFxLeaf} in which
+    * <li>this.offset < parent.offset
+    * <li>this.len < parent.len
     */
-   private StringLeaf       parent;
+   private StringFxLeaf     parent;
 
    protected final Stringer st;
 
@@ -60,47 +79,60 @@ public class StringLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, I
 
    private int              type;
 
-   public StringLeaf(DrwCtx drc, Stringer st, ByteObject boFx) {
+   public StringFxLeaf(DrwCtx drc, Stringer st) {
       super(drc);
       this.st = st;
-      this.boFx = boFx;
-
    }
 
    /**
-    * The {@link StringFx} for this interval of text.
-    * Null if none defined for this interval
-    * @return
+    * 
+    * @param drc
+    * @param st
+    * @param fx cannot be null
     */
-   public StringFx getFx() {
-      return fx;
+   public StringFxLeaf(DrwCtx drc, Stringer st, StringFx fx) {
+      super(drc);
+      this.st = st;
+      if (fx == null) {
+         throw new NullPointerException();
+      }
+      this.fx = fx;
    }
 
-   /**
-    * Draws the {@link StringLeaf} on referential position x,y
-    * @param g
-    * @param x left coordinate
-    * @param y top coordinate
-    * @param leaf
-    */
-   public void drawStringLeaf(GraphicsX g, int x, int y) {
-      StringLeaf leaf = this;
-      StringFx fx = leaf.getFxDraw();
-      //#debug
-      drc.toStringCheckNull(fx);
+   public boolean contains(int index) {
+      return index >= offset && index < offset + len;
+   }
 
-      switch (fx.getMaskType()) {
-         case FX_MASKDRAW_TYPE_0_NONE:
-            drawStringLeaf_MaskNone(g, x, y, fx);
-            break;
-         case FX_MASKDRAW_TYPE_1_CHAR:
-            drawStringLeaf_MaskChar(g, x, y, fx, fx.maskChar);
-            break;
-         case FX_MASKDRAW_TYPE_2_WORD:
-            drawStringLeaf_MaskWord(g, x, y, fx, fx.maskWord);
-            break;
-         default:
-            break;
+
+
+   void drawStringLeaf_MaskChar(GraphicsX g, int x, int y, StringFx fx, ByteObject mask) {
+      char[] data = st.getCharsRef();
+      StringFxLeaf leaf = this;
+      if (fx.getTypeStruct() == FX_STRUCT_TYPE_0_BASIC_HORIZONTAL) {
+         //now only deals with color variance
+         g.setFont(fx.getFont());
+
+         int offset = st.getCharsStart() + leaf.getOffset();
+         if (fx.isColorStable()) {
+            g.setColor(fx.getColor());
+            g.drawChars(data, offset, leaf.getLen(), x, y, ANCHOR);
+         } else {
+            int count = 0;
+            int len = leaf.getLen();
+            while (count < len) {
+               int numChars = fx.setColor(g, count);
+               if (numChars < 0) {
+                  numChars = 1;
+               } else if (numChars > len) {
+                  numChars = len;
+               }
+               g.drawChars(data, offset + count, numChars, x, y, ANCHOR);
+               count += numChars;
+            }
+         }
+      } else if (fx.getTypeStruct() == FX_STRUCT_TYPE_1_METRICS_X) {
+         StringMetrics sm = st.getMetrics();
+
       }
    }
 
@@ -108,11 +140,16 @@ public class StringLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, I
     * TODO when underlined red wiggle. its an overlay artifact leaf style
     * does not change structure, it belongs to interval
     * ->background figure is also a underlay artifact leaf
+    * 
     * TODO leading space area before the first character, tabs or space
+    * 
     * TODO trail space area after the last character or newline \n.. empty but pixels can be decorated
+    * on the line fx ?
+    *
     * Document model? when word breaks
     * TODO test line breaking and word breaking independantly
     * Called in the context of a "line"
+    * 
     * TODO text justification on lines https://stackoverflow.com/questions/8524979/justify-text-in-java
     * 
     * @param g
@@ -122,7 +159,7 @@ public class StringLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, I
     * @param fx
     */
    void drawStringLeaf_MaskNone(GraphicsX g, int x, int y, StringFx fx) {
-      StringLeaf leaf = this;
+      StringFxLeaf leaf = this;
       StringMetrics sm = st.getMetrics();
       //what kind of bg figure do we have? char,word,sentence,line, block
       //at this level, we care only about char,word and sentence
@@ -134,7 +171,7 @@ public class StringLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, I
       }
 
       char[] data = st.getCharsRef();
-      if (fx.getTypeStruct() == FX_STRUCT_TYPE_0_BASIC) {
+      if (fx.getTypeStruct() == FX_STRUCT_TYPE_0_BASIC_HORIZONTAL) {
          //now only deals with color variance
          g.setFont(fx.getFont());
          int offset = st.getCharsStart() + leaf.getOffset();
@@ -185,35 +222,13 @@ public class StringLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, I
 
    }
 
-   void drawStringLeaf_MaskChar(GraphicsX g, int x, int y, StringFx fx, ByteObject mask) {
-      char[] data = st.getCharsRef();
-      StringLeaf leaf = this;
-      if (fx.getTypeStruct() == FX_STRUCT_TYPE_0_BASIC) {
-         //now only deals with color variance
-         g.setFont(fx.getFont());
-
-         int offset = st.getCharsStart() + leaf.getOffset();
-         if (fx.isColorStable()) {
-            g.setColor(fx.getColor());
-            g.drawChars(data, offset, leaf.getLen(), x, y, ANCHOR);
-         } else {
-            int count = 0;
-            int len = leaf.getLen();
-            while (count < len) {
-               int numChars = fx.setColor(g, count);
-               if (numChars < 0) {
-                  numChars = 1;
-               } else if (numChars > len) {
-                  numChars = len;
-               }
-               g.drawChars(data, offset + count, numChars, x, y, ANCHOR);
-               count += numChars;
-            }
-         }
-      } else if (fx.getTypeStruct() == FX_STRUCT_TYPE_1_METRICS_X) {
-         StringMetrics sm = st.getMetrics();
-
-      }
+   /**
+    * The {@link StringFx} for this interval of text. Computed  by ?
+    * 
+    * @return Null if none is defined yet for this interval
+    */
+   public StringFx getFx() {
+      return fx;
    }
 
    /**
@@ -232,15 +247,15 @@ public class StringLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, I
    }
 
    /**
-    * The offset in {@link Stringer} at which this {@link StringLeaf} starts.
-    * relative to the {@link Stringer} base offset
+    * The offset in {@link Stringer} at which this {@link StringFxLeaf} starts.
+    * Attention this offset is relative to the {@link Stringer} base offset
     * @return
     */
    public int getOffset() {
       return offset;
    }
 
-   public StringLeaf getParent() {
+   public StringFxLeaf getParent() {
       return parent;
    }
 
@@ -254,6 +269,10 @@ public class StringLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, I
       return type;
    }
 
+   public void setByteObjectFx(StringFx fx) {
+      this.fx = fx;
+   }
+
    public void setLen(int len) {
       this.len = len;
    }
@@ -262,23 +281,34 @@ public class StringLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, I
       this.offset = offset;
    }
 
-   public void setParent(StringLeaf parent) {
+   public void setParent(StringFxLeaf parent) {
       this.parent = parent;
    }
 
-   public void setByteObjectFx(StringFx fx) {
-      this.fx = fx;
+   //#mdebug
+   public void toString(Dctx dc) {
+      dc.root(this, StringFxLeaf.class, "@line5");
+      toStringPrivate(dc);
+      super.toString(dc.sup());
+      dc.nlLvl(parent, "parentStringFxLeaf");
+      dc.nlLvl(fx, "StringFx");
+      dc.nlLvl(st, "parentStringer");
    }
 
-   public boolean contains(int index) {
-      return index >= offset && index < offset + len;
+   private void toStringPrivate(Dctx dc) {
+      dc.appendVarWithSpace("hashcode", this.hashCode());
+      dc.appendVarWithSpace("offset", offset);
+      dc.appendVarWithSpace("len", len);
+      dc.appendVarWithSpace("type", type);
    }
 
-   public ByteObject getBoFx() {
-      return boFx;
+   public void toString1Line(Dctx dc) {
+      dc.root1Line(this, StringFxLeaf.class);
+      toStringPrivate(dc);
+      super.toString1Line(dc.sup1Line());
    }
 
-   public void setBoFx(ByteObject boFx) {
-      this.boFx = boFx;
-   }
+   //#enddebug
+   
+
 }

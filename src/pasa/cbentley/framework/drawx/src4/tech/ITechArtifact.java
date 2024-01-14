@@ -4,9 +4,9 @@
  */
 package pasa.cbentley.framework.drawx.src4.tech;
 
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 
-public interface ITechArtifact extends ITechByteObject {
+public interface ITechArtifact extends IByteObject {
 
    /**
     * 1 byte flag

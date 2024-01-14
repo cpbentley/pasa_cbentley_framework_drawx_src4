@@ -7,8 +7,7 @@ package pasa.cbentley.framework.drawx.src4.string;
 import java.util.Enumeration;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.utils.ByteObjectUtilz;
-import pasa.cbentley.core.src4.helpers.BytesIterator;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
@@ -16,17 +15,19 @@ import pasa.cbentley.core.src4.structs.IntBuffer;
 import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.core.src4.structs.IntIntervals;
 import pasa.cbentley.core.src4.structs.IntToStrings;
+import pasa.cbentley.core.src4.text.StringInterval;
+import pasa.cbentley.core.src4.text.TextModel;
 import pasa.cbentley.core.src4.utils.BitUtils;
-import pasa.cbentley.core.src4.utils.CharUtils;
 import pasa.cbentley.core.src4.utils.ColorUtils;
+import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.coredraw.src4.ctx.IFlagToStringCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
+import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
@@ -38,7 +39,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
  * to position the caret at any characters.
  * <br>
  * <br>
- * Initialized with {@link Stringer#initFig(ByteObject, String)}
+ * Initialized with {@link Stringer#setStringFig(ByteObject, String)}
  * {@link Stringer#initTextEffects(ByteObject, ByteObject[])}
  *  Stuff used by both drawing and metrics.
  * <br>
@@ -60,6 +61,11 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
  * The root fx defines 10 sub object of type {@link IDrwTypes#TYPE_050_FIGURE}
  * <br>
  * <br>
+ * <p>
+ * <b>Layers</b> : {@link Stringer#getStyleLayer(int)}
+ * <li> 0 based
+ * <li> identifies overlaping styles. 0 for base, 1 for selection
+ * </p>
  * @see StringFx
  * @see StringMetrics
  * @see IBOFxStr
@@ -69,7 +75,9 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
  * @author Charles-Philip Bentley
  *
  */
-public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBOTypesDrw, IBOFxStr {
+public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBOTypesDrw, IBOFxStr, ITechStringer {
+
+   public static final String        NAME_ROOT_STYLE_LAYER = "Root";
 
    /**
     * 
@@ -83,17 +91,17 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * <li>dextrosinistral text
     * <li>sinistrodextral text from the left to the right
     */
-   ByteObject             anchor;
+   ByteObject                        anchor;
 
    /**
     * Used for alignment
     */
-   int                    areaH;
+   int                               areaH;
 
    /**
     * Used for alignment
     */
-   int                    areaW;
+   int                               areaW;
 
    /**
     * the x coordinate at which the draw the String.
@@ -101,42 +109,34 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * <br>
     * When drawing shapes on a {@link RgbImage} for mask, this value is not used
     */
-   int                    areaX;
+   int                               areaX;
 
-   int                    areaY;
+   int                               areaY;
 
-   int                    breakH;
+   int                               breakH;
 
-   private int            breakMaxLines;
+   private int                       breakMaxLines;
 
    /**
     * 
     */
-   private int            breakType;
+   private int                       breakType;
 
-   int                    breakW;
+   int                               breakW;
+
+   StringBBuilder                    buffer;
+
 
    /**
-    * When many different styles are used at the character level, the synthesis of merges is set here.
-    * <br>
-    * <br>
-    * The merge is done for line-word-char.
-    * <br>
-    * <br>
-    * Therefore char specific fx will always be highest priority.
-    * <br>
-    * <br>
     * 
-    * TODO specific charfxs are set by BO using intervals and layers
-    */
-   StringFx[]             charFxs;
-
-   /**
-    * Modified when Trimming. Thus the word Charles trimmed at letter 5 will be Cha..
-    * <br>
-    * <br>
-    * This char array is fully controlled. While source char array may be from a bigger source.
-    * <br>
+    * The char array used to compute the displayed String on screen.
+    * 
+    * <p>
+    * When reference equals to charsSource, it has not been modified for format purposes.
+    * Indeed a new array is created when the source data is trimmed. 
+    * </p>
+    * 
+    * 
     * What happens when the chars include the .. of a trim cue?
     * 
     * " " spaces when text is justified
@@ -150,114 +150,67 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * 
     * "Markdown is a text-to-HTML conversion tool for web writers"
     * 
-    * 
-    */
-   char[]                 chars;
-
-   StringBBuilder         buffer;
-
-   /**
     * Stores original string before trimming and imageing
     * 
+    * This array is never modified or written to.
+    * <p>
     * A figure/image is considered like a single character at its anchor
+    * </p>
+    * <li>\img{$1} the second image in the table, height is 1 line, width is ratio sized
+    * <li>\img{$1} when no width.. it takes the size of one _ when no height, 1 line
+    * <li>\img{tree.png} 
+    * <li>\fig{$0} 0 index figure , color is font color
     * 
-    * \img{$1} the second image in the table, height is 1 line, width is ratio sized
-    * \img{$1} when no width.. it takes the size of one _ when no height, 1 line
-    * \img{tree.png} 
-    * \fig{$0} 0 index figure , color is font color
-    * 
+    * <p>
     * replace image area with special character. Paint
-    * 
+    * </p>
     */
-   char[]                 charsBackup;
+   char[]                            chars;
+
 
    /**
-    * <li> {@link ITechStringer#TYPE_0_SINGLE_LINE}
-    * <li> {@link ITechStringer#TYPE_1_SINGLE_LINE_FX}
-    * <li> {@link ITechStringer#TYPE_2_BREAKS}
-    * <li> {@link ITechStringer#TYPE_3_BREAKS_FX}
-    * <li> {@link ITechStringer#TYPE_7_LINE_BREAKS_WORD_BREAKS_FX}
+    * Active interval
     */
-   int                    drawLineType;
+   private StringInterval            currentInterval;
 
-   int                    drawWordType;
+   int                               drawWordType;
+
 
    /**
-    * Definition of dynamic fxs.
+    * Payloads are {@link StringFxLeaf} objects
     */
-   ByteObject[]           fxsDynamicDefinition;
+   private IntIntervals              intervalOfStringLeaves;
 
    /**
-    * Array for the static fx that will be applied to characters/words using the rule based system for deciding 
-    * on what index a given static style is applied.
-    * <br>
-    * <br>
-    * <li>{@link IBOFxStr#FX_OFFSET_04_INDEX2}
-    * <li>{@link IBOFxStr#FX_OFFSET_05_INDEX_PATTERN1}
-    * <br>
-    * <br>
-    * Array never contains nulls.
-    * <br>
-    * <br>
-    * Static Fx applies to the same
-    * 
-    * Used for first and last letters fx.
-    * 
-    * Or doing 1 2 3, 1 2 3 patterns.
-    * 
-    * <br>
-    * Example: String with text effect for the first letter of each word of at least 2 alphanumerical letters
+    * Computed when {@link Stringer} needs to apply fx scoped to words
     */
-   StringFx[]             fxsStatic;
+   private IntIntervals              intervalOfWords;
 
-   private StringFx[]     fxsStaticIndex;
+   private int                       lastNumDrawnChars     = 0;
 
-   /**
-    * Tracks the intervals for the Dynamic Styles.
-    * <br>
-    * {@link IDrwTypes#TYPE_070_TEXT_EFFECTS} already affecting an index will merge with the dynamic style.
-    * <br>
-    * <br>
-    * By Default Dynamic text effect merges over, which means it replaces static style definitions
-    * <br>
-    * Created on demand. So by default extra fxs are not loaded since most String items will use only the default
-    * styling until the user makes an action to modify.
-    * <br>
-    */
-   StringInterval[]       intervals;
+   private StringFxLeaf[]            leaves                = new StringFxLeaf[4];
 
-   /**
-    * not null.
-    */
-   StringLayerStyle[]     styleLayers;
-
-   /**
-    * Layers generated by {@link ByteObject} fx definitions.
-    * Applied BEFORE any dynamic style. They belong to the root style.
-    * For example, first letter of each word kind of style.
-    * Style for punctuation. {@link IBOFxStrChar#FXCHAR_FLAG_1_CHARS_BASED}
-    * Style for some characters.. {@link IBOFxStrChar#FXCHAR_FLAG_1_CHARS_BASED}
-    */
-   StringLayerStyle[]     styleLayersBO;
-
-   //IntBuffer[]            intervals;
 
    /**
     * the length of characters starting offsetChars.
     */
-   int                    lengthChars;
+   int                               lengthChars;
 
-   /**
-    * When specific line fxs are used.
-    * 
-    * Those {@link StringFx} are applied to all lines. 
-    */
-   StringFx[]             lineFxs;
+   private int                       newLineManager;
+
+   private int                       numLinesPerPage;
 
    /**
     * Absolute offset for reading characters in the character array.
     */
-   int                    offsetChars;
+   int                               offsetChars;
+
+
+   private ByteObject                scale;
+
+   private StringStyleApplicatorWord searchApp;
+
+   private int                       spaceTrimManager;
 
    /**
     * Provides the {@link Stringer} with easily accessible state information.
@@ -265,15 +218,15 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * <br>
     * <li> {@link ITechStringer#STATE_04_TRIMMED}
     */
-   private int            states;
+   private int                       states;
 
    /**
     * The {@link StringDraw} based on areaX and areaY.
     */
-   StringDraw             stringDraw;
+   StringDraw                        stringDraw;
 
    /**
-    * Global Text effects definition. Never null. First it is the translation of String figure values.
+    * root fx. Null when fx has not been built
     * <br>
     * Then it is merged with generic fx fields . char mask.
     * <br>
@@ -283,32 +236,81 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * The {@link StringFx} define alternate {@link StringFx} which are used based on index or an interval
     * <br>
     * <br>
-    * 
+    * Not null after call of {@link Stringer#buildTextEffects()}
     */
-   StringFx               stringFx;
+   StringFx                          stringFx;
 
-   StringMetrics          stringMetrics;
+   /**
+    * Never null. Created in Constructor. Support object for metrics.
+    */
+   StringMetrics                     stringMetrics;
+
+   StringStyleApplicator[]           styleApplicators;
 
    /**
     * 
     */
-   int[]                  styleFlags;
+   int[]                             styleFlags;
 
    /**
-    * Text figure
-    * TYPE_050_FIGURE
+    * Array with {@link StringStyleLayer} and their {@link IntIntervals} of style definitions
+    * 
+    * <p>
+    * Null by default. Getter creates it as required. Therefore should always be accessed with
+    * {@link Stringer#getStyleLayers()}
+    * </p>
+    * 
+    * The {@link IntInterval} carry their specific {@link ByteObject} fx definitions, if its different from
+    * the root one defined in {@link Stringer}.
+    * 
+    * <p>
+    * One creates a {@link StringStyleLayer} with {@link Stringer#createLayer(String, int)} for building complex
+    * documents or a selection layer style. Usually, the root layer will be used to style words and a second layer
+    * controls the selection style.
+    * </p>
+    * @see Stringer#getStyleLayers()
+    * @see Stringer#buildTextEffects()
+    * 
     */
-   ByteObject             text;
+   private StringStyleLayer[]        styleLayers;
 
    /**
-    * Active interval
+    * Layers generated by {@link ByteObject} fx definitions.
+    * Applied BEFORE any dynamic style. They belong to the root style.
+    * For example, first letter of each word kind of style.
+    * 
+    * <li>Style for punctuation. {@link IBOFxStrChar#FXCHAR_FLAG_1_CHARS_BASED}
+    * <li>Style for some characters.. {@link IBOFxStrChar#FXCHAR_FLAG_1_CHARS_BASED}
     */
-   private StringInterval currentInterval;
+   StringStyleLayer[]                styleLayersBO;
+
+   private int                       tabManager;
+
+   /**
+    * Text figure of type  TYPE_050_FIGURE.
+    * 
+    * <li>{@link IBOFigString#FIG_STRING_FLAG_1_SCALING}
+    * <li>{@link IBOFigString#FIG_STRING_FLAG_5_EFFECT}
+    */
+   ByteObject                        text;
+
+   /**
+    * Initalized when {@link Stringer} requires word, punc, sentence based Fx styling.
+    */
+   private TextModel                 textModel;
 
    /**
     * Draw a debug rectangle around the area
     */
-   private boolean        toStringDebugArea;
+   private boolean                   toStringDebugArea;
+
+   private boolean                   toStringDebugBreakLines;
+
+   private int                       wordwrap;
+
+   private boolean                   isTrimArtifacts;
+
+   private StringerEditor editor;
 
    /**
     * 
@@ -317,77 +319,329 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    public Stringer(DrwCtx drc) {
       super(drc);
       stringMetrics = new StringMetrics(drc, this);
-      stringFx = new StringFx(drc, this);
       stringDraw = new StringDraw(drc, this);
    }
 
+
+
    /**
-    * Appends Characters at the end of the buffer using the current style
+    * Adds the fx over the whole text 
+    * or
+    * Reset 
+    * TODO only one fx over the whole text.
+    * what we ant to add if index based byteobject.. that transforms
+    * when conflict? order first
+    * if not, it will merge with stack of fx 
     * 
-    * We can know if a newline/break occurs.
-    * if not, no need to compute breask again.
-    * @param c
-    */
-   public void addChar(char c) {
-      chars = drc.getUCtx().getMem().increaseCapacity(chars, 3);
-      int index = offsetChars + lengthChars;
-      chars[index] = c;
-      stringMetrics.addChar(index, c);
-      lengthChars++;
-   }
-
-   /**
-    * Insert c at index
-    * @param c
-    * @param index
-    */
-   public void addChar(char c, int index) {
-
-   }
-
-   public char[] getCharsRef() {
-      return chars;
-   }
-
-   /**
-    * Called by client when he wants to modify the string
-    * <br>
-    * Updates the breaks
-    * <br>
-    * To initialize Stringer with a string,
-    * <br>
-    * @param cs update char array
-    * @param index
-    * @param c
-    */
-   public void addChar(char[] cs, int index, char c) {
-      chars = cs;
-      stringMetrics.addChar(index, c);
-      lengthChars++;
-   }
-
-   /**
-    * Only works if figure has its own text.
-    * @param textFigure
-    */
-   public void append(ByteObject textFigure) {
-      this.append(textFigure, null);
-   }
-
-   /**
-    * 
-    * @param textFigure
+    * dynamic effect are set using a {@link StringStyleLayer}
     * @param fx
     */
-   public void append(ByteObject textFigure, ByteObject fx) {
-      // TODO Auto-generated method stub
+   public void addFx(ByteObject fx) {
+      //#debug
+      fx.checkType(IBOTypesDrw.TYPE_070_TEXT_EFFECTS);
 
    }
+
+   /**
+    * layerID is 0, i.e. the root default one.
+    * 
+    * @param offset
+    * @param len
+    * @param fx
+    * @return
+    */
+   public IntInterval addInterval(int offset, int len, ByteObject fx) {
+      return addInterval(offset, len, 0, fx);
+   }
+
+   /**
+    * Overwrites the interval in the chosen layer.
+    * 
+    * This is a external dynamic style.
+    * <br>
+    * Internal dynamic is defined at the level of the text figure
+    * Adding on the same layer, will generate an overwrite of payload.
+    * 
+    * <p>
+    * If you want a fx merge, you need to create a new layer on top
+    * </p>
+    * 
+    * Resets the Fx config
+    * @param offset
+    * @param len
+    * @param layerID a valid ID. must be created first. 0 id is always valid
+    * @param styleID
+    * @return
+    * @throws ArrayIndexOutOfBoundsException if layerID is not valid
+    * @see Stringer#getStyleLayer(int)
+    */
+   public IntInterval addInterval(int offset, int len, int layerID, ByteObject fx) {
+      resetFxDefinition();
+      StringStyleLayer layer = getStyleLayer(layerID);
+      IntInterval ii = layer.addInterval(offset, len, fx);
+      return ii;
+   }
+
+   /**
+    * You can only add a few layers over the default one..
+    * @return its ID.. 
+    */
+   public int addLayer(String name) {
+      StringStyleLayer[] styleLayers = getStyleLayers();
+      int nextID = styleLayers.length;
+      createLayer(name, nextID);
+      return nextID;
+   }
+
+   public void buildAgain() {
+      setTextFigure(text);
+      buildTextEffects();
+      stringMetrics.meterString(); //FX must be deployed
+   }
+
+   /**
+    * Keep existing string
+    * @param textFigure
+    */
+   public void buildForDisplayWith(ByteObject textFigure) {
+      setTextFigure(textFigure);
+      buildTextEffects();
+      stringMetrics.meterString(); //FX must be deployed
+   }
+
+   public void buildForDisplayWith(ByteObject textFigure, String str) {
+      setStringFig(textFigure, str);
+      buildTextEffects();
+      stringMetrics.meterString(); //FX must be deployed
+   }
+
+   /**
+    * Build from scratch
+    * 
+    * When adding characters, we may take existing {@link IntIntervals} and modify it
+    * @param intIntervals
+    */
+   public StringInterval[] buildIntervalWords() {
+      if (textModel == null) {
+         textModel = new TextModel(drc.getUCtx());
+         textModel.setChars(chars, offsetChars, lengthChars);
+         textModel.buildModel();
+      }
+      return textModel.getIntervalsWords();
+   }
+
+   public IntIntervals buildIntervalWordsAsI() {
+      StringInterval[] sis = this.buildIntervalWords();
+      IntIntervals in = new IntIntervals(getUC(), sis.length);
+      for (int i = 0; i < sis.length; i++) {
+         in.addInterval(sis[i].getInterval());
+      }
+      return in;
+   }
+
+   /**
+    * Building is done before string breaking..
+    * Why ?
+    * 
+    * But after Fx setup with {@link Stringer#initTextEffects(ByteObject, ByteObject[])}
+    * We need to know if a {@link TextModel} is required.
+    * 
+    * 
+    * <p>
+    * 
+    * TODO When big blobs of text, we can't put everything into memory.
+    * So wrapper around Stringer only feeds portion of the text
+    * 
+    * There is a maxchar limit that the Stringer can used.. To avoid crashes if the user feeds
+    * a big blob of text.
+    * 
+    * Config this ?
+    * 
+    * 
+    * </p>
+    * 
+    * When style is changed for some leaves, the cached computed widths are cleared.
+    * 
+    * <p>
+    * TODO monospace optimization
+    * {@link ITechStringer#STATE_18_FULL_MONOSPACE}. This flag was computed in the FxSetup
+    * </p>
+    * 
+    */
+   private void buildStringFxLeaves() {
+
+      FxCache fxCache = drc.getFxCache();
+
+      //todo optimized drawing by drawing all leaves with same FX in one pass
+      //that will depends on the fx.. complex fx might depends on letter flow
+
+      //string leaf is initialized with base StringFx
+      //and encompasses the whole area.
+      //we use start end buffered structure for building leaves
+      StringFxLeaf leafRoot = new StringFxLeaf(drc, this, stringFx);
+      //TODO if boFxRoot declares index based styling? we need to create intervals for it before.
+      setState(STATE_11_DIFFERENT_FONTS, false);
+      if (stringFx.getFont().isMonospace()) {
+         setState(STATE_18_FULL_MONOSPACE, true);
+      }
+      IntIntervals intervalsOfLeaves = new IntIntervals(drc.getUCtx());
+      intervalsOfLeaves.setPayLoadCheck(true); //we want to break down intervals with different payloads
+
+      IntInterval rootInterval = intervalsOfLeaves.addInterval(0, lengthChars, leafRoot);
+
+      //scope to scope.. a charFx will inherit the lineFx
+      //how do you deal with lineFx mixing with charFx/wordFx
+      //rootfx says lines have a color function.. for bg and fg.
+      //what happens when charFx specific in middle of a line?
+
+      //apply first interval of first enumeration
+      //each layer splits the leaves IntIntervals further and further, 
+      //each time merging the ByteObject style with the IntInterval payload fx.
+      StringStyleLayer[] styleLayers = this.getStyleLayers();
+      for (int i = 0; i < styleLayers.length; i++) {
+         StringStyleLayer layer = styleLayers[i];
+         if (layer == null) {
+            continue;
+         }
+         Enumeration layerIntervals = layer.getIntervals();
+         while (layerIntervals.hasMoreElements()) {
+            IntInterval intervalFromStyleLayer = (IntInterval) layerIntervals.nextElement();
+            //leafRoot.setOffset(intervalWithStyle.getOffset());
+            //leafRoot.setLen(intervalWithStyle.getLen());
+
+            //look on the existing leaves if there is intersection with this one below this interval and create leaves
+            IntInterval[] intersect = intervalsOfLeaves.getIntersection(intervalFromStyleLayer);
+
+            //payload of interval from style layer is the ByteObject txt effect definition
+            Object payload = intervalFromStyleLayer.getPayload();
+            if (payload == null) {
+               //warning this should not occur
+               throw new NullPointerException();
+               //continue;
+            }
+            ByteObject boFxTop = null;
+            if (payload instanceof ByteObject) {
+               boFxTop = (ByteObject) payload;
+            } else {
+               throw new IllegalStateException();
+            }
+
+            if (intersect.length == 0) {
+               throw new IllegalStateException("Interval Added with out of bounds values " + intervalFromStyleLayer);
+            } else {
+               //if no leaves under it.. use root leaf for constructing the style
+               for (int j = 0; j < intersect.length; j++) {
+
+                  IntInterval intersectBelow = intersect[j];
+
+                  StringFxLeaf leafBelow = (StringFxLeaf) intersectBelow.getPayload();
+                  ByteObject boFxBelow = leafBelow.getFx().getSrcFx();
+                  //optimize to reuse existing merges
+                  ByteObject boFxMerged = fxCache.getFxCacheMerge(boFxBelow, boFxTop);
+
+                  IntInterval intervalFromInter = intervalFromStyleLayer.getIntersectionWith(intersectBelow);
+
+                  StringFx fxMerged = new StringFx(drc, this, boFxMerged);
+                  if (fxMerged.getFont() != stringFx.getFont()) {
+                     setState(STATE_11_DIFFERENT_FONTS, true);
+                     setState(STATE_18_FULL_MONOSPACE, false);
+                  }
+
+                  StringFxLeaf leafNew = new StringFxLeaf(drc, this, fxMerged);
+
+                  //add the interval and its leaf to the set of leaves representing the styled chunks of text
+                  intervalFromInter.setPayload(leafNew);
+                  intervalsOfLeaves.addInterval(intervalFromInter);
+               }
+            }
+         }
+      }
+
+      Enumeration leafIntervals = intervalsOfLeaves.getIntervalEnumeration();
+      while (leafIntervals.hasMoreElements()) {
+         //construct the fx
+         IntInterval ii = (IntInterval) leafIntervals.nextElement();
+         StringFxLeaf boFxTop = (StringFxLeaf) ii.getPayload();
+
+         //compute stringfx and charwidth?
+      }
+
+      this.intervalOfStringLeaves = intervalsOfLeaves;
+
+   }
+
+   public void buildTextEffects() {
+      this.buildTextEffects(text);
+   }
+
+   public void buildTextEffects(ByteObject textFigure) {
+      int num = textFigure.getSubNum(TYPE_070_TEXT_EFFECTS);
+      ByteObject fxRoot = drc.getFxStringFactory().createFxFromFigure(textFigure);
+
+      if (num == 0 && styleLayers == null) {
+         //TODO we don't need all the Fx plumbing. just draw font and color that's it.
+         //well we might have stylelayer styles
+         //we just build the root fx
+         stringFx = new StringFx(drc, this, fxRoot);
+
+         setState(STATE_11_DIFFERENT_FONTS, false);
+         boolean isMono = stringFx.getFont().isMonospace();
+         setState(STATE_18_FULL_MONOSPACE, isMono);
+
+         StringFxLeaf leafRoot = new StringFxLeaf(drc, this, stringFx);
+         intervalOfStringLeaves = new IntIntervals(getUC(), 1);
+         intervalOfStringLeaves.setPayLoadCheck(true); //we want to break down intervals with different payloads
+         if (lengthChars == 0) {
+
+         } else {
+            intervalOfStringLeaves.addInterval(0, lengthChars, leafRoot);
+         }
+
+      } else {
+
+         //create a Fx object from textFigure parameters
+         ByteObject[] fxs = new ByteObject[num + 1];
+         fxs[0] = fxRoot;
+         textFigure.getSubsAppend(TYPE_070_TEXT_EFFECTS, fxs, 1);
+
+         //buildTextEffects(fxs);
+
+         if (hasState(STATE_29_MODEL_WORD_FX)) {
+            buildIntervalWords();
+         }
+         buildStringFxLeaves();
+      }
+      setState(STATE_17_COMPUTED_FX, true);
+      setState(STATE_19_FX_SETUP, true);
+   }
+
 
    private void checkStateRun() {
       if (text == null) {
          throw new IllegalStateException("No Text Figure Set");
       }
+      if (!hasState(STATE_19_FX_SETUP)) {
+         throw new IllegalStateException("FX has not been initialized");
+      }
+   }
+
+   public StringStyleLayer createLayer(String string) {
+      return createLayer(string, getStyleLayers().length);
+   }
+
+   /**
+    * Create layer and add it to the collection using ID as index
+    * @param string
+    * @param id
+    * @return
+    */
+   public StringStyleLayer createLayer(String string, int id) {
+      StringStyleLayer sls = new StringStyleLayer(drc, this, id);
+      sls.setName(string);
+      StringStyleLayer[] styleLayersRoot = getStyleLayers();
+      styleLayers = ensureCapacity(styleLayersRoot, id);
+      styleLayers[id] = sls;
+      return sls;
    }
 
    /**
@@ -416,16 +670,23 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * @param g
     */
    public void draw(GraphicsX g) {
+      //#mdebug
       if (ToStringIsDebugArea()) {
          g.setColor(ColorUtils.FULLY_OPAQUE_RED);
          g.drawRect(areaX - 1, areaY - 1, areaW + 1, areaH + 1);
       }
-      if (stringFx.scale != null) {
+      //#enddebug
+
+      if (scale != null) {
          drawScaled(g);
       } else {
-         drawOffsets(g, areaX, areaY, 0, lengthChars, 0, stringMetrics.getNumOfLines());
+         StringDraw stringDraw = getDraw();
+         stringDraw.initTrackerXY(areaX, areaY);
+         stringDraw.initRequestChars(0, lengthChars);
+         stringDraw.initRequestLines(0, stringMetrics.getNumOfLines());
+         stringDraw.initRequestArea(breakW, breakH);
+         stringDraw.drawOffsetsLines(g);
       }
-      //System.out.println(this.toString());
    }
 
    /**
@@ -447,9 +708,9 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    public void drawChar(GraphicsX g, int indexRelative) {
       if (hasState(ITechStringer.STATE_01_CHAR_EFFECTS)) {
-         getDraw().drawCharFx(g, chars[offsetChars + indexRelative], indexRelative);
+         getDraw().drawUniqueCharFx(g, chars[offsetChars + indexRelative], indexRelative);
       } else {
-         getDraw().drawChar(g, chars[offsetChars + indexRelative], indexRelative);
+         getDraw().drawUniqueCharBasic(g, chars[offsetChars + indexRelative], indexRelative);
       }
    }
 
@@ -462,7 +723,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * It tries to honour the offset. Line offsets are meaningless if there is one line.
     * <br>
     * <br>
-    * This is fine for line {@link StringFx} but what happens to Paragraph or {@link IBOFxStr#FX_SCOPE_4_TEXT}
+    * This is fine for line {@link StringFx} but what happens to Paragraph or {@link IBOFxStr#FX_SCOPE_0_TEXT}
     * when a line is drawn again?
     * <br>
     * <br>
@@ -487,49 +748,19 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * 
     */
    public void drawOffsets(GraphicsX g, int x, int y, int wOffset, int wNum, int hOffset, int hNum) {
-      //System.out.println("#Stringer#draw at " + x + "," + y);
       StringDraw stringDraw = getDraw();
-      if (x != areaX || y != areaY) {
-         stringDraw = new StringDraw(drc, this);
-         stringDraw.init(x, y);
-      }
-      int[] breaks = stringMetrics.breaks;
-      if (breaks == null) {
-         //draw everything on a single line
-         int offset = this.offsetChars + wOffset;
-         int len = Math.min(wNum, this.lengthChars);
-
-         stringDraw.drawLine(g, offset, len, 0);
-
-      } else {
-         int numLines = stringMetrics.getNumOfLines();
-         int end = Math.min(numLines, hNum);
-         int firstLineIndex = hOffset;
-         //
-         if (wOffset != 0 || hOffset != 0) {
-            stringDraw = new StringDraw(drc, this);
-            int dx = x;
-            int dy = y;
-            if (wOffset > 0) {
-               dx -= stringMetrics.getCharX(wOffset);
-            }
-            if (hOffset > 0) {
-               dy -= getLineY(firstLineIndex);
-            }
-            stringDraw.init(dx, dy);
-         }
-         for (int i = 0; i < end; i++) {
-            int lineIndex = hOffset + i;
-            int index = ITechStringer.BREAK_HEADER_SIZE + (i + hOffset) * ITechStringer.BREAK_WINDOW_SIZE;
-            int startOffset = breaks[index];
-            int charNum = breaks[index + 1];
-            //wOffset decides what to draw
-            int len = Math.min(wNum, charNum);
-            stringDraw.drawLine(g, startOffset + wOffset, len, lineIndex);
-         }
-      }
+      stringDraw.initTrackerXY(x, y);
+      stringDraw.initRequestChars(wOffset, wNum);
+      stringDraw.initRequestLines(hOffset, hNum);
+      stringDraw.initRequestArea(breakW, breakH);
+      stringDraw.setAbsoluteXY(false);
+      stringDraw.drawOffsetsLines(g);
    }
 
+   /**
+    * 
+    * @param g
+    */
    public void drawScaled(GraphicsX g) {
       int bgColor = 0;
       if (g.isVirgin(areaX, areaY, areaW, areaH)) {
@@ -554,7 +785,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       //removes background pixels if the x,y area is not virgin of background color
 
       //TODO fix the double blending
-      RgbImage scaledImage = drc.getRgbImageOperator().scaleRgbImage(baseImage, areaW, areaH, stringFx.scale);
+      RgbImage scaledImage = drc.getRgbImageOperator().scaleRgbImage(baseImage, areaW, areaH, scale);
 
       g.drawRgbImage(scaledImage, areaX, areaY);
       baseImage.dispose();
@@ -575,84 +806,87 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return ar;
    }
 
-   /**
-    * Trim the {@link Stringer}, that is reduces the len field to number of characters.
-    * <br>
-    * Replaces some characters with Trim cue '.'
-    * <li> P..
-    * <li> ..
-    * <li> .
-    * <br>
-    * <br>
-    * <br>
-    * One or two character words are not trimmed.
-    * <br>
-    * <br>
-    * You cannot trim a logical init of -1 -2 -x.
-    * <br> 
-    * @param lastIndex the last absolute index at which the string should end. cannot be smaller than Stringer offset.
-    */
-   public void executeTrim(int lastIndex) {
-      if (lastIndex < offsetChars) {
-         throw new IllegalArgumentException("" + lastIndex);
+   public StringStyleLayer[] ensureCapacity(StringStyleLayer[] ar, int val) {
+      if (ar == null) {
+         return new StringStyleLayer[val + 1];
       }
-      if (lengthChars <= 2) {
-         return;
-      }
-      setState(ITechStringer.STATE_04_TRIMMED, true);
-      charsBackup = chars;
-      int numChars = lastIndex - offsetChars;
-      chars = new char[numChars];
-      if (numChars <= 0) {
-         lengthChars = 0;
-      } else if (numChars <= 1) {
-         lengthChars = 1;
-         chars[offsetChars] = '.';
-      } else {
-         int fin = 0;
-         lengthChars = numChars;
-         fin = lastIndex - 2;
-         for (int i = 0; i < fin; i++) {
-            chars[i] = charsBackup[i];
+      if (ar.length <= val) {
+         StringStyleLayer[] newa = new StringStyleLayer[val + 1];
+         for (int i = 0; i < ar.length; i++) {
+            newa[i] = ar[i];
          }
-         chars[fin] = '.';
-         chars[fin + 1] = '.';
+         return newa;
       }
+      return ar;
    }
 
+
+   public int getAreaH() {
+      return areaH;
+   }
+
+   public int getAreaW() {
+      return areaW;
+   }
+
+   public int getAreaX() {
+      return areaX;
+   }
+
+   public int getAreaY() {
+      return areaY;
+   }
+
+   /**
+    * Value set by the code using the {@link Stringer} using {@link Stringer#setBreakWH(int, int)}
+    * 
+    * <p>
+    * When not set, return 0. This means height space is not a specific constraint while metering the string
+    * </p>
+    * @return
+    */
    public int getBreakH() {
       return breakH;
    }
 
+   /**
+    * The maximum number of displayed lines.
+    * <p>
+    * 0 or negative means no maximum
+    * </p>
+    * Unless set by {@link Stringer#setBreakMaxLines(int)}, value comes from {@link IBOFigString#FIG_STRING_OFFSET_08_MAXLINES1}
+    * @return
+    */
    public int getBreakMaxLines() {
       return breakMaxLines;
    }
 
+   /**
+    * <li> {@link ITechStringDrw#BREAK_0_NONE}
+    * <li> {@link ITechStringDrw#BREAK_1_WIDTH}
+    * <li> {@link ITechStringDrw#BREAK_2_NATURAL}
+    * <li> {@link ITechStringDrw#BREAK_3_ONE_LINE}
+    * @return
+    * @see Stringer#setBreakType(int)
+    */
    public int getBreakType() {
       return breakType;
    }
 
+   /**
+    * Value set by the code using the {@link Stringer} using {@link Stringer#setBreakWH(int, int)} 
+    * 
+    * <p>
+    * When not set, return 0. This means width space is not a constraint
+    * </p>
+    * @return
+    */
    public int getBreakW() {
       return breakW;
    }
 
    public char getCharAtRelative(int indexRel) {
       return chars[offsetChars + indexRel];
-   }
-
-   /**
-    * Return the leave on the given index
-    * 
-    * @param index
-    * @return
-    */
-   public StringLeaf getLeafFor(int index) {
-      for (int i = 0; i < leaves.length; i++) {
-         if (leaves[i].contains(index)) {
-            return leaves[i];
-         }
-      }
-      return null;
    }
 
    /**
@@ -668,47 +902,31 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * As a consequence LineFx does not impact string breaking ?
     * 
     * @param index
+    * @return {@link StringFx}
     */
    public StringFx getCharFx(int index) {
       //there is at least the base interval
       IntInterval owner = intervalOfStringLeaves.getIntervalIntersect(index);
       if (owner == null) {
-         throw new IllegalStateException();
+         return stringFx;
+         //throw new IllegalStateException();
       }
-
-      StringLeaf leaf = (StringLeaf) owner.getPayload();
-
+      StringFxLeaf leaf = (StringFxLeaf) owner.getPayload();
       return leaf.getFx();
    }
 
-   /**
-    * Return the deepest {@link StringInterval} for the given index.
-    * <br>
-    * <br>
-    * @param index
-    * @return {@link StringInterval} or null if index out of bounds
-    */
-   public StringInterval getInternalFromIndex(int index) {
-      for (int i = 0; i < intervals.length; i++) {
-         StringInterval ib = intervals[i];
-         if (ib.isInside(index)) {
-            return ib;
-         }
-      }
-      return null;
+   public char[] getCharsRef() {
+      return chars;
    }
 
+   public StringerEditor getEditor() {
+      if(editor == null) {
+         editor = new StringerEditor(this);
+      }
+      return editor;
+   }
    public int getCharsStart() {
       return offsetChars;
-   }
-
-   /**
-    * Reset states.
-    * @param sb
-    */
-   public void setSource(StringBBuilder sb) {
-      this.buffer = sb;
-      resetState();
    }
 
    /**
@@ -727,18 +945,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    }
 
    /**
-    * <li> {@link ITechStringer#TYPE_0_SINGLE_LINE}
-    * <li> {@link ITechStringer#TYPE_1_SINGLE_LINE_FX}
-    * <li> {@link ITechStringer#TYPE_2_BREAKS}
-    * <li> {@link ITechStringer#TYPE_3_BREAKS_FX}
-    * <li> {@link ITechStringer#TYPE_7_LINE_BREAKS_WORD_BREAKS_FX}
-    * @return
-    */
-   public int getDrawType() {
-      return drawLineType;
-   }
-
-   /**
     * The base {@link StringFx} for the whole string.
     * @return
     */
@@ -749,19 +955,48 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    }
 
    /**
-    * Returns an {@link IntBuffer} containing the intervals using the given text effect id.
-    * <br>
-    * <br>
+    * Leaves for characters/words
     * 
-    * @param intervalId
+    * For line fx ?
+    * {@link Stringer#getLineFx(int)}
     * @return
     */
-   public StringInterval getInterval(int intervalId) {
-      if (intervals != null) {
-         return intervals[intervalId];
-      } else {
-         return null;
+   public IntIntervals getIntervalsOfLeaves() {
+      if (intervalOfStringLeaves == null) {
+         throw new IllegalStateException("Cannot call this method before FX setup");
       }
+      return intervalOfStringLeaves;
+   }
+
+   public IntIntervals getIntervalsOfWords() {
+      if (intervalOfWords == null) {
+         intervalOfWords = new IntIntervals(getUC());
+         intervalOfWords.setPayLoadCheck(true); //we
+      }
+      return intervalOfWords;
+   }
+
+   public String getIntervalString(IntInterval interval) {
+      return new String(chars, interval.getOffset(), interval.getLen());
+   }
+
+   public int getLastNumDrawnChars() {
+      return lastNumDrawnChars;
+   }
+
+   /**
+    * Return the leave on the given index
+    * 
+    * @param index
+    * @return
+    */
+   public StringFxLeaf getLeafFor(int index) {
+      for (int i = 0; i < leaves.length; i++) {
+         if (leaves[i].contains(index)) {
+            return leaves[i];
+         }
+      }
+      return null;
    }
 
    public int getLen() {
@@ -782,30 +1017,70 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return stringFx;
    }
 
-   public int getLineY(int i) {
-      return stringMetrics.lineYs[i];
+   public int getLineIndexFromCharIndex(int indexRelative) {
+      return stringMetrics.getLineIndexFromCharIndex(indexRelative);
    }
+
 
    public StringMetrics getMetrics() {
       return stringMetrics;
    }
 
    /**
-    * Number of 
+    * Value telling {@link Stringer} how to deal with new line characters
+    * <li> {@link ITechStringer#NEWLINE_MANAGER_0_IGNORE}
+    * <li> {@link ITechStringer#NEWLINE_MANAGER_1_WORK}
+    * @return
+    * @see Stringer#setNewLineManager(int)
+    */
+   public int getNewLineManager() {
+      return newLineManager;
+   }
+
+   /**
+    * Returns the number of Fx with the flag {@link IBOFxStr#FX_FLAGZ_2_DYNAMIC}
+    * 
+    * <p>
+    * Opposite method of {@link Stringer#getNumFxStaticIndex(ByteObject[])}
+    * </p>
     * @param textFigure
     * @return
     */
-   int getNumDynamic(ByteObject textFigure) {
-      ByteObject[] subs = textFigure.getSubs(TYPE_070_TEXT_EFFECTS);
+   int getNumFxDynamic(ByteObject[] subs) {
       int count = 0;
       if (subs != null) {
          for (int i = 0; i < subs.length; i++) {
-            if (subs[i] != null && subs[i].hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_2_DYNAMIC)) {
+            if (subs[i] != null && subs[i].hasFlag(FX_OFFSET_04_FLAGZ, FX_FLAGZ_2_DYNAMIC)) {
                count++;
             }
          }
       }
       return count;
+   }
+
+   /**
+    * Opposite method of {@link Stringer#getNumFxDynamic(ByteObject[])}
+    * @param subs
+    * @return
+    */
+   int getNumFxStaticIndex(ByteObject[] subs) {
+      int count = 0;
+      for (int i = 0; i < subs.length; i++) {
+         if (subs[i] != null && !subs[i].hasFlag(FX_OFFSET_04_FLAGZ, FX_FLAGZ_2_DYNAMIC)) {
+            if (subs[i].hasFlag(FX_OFFSET_04_FLAGZ, FX_FLAGZ_1_STATIC_INDEX)) {
+               count++;
+            }
+         }
+      }
+      return count;
+   }
+
+   public int getNumLinesPerPage() {
+      if (numLinesPerPage == 0) {
+         //generate it from areaH
+         numLinesPerPage = 5; //TODO param from config
+      }
+      return numLinesPerPage;
    }
 
    /**
@@ -816,16 +1091,12 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return stringMetrics.getNumOfLines();
    }
 
-   int getNumStaticIndex(ByteObject[] subs) {
-      int count = 0;
-      for (int i = 0; i < subs.length; i++) {
-         if (subs[i] != null && !subs[i].hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_2_DYNAMIC)) {
-            if (subs[i].hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_6_DEFINED_INDEX)) {
-               count++;
-            }
-         }
-      }
-      return count;
+   public int getOffsetChar() {
+      return offsetChars;
+   }
+
+   public int getSpaceTrimManager() {
+      return spaceTrimManager;
    }
 
    /**
@@ -834,6 +1105,40 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    public StringFx getStringFx() {
       return stringFx;
+   }
+
+   /**
+    * {@link StringStyleLayer} on which you can set new intervals.
+    * 
+    * @param layerID 0 for base style layer, 1 for selection layer etc
+    * @return {@link StringStyleLayer}
+    */
+   public StringStyleLayer getStyleLayer(int layerID) {
+      return getStyleLayers()[layerID];
+   }
+
+   public StringStyleLayer getStyleLayerRoot() {
+      return getStyleLayers()[0];
+   }
+
+   /**
+    * 
+    * @return
+    */
+   public StringStyleLayer[] getStyleLayers() {
+      if (styleLayers == null) {
+         styleLayers = new StringStyleLayer[1]; //at start only 1 layer
+         styleLayers[0] = createLayer(NAME_ROOT_STYLE_LAYER, 0);
+      }
+      return styleLayers;
+   }
+
+   public int getTabManager() {
+      return tabManager;
+   }
+
+   public ByteObject getTextFigure() {
+      return text;
    }
 
    /**
@@ -853,8 +1158,11 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * index[0] = control value<br>
     * index[1] = start index of 1st line<br>
     * index[2] = number of characters on 1st line<br>
-    * index[3] = start index of 2nd line<br>
-    * index[4] = number of characters on 2nd line<br>
+    * index[3] = charwidth computed on 1st line<br>
+    * index[4] = start index of 2nd line<br>
+    * index[5] = number of characters on 2nd line<br>
+    * index[6] = charwidth computed on  2nd line<br>
+    * index[7] = ctrl flag
     * <br>
     * This structure allows to skip newline entirely. It allows to draw tabs \t.
     * 
@@ -924,421 +1232,111 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    }
 
    /**
-    * Method creates a trim cue with {@link Stringer} and the given width.
-    * <br>
-    * <br>
-    * 
-    * POST: the state of {@link Stringer} is not modified.
-    * <br>
-    * <br>
-    * @param str
-    * @return null if trimming is not needed. For structure semantics see {@link StringMetrics#breaks}
-    */
-   public int[] getTrimSingleLine(int width) {
-      StringMetrics sm = this.getMetrics();
-      int widthPixelCount = 0;
-      boolean isTrimmed = false;
-      IntBuffer breaks = new IntBuffer(drc.getUCtx());
-      int numCharOnLine = 0;
-      int charw = 0;
-      int stepStart = 0;
-      int stepEnd = this.lengthChars;
-      for (int step = stepStart; step < stepEnd; step++) {
-         charw = sm.getCharWidth(step);
-         widthPixelCount += charw;
-         if (widthPixelCount <= width) {
-            numCharOnLine++;
-         } else {
-            widthPixelCount -= charw;
-            isTrimmed = true;
-            break;
-         }
-      }
-      if (isTrimmed) {
-         //finalize line.
-         breaks.addInt(stepStart);
-         breaks.addInt(numCharOnLine);
-         breaks.addInt(widthPixelCount);
-         breaks.addInt(0);
-         return breaks.getIntsRef();
-      } else {
-         return null;
-      }
-   }
-
-   /**
-    * 
+    * The words intervals as int[] array, not including space, commas and various punctuations characters
     * @param lineIndex
     * @return
     */
    public int[] getWordBreaks(int lineIndex) {
-      if (stringMetrics.lineWordBreaks != null) {
-         return stringMetrics.lineWordBreaks[lineIndex];
-      }
-      return null;
+      LineStringer line = stringMetrics.getLine(lineIndex);
+
+      return line.getWordBreaks();
    }
 
+   /**
+    * Word breaks on this line for the given interval..
+    * @param offset offset is relative to line offset
+    * @param len
+    * @return
+    */
+   public int[] getWordBreaks(int offset, int len) {
+      StringUtils strU = drc.getUCtx().getStrU();
+      int offsetStartLine = this.offsetChars + offset;
+      return strU.getBreaksWord(this.chars, offsetStartLine, len);
+   }
+
+   public int[] getWordBreaks(IntInterval interval) {
+      return getWordBreaks(interval.getOffset(), interval.getLen());
+   }
+
+   //#mdebug
+
+   public int getWordwrap() {
+      return wordwrap;
+   }
+
+   /**
+    * <li> {@link ITechStringer#STATE_01_CHAR_EFFECTS}
+    * <li> {@link ITechStringer#STATE_02_CHAR_WIDTHS}
+    * <li> {@link ITechStringer#STATE_03_CHECK_CLIP}
+    * <li> {@link ITechStringer#STATE_04_TRIMMED}
+    * @param state
+    * @return
+    */
    public boolean hasState(int state) {
       return BitUtils.hasFlag(states, state);
    }
 
-   public void initFig(ByteObject textFigure, char[] chars, int offset, int len) {
-      textFigure.checkType(TYPE_050_FIGURE);
-
-      this.charsBackup = null;
-      if (chars == null) {
-         throw new NullPointerException();
-      }
-      this.charsBackup = chars;
-      this.offsetChars = offset;
-      this.lengthChars = len;
-      this.text = textFigure;
-      if (text.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1_ANCHOR)) {
-         anchor = text.getSubFirst(TYPE_069_ANCHOR);
-      }
-      if (text.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_4_MASK)) {
-         //figure has a mask, move it to text mask fx.
-      }
-      resetState();
-      stringMetrics.reset();
-
-      intervalOfStringLeaves.clear();
-
-      //all txt effect are stored sequencially
-      //no effects. we extract figure information from text to create the StringFx object.
-      stringFx.initFigure(textFigure);
-      ByteObject[] subs = textFigure.getSubs(TYPE_070_TEXT_EFFECTS);
-      if (subs != null && subs.length != 0) {
-         initTextEffects(textFigure, subs);
-      }
-   }
-
-   public void initFig(ByteObject textFigure, String str) {
-      this.initFig(textFigure, str.toCharArray(), 0, str.length());
-   }
-
-   private void initMetrics() {
-      stringMetrics.reset();
+   /**
+    * Index finding on the visible chars.
+    * @param str
+    * @param offset
+    * @return
+    */
+   public int indexOf(String str, int offset) {
+      return StringUtils.indexOf(chars, offsetChars, lengthChars, str, offset);
    }
 
    /**
-    * {@link IBOFxStr}
-    * scope?
+    * Invalidates all the computed data because the string was completely changed
     */
-   private ByteObject   boFxRoot;
-
-   private StringLeaf[] leaves = new StringLeaf[4];
-
-   /**
-    * Building is done before string breaking..
-    * 
-    * TODO When big blobs of text, we can't put everything into memory.
-    * So wrapper around Stringer only feeds portion of the text
-    * When style is changed for some leaves, the cached computed widths are cleared.
-    * TODO monospace optimization
-    */
-   public void buildStringLeaves() {
-
-      //todo optimized drawing by drawing all leaves with same FX in one pass
-      //that will depends on the fx.. complex fx might depends on letter flow
-
-      //string leaf is initialized with base StringFx
-      //and encompasses the whole area.
-      //we use start end buffered structure for building leaves
-      StringLeaf leaf = new StringLeaf(drc, this, boFxRoot);
-      //TODO if boFxRoot declares index based styling? we need to create intervals for it before.
-
-      //index based style create a layer style on top that is 
-
-      //base fx
-      StringFx rootFx = stringFx;
-      //may generate different leaves
-      leaf.setByteObjectFx(rootFx);
-
-      IntIntervals intervalOfStringLeaves = new IntIntervals(drc.getUCtx());
-      intervalOfStringLeaves.setPayLoadCheck(true);
-
-      IntInterval rootInterval = intervalOfStringLeaves.addInterval(0, lengthChars);
-      rootInterval.setPayload(leaf);
-
-      //scope to scope.. a charFx will inherit the lineFx
-      //how do you deal with lineFx mixing with charFx/wordFx
-      //rootfx says lines have a color function.. for bg and fg.
-      //what happens when charFx specific in middle of a line?
-
-      //apply first interval of first enumeration
-      //each layer splits the leaves IntIntervals further and further, 
-      //each time merging the ByteObject style with the IntInterval payload fx.
-      for (int i = 0; i < styleLayers.length; i++) {
-         StringLayerStyle layer = styleLayers[i];
-         Enumeration layerIntervals = layer.getIntervals();
-         while (layerIntervals.hasMoreElements()) {
-            IntInterval intervalWithStyle = (IntInterval) layerIntervals.nextElement();
-            leaf.setOffset(intervalWithStyle.getOffset());
-            leaf.setLen(intervalWithStyle.getLen());
-
-            ByteObject boFxTop = (ByteObject) intervalWithStyle.getPayload();
-            //#debug
-            drc.toStringCheckNull(boFxTop);
-
-            //look below this interval and create leaves
-            IntInterval[] intersect = intervalOfStringLeaves.getIntersection(intervalWithStyle);
-
-            //if no leaves under it.. use root leave for constructing the style
-            for (int j = 0; j < intersect.length; j++) {
-               IntInterval intervalBelowStringLeaves = intersect[i];
-               StringLeaf leafBelow = (StringLeaf) intervalBelowStringLeaves.getPayload();
-               ByteObject boFxBelow = leafBelow.getBoFx();
-               //optimize to reuse existing merges
-               ByteObject boFxMerged = fxCache.getFxCacheMerge(boFxBelow, boFxTop);
-
-               IntInterval newi = intervalWithStyle.createFromIntersectionWith(intervalBelowStringLeaves);
-               StringLeaf leafNew = new StringLeaf(drc, this, boFxMerged);
-               newi.setPayload(leafNew);
-               intervalOfStringLeaves.addInterval(newi);
-            }
-         }
-      }
-
-      Enumeration leafIntervals = intervalOfStringLeaves.getIntervalEnumeration();
-      while (leafIntervals.hasMoreElements()) {
-         //construct the fx
-         IntInterval ii = (IntInterval) leafIntervals.nextElement();
-         StringLeaf boFxTop = (StringLeaf) ii.getPayload();
-
-         //compute stringfx and charwidth?
-      }
-   }
-
-   /**
-    * Build from scratch
-    * 
-    * When adding characters, we may take existing {@link IntIntervals} and modify it
-    * @param intIntervals
-    */
-   public IntIntervals buildIntervalWords() {
-      IntIntervals intIntervals = new IntIntervals(drc.getUCtx());
-      char[] ar = charsBackup;
-      int currentLen = 0;
-      int currentOffset = 0;
-      boolean inWord = false;
-      char[] seps = drc.getConfigDrawX().getWordSeparators();
-      for (int i = offsetChars; i < lengthChars; i++) {
-         char c = ar[i];
-         if (CharUtils.contains(seps, c)) {
-            if (inWord) {
-               //finish the previous interval
-               IntInterval ii = new IntInterval(drc.getUCtx(), currentOffset, currentLen);
-               intIntervals.addInterval(ii);
-               inWord = false;
-               currentLen = 0;
-            }
-         } else {
-            if (inWord) {
-               currentLen++;
-            } else {
-               currentOffset = i;
-               currentLen = 1;
-            }
-         }
-      }
-      if(currentLen != 0) {
-         IntInterval ii = new IntInterval(drc.getUCtx(), currentOffset, currentLen);
-         intIntervals.addInterval(ii);
-      }
-      return intIntervals;
-   }
-
-   /**
-    * Computed when {@link Stringer} needs to apply fx scoped to words
-    */
-   private IntIntervals intervalOfWords;
-
-   private IntIntervals intervalOfStringLeaves;
-
-   private FxCache      fxCache;
-
-   
-   public void removeFxs() {
-      
-   }
-   
-   /**
-    * Adds the fx over the whole text 
-    * or
-    * Reset 
-    * TODO only one fx over the whole text.
-    * what we ant to add if index based byteobject.. that transforms
-    * when conflict? order first
-    * if not, it will merge with stack of fx 
-    * 
-    * dynamic effect are set using a {@link StringLayerStyle}
-    * @param fx
-    */
-   public void addFx(ByteObject fx) {
-      //#debug
-      fx.checkType(IBOTypesDrw.TYPE_070_TEXT_EFFECTS);
-      
-      
-   }
-   /**
-    * Reads the different {@link IBOFxStr} definitions and sort them.
-    * @param textFigure
-    * @param subs not null by contract size above 0 and elements inside are not null
-    * a set of {@link IBOFxStr} that may be referenced by ID.
-    * When one defines intervals for their scope, a {@link StringLayerStyle} is generated
-    * just for it.
-    */
-   public void initTextEffects(ByteObject textFigure, ByteObject[] subs) {
-      setState(ITechStringer.STATE_08_ACTIVE_STYLE, true);
-      int dsize = getNumDynamic(textFigure);
-      if (dsize > 0) {
-         fxsDynamicDefinition = new ByteObject[dsize + 1];
-         intervals = new StringInterval[1 + dsize];
-      }
-      int numIndexStatic = getNumStaticIndex(subs);
-      fxsStatic = new StringFx[subs.length - dsize - numIndexStatic];
-      fxsStaticIndex = new StringFx[numIndexStatic];
-      int countDynamic = 1;
-      int countStatic = 0;
-      int countStaticIndex = 0;
-      for (int i = 0; i < subs.length; i++) {
-         ByteObject textEffectBO = subs[i];
-         if (textEffectBO != null) {
-
-            StringFx fxi = new StringFx(drc, this);
-            fxi.init(textEffectBO);
-            if (textEffectBO.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_2_DYNAMIC)) {
-               fxsDynamicDefinition[countDynamic] = textEffectBO;
-               countDynamic++;
-            } else {
-               if (textEffectBO.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_6_DEFINED_INDEX)) {
-                  fxsStaticIndex[countStaticIndex] = fxi;
-                  countStaticIndex++;
-               } else {
-                  fxsStatic[countStatic] = fxi;
-                  countStatic++;
-               }
-            }
-         }
-      }
-      //create the static final style that by default applies to all chars
-      for (int i = 0; i < fxsStatic.length; i++) {
-         stringFx = stringFx.add(fxsStatic[i]);
-      }
-      //create the index
-      for (int i = 0; i < fxsStaticIndex.length; i++) {
-         int scope = fxsStaticIndex[i].fxDefinition.get1(FX_OFFSET_04_TYPE_SCOPE1);
-         int index = fxsStaticIndex[i].fxDefinition.get2(FX_OFFSET_04_INDEX2);
-
-         if (scope == FX_SCOPE_0_CHAR) {
-            if (charFxs == null) {
-               charFxs = new StringFx[lengthChars];
-            }
-            //check index pattern? what if part of
-            charFxs[index] = stringFx.cloneMerge(fxsStaticIndex[i]);
-
-         } else if (scope == FX_SCOPE_1_WORD) {
-
-         } else if (scope == FX_SCOPE_2_LINE) {
-            if (lineFxs == null) {
-               lineFxs = new StringFx[getNumOfLines()];
-            }
-
-         }
-      }
-      if (countStaticIndex != 0) {
-         setState(ITechStringer.STATE_16_STATIC_INDEX_FX, true);
-      }
-      if (countDynamic == 0) {
-         setState(ITechStringer.STATE_10_ACTIVE_DYNAMIC_STYLE, false);
-      }
-      if (countStatic != 0) {
-         setState(ITechStringer.STATE_13_FX, true);
-      }
-      //from the definitions
-      setActiveFXs();
-   }
-
-   /**
-    * Default metering using parameters set by 
-    * 
-    * <li> {@link Stringer#setBreakType(int)}
-    * <li> {@link Stringer#setBreakWH(int, int)}
-    * <li> {@link Stringer#setBreakMaxLines(int)}
-    */
-   public void meterString() {
-      this.meterString(breakW, breakH, breakType, breakMaxLines);
-   }
-
-   /**
-    * Break the String using areaW and areaH.
-    * <br>
-    * <br>
-    * 
-    * @param breakType {@link ITechStringDrw#BREAK_4_TRIM_SINGLE_LINE} etc.
-    * @param maxLines
-    */
-   public void meterString(int breakType, int maxLines) {
-      this.meterString(areaW, areaH, breakType, maxLines);
-   }
-
-   /**
-    * Meters the string size and break it to fit the break area and break type.
-    * <br>
-    * <br>
-    * @param breakWidth
-    * @param breakHeight
-    * @param breakType {@link ITechStringDrw#BREAK_4_TRIM_SINGLE_LINE} etc.
-    * @param maxLines
-    */
-   public void meterString(int breakWidth, int breakHeight, int breakType, int maxLines) {
-      checkStateRun();
-      getMetrics().breakStringEntry(breakType, maxLines, breakWidth, breakHeight);
-      //decide type
-      boolean isFX = hasState(ITechStringer.STATE_08_ACTIVE_STYLE);
-      if (stringMetrics.breaks != null) {
-         if (isFX) {
-            drawLineType = ITechStringer.TYPE_3_BREAKS_FX;
-         } else {
-            drawLineType = ITechStringer.TYPE_2_BREAKS;
-         }
-      } else {
-         if (isFX) {
-            drawLineType = ITechStringer.TYPE_1_SINGLE_LINE_FX;
-         } else {
-            drawLineType = ITechStringer.TYPE_0_SINGLE_LINE;
-         }
-      }
-   }
-
-   public void newLine() {
-      areaY += stringMetrics.getLineHeight();
-      stringDraw.init(0, areaY);
-   }
-
-   public void resetState() {
+   public void invalidateFlags() {
       states = 0;
+      stringMetrics.reset(); //TODO
+   }
+
+   public boolean isStyleReady() {
+      return stringFx != null;
    }
 
    /**
-    * From the definitions, create the {@link Stringer#charFxs} if necessary.
-    * <br>
-    * <br>
-    * 
+    * Dev commands to add a newline at current caret
     */
-   private void setActiveFXs() {
-      boolean isGranular = false;
-      for (int i = 0; i < fxsStatic.length; i++) {
-         StringFx fx = fxsStatic[i];
-         if (fx.fxDefinition.hasFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_6_DEFINED_INDEX)) {
-            isGranular = true;
-         }
-      }
-      if (isGranular) {
-         charFxs = new StringFx[lengthChars];
-      }
+   public void appendNewLine() {
+      areaY += stringMetrics.getLineHeight();
+      stringDraw.initTrackerXY(0, areaY);
    }
+
+
+   /**
+    * Called when char data has changed.
+    * 
+    * Slightly different than {@link Stringer#resetFxDefinition()}
+    */
+   public void resetFigure() {
+      stringMetrics.reset();
+      if (intervalOfWords != null) {
+         intervalOfWords.clear();
+      }
+      if (intervalOfStringLeaves != null) {
+         intervalOfStringLeaves.clear();
+      }
+      setState(STATE_06_CHAR_POSITIONS, false);
+      setState(STATE_07_BROKEN, false);
+      setState(STATE_20_METERED_FULL, false);
+      setState(STATE_21_ZERO_WIDTH_CHARS, false);
+
+   }
+
+   public void resetFxDefinition() {
+      setState(STATE_19_FX_SETUP, false);
+      setState(STATE_17_COMPUTED_FX, false);
+      setState(STATE_20_METERED_FULL, false);
+      setState(STATE_02_CHAR_WIDTHS, false);
+      setState(STATE_06_CHAR_POSITIONS, false);
+      setState(STATE_07_BROKEN, false);
+
+   }
+
 
    /**
     * Externally set anchor?
@@ -1362,7 +1360,9 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    /**
     * Sets the area.. used for computing alignments
     * 
-    * Breaking?
+    * <p>
+    * Break width is not necessarily equal to width of area
+    * </p>
     * @param x
     * @param y
     * @param contentW
@@ -1374,15 +1374,19 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       areaW = contentW;
       areaH = contentH;
 
-      stringDraw.init(areaX, areaY);
    }
 
    public void setBreakMaxLines(int breakMaxLines) {
       this.breakMaxLines = breakMaxLines;
    }
 
-   //#mdebug
-
+   /**
+    * Sets break width and height on the area.
+    * 
+    * <p>
+    * Will work only if {@link ITechStringer#WORDWRAP_0_NONE} is not active
+    * </p>
+    */
    public void setBreakOnArea() {
       breakW = areaW - areaX;
       breakH = areaH - areaY;
@@ -1426,7 +1430,26 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       chars[offsetChars + indexRel] = c;
    }
 
-   public void setChars(char[] chars, int offset, int len) {
+   void setChars(char[] chars, int offset, int len) {
+      if (chars == null) {
+         throw new NullPointerException();
+      }
+
+      this.chars = chars;
+      this.offsetChars = offset;
+      this.lengthChars = len;
+
+      this.resetFigure();
+
+   }
+
+   /**
+    * Used internally 
+    * @param chars
+    * @param offset
+    * @param len
+    */
+   void setCharsInternal(char[] chars, int offset, int len) {
       this.chars = chars;
       this.offsetChars = offset;
       this.lengthChars = len;
@@ -1441,37 +1464,46 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    }
 
    /**
-    * Overwrites the interval in the chosen layer
-    * @param offset
-    * @param len
-    * @param layerID
-    * @param styleID
-    * @return
+    * <li> {@link ITechStringer#NEWLINE_MANAGER_0_IGNORE}
+    * <li> {@link ITechStringer#NEWLINE_MANAGER_1_WORK}
+    * @see Stringer#getNewLineManager()
+    * @param newLineManager
     */
-   public IntInterval addInterval(int offset, int len, int layerID, ByteObject fx) {
-      StringLayerStyle layer = getLayer(layerID);
-      IntInterval ii = layer.addInterval(offset, len, fx);
-      return ii;
+   public void setNewLineManager(int newLineManager) {
+      this.newLineManager = newLineManager;
    }
 
-   /**
-    * {@link StringLayerStyle} on which you can set new intervals.
-    * 
-    * @param layerID 0 for base style layer, 1 for selection layer etc
-    * @return
-    */
-   public StringLayerStyle getLayer(int layerID) {
-      return styleLayers[layerID];
+   public void setNumLinesPerPage(int numLinesPerPage) {
+      this.numLinesPerPage = numLinesPerPage;
    }
 
    public void setPosition(int contentX, int contentY) {
       areaX = contentX;
       areaY = contentY;
-      stringDraw.init(areaX, areaY);
+   }
+
+   /**
+    * Sets the {@link StringBBuilder} as the source of chars..
+    * 
+    * This allows us to efficiently display a {@link StringBBuilder} without creating another String array
+    * 
+    * It will use the char offset and length at the time of this call.
+    * @param sb
+    */
+   public void setSource(StringBBuilder sb) {
+      this.setChars(sb.getArrayRef(), 0, sb.getCount());
+   }
+
+   public void setSpaceTrimManager(int spaceTrimManager) {
+      this.spaceTrimManager = spaceTrimManager;
    }
 
    void setState(int state, boolean v) {
       states = BitUtils.setFlag(states, state, v);
+   }
+
+   public void setString(char[] chars, int offset, int len) {
+      this.setChars(chars, offset, len);
    }
 
    public void setString(String str) {
@@ -1479,8 +1511,26 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       this.setChars(charArray, 0, charArray.length);
    }
 
-   public void selectInterval(int id) {
+   /**
+    * Initializes the {@link Stringer} with a new text and its figure artifacts defined in {@link ByteObject}
+    * @param textFigure
+    * @param chars
+    * @param offset
+    * @param len
+    */
+   public void setStringFig(ByteObject textFigure, char[] chars, int offset, int len) {
+      setChars(chars, offset, len);
+      setTextFigure(textFigure);
+   }
 
+   /**
+    * Syntaxic sugar for {@link Stringer#setStringFig(ByteObject, char[], int, int)}
+    * @param textFigure
+    * @param str
+    * @see Stringer#setStringFig(ByteObject, char[], int, int)
+    */
+   public void setStringFig(ByteObject textFigure, String str) {
+      this.setStringFig(textFigure, str.toCharArray(), 0, str.length());
    }
 
    /**
@@ -1492,9 +1542,20 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       //#debug
       textFigure.checkType(TYPE_050_FIGURE);
 
-      resetState();
+      //invalidate
+      resetFigure();
+      resetFxDefinition();
 
       this.text = textFigure;
+      this.scale = text.getSubFirst(TYPE_055_SCALE);
+      this.newLineManager = text.get1(IBOFigString.FIG_STRING_OFFSET_06_NEWLINE1);
+      this.wordwrap = text.get1(IBOFigString.FIG_STRING_OFFSET_07_WORDWRAP1);
+      this.breakMaxLines = text.get1(IBOFigString.FIG_STRING_OFFSET_08_MAXLINES1);
+      this.tabManager = text.get1(IBOFigString.FIG_STRING_OFFSET_10_TAB_MANAGER1);
+      this.spaceTrimManager = text.get1(IBOFigString.FIG_STRING_OFFSET_09_SPACE_TRIM1);
+      this.isShowHiddenChars = text.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_2_SHOW_HIDDEN_CHARS);
+      this.isTrimArtifacts = text.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_3_TRIM_ARTIFACT);
+
       if (text.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1_ANCHOR)) {
          anchor = text.getSubFirst(TYPE_069_ANCHOR);
       }
@@ -1502,27 +1563,19 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
          //figure has a mask, move it to text mask fx.
 
       }
-      stringFx.initFigure(textFigure);
 
-      ByteObject[] subs = textFigure.getSubs(TYPE_070_TEXT_EFFECTS);
-      if (subs != null && subs.length != 0) {
-         initTextEffects(textFigure, subs);
-      }
-
-      stringMetrics.reset();
    }
 
    /**
-    * TODO relation with state style update modifying structure? Is it acceptable?
-    * <br>
-    * Sometimes we want the update to change the structure.
-    * For simple state change to BOLD, we do not want this.
-    * <br>
-    * Somehow {@link Stringer} must find out if different style change computed metrics.
-    * <li>Check Font
-    * <li>Check Fx
-    * <br>
-    * <br>
+    * 
+    * Update String figure if different
+    * 
+    * <p>
+    * This method is ussed in relation with state style updates that modify the structure?
+    * In Those cases, we need to update the Stringer with new style characteristics without changing
+    * the string. And update is there necessary after the reset
+    * </p>
+    * 
     * @param text
     * @param x
     * @param y
@@ -1531,25 +1584,54 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    public void setTextObjectArea(ByteObject text, int x, int y, int w, int h) {
       if (this.text != text) {
-         this.text = text;
-         stringFx.init(text);
+         setTextFigure(text);
+         setAreaXYWH(x, y, w, h);
+         resetFigure();
+         resetFxDefinition();
       }
    }
 
-   public void toString(Dctx dc) {
-      dc.root(this, Stringer.class, 980);
-      dc.appendWithSpace("(" + offsetChars + "," + lengthChars + ") ");
-      super.toString(dc.sup());
-
-      if (chars == null) {
-         chars = "STRINGER NULL CHAR[]".toCharArray();
-         offsetChars = 0;
-         lengthChars = chars.length;
+   /**
+    * Every instances of this word will be drawn using this Fx merge on top of static fx
+    * layerID provides at which level it should be merged
+    * TODO
+    * Or create a new layer on which to set this. parse char and set the intinterval.
+    * 
+    * Must be done everytime the stringer is updated
+    * 
+    * dynamic static ?
+    * First Char -> Fx A static index
+    * Whole Word -> Fx B static
+    * @param str
+    * @param fx
+    */
+   public void setWordFxSearch(String str, ByteObject fx) {
+      if (searchApp == null) {
+         StringStyleApplicatorWord ssaw = new StringStyleApplicatorWord(drc);
+         ssaw.setStringer(this);
+         //create specific layer for searches, clear it
+         StringStyleLayer ssl = createLayer("search");
+         ssaw.setLayer(ssl);
+         searchApp = ssaw;
       }
-      String strDis = getDisplayedString();
-      dc.append("DisplayedString ->");
-      dc.append(strDis);
-      dc.append("<-");
+
+      searchApp.reset();
+      searchApp.setFxSrc(fx);
+      searchApp.setWord(str);
+
+      //invalidates the styles
+      resetFxDefinition();
+   }
+
+   public void setWordwrap(int wordwrap) {
+      this.wordwrap = wordwrap;
+   }
+
+   //#mdebug
+   public void toString(Dctx dc) {
+      dc.root(this, Stringer.class, "1600");
+      toStringPrivate(dc);
+      super.toString(dc.sup());
 
       dc.nlLvl(text, "textFigure");
 
@@ -1557,21 +1639,18 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
       dc.setFlagData(drc.getCoreDrawCtx(), IFlagToStringCoreDraw.TOSTRING_FLAG_3_IGNORE_FONT_ATTRIBUTES, true);
       dc.setFlagData(drc.getCoreDrawCtx(), IFlagToStringCoreDraw.TOSTRING_FLAG_4_SHOW_FONT_ENVIRONEMT, false);
+
       dc.nlLvl(stringFont, "stringFont");
 
       dc.nl();
       dc.append("Area = " + areaX + "," + areaY + " " + areaW + "," + areaH);
-      dc.appendVarWithSpace("type", ToStringStaticDrawx.stringerType(drawLineType));
-      dc.appendVarWithSpace("getLen()", getLen());
       dc.nl();
       dc.append("States ->");
+      dc.nl();
       IntToStrings stateFlags = ToStringStaticDrawx.stringerStateFlagMap(toStringGetUCtx());
       dc.appendFlagsPositive(states, "States ->", stateFlags);
       dc.nl();
       dc.appendFlagsNegative(states, "States ->", stateFlags);
-
-      dc.nlLvlArray("StaticFxs", fxsStatic);
-      dc.nlLvlArray("Intervals", intervals);
 
       dc.nlLvl(anchor);
 
@@ -1579,14 +1658,34 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       dc.nlLvl(stringDraw);
       dc.nlLvl(stringFx);
 
+      dc.nlLvl("currentInterval", currentInterval);
+      dc.nlLvl("intervalOfWords", intervalOfWords);
+      dc.nlLvl("intervalOfStringLeaves", intervalOfStringLeaves);
+
    }
 
    public void toString1Line(Dctx dc) {
-      dc.root1Line(this, "Stringer");
+      dc.root1Line(this, Stringer.class);
+      toStringPrivate(dc);
+      super.toString1Line(dc.sup1Line());
    }
 
    public boolean ToStringIsDebugArea() {
       return toStringDebugArea;
+   }
+
+   private boolean isShowHiddenChars = false;
+
+   private void toStringPrivate(Dctx dc) {
+      dc.appendVarWithSpace("offsetChars", offsetChars);
+      dc.appendVarWithSpace("lengthChars", lengthChars);
+      if (chars == null) {
+         dc.appendWithSpace("chars is null");
+      }
+      String strDis = getDisplayedString();
+      dc.append(" DisplayedString=\"");
+      dc.append(strDis);
+      dc.append("\"");
    }
 
    public void ToStringSetDebugArea(boolean toStringDebugArea) {
@@ -1594,9 +1693,24 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    }
    //#enddebug
 
-   public StringLayerStyle createLayer(String string) {
-      StringLayerStyle sls = new StringLayerStyle(drc, this);
-      return sls;
+   public void ToStringSetDebugBreakLines(boolean toStringSetDebugBreakLines) {
+      this.toStringDebugBreakLines = toStringSetDebugBreakLines;
+   }
+
+   public boolean isShowHiddenChars() {
+      return isShowHiddenChars;
+   }
+
+   public void setShowHiddenChars(boolean isShowHiddenChars) {
+      this.isShowHiddenChars = isShowHiddenChars;
+   }
+
+   public boolean isTrimArtifacts() {
+      return isTrimArtifacts;
+   }
+
+   public void setTrimArtifacts(boolean isTrimArtifacts) {
+      this.isTrimArtifacts = isTrimArtifacts;
    }
 
 }

@@ -5,12 +5,12 @@
 package pasa.cbentley.framework.drawx.src4.tech;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.tech.ITechByteObject;
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.interfaces.C;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 
-public interface ITechFigure extends ITechByteObject {
+public interface ITechFigure extends IByteObject {
    /**
     * 1 byte for fig type
     * 1 byte for existence flag

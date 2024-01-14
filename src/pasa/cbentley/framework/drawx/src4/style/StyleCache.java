@@ -5,12 +5,13 @@
 package pasa.cbentley.framework.drawx.src4.style;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IDLog;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
 import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
 
@@ -20,7 +21,7 @@ import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
  * @author Charles Bentley
  *
  */
-public class StyleCache implements ITechStyle, ITechTblr, IBOTypesDrw, ITechStyleCache {
+public class StyleCache extends ObjectDrw implements ITechStyle, ITechTblr, IBOTypesDrw, ITechStyleCache {
 
    private int[]         areas;
 
@@ -91,7 +92,7 @@ public class StyleCache implements ITechStyle, ITechTblr, IBOTypesDrw, ITechStyl
     * @param ctx
     */
    public StyleCache(DrwCtx dc, ILayoutable ctx, ByteObject style) {
-      this.dc = dc;
+      super(dc);
       this.ctx = ctx;
       this.style = style;
       this.styleOp = dc.getStyleOperator();
@@ -362,39 +363,27 @@ public class StyleCache implements ITechStyle, ITechTblr, IBOTypesDrw, ITechStyl
    }
 
    //#mdebug
-   public IDLog toDLog() {
-      return toStringGetUCtx().toDLog();
-   }
-
-   public String toString() {
-      return Dctx.toString(this);
-   }
-
    public void toString(Dctx dc) {
-      dc.root(this, StyleCache.class);
+      dc.root(this, StyleCache.class, "@line5");
       toStringPrivate(dc);
+      super.toString(dc.sup());
       
       dc.nlLvl(style, "Style");
       dc.nlLvl(ctx, ILayoutable.class);
    }
 
-   public String toString1Line() {
-      return Dctx.toString1Line(this);
+   private void toStringPrivate(Dctx dc) {
+      
    }
 
    public void toString1Line(Dctx dc) {
       dc.root1Line(this, StyleCache.class);
       toStringPrivate(dc);
-   }
-
-   public UCtx toStringGetUCtx() {
-      return dc.getUCtx();
-   }
-
-   private void toStringPrivate(Dctx dc) {
-
+      super.toString1Line(dc.sup1Line());
    }
 
    //#enddebug
+   
+
 
 }

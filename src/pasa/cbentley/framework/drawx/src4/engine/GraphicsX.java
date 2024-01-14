@@ -8,6 +8,9 @@ import java.util.Random;
 import java.util.Vector;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
+import pasa.cbentley.byteobjects.src4.objects.color.IColorSettable;
+import pasa.cbentley.byteobjects.src4.objects.color.ITechBlend;
 import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
@@ -19,6 +22,7 @@ import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.core.src4.utils.Geo2dUtils;
 import pasa.cbentley.core.src4.utils.IntUtils;
+import pasa.cbentley.core.src4.utils.TransformUtils;
 import pasa.cbentley.framework.coredraw.src4.ctx.CoreDrawCtx;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
@@ -30,11 +34,9 @@ import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
-import pasa.cbentley.framework.drawx.src4.tech.ITechBlend;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGraphicsX;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechStyles;
-import pasa.cbentley.framework.drawx.src4.utils.TransformUtils;
 
 /**
  * Custom MIDP 3.0 Graphical Layer over the MIDP 2.0 Graphics class. <br>
@@ -105,7 +107,7 @@ import pasa.cbentley.framework.drawx.src4.utils.TransformUtils;
  * @see IGraphics
  * 
  */
-public class GraphicsX implements IStringable, ITechGraphicsX {
+public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
 
    /**
     * Graphics wide value that applies to all primitive operations.
@@ -405,7 +407,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
       //bgOpPurple = new BlendOpGraphicsX(dd, BlendOp.BLENDING_00_OVER, DrawUtilz.FULLY_OPAQUE_PURPLE);
 
       //blendOpForPrimitive = new BlendOpGX(dd, this);
-      blendOpImages = new BlendOp(drc, ITechBlend.BLENDING_00_OVER);
+      blendOpImages = new BlendOp(drc.getBOC(), ITechBlend.BLENDING_00_OVER);
    }
 
    /**
@@ -1027,7 +1029,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
                BlendOp op = blendOpImages;
                if (!processAlpha) {
                   //without alpha, all pixels go to destination.
-                  op = new BlendOp(drc, blendOpImages.getMode(), ITechBlend.ALPHA_2_255);
+                  op = new BlendOp(drc.getBOC(), blendOpImages.getMode(), ITechBlend.ALPHA_2_255);
                }
                sec = getGeo2dUtils().getIntersection(clipX, clipY, clipW, clipH, x, y, width, height);
 
@@ -1643,7 +1645,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     */
    public RgbImage getRgbImage() {
       if (paintMode == MODE_0_SCREEN || paintMode == MODE_1_IMAGE) {
-         throw new IllegalArgumentException("No RgbImage in Mode " + ToStringStaticDrawx.debugPaintMode(paintMode));
+         throw new IllegalArgumentException("No RgbImage in Mode " + ToStringStaticDrawx.toStringPaintMode(paintMode));
       }
       mergeAndClear();
       return imageRgbData;
@@ -1832,7 +1834,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
          if (imageRgbData.rgbData != null) {
 
             //#debug
-            String msg = "pOpaqueLayerCount=" + pOpaqueLayerCount + " TColor=" + ToStringStaticDrawx.toStringColor(excludeColor) + " " + ToStringStaticDrawx.debugPaintMode(paintMode);
+            String msg = "pOpaqueLayerCount=" + pOpaqueLayerCount + " TColor=" + ToStringStaticDrawx.toStringColor(excludeColor) + " " + ToStringStaticDrawx.toStringPaintMode(paintMode);
             //#debug
             toDLog().pDraw(msg, this, GraphicsX.class, "merge", ITechLvl.LVL_05_FINE, true);
 
@@ -2034,7 +2036,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     * @param mode
     */
    public void setBlendingModeRGB(int mode) {
-      blendOpImages = new BlendOp(drc, mode);
+      blendOpImages = new BlendOp(drc.getBOC(), mode);
    }
 
    public void setBlendOp(BlendOp bo) {
@@ -2323,7 +2325,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
     */
    public void setTranslationShift(int x, int y) {
       //#debug
-      toDLog().pFlow("Before trX=" + translateX + "(" + x + ") trY=" + translateY + " (" + y + ")" + ToStringStaticDrawx.debugPaintMode(paintMode), this, GraphicsX.class, "setTranslationShift", LVL_05_FINE, true);
+      toDLog().pFlow("Before trX=" + translateX + "(" + x + ") trY=" + translateY + " (" + y + ")" + ToStringStaticDrawx.toStringPaintMode(paintMode), this, GraphicsX.class, "setTranslationShift", LVL_05_FINE, true);
       translateX += x;
       translateY += y;
       //modify the clip roots ? why?
@@ -2496,7 +2498,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX {
 
    private void toStringPrivate(Dctx dc) {
       dc.appendVarWithSpace("debugName", toStringName);
-      dc.appendVarWithSpace("paintMode", ToStringStaticDrawx.debugPaintMode(paintMode));
+      dc.appendVarWithSpace("paintMode", ToStringStaticDrawx.toStringPaintMode(paintMode));
    }
 
    public void toStringSetName(String name) {

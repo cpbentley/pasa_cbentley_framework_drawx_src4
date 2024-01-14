@@ -8,14 +8,15 @@ import pasa.cbentley.byteobjects.src4.core.BOAbstractOperator;
 import pasa.cbentley.byteobjects.src4.core.BOModulesManager;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.ctx.IFlagsToStringBO;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.ctx.IToStringFlagsBO;
+import pasa.cbentley.byteobjects.src4.objects.pointer.IBOPointer;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
@@ -50,7 +51,7 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
          }
          int p = (BitUtils.getBit(anc + 1, val) << 1) + BitUtils.getBit(anc, val);
          sb.append("(");
-         sb.append(ToStringStaticDrawx.styleAnchor(p));
+         sb.append(ToStringStaticDrawx.toStringStyleAnchor(p));
          sb.append(")");
 
       }
@@ -543,6 +544,7 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
     * Gets the style component for that style, flag offset and flag.
     * <br>
     * <br>
+    * @see IBOPointer#POINTER_FLAG_8_FLAG_ORDERING
     * @param flagtype the offset of the flag byte
     * @param flag the flag bit 
     * @return null if no param for that flag
@@ -581,7 +583,7 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
                //we want to debug byteObject raw only
                Dctx dc = new Dctx(boc.getUCtx());
                //override any configured flags on boc
-               dc.setFlagData(boc,IFlagsToStringBO.TOSTRING_FLAG_3_IGNORE_CONTENT,true);
+               dc.setFlagData(boc,IToStringFlagsBO.TOSTRING_FLAG_3_IGNORE_CONTENT,true);
                dc.append(msg);
                dc.nl();
                style.toString(dc);
@@ -1224,7 +1226,7 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
    }
 
    /**
-    * Make sure the ByteObject field is already in the repository of DrwParams
+    * When the {@link ByteObject} is not null, sets the flag in root
     * @param field
     * @param root
     * @param flag
@@ -1237,6 +1239,20 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
       return root;
    }
 
+   /**
+    * When the {@link ByteObject} is not null, sets the flag in root
+    * 
+    * This method provides a safety check.. {@link ByteObject#getType()} must be the same as Type
+    * otherwise an {@link IllegalArgumentException} is thrown.
+    * <br>
+    * Special case with {@link IBOTypesBOC#TYPE_025_ACTION}
+    * <br>
+    * @param field
+    * @param root
+    * @param flag
+    * @param type
+    * @return
+    */
    public int setFlagNotNullStyleFieldFlag(ByteObject field, int root, int flag, int type) {
       if (field != null) {
          //a style element can always be an ACTION

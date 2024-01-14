@@ -24,6 +24,15 @@ public class RgbImageRotateUtils {
       this.drc = drc;
    }
 
+   /**
+    * 
+    * @param degree
+    * @param width
+    * @param heigth
+    * @param degreeCos
+    * @param degreeSin
+    * @return
+    */
    public final int getRotatedHeight(int degree, int width, int heigth, double degreeCos, double degreeSin) {
       if (degree == -90 || degree == 90 || degree == 270 || degree == -270) {
          return width;
@@ -58,6 +67,15 @@ public class RgbImageRotateUtils {
       return (int) (maxY - minY);
    }
 
+   /**
+    * 
+    * @param degree
+    * @param width
+    * @param heigth
+    * @param degreeCos
+    * @param degreeSin
+    * @return
+    */
    public final int getRotatedWidth(int degree, int width, int heigth, double degreeCos, double degreeSin) {
       if (degree == -90 || degree == 90 || degree == 270 || degree == -270) {
          return heigth;
@@ -153,18 +171,48 @@ public class RgbImageRotateUtils {
       return rotatedRgb;
    }
 
+   /**
+    * 
+    * @param image
+    * @param angle
+    * @return
+    */
    public IImage rotate(RgbImage image, int angle) {
       return rotate(image, angle, image.getWidth() / 2, image.getHeight() / 2);
    }
 
+   /**
+    * 
+    * @param image
+    * @param angle
+    * @param bgColor
+    * @return
+    */
    public IImage rotate(RgbImage image, int angle, int bgColor) {
       return rotate(image, angle, image.getWidth() / 2, image.getHeight() / 2, bgColor);
    }
 
+   /**
+    * 
+    * @param image
+    * @param angle
+    * @param referenceX
+    * @param referenceY
+    * @return
+    */
    public IImage rotate(RgbImage image, int angle, int referenceX, int referenceY) {
       return rotate(image, angle, referenceX, referenceY, 0x00FFFFFF);
    }
 
+   /**
+    * 
+    * @param image
+    * @param angle
+    * @param referenceX
+    * @param referenceY
+    * @param bgColor
+    * @return
+    */
    public IImage rotate(RgbImage image, int angle, int referenceX, int referenceY, int bgColor) {
       int[] rgbData = image.getRgbData();
       int width = image.getWidth();
@@ -175,18 +223,39 @@ public class RgbImageRotateUtils {
       int rotatedHeight = getRotatedHeight(angle, width, height, degreeCos, degreeSin);
       int[] rotatedRgbData = new int[rotatedWidth * rotatedHeight];
       rotate(rgbData, width, height, referenceX, referenceY, bgColor, degreeCos, degreeSin, rotatedRgbData, rotatedWidth, rotatedHeight);
-      
+
       return drc.getImageFactory().createRGBImage(rotatedRgbData, rotatedWidth, rotatedHeight, true);
    }
 
+   /**
+    * 
+    * @param image
+    * @param angle
+    * @return
+    */
    public RgbImage rotateRGB(RgbImage image, int angle) {
       return rotateRGB(image, angle, image.getWidth() / 2, image.getHeight() / 2);
    }
 
+   /**
+    * 
+    * @param image
+    * @param angle
+    * @param bgColor
+    * @return
+    */
    public RgbImage rotateRGB(RgbImage image, int angle, int bgColor) {
       return rotateRGB(image, angle, image.getWidth() / 2, image.getHeight() / 2, bgColor);
    }
 
+   /**
+    * 
+    * @param image
+    * @param angle
+    * @param referenceX
+    * @param referenceY
+    * @return
+    */
    public RgbImage rotateRGB(RgbImage image, int angle, int referenceX, int referenceY) {
       return rotateRGB(image, angle, referenceX, referenceY, 0x00FFFFFF);
    }
@@ -215,7 +284,12 @@ public class RgbImageRotateUtils {
       return image.getRgbCache().createImage(rotatedRgbData, rotatedWidth, rotatedHeight);
    }
 
-   private long round(double value) {
+   /**
+    * 
+    * @param value
+    * @return
+    */
+   public long round(double value) {
       if (value < 0) {
          return (long) (value - 0.5);
       } else {
