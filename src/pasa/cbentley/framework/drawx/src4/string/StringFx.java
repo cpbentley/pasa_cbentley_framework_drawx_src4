@@ -307,6 +307,7 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
       mask = srcFx.getSubFirst(TYPE_058_MASK);
       bgFigure = srcFx.getSubFirst(TYPE_050_FIGURE);
       color = srcFx.get4(IBOFxStr.FX_OFFSET_09_COLOR4);
+      
       ByteObject colorFunctionDef = srcFx.getSubFirst(TYPE_021_FUNCTION);
       if (colorFunctionDef != null) {
          cf = drc.getColorFunctionFactory().createColorFunction(colorFunctionDef);

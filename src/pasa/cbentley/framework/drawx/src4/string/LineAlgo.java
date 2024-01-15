@@ -109,6 +109,9 @@ public class LineAlgo {
    }
 
    private void createNewLineANiceWordLastLine() {
+      if (maxLinesNum != 0 && finalLines.getSize() >= maxLinesNum) {
+         return;
+      }
       //do the inverse because this is the last line.. so no wrap
       niceDiffFontHeights = tempDiffFontHeights;
       niceLineLength = tempLineLength;
@@ -522,6 +525,8 @@ public class LineAlgo {
 
    private TabColumnStringer[] tabCols;
 
+   private char lastChar;
+
    /**
     * TODO how to deal with hidden characters.. when selecting a visible char.. index visible is not equal to
     * index of chars
@@ -534,17 +539,17 @@ public class LineAlgo {
       int len = styleInterval.getLen();
       for (int i = offset; i < offset + len; i++) {
          //are we still in the current line
-         char c = stringer.getCharAtRelative(i);
+         lastChar = stringer.getCharAtRelative(i);
          //check only newline chars if requested.. can be turned off for perf reasons
-         if (c == StringUtils.NEW_LINE) {
+         if (lastChar == StringUtils.NEW_LINE) {
             //TODO. is the index included in the newLine?
             regularCharNewLine(i);
-         } else if (c == StringUtils.NEW_LINE_CARRIAGE_RETURN) {
+         } else if (lastChar == StringUtils.NEW_LINE_CARRIAGE_RETURN) {
             regularCharCarriage(i);
-         } else if (c == StringUtils.FORM_FEED) {
-            c = regularCharFormFeed(i, c);
+         } else if (lastChar == StringUtils.FORM_FEED) {
+            lastChar = regularCharFormFeed(i, lastChar);
          } else {
-            regularNoNewLinesChar(offset, i, c);
+            regularNoNewLinesChar(offset, i, lastChar);
          }
          if (maxLinesNum != 0 && finalLines.getSize() == maxLinesNum) {
             return;
@@ -781,11 +786,20 @@ public class LineAlgo {
       }
 
       //we have our lines
+      
+      //case 1 when no chars. we have a single empty line
+      //case 2 when it ends with \n. create the same scneario with an "fictive" line 
+      if (stringer.lengthChars == 0 || lastChar == StringUtils.NEW_LINE) {
+         createNewLineEmptyFictive();
+      } else {
+         //finish algo by making sure at least 1 line is created
+         createNewLineLast();
+      }
    }
 
    void createNewLineEmptyFictive() {
       LineStringer line = new LineStringer(stringer);
-      line.setOffset(0);
+      line.setOffset(tempLineStartOffsetRelative);
       line.setLen(0);
       line.setFictiveLine(true);
       int fh = stringer.stringFx.getFontHeight();

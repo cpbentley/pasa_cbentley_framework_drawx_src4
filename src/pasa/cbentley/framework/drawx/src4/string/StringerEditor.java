@@ -1,8 +1,15 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 
+/**
+ * Edition always resets the Stringer offset to zero by creating a new array
+ * 
+ * @author Charles Bentley
+ *
+ */
 public class StringerEditor extends ObjectDrw {
 
    protected final Stringer stringer;
@@ -86,24 +93,59 @@ public class StringerEditor extends ObjectDrw {
 
    }
 
+   private int bufferExpansion = 10;
+
    /**
+    * Make sure the array is not protected anymore and that it can process additional
     * 
-    * @param data
-    * @param fx
     */
-   public void appendLine(String data, ByteObject fx) {
+   public void editionStartChecks(int sizeIncrease) {
       if (stringer.chars == null) {
          stringer.chars = new char[0];
          stringer.getStyleLayers();
       }
+      if (stringer.isProtected() || stringer.offsetChars != 0) {
+         //copy to new
+         char[] newArray = new char[stringer.lengthChars + bufferExpansion];
+         System.arraycopy(stringer.chars, stringer.offsetChars, newArray, 0, stringer.lengthChars);
+         stringer.chars = newArray;
+         stringer.offsetChars = 0;
+         stringer.setProtected(false);
+      }
+      if (!hasSpaceForIncrease(sizeIncrease)) {
+         int lenIncrease = sizeIncrease + bufferExpansion;
+         stringer.chars = getUC().getMem().increaseCapacity(stringer.chars, lenIncrease);
+      }
+   }
+
+   public boolean hasSpaceForIncrease(int value) {
+      if (stringer.lengthChars + value >= stringer.chars.length) {
+         return false;
+      }
+      return true;
+   }
+
+   /**
+    * Creates a new line
+    * @param data
+    * @param fx
+    */
+   public void appendLine(String data, ByteObject fx) {
       int len = data.length();
-      int offset = stringer.lengthChars;
-      char[] array = getUC().getMem().increaseCapacity(stringer.chars, len + 1);
-      System.arraycopy(array, offset, data.toCharArray(), 0, len);
-      stringer.chars = array;
-      stringer.offsetChars = 0;
-      stringer.chars[offset + len] = '\n';
-      stringer.lengthChars = offset + len + 1;
-      stringer.addInterval(offset, len + 1, 0, fx);
+      editionStartChecks(len + 1); //+2 if windows new lines
+      int offset = stringer.offsetChars;
+      int destOffset = stringer.offsetChars + stringer.lengthChars;
+      int offsetNewLine = destOffset;
+      stringer.chars[offsetNewLine] = StringUtils.NEW_LINE;
+      char[] charArray = data.toCharArray();
+
+      System.arraycopy(charArray, 0, stringer.chars, offsetNewLine + 1, len);
+      int totalLen = len + 1;
+      stringer.lengthChars += totalLen;
+
+      //start the interval after the newline
+      int offsetInterval = destOffset;
+      int layerID = 0;
+      stringer.addInterval(offsetNewLine, totalLen, layerID, fx);
    }
 }

@@ -151,7 +151,7 @@ public class StringDraw extends ObjectDrw implements IStringable, ITechFigure, I
       /////////////////////////////////////
       //line background figure
       int dx = line.getX();
-      int dy = line.getY();
+      int dy = line.getY(); //line Y have been computed 
       if (isAbsoluteXY) {
          xLineTracker = cxTracker + dx;
          yLineTracker = cyTracker + dy;
@@ -159,6 +159,10 @@ public class StringDraw extends ObjectDrw implements IStringable, ITechFigure, I
          xLineTracker = cxTracker;
          yLineTracker = cyTracker;
       }
+      //TODO.. anchoring inside a line. when font have different size. biggest
+      // H alignement of fonts smaller than the line Height ?
+      //TODO parameters telling which lines H to use for all lines
+      // selecting a Char makes them bigger. so we want metrics to use that style
 
       //area covering the whole line
       if (line.getFigureBG() != null) {
@@ -180,12 +184,13 @@ public class StringDraw extends ObjectDrw implements IStringable, ITechFigure, I
       firstCharOffsetRelLine = firstCharOffsetRequested;
       IntIntervals intervalsOfLeaves = st.getIntervalsOfLeaves();
       //the interval that contains the first character to be drawn here
-      intervalIndex = intervalsOfLeaves.getIntervalIntersectIndex(firstCharOffsetRelLine);
+      int offsetRelStringer = line.getOffset() + firstCharOffsetRelLine;
+      intervalIndex = intervalsOfLeaves.getIntervalIntersectIndex(offsetRelStringer);
       interval = intervalsOfLeaves.getInterval(intervalIndex);
       lineOffsetRelTracker = firstCharOffsetRelLine;
       //now we have the offset, we must compute the number of chars from that interval to draw
       //depends on the pixelsW if not zero
-      numCharsInThisStyleInterval = interval.getDistanceToEnd(firstCharOffsetRelLine);
+      numCharsInThisStyleInterval = interval.getDistanceToEnd(offsetRelStringer);
       numCharsUndrawnLeftInTheLine = line.getLen() - firstCharOffsetRelLine;
       numCharsToBeDrawnNext = Math.min(numCharsInThisStyleInterval, numCharsUndrawnLeftInTheLine);
       if (pixelsWidthRequest != 0) {
@@ -590,7 +595,10 @@ public class StringDraw extends ObjectDrw implements IStringable, ITechFigure, I
             drawALine(g);
          }
          pixelsHeightDrawn += line.getPixelsH();
-         cyTracker += line.getPixelsH();
+         if (!isAbsoluteXY) {
+            //we do not use line getY. so we must increment for next line
+            cyTracker += line.getPixelsH();
+         }
       } while (isContinueH());
    }
 

@@ -157,8 +157,8 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
             return "28";
          case ITechStringer.STATE_29_MODEL_WORD_FX:
             return "WordFx";
-         case ITechStringer.STATE_30_:
-            return "30";
+         case ITechStringer.STATE_30_PROTECTED:
+            return "Protected";
          case ITechStringer.STATE_31_:
             return "31";
          case ITechStringer.STATE_32_:

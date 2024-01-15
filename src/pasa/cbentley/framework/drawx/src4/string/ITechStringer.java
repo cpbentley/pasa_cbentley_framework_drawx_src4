@@ -379,7 +379,11 @@ public interface ITechStringer {
     */
    public static final int STATE_29_MODEL_WORD_FX               = 1 << 28;
 
-   public static final int STATE_30_                            = 1 << 29;
+   /**
+    * Set when the char array cannot be written to. Any edition must create a new array.
+    * 
+    */
+   public static final int STATE_30_PROTECTED                   = 1 << 29;
 
    public static final int STATE_31_                            = 1 << 30;
 

@@ -403,7 +403,6 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
       return dx + getCharWidth(startIndex);
    }
 
-
    public IntUtils getIntUtils() {
       return drc.getUCtx().getIU();
    }
@@ -624,15 +623,13 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
          throw new IllegalStateException();
       }
 
+      if (stringer.chars == null) {
+         stringer.chars = new char[0];
+      }
+
       LineAlgo lineAlgo = new LineAlgo(stringer);
       lineAlgo.init();
       lineAlgo.start();
-      if (stringer.lengthChars == 0) {
-         lineAlgo.createNewLineEmptyFictive();
-      } else {
-         //finish algo by making sure at least 1 line is created
-         lineAlgo.createNewLineLast();
-      }
 
       lines = lineAlgo.getLines();
       //we have all ours lines

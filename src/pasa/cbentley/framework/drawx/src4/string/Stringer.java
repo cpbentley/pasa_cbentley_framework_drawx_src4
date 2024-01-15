@@ -126,7 +126,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    StringBBuilder                    buffer;
 
-
    /**
     * 
     * The char array used to compute the displayed String on screen.
@@ -167,14 +166,12 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    char[]                            chars;
 
-
    /**
     * Active interval
     */
    private StringInterval            currentInterval;
 
    int                               drawWordType;
-
 
    /**
     * Payloads are {@link StringFxLeaf} objects
@@ -190,7 +187,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    private StringFxLeaf[]            leaves                = new StringFxLeaf[4];
 
-
    /**
     * the length of characters starting offsetChars.
     */
@@ -204,7 +200,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * Absolute offset for reading characters in the character array.
     */
    int                               offsetChars;
-
 
    private ByteObject                scale;
 
@@ -310,7 +305,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    private boolean                   isTrimArtifacts;
 
-   private StringerEditor editor;
+   private StringerEditor            editor;
 
    /**
     * 
@@ -321,8 +316,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       stringMetrics = new StringMetrics(drc, this);
       stringDraw = new StringDraw(drc, this);
    }
-
-
 
    /**
     * Adds the fx over the whole text 
@@ -397,6 +390,14 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       setTextFigure(text);
       buildTextEffects();
       stringMetrics.meterString(); //FX must be deployed
+   }
+
+   public boolean isProtected() {
+      return hasState(STATE_30_PROTECTED);
+   }
+
+   public void setProtected(boolean v) {
+      this.setState(STATE_30_PROTECTED, v);
    }
 
    /**
@@ -604,7 +605,13 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
          fxs[0] = fxRoot;
          textFigure.getSubsAppend(TYPE_070_TEXT_EFFECTS, fxs, 1);
 
-         //buildTextEffects(fxs);
+         //merges everything and use that
+         ByteObject fxSrc = fxRoot;
+         for (int i = 0; i < fxs.length; i++) {
+            fxSrc = drc.getFxStringOperator().mergeTxtEffects(fxSrc, fxs[i]);
+         }
+
+         stringFx = new StringFx(drc, this, fxSrc);
 
          if (hasState(STATE_29_MODEL_WORD_FX)) {
             buildIntervalWords();
@@ -614,7 +621,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       setState(STATE_17_COMPUTED_FX, true);
       setState(STATE_19_FX_SETUP, true);
    }
-
 
    private void checkStateRun() {
       if (text == null) {
@@ -820,7 +826,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return ar;
    }
 
-
    public int getAreaH() {
       return areaH;
    }
@@ -906,7 +911,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    public StringFx getCharFx(int index) {
       //there is at least the base interval
-      IntInterval owner = intervalOfStringLeaves.getIntervalIntersect(index);
+      IntInterval owner = getIntervalsOfLeaves().getIntervalIntersect(index);
       if (owner == null) {
          return stringFx;
          //throw new IllegalStateException();
@@ -915,16 +920,25 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return leaf.getFx();
    }
 
+   /**
+    * 
+    * @return
+    */
    public char[] getCharsRef() {
       return chars;
    }
 
+   /**
+    * 
+    * @return
+    */
    public StringerEditor getEditor() {
-      if(editor == null) {
+      if (editor == null) {
          editor = new StringerEditor(this);
       }
       return editor;
    }
+
    public int getCharsStart() {
       return offsetChars;
    }
@@ -1020,7 +1034,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    public int getLineIndexFromCharIndex(int indexRelative) {
       return stringMetrics.getLineIndexFromCharIndex(indexRelative);
    }
-
 
    public StringMetrics getMetrics() {
       return stringMetrics;
@@ -1306,7 +1319,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       stringDraw.initTrackerXY(0, areaY);
    }
 
-
    /**
     * Called when char data has changed.
     * 
@@ -1336,7 +1348,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       setState(STATE_07_BROKEN, false);
 
    }
-
 
    /**
     * Externally set anchor?
