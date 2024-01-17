@@ -14,7 +14,7 @@ import pasa.cbentley.framework.drawx.src4.factories.TblrFactory;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigureString;
 
-public class StyleFactory extends BOAbstractFactory implements ITechStyle, IBOTypesDrw {
+public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOTypesDrw {
 
    protected final DrwCtx gc;
 

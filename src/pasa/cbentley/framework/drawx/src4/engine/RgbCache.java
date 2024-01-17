@@ -846,6 +846,67 @@ public class RgbCache implements IMemFreeable {
    }
 
    /**
+    * Return the rgb array of the region of {@link RgbImage} that interesect with
+    * with RgbImage
+    * @param rgbImage
+    * @param m
+    * @param n
+    * @param w
+    * @param h
+    * @return
+    */
+   public int[] getRegion(RgbImage rgbImage, int m, int n, int w, int h) {
+      if (w <= 0 || h <= 0) {
+         throw new IllegalArgumentException("w=" + w + " h=" + h);
+      }
+      RgbImage r = fetchFreeRgbImage();
+      if (rgbImage.isRgb()) {
+         r.rgbData = rgbImage.rgbData;
+         r.cacheIntID = rgbImage.cacheIntID;
+         r.offset = rgbImage.getOffset();
+      } else {
+         r.img = rgbImage.img;
+      }
+      r.setFlag(ITechRgbImage.FLAG_16_VIRGIN, false);
+      r.setFlag(ITechRgbImage.FLAG_01_REGION, true);
+      r.setFlag(ITechRgbImage.FLAG_05_IGNORE_ALPHA, rgbImage.hasFlag(ITechRgbImage.FLAG_05_IGNORE_ALPHA));
+      r.setFlag(ITechRgbImage.FLAG_13_RGB, rgbImage.hasFlag(ITechRgbImage.FLAG_13_RGB));
+      r.width = w;
+      r.height = h;
+      r.sourceLocator = rgbImage.sourceLocator;
+      r.parentImage = rgbImage;
+      r.cacheIntID = rgbImage.cacheIntID;
+      r.transform = rgbImage.transform;
+      r.m = rgbImage.getM() + m;
+      r.n = rgbImage.getN() + n;
+      int[] rdata = rgbImage.getRgbData();
+      if (m < 0)
+         m = 0;
+      if (n < 0)
+         n = 0;
+      int nw = w;
+      int nh = h;
+      int imgW = rgbImage.getWidth();
+      if (m + nw > imgW) {
+         nw = imgW - m;
+      }
+      if (n + nh > rgbImage.getHeight()) {
+         nw = rgbImage.getHeight() - n;
+      }
+      int[] rgb = new int[nw * nh];
+      int count = 0;
+      for (int i = 0; i < nh; i++) {
+         int index = m + imgW * i;
+         for (int j = 0; j < nw; j++) {
+            rgb[count] = rdata[index];
+            index++;
+            count++;
+         }
+      }
+      return rgb;
+   }
+   
+   /**
     * 
     * @param rgbImage
     * @param m
@@ -897,6 +958,7 @@ public class RgbCache implements IMemFreeable {
       int[] rgb = new int[nw * nh];
       int count = 0;
       for (int i = 0; i < nh; i++) {
+         //TODO fix and test
          int index = m + imgW * i;
          for (int j = 0; j < nw; j++) {
             rgb[count] = rdata[index];

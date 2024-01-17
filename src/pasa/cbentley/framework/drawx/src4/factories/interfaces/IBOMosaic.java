@@ -2,13 +2,13 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.tech;
+package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
-public interface ITechMosaic extends ITechPass {
+public interface IBOMosaic extends IBOPass {
 
-   public static final int PMOSAIC_BASE_OFFSET               = ITechPass.PASS_BASIC_SIZE;
+   public static final int PMOSAIC_BASE_OFFSET               = IBOPass.PASS_BASIC_SIZE;
 
-   public static final int PMOSAIC_BASIC_SIZE                = ITechPass.PASS_BASIC_SIZE + 11;
+   public static final int PMOSAIC_BASIC_SIZE                = IBOPass.PASS_BASIC_SIZE + 11;
 
    /**
     * When set, the default trans scheme is used.

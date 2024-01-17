@@ -540,9 +540,8 @@ public class RgbImage implements IStringable, ITechRgbImage {
       int minBotCount = vals[1];
       int newW = w - minLeftCount - minRightCount;
       int newH = h - minTopCount - minBotCount;
-      RgbImage nimg = this.getRgbCache().create(newW, newH);
-      GraphicsX g = nimg.getGraphicsX();
-      g.drawRgbImage(this, minLeftCount, minTopCount, newW, newH, IImage.TRANSFORM_0_NONE, 0, 0);
+      int[] ar = getRegionRGB(minLeftCount, minTopCount, newW, newH);
+      RgbImage nimg = this.getRgbCache().createImage(ar, newW, newH);
       return nimg;
    }
 
@@ -986,10 +985,31 @@ public class RgbImage implements IStringable, ITechRgbImage {
       return offset;
    }
 
+   /**
+    * Returns the ARGB pixel value at x,y.
+    * <p>
+    * When mode does not have rgb array, Image creates one b
+    * </p>
+    * @param x
+    * @param y
+    * @return
+    */
    public int getPixel(int x, int y) {
       flushReload();
       int index = getOffset() + getM() + x + (getScanLength() * (getN() + y));
+      checkModeRgb();
       return rgbData[index];
+   }
+
+   private void checkModeRgb() {
+      if (rgbData == null) {
+         setRgbMode(true);
+      }
+      if (rgbData == null) {
+         //setting the mode to Rgb may call softGC. An animation fetching the RgbData of a huge image
+         //will get here
+         throw new NullPointerException("RgbImage Data has been nullified by Garbage Collector");
+      }
    }
 
    /**
@@ -1010,6 +1030,45 @@ public class RgbImage implements IStringable, ITechRgbImage {
       return cache.createRegion(this, x, y, w, h);
    }
 
+   /**
+    * A new fresh arry is created. Data is copied into.
+    * @param x
+    * @param y
+    * @param w
+    * @param h
+    * @return
+    */
+   public int[] getRegionRGB(int x, int y, int w, int h) {
+      int[] rdata = this.getRgbData();
+      if (x < 0)
+         x = 0;
+      if (y < 0)
+         y = 0;
+      int newWidth = w;
+      int newHeight = h;
+      int imgW = this.getWidth();
+      if (x + newWidth > imgW) {
+         newWidth = imgW - x;
+      }
+      int imgH = this.getHeight();
+      if (y + newHeight > imgH) {
+         newWidth = imgH - y;
+      }
+      int[] rgb = new int[newWidth * newHeight];
+      int count = 0;
+      for (int i = 0; i < newHeight; i++) {
+         //all the trickery is in this line
+         int index = this.offset + x + (imgW * (y + i));
+         //int index = x + (imgW * i);
+         for (int j = 0; j < newWidth; j++) {
+            rgb[count] = rdata[index];
+            index++;
+            count++;
+         }
+      }
+      return rgb;
+   }
+   
    public RgbCache getRgbCache() {
       return cache;
    }
@@ -1064,14 +1123,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
     */
    public int[] getRgbData() {
       flushReload();
-      if (rgbData == null) {
-         setRgbMode(true);
-      }
-      if (rgbData == null) {
-         //setting the mode to Rgb may call softGC. An animation fetching the RgbData of a huge image
-         //will get here
-         throw new NullPointerException("RgbImage Data has been nullified by Garbage Collector");
-      }
+      checkModeRgb();
       //assume it will be modified
       setFlag(ITechRgbImage.FLAG_16_VIRGIN, false);
       return this.rgbData;
@@ -1168,6 +1220,60 @@ public class RgbImage implements IStringable, ITechRgbImage {
       shareCount++;
    }
 
+   public int[] getIntersect(int x, int y, int w, int h) {
+      int[] sec = drc.getUCtx().getGeo2dUtils().getIntersection(0, 0, getWidth(), getHeight(), x, y, w, h);
+      return sec;
+   }
+
+   public boolean isFullyColored(int color) {
+      return isAreaColored(0, 0, getWidth(), getHeight(), color);
+   }
+
+   /**
+    * Area must intersect with image
+    * @param x coordinate base on Image root coordinate
+    * @param y
+    * @param w
+    * @param h
+    * @param color
+    * @return
+    */
+   public boolean isAreaColored(int x, int y, int w, int h, int color) {
+      checkModeRgb();
+      
+      int[] sec = getIntersect(x, y, w, h);
+      if (sec == null) {
+         return false;
+      }
+      x = sec[0];
+      y = sec[1];
+      w = sec[2];
+      h = sec[3];
+      int[] rgbData = this.rgbData;
+      int m = getM();
+      int n = getN();
+      int scan = getScanLength();
+      int off = getOffset();
+      int index = off + m + x + (scan * (n + y));
+      int minDest = scan - w;
+
+      //#debug
+      String msg = "x=" + x + " y=" + y + " w=" + w + " h=" + h + " off=" + off + " scan=" + scan + " m=" + m + " n=" + n;
+      //#debug
+      toDLog().pDraw(msg, this, RgbImage.class, "isAreaColored", ITechLvl.LVL_05_FINE, true);
+
+      for (int i = 0; i < h; i++) {
+         for (int j = 0; j < w; j++) {
+            if (rgbData[index] != color) {
+               return false;
+            }
+            index++;
+         }
+         index += minDest;
+      }
+      return true;
+   }
+
    /**
     * True if the area is filled with background color. 
     * <br>
@@ -1190,41 +1296,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       if (this == cache.NULL_IMAGE) {
          return true;
       }
-      setRgbMode(true);
-      int[] sec = drc.getUCtx().getGeo2dUtils().getIntersection(0, 0, getWidth(), getHeight(), x, y, w, h);
-      if (sec == null) {
-         return false;
-      }
-      x = sec[0];
-      y = sec[1];
-      w = sec[2];
-      h = sec[3];
-      int[] rgbData = this.rgbData;
-      int m = getM();
-      int n = getN();
-      int scan = getScanLength();
-      int off = getOffset();
-      int index = off + m + x + (scan * (n + y));
-      int minDest = scan - w;
-
-      //#debug
-      toDLog().pState("", this, RgbImage.class, "isEmpty", ITechLvl.LVL_05_FINE, true);
-
-      //#debug
-      String msg = "x=" + x + " y=" + y + " w=" + w + " h=" + h + " off=" + off + " scan=" + scan + " m=" + m + " n=" + n;
-      //#debug
-      toDLog().pDraw(msg, this, RgbImage.class, "isEmpty", ITechLvl.LVL_05_FINE, true);
-
-      for (int i = 0; i < h; i++) {
-         for (int j = 0; j < w; j++) {
-            if (rgbData[index] != backgroundColor) {
-               return false;
-            }
-            index++;
-         }
-         index += minDest;
-      }
-      return true;
+      return isAreaColored(x, y, w, h, backgroundColor);
    }
 
    public boolean isMutable() {
@@ -1544,13 +1616,13 @@ public class RgbImage implements IStringable, ITechRgbImage {
             dc.append(" Rgb=null");
          }
       }
-      dc.appendVarWithSpace("m",getM());
-      dc.appendVarWithSpace("n",getN());
-      dc.appendVarWithSpace("offset",getOffset());
-      dc.appendVarWithSpace("scanlength",getScanLength());
+      dc.appendVarWithSpace("m", getM());
+      dc.appendVarWithSpace("n", getN());
+      dc.appendVarWithSpace("offset", getOffset());
+      dc.appendVarWithSpace("scanlength", getScanLength());
       dc.append(getScanLength());
-      dc.appendVarWithSpace("bgcolor",ToStringStaticDrawx.toStringColor(backgroundColor));
-      dc.appendVarWithSpace("transform",ToStringStaticUc.toStringTransform(transform));
+      dc.appendVarWithSpace("bgcolor", ToStringStaticDrawx.toStringColor(backgroundColor));
+      dc.appendVarWithSpace("transform", ToStringStaticUc.toStringTransform(transform));
 
       dc.nl();
       IntToStrings flags = new IntToStrings(toStringGetUCtx());
@@ -1675,6 +1747,17 @@ public class RgbImage implements IStringable, ITechRgbImage {
          destIndex += min;
       }
    }
+
+   public String toStringPixelName(int x, int y) {
+      int pixel = getPixel(x, y);
+      return drc.getUCtx().getColorU().toStringColorName(pixel);
+   }
+
+   public String toStringPixel(int x, int y) {
+      int pixel = getPixel(x, y);
+      return drc.getUCtx().getColorU().toStringColor(pixel);
+   }
+
 
    public void toStringAlphas(Dctx sb, int[] ar, int w, int h) {
       int destIndex = 0;

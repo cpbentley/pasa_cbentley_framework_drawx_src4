@@ -19,9 +19,11 @@ import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
-import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 
 /**
@@ -36,7 +38,7 @@ import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
  * @author Charles-Philip Bentley
  *
  */
-public class StringDraw extends ObjectDrw implements IStringable, ITechFigure, IBOTypesDrw, ITechMask, ITechBox, ITechStringer {
+public class StringDraw extends ObjectDrw implements IStringable, ITechFigure, IBOTypesDrw, IBOMask, IBOBox, ITechStringer {
 
    /**
     * Tracks current char x coordinate
@@ -68,7 +70,7 @@ public class StringDraw extends ObjectDrw implements IStringable, ITechFigure, I
       //#debug
       g.toDLog().pDraw("Single Char " + c + " at [" + cx + "," + cy + "]", this, StringDraw.class, "drawChar", ITechLvl.LVL_05_FINE, true);
 
-      g.drawChar(c, cx, cy, ITechBox.ANCHOR);
+      g.drawChar(c, cx, cy, IBOBox.ANCHOR);
    }
 
    /**

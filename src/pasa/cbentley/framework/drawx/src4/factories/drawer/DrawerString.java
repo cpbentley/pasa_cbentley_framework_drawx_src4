@@ -19,9 +19,10 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.string.StringDrawUtils;
 import pasa.cbentley.framework.drawx.src4.string.Stringer;
-import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
@@ -220,7 +221,7 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
       if (strFig == null) {
          return 0;
       }
-      return strFig.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+      return strFig.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
    }
 
    /**

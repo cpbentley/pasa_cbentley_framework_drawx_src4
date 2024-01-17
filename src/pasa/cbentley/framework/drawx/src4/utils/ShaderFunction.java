@@ -9,7 +9,7 @@ import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.byteobjects.src4.objects.color.ColorFunction;
 import pasa.cbentley.byteobjects.src4.objects.function.Acceptor;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.tech.ITechFigPixelStar;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPixelStar;
 
 public class ShaderFunction extends ColorFunction {
 
@@ -39,10 +39,10 @@ public class ShaderFunction extends ColorFunction {
       int resCount = 0;
       int index = offset + m + (scanlength * n);
       ByteObject pixStar = p.getSubFirst(IBOTypesDrw.TYPE_063_PIX_STAR);
-      int lenT = pixStar.get1(ITechFigPixelStar.PIXSTAR_OFFSET_03_TOP_SIZE1);
-      int lenB = pixStar.get1(ITechFigPixelStar.PIXSTAR_OFFSET_04_BOT_SIZE1);
-      int lenL = pixStar.get1(ITechFigPixelStar.PIXSTAR_OFFSET_05_LEFT_SIZE1);
-      int lenR = pixStar.get1(ITechFigPixelStar.PIXSTAR_OFFSET_06_RIGHT_SIZE1);
+      int lenT = pixStar.get1(IBOPixelStar.PIXSTAR_OFFSET_03_TOP_SIZE1);
+      int lenB = pixStar.get1(IBOPixelStar.PIXSTAR_OFFSET_04_BOT_SIZE1);
+      int lenL = pixStar.get1(IBOPixelStar.PIXSTAR_OFFSET_05_LEFT_SIZE1);
+      int lenR = pixStar.get1(IBOPixelStar.PIXSTAR_OFFSET_06_RIGHT_SIZE1);
 
       int[] starData = new int[(lenT + lenB + 1) * (lenL + lenR + 1)];
       //topleft pixel why starting with this one?
@@ -70,7 +70,7 @@ public class ShaderFunction extends ColorFunction {
             }
 
          }
-         if (!pixStar.hasFlag(ITechFigPixelStar.PIXSTAR_OFFSET_01_FLAG1, ITechFigPixelStar.PIXSTAR_FLAG_1_CENTER_OFF)) {
+         if (!pixStar.hasFlag(IBOPixelStar.PIXSTAR_OFFSET_01_FLAG1, IBOPixelStar.PIXSTAR_FLAG_1_CENTER_OFF)) {
             res[resCount] = fct.fxStar(rgb, starData);
          }
       }

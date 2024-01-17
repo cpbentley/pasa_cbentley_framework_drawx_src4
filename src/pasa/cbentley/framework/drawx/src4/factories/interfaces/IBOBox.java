@@ -2,7 +2,7 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.tech;
+package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
@@ -11,19 +11,19 @@ import pasa.cbentley.framework.drawx.src4.ctx.BOModuleDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.BoxFactory;
 
 /**
- * A {@link ITechBox} defines how to size and align the content relative to it.
+ * A {@link IBOBox} defines how to size and align the content relative to it.
  * <br>
- * <li> int coded width sizer : {@link ITechBox#BOX_OFFSET_04_WIDTH4} 
- * <li> int coded height sizer : {@link ITechBox#BOX_OFFSET_05_HEIGHT4} 
- * <li> int coded x pozer : {@link ITechBox#BOX_OFFSET_02_HORIZ_ALIGN4} 
- * <li> int coded y pozer : {@link ITechBox#BOX_OFFSET_03_VERTICAL_ALIGN4} 
+ * <li> int coded width sizer : {@link IBOBox#BOX_OFFSET_04_WIDTH4} 
+ * <li> int coded height sizer : {@link IBOBox#BOX_OFFSET_05_HEIGHT4} 
+ * <li> int coded x pozer : {@link IBOBox#BOX_OFFSET_02_HORIZ_ALIGN4} 
+ * <li> int coded y pozer : {@link IBOBox#BOX_OFFSET_03_VERTICAL_ALIGN4} 
  * 
  * Encapsulates several {@link ISizer}
  * <br>
  * @author Charles Bentley
  *
  */
-public interface ITechBox extends IByteObject {
+public interface IBOBox extends IByteObject {
 
    /**
     * Default anchors
@@ -69,7 +69,7 @@ public interface ITechBox extends IByteObject {
 
    /**
     * Horizontal alignment byte. <br>
-    * Test definition with {@link ITechBox#BOX_FLAG_7_DEF_HORIZ_ALIGN}
+    * Test definition with {@link IBOBox#BOX_FLAG_7_DEF_HORIZ_ALIGN}
     * 
     * <li>
     * 
@@ -78,7 +78,7 @@ public interface ITechBox extends IByteObject {
 
    /**
     * Vertical alignment byte. <br>
-    * Test definition with {@link ITechBox#BOX_FLAG_8_DEF_VERT_ALIGN}
+    * Test definition with {@link IBOBox#BOX_FLAG_8_DEF_VERT_ALIGN}
     * <br>
     * Simple Anchor or Complex
     */

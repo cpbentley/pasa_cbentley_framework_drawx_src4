@@ -18,8 +18,14 @@ import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwOperator;
-import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
-import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxApplicator;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrLine;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrPara;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrWord;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 public class FxStringOperator extends AbstractDrwOperator implements ITechFigure, IBOTypesDrw, IBOFxStr, IBOFxApplicator, IBOFxStrLine, IBOFxStrWord, IBOFxStrPara {
@@ -252,7 +258,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
    public void drawStringChar(GraphicsX g, int count, char c, int x, int y, ByteObject fx) {
       if (fx != null) {
       } else {
-         g.drawChar(c, x, y, ITechBox.ANCHOR);
+         g.drawChar(c, x, y, IBOBox.ANCHOR);
       }
    }
 
@@ -276,7 +282,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       if (strFig == null) {
          return 0;
       }
-      return strFig.get4(FIG__OFFSET_06_COLOR4);
+      return strFig.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
    }
 
    /**
@@ -392,7 +398,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       int x = xy[0];
       int y = xy[1];
       if (charFx == null) {
-         g.drawChar(c, x, y, ITechBox.ANCHOR);
+         g.drawChar(c, x, y, IBOBox.ANCHOR);
          xy[0] += fw;
       } else {
          //mask
@@ -466,7 +472,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
 
       gi.setFont(f);
       gi.setColor(fontColor);
-      gi.drawChar(c, ix + 1 + hspacing, iy, ITechBox.ANCHOR);
+      gi.drawChar(c, ix + 1 + hspacing, iy, IBOBox.ANCHOR);
 
       if (trans) {
          int[] rgb = i.getRgbData();

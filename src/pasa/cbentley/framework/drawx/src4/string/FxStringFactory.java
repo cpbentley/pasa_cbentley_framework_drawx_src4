@@ -10,7 +10,14 @@ import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwFactory;
-import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxApplicator;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrChar;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrLine;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrPara;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrWord;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
@@ -65,7 +72,7 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
       ByteObject fx = getBOFactory().createByteObject(TYPE_070_TEXT_EFFECTS, FX_BASIC_SIZE_TEXT);
       fx.setValue(FX_OFFSET_05_SCOPE_FX1, FX_SCOPE_0_TEXT, 1);
 
-      this.setColor(fx, textFigure.get4(IBOFigString.FIG__OFFSET_06_COLOR4));
+      this.setColor(fx, textFigure.get4(IBOFigure.FIG__OFFSET_06_COLOR4));
       this.setFace(fx, textFigure.get1(IBOFigString.FIG_STRING_OFFSET_03_FACE1));
       this.setFontStyle(fx, textFigure.get1(IBOFigString.FIG_STRING_OFFSET_04_STYLE1));
       this.setFontSize(fx, textFigure.get1(IBOFigString.FIG_STRING_OFFSET_05_SIZE1));

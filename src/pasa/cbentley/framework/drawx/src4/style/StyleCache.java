@@ -12,7 +12,7 @@ import pasa.cbentley.core.src4.logging.IDLog;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
-import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOTblr;
 import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
 
 /**
@@ -21,7 +21,7 @@ import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
  * @author Charles Bentley
  *
  */
-public class StyleCache extends ObjectDrw implements ITechStyle, ITechTblr, IBOTypesDrw, ITechStyleCache {
+public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypesDrw, ITechStyleCache {
 
    private int[]         areas;
 

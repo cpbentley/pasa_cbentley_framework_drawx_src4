@@ -2,9 +2,14 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.string;
+package pasa.cbentley.framework.drawx.src4.string.interfaces;
 
-import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.string.LineStringer;
+import pasa.cbentley.framework.drawx.src4.string.StringFx;
+import pasa.cbentley.framework.drawx.src4.string.StringFxLeaf;
+import pasa.cbentley.framework.drawx.src4.string.StringMetrics;
+import pasa.cbentley.framework.drawx.src4.string.Stringer;
 
 /**
  * 

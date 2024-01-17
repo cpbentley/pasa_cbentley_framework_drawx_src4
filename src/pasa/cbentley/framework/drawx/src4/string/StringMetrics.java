@@ -17,6 +17,9 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IConfigDrawx;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 
 /**
@@ -439,6 +442,21 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
       //#debug
       checkStateLine();
       return lines[lineIndex].getPixelsH();
+   }
+
+   public LineStringer[] getLinesFromOffsetLen(int offset, int len) {
+      return getLinesFromOffsets(offset, offset + len - 1);
+   }
+
+   public LineStringer[] getLinesFromOffsets(int offsetStart, int offsetEnd) {
+      int lineFirst = getLineIndexFromCharIndex(offsetStart);
+      int lineLast = getLineIndexFromCharIndex(offsetEnd);
+      int numLines = lineLast - lineFirst + 1;
+      LineStringer[] ar = new LineStringer[numLines];
+      for (int i = 0; i < numLines; i++) {
+         ar[i] = getLine(lineFirst + i);
+      }
+      return ar;
    }
 
    /**

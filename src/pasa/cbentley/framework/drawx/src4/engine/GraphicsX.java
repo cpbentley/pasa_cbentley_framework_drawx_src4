@@ -33,7 +33,7 @@ import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
-import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGraphicsX;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
 import pasa.cbentley.framework.drawx.src4.tech.ITechStyles;
@@ -1163,7 +1163,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
    }
 
    public void drawString(String str, int x, int y) {
-      this.drawString(str, x, y, ITechAnchor.ANCHOR_G_TOP_LEFT);
+      this.drawString(str, x, y, IBOAnchor.ANCHOR_G_TOP_LEFT);
    }
 
    /**

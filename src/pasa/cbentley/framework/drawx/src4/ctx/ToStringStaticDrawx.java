@@ -14,13 +14,14 @@ import pasa.cbentley.core.src4.structs.IntToStrings;
 import pasa.cbentley.framework.coredraw.src4.ctx.ToStringStaticCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
-import pasa.cbentley.framework.drawx.src4.string.IBOFxStr;
-import pasa.cbentley.framework.drawx.src4.string.ITechStringer;
-import pasa.cbentley.framework.drawx.src4.style.ITechStyle;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPass;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
+import pasa.cbentley.framework.drawx.src4.style.IBOStyle;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
-import pasa.cbentley.framework.drawx.src4.tech.ITechPass;
 import pasa.cbentley.framework.drawx.src4.tech.ITechScaler;
 import pasa.cbentley.framework.drawx.src4.tech.ITechSkew;
 
@@ -188,15 +189,15 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
 
    public static String toStringPass(int p) {
       switch (p) {
-         case ITechPass.PASS_0_FIGURE:
+         case IBOPass.PASS_0_FIGURE:
             return "Figure";
-         case ITechPass.PASS_1_MOSAIC:
+         case IBOPass.PASS_1_MOSAIC:
             return "Mosaic";
-         case ITechPass.PASS_2_SKEW:
+         case IBOPass.PASS_2_SKEW:
             return "Skew";
-         case ITechPass.PASS_3_SCALE:
+         case IBOPass.PASS_3_SCALE:
             return "Scale";
-         case ITechPass.PASS_4_ROTATE:
+         case IBOPass.PASS_4_ROTATE:
             return "Rotate";
          default:
             return "UnknownPass " + p;
@@ -205,13 +206,13 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
 
    public static String toStringStyleAnchor(int i) {
       switch (i) {
-         case ITechStyle.STYLE_ANC_0_BORDER:
+         case IBOStyle.STYLE_ANC_0_BORDER:
             return "AT_BORDER";
-         case ITechStyle.STYLE_ANC_1_MARGIN:
+         case IBOStyle.STYLE_ANC_1_MARGIN:
             return "AT_MARGIN";
-         case ITechStyle.STYLE_ANC_2_CONTENT:
+         case IBOStyle.STYLE_ANC_2_CONTENT:
             return "AT_CONTENT";
-         case ITechStyle.STYLE_ANC_3_PADDING:
+         case IBOStyle.STYLE_ANC_3_PADDING:
             return "AT_PADDING";
          default:
             return "INVALID_ERROR";
@@ -253,7 +254,7 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
             return "Ellipse";
          case ITechFigure.FIG_TYPE_10_STRING:
             return "String";
-         case ITechFigure.FIG_TYPE_3_TRIANGLE:
+         case ITechFigure.FIG_TYPE_03_TRIANGLE:
             return "Triangle";
          case ITechFigure.FIG_TYPE_12_ARROW:
             return "ARROW";
@@ -306,13 +307,13 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
 
    public static String toStringMaskPreset(int preset) {
       switch (preset) {
-         case ITechMask.MASK_PRESET_0HAL0:
+         case IBOMask.MASK_PRESET_0HAL0:
             return "0";
-         case ITechMask.MASK_PRESET_1HAL0:
+         case IBOMask.MASK_PRESET_1HAL0:
             return "2";
-         case ITechMask.MASK_PRESET_2HAL0:
+         case IBOMask.MASK_PRESET_2HAL0:
             return "2";
-         case ITechMask.MASK_PRESET_3HAL0:
+         case IBOMask.MASK_PRESET_3HAL0:
             return "3";
          default:
             throw new IllegalArgumentException("Preset " + preset);
@@ -338,11 +339,11 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
 
    public static String toStringMaskBlend(int blend) {
       switch (blend) {
-         case ITechMask.MASK_BLEND_0:
+         case IBOMask.MASK_BLEND_0:
             return "0";
-         case ITechMask.MASK_BLEND_1:
+         case IBOMask.MASK_BLEND_1:
             return "2";
-         case ITechMask.MASK_BLEND_2:
+         case IBOMask.MASK_BLEND_2:
             return "2";
          default:
             throw new IllegalArgumentException("Blend " + blend);
@@ -389,13 +390,13 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
     */
    public static String debugFigFlag(ByteObject fig) {
       StringBBuilder sb = new StringBBuilder(fig.getUCtx());
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_1_ANCHOR, " Anchor");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT, " Gradient");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_3_COLOR_ARRAY, " ColorArray");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK, " Mask");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER, " Filter");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_6_ANIMATED, " Anim");
-      debugFigFlag(sb, fig, ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_7_SUB_FIGURE, " Sub");
+      debugFigFlag(sb, fig, IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_ANCHOR, " Anchor");
+      debugFigFlag(sb, fig, IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_2_GRADIENT, " Gradient");
+      debugFigFlag(sb, fig, IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_3_COLOR_ARRAY, " ColorArray");
+      debugFigFlag(sb, fig, IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK, " Mask");
+      debugFigFlag(sb, fig, IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_5_FILTER, " Filter");
+      debugFigFlag(sb, fig, IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_6_ANIMATED, " Anim");
+      debugFigFlag(sb, fig, IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_7_SUB_FIGURE, " Sub");
       return sb.toString();
    }
 
@@ -407,11 +408,11 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
 
    public static String debugFigPerfFlag(ByteObject p) {
       StringBBuilder sb = new StringBBuilder(p.getUCtx());
-      debugFigFlag(sb, p, ITechFigure.FIG__OFFSET_03_FLAGP, ITechFigure.FIG_FLAGP_1RGB, " RGB");
-      debugFigFlag(sb, p, ITechFigure.FIG__OFFSET_03_FLAGP, ITechFigure.FIG_FLAGP_2EXTRA_BOUNDARY, " Overfill");
-      debugFigFlag(sb, p, ITechFigure.FIG__OFFSET_03_FLAGP, ITechFigure.FIG_FLAGP_3OPAQUE, " Opaque");
-      debugFigFlag(sb, p, ITechFigure.FIG__OFFSET_03_FLAGP, ITechFigure.FIG_FLAGP_4SUBFIGURE, " SubFigures");
-      debugFigFlag(sb, p, ITechFigure.FIG__OFFSET_03_FLAGP, ITechFigure.FIG_FLAGP_5IGNORE_ALPHA, " IgnoreAlpha");
+      debugFigFlag(sb, p, IBOFigure.FIG__OFFSET_03_FLAGP, IBOFigure.FIG_FLAGP_1RGB, " RGB");
+      debugFigFlag(sb, p, IBOFigure.FIG__OFFSET_03_FLAGP, IBOFigure.FIG_FLAGP_2EXTRA_BOUNDARY, " Overfill");
+      debugFigFlag(sb, p, IBOFigure.FIG__OFFSET_03_FLAGP, IBOFigure.FIG_FLAGP_3OPAQUE, " Opaque");
+      debugFigFlag(sb, p, IBOFigure.FIG__OFFSET_03_FLAGP, IBOFigure.FIG_FLAGP_4SUBFIGURE, " SubFigures");
+      debugFigFlag(sb, p, IBOFigure.FIG__OFFSET_03_FLAGP, IBOFigure.FIG_FLAGP_5IGNORE_ALPHA, " IgnoreAlpha");
       return sb.toString();
    }
 

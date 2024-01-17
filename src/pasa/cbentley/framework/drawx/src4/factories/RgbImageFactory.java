@@ -11,7 +11,7 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
-import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
 
 public class RgbImageFactory extends AbstractDrwFactory {
 
@@ -26,7 +26,7 @@ public class RgbImageFactory extends AbstractDrwFactory {
       GraphicsX figGraphics = figImg.getGraphicsX();
       figGraphics.setColor(color);
       figGraphics.setFont(f);
-      figGraphics.drawChar(c, 0, 0, ITechBox.ANCHOR);
+      figGraphics.drawChar(c, 0, 0, IBOBox.ANCHOR);
       figImg.disposeGraphics();
       return figImg;
    }
@@ -38,7 +38,7 @@ public class RgbImageFactory extends AbstractDrwFactory {
       GraphicsX figGraphics = figImg.getGraphicsX();
       figGraphics.setColor(color);
       figGraphics.setFont(f);
-      figGraphics.drawChars(chars, offset, len, 0, 0, ITechBox.ANCHOR);
+      figGraphics.drawChars(chars, offset, len, 0, 0, IBOBox.ANCHOR);
       figImg.disposeGraphics();
       return figImg;
    }

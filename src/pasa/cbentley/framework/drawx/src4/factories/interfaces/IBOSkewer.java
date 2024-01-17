@@ -2,13 +2,15 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.tech;
+package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
-public interface ITechSkewer extends ITechPass {
+import pasa.cbentley.framework.drawx.src4.tech.ITechSkew;
 
-   public static final int SKEWER_BASE_OFFSET                   = ITechPass.PASS_BASIC_SIZE;
+public interface IBOSkewer extends IBOPass {
 
-   public static final int SKEWER_BASIC_SIZE                    = ITechPass.PASS_BASIC_SIZE + 19;
+   public static final int SKEWER_BASE_OFFSET                   = IBOPass.PASS_BASIC_SIZE;
+
+   public static final int SKEWER_BASIC_SIZE                    = IBOPass.PASS_BASIC_SIZE + 19;
 
    public static final int SKEWER_FLAG_1_HIDE_CENTER            = 1;
 

@@ -19,9 +19,11 @@ import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
-import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
-import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOTblr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 
 /**
  * Java object wrapper of the ByteObject {@link IBOTypesDrw#TYPE_070_TEXT_EFFECTS} or {@link IBOTypesDrw#TYPE_050_FIGURE}  whose responsabilities are :
@@ -86,7 +88,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
  */
 public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOTypesDrw {
 
-   public int         anchor = ITechBox.ANCHOR;
+   public int         anchor = IBOBox.ANCHOR;
 
    ByteObject         bgFigure;
 

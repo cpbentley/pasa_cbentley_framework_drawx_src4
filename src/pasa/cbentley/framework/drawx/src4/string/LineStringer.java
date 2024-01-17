@@ -1,11 +1,13 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.strings.CharMapper;
 import pasa.cbentley.core.src4.structs.IntIntervals;
 import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 
 /**
  * {@link CharMap} manages the trim replace with 2 dots ..  for lack of space
@@ -22,7 +24,7 @@ public class LineStringer extends ObjectDrw {
    /**
     * Mapping of the char Width
     */
-   int[]           charsWidth;
+   int[]              charsWidth;
 
    private boolean    hasDifferentFonts;
 
@@ -33,7 +35,7 @@ public class LineStringer extends ObjectDrw {
     */
    private boolean    isFictiveLine;
 
-   private boolean isJustified;
+   private boolean    isJustified;
 
    private boolean    isMonospaced;
 
@@ -435,6 +437,39 @@ public class LineStringer extends ObjectDrw {
       dc.append(',');
       dc.append((len - offset - 1));
       dc.append(']');
+   }
+
+   /**
+    * Append Visible Text
+    * @param sb
+    * @param offsetStart line relative offset.. so first char is 0
+    * @param offsetEnd line relative offset
+    */
+   public void appendCharFromOffsets(StringBBuilder sb, int offsetStart, int offsetEnd) {
+      int diff = offsetEnd - offsetStart;
+      int count = 0;
+      char[] array = getCharArrayRef();
+      int arraOffset = getCharArrayRefOffset();
+      while (count < diff) {
+         char c = array[arraOffset + count];
+         sb.append(c);
+         count++;
+      }
+   }
+
+   /**
+    * Append the model text
+    * @param sb
+    * @param offsetStart
+    * @param offsetEnd
+    */
+   public void appendCharFromOffsetsModel(StringBBuilder sb, int offsetStart, int offsetEnd) {
+      if (map == null) {
+         //model equals visible
+         appendCharFromOffsets(sb, offsetStart, offsetEnd);
+      } else {
+         map.appendStringSrc(sb,offsetStart, offsetEnd);
+      }
    }
 
    //#enddebug

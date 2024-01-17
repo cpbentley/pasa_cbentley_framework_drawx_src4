@@ -9,11 +9,11 @@ import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
-import pasa.cbentley.framework.drawx.src4.tech.IBOScaler;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMosaic;
-import pasa.cbentley.framework.drawx.src4.tech.ITechPass;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMosaic;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPass;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOScaler;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOSkewer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechScaler;
-import pasa.cbentley.framework.drawx.src4.tech.ITechSkewer;
 
 public class ScalerFactory extends AbstractDrwFactory {
 
@@ -31,16 +31,16 @@ public class ScalerFactory extends AbstractDrwFactory {
       ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_055_SCALE, IBOScaler.SCALE_BASIC_SIZE);
       p.setValue(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1, type, 1);
       if (postRGBFilter != null) {
-         p.setFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_2_POST_FILTER, true);
+         p.setFlag(IBOPass.PASS_OFFSET_01_FLAG1, IBOPass.PASS_FLAG_2_POST_FILTER, true);
          p.addSub(postRGBFilter);
       }
       return p;
    }
    
    public ByteObject getSkewer(int interpolationID, int edgeType) {
-      ByteObject skewer = getBOFactory().createByteObject(IBOTypesDrw.TYPE_054_SKEWER, ITechSkewer.SKEWER_BASIC_SIZE);
-      skewer.set1(ITechSkewer.SKEWER_OFFSET_02_EDGE_TYPE1, edgeType);
-      skewer.set1(ITechSkewer.SKEWER_OFFSET_03_INTERPOLATION_TYPE1, interpolationID);
+      ByteObject skewer = getBOFactory().createByteObject(IBOTypesDrw.TYPE_054_SKEWER, IBOSkewer.SKEWER_BASIC_SIZE);
+      skewer.set1(IBOSkewer.SKEWER_OFFSET_02_EDGE_TYPE1, edgeType);
+      skewer.set1(IBOSkewer.SKEWER_OFFSET_03_INTERPOLATION_TYPE1, interpolationID);
       return skewer;
    }
 
@@ -58,9 +58,9 @@ public class ScalerFactory extends AbstractDrwFactory {
    }
    
    public ByteObject getMosaic(int type, boolean trans) {
-      ByteObject mosaic = getBOFactory().createByteObject(IBOTypesDrw.TYPE_053_MOSAIC, ITechMosaic.PMOSAIC_BASIC_SIZE);
-      mosaic.set1(ITechMosaic.PMOSAIC_OFFSET_02_TYPE1, type);
-      mosaic.setFlag(ITechMosaic.PMOSAIC_OFFSET_01_FLAG1, ITechMosaic.PMOSAIC_FLAG_1_TRANSFORMATION, trans);
+      ByteObject mosaic = getBOFactory().createByteObject(IBOTypesDrw.TYPE_053_MOSAIC, IBOMosaic.PMOSAIC_BASIC_SIZE);
+      mosaic.set1(IBOMosaic.PMOSAIC_OFFSET_02_TYPE1, type);
+      mosaic.setFlag(IBOMosaic.PMOSAIC_OFFSET_01_FLAG1, IBOMosaic.PMOSAIC_FLAG_1_TRANSFORMATION, trans);
       return mosaic;
    }
 
@@ -81,11 +81,11 @@ public class ScalerFactory extends AbstractDrwFactory {
       p.setValue(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1, type, 1);
       p.setValue(IBOScaler.SCALE_OFFSET_03_ID1, id, 1);
       if (preRGBFilter != null) {
-         p.setFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_1_PRE_FILTER, true);
+         p.setFlag(IBOPass.PASS_OFFSET_01_FLAG1, IBOPass.PASS_FLAG_1_PRE_FILTER, true);
          p.addSub(preRGBFilter);
       }
       if (postRGBFilter != null) {
-         p.setFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_2_POST_FILTER, true);
+         p.setFlag(IBOPass.PASS_OFFSET_01_FLAG1, IBOPass.PASS_FLAG_2_POST_FILTER, true);
          p.addSub(postRGBFilter);
       }
       return p;
@@ -93,10 +93,10 @@ public class ScalerFactory extends AbstractDrwFactory {
    
    public void toStringScaler(ByteObject bo, Dctx sb) {
       sb.append("#Scaler ");
-      if (bo.hasFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_1_PRE_FILTER)) {
+      if (bo.hasFlag(IBOPass.PASS_OFFSET_01_FLAG1, IBOPass.PASS_FLAG_1_PRE_FILTER)) {
          sb.append("PreFilter");
       }
-      if (bo.hasFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_2_POST_FILTER)) {
+      if (bo.hasFlag(IBOPass.PASS_OFFSET_01_FLAG1, IBOPass.PASS_FLAG_2_POST_FILTER)) {
          sb.append("PostFilter");
       }
       int type = bo.get1(IBOScaler.SCALE_OFFSET_02_FIT_TYPE1);

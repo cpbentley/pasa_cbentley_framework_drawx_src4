@@ -5,6 +5,7 @@
 package pasa.cbentley.framework.drawx.src4.utils;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 
 /**
@@ -27,7 +28,7 @@ public class AnchorUtils {
    public static int getXAlign(ByteObject anchor, int areaX, int areaW, int objectW) {
       if (anchor == null)
          return areaX;
-      int ha = anchor.getValue(ITechAnchor.ANCHOR_OFFSET_02_HORIZ_ALIGN1, 1);
+      int ha = anchor.getValue(IBOAnchor.ANCHOR_OFFSET_02_HORIZ_ALIGN1, 1);
       return getXAlign(ha, areaX, areaW, objectW);
    }
 
@@ -63,7 +64,7 @@ public class AnchorUtils {
    public static int getYAlign(ByteObject anchor, int areaY, int areaH, int objectH) {
       if (anchor == null)
          return areaY;
-      int va = anchor.getValue(ITechAnchor.ANCHOR_OFFSET_03_VERTICAL_ALIGN1, 1);
+      int va = anchor.getValue(IBOAnchor.ANCHOR_OFFSET_03_VERTICAL_ALIGN1, 1);
       return getYAlign(va, areaY, areaH, objectH);
    }
 

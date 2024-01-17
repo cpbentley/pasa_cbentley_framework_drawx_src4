@@ -2,14 +2,14 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.tech;
+package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
 import pasa.cbentley.byteobjects.src4.objects.color.ITechBlend;
 
-public interface ITechMask extends IByteObject {
+public interface IBOMask extends IByteObject {
 
    /**
     * 1 byte for flag
@@ -106,11 +106,11 @@ public interface ITechMask extends IByteObject {
    /**
     * Blend operator for the non shape/background pixels in the mask.
     * <br>
-    * It will blend the {@link ITechMask#MASK_OFFSET_2_COLOR_BG4} over the background figure of the mask.
+    * It will blend the {@link IBOMask#MASK_OFFSET_2_COLOR_BG4} over the background figure of the mask.
     * <br>
-    * It defaults to {@link ITechMask#MASK_BLEND_0}
-    * <li> {@link ITechBlend#BLENDING_00_OVER} replaced by  {@link ITechMask#MASK_BLEND_0}
-    * <li> {@link ITechBlend#BLENDING_01_SRC} replaced by  {@link ITechMask#MASK_BLEND_1}
+    * It defaults to {@link IBOMask#MASK_BLEND_0}
+    * <li> {@link ITechBlend#BLENDING_00_OVER} replaced by  {@link IBOMask#MASK_BLEND_0}
+    * <li> {@link ITechBlend#BLENDING_01_SRC} replaced by  {@link IBOMask#MASK_BLEND_1}
     * <li> {@link ITechBlend#BLENDING_02_DARKEN}
     * <li> {@link ITechBlend#BLENDING_03_LIGHTEN}
     */

@@ -12,7 +12,7 @@ import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.BOModuleDrawx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOTblr;
 import pasa.cbentley.layouter.src4.interfaces.ISizable;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
 
@@ -25,7 +25,7 @@ import pasa.cbentley.layouter.src4.tech.ITechLayout;
  * @author Charles Bentley
  *
  */
-public class TblrFactory extends AbstractDrwFactory implements ITechTblr {
+public class TblrFactory extends AbstractDrwFactory implements IBOTblr {
 
    public TblrFactory(DrwCtx drc) {
       super(drc);
@@ -43,7 +43,7 @@ public class TblrFactory extends AbstractDrwFactory implements ITechTblr {
    public int getTBLRValue(ByteObject tblr, int pos) {
       int flags = tblr.get1(TBLR_OFFSET_01_FLAG);
       if (BitUtils.hasFlag(flags, TBLR_FLAG_4_SAME_VALUE)) {
-         return tblr.get4(ITechTblr.TBLR_OFFSET_03_DATA4);
+         return tblr.get4(IBOTblr.TBLR_OFFSET_03_DATA4);
       } else {
          //how to read the value
          if (BitUtils.hasFlag(flags, TBLR_FLAG_1_USING_ARRAY)) {
@@ -89,19 +89,19 @@ public class TblrFactory extends AbstractDrwFactory implements ITechTblr {
     */
    public ByteObject mergeTBLR(ByteObject root, ByteObject merge) {
       int top = -1;
-      if (merge.hasFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_5_DEF_TOP)) {
+      if (merge.hasFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_5_DEF_TOP)) {
          top = getTBLRValue(merge, C.POS_0_TOP);
       }
       int bot = -1;
-      if (merge.hasFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_6_DEF_BOT)) {
+      if (merge.hasFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_6_DEF_BOT)) {
          bot = getTBLRValue(merge, C.POS_1_BOT);
       }
       int left = -1;
-      if (merge.hasFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_7_DEF_LEFT)) {
+      if (merge.hasFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_7_DEF_LEFT)) {
          left = getTBLRValue(merge, C.POS_2_LEFT);
       }
       int right = -1;
-      if (merge.hasFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_8_DEF_RIGHT)) {
+      if (merge.hasFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_8_DEF_RIGHT)) {
          right = getTBLRValue(merge, C.POS_3_RIGHT);
       }
       ByteObject nt = getTblrFactory().getTBLR(top, bot, left, right);
@@ -146,9 +146,9 @@ public class TblrFactory extends AbstractDrwFactory implements ITechTblr {
     * @return
     */
    public ByteObject getTBLR(int samevalue) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_060_TBLR, ITechTblr.TBLR_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_060_TBLR, IBOTblr.TBLR_BASIC_SIZE);
       p.set4(TBLR_OFFSET_03_DATA4, samevalue);
-      p.setFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_4_SAME_VALUE, true);
+      p.setFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_4_SAME_VALUE, true);
       return p;
    }
 
@@ -166,7 +166,7 @@ public class TblrFactory extends AbstractDrwFactory implements ITechTblr {
          return getTBLR(top);
       } else {
          //
-         ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_060_TBLR, ITechTblr.TBLR_BASIC_SIZE);
+         ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_060_TBLR, IBOTblr.TBLR_BASIC_SIZE);
          int flag = 0;
          boolean useArray = false;
          boolean isDefTop = true;
@@ -197,15 +197,15 @@ public class TblrFactory extends AbstractDrwFactory implements ITechTblr {
                isDefRight = false;
             }
          }
-         flag = BitUtils.setFlag(flag, ITechTblr.TBLR_FLAG_5_DEF_TOP, isDefTop);
-         flag = BitUtils.setFlag(flag, ITechTblr.TBLR_FLAG_6_DEF_BOT, isDefBot);
-         flag = BitUtils.setFlag(flag, ITechTblr.TBLR_FLAG_7_DEF_LEFT, isDefLeft);
-         flag = BitUtils.setFlag(flag, ITechTblr.TBLR_FLAG_8_DEF_RIGHT, isDefRight);
+         flag = BitUtils.setFlag(flag, IBOTblr.TBLR_FLAG_5_DEF_TOP, isDefTop);
+         flag = BitUtils.setFlag(flag, IBOTblr.TBLR_FLAG_6_DEF_BOT, isDefBot);
+         flag = BitUtils.setFlag(flag, IBOTblr.TBLR_FLAG_7_DEF_LEFT, isDefLeft);
+         flag = BitUtils.setFlag(flag, IBOTblr.TBLR_FLAG_8_DEF_RIGHT, isDefRight);
          if (useArray) {
             int[] ar = new int[] { top, bot, left, right };
             ByteObject arrayBo = boc.getLitteralIntFactory().getLitteralArray(ar);
             p.addSub(arrayBo);
-            flag = BitUtils.setFlag(flag, ITechTblr.TBLR_FLAG_1_USING_ARRAY, true);
+            flag = BitUtils.setFlag(flag, IBOTblr.TBLR_FLAG_1_USING_ARRAY, true);
          } else {
             int values = 0;
             values = BitUtils.setByte1(values, top);
@@ -220,12 +220,12 @@ public class TblrFactory extends AbstractDrwFactory implements ITechTblr {
    }
 
    public ByteObject getTBLR(ByteObject sizerTop, ByteObject sizerBot, ByteObject sizerLeft, ByteObject sizerRight) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_060_TBLR, ITechTblr.TBLR_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_060_TBLR, IBOTblr.TBLR_BASIC_SIZE);
 
-      p.setFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_5_DEF_TOP, sizerTop != null);
-      p.setFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_6_DEF_BOT, sizerBot != null);
-      p.setFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_7_DEF_LEFT, sizerLeft != null);
-      p.setFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_8_DEF_RIGHT, sizerRight != null);
+      p.setFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_5_DEF_TOP, sizerTop != null);
+      p.setFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_6_DEF_BOT, sizerBot != null);
+      p.setFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_7_DEF_LEFT, sizerLeft != null);
+      p.setFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_8_DEF_RIGHT, sizerRight != null);
 
       p.addByteObjectNull(sizerTop);
       p.addByteObjectNull(sizerBot);
@@ -258,7 +258,7 @@ public class TblrFactory extends AbstractDrwFactory implements ITechTblr {
     */
    public ByteObject getTBLRSizer(ByteObject tblr, int pos) {
       int mod = 0;
-      if (!tblr.hasFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_4_SAME_VALUE)) {
+      if (!tblr.hasFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_4_SAME_VALUE)) {
          if (pos == C.POS_1_BOT)
             mod = 1;
          else if (pos == C.POS_2_LEFT)
@@ -278,7 +278,7 @@ public class TblrFactory extends AbstractDrwFactory implements ITechTblr {
       dc.rootN(this, "TBLR", TblrFactory.class, 274);
       dc.appendVarWithSpace("hasArray", bo.hasFlag(TBLR_OFFSET_01_FLAG, TBLR_FLAG_1_USING_ARRAY));
       dc.appendVarWithSpace("SameValue", bo.hasFlag(TBLR_OFFSET_01_FLAG, TBLR_FLAG_4_SAME_VALUE));
-      if (bo.hasFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_4_SAME_VALUE)) {
+      if (bo.hasFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_4_SAME_VALUE)) {
          dc.append(" Value = " + getTBLRValue(bo, C.POS_0_TOP));
       } else {
          dc.appendVarWithSpace("top", bo.hasFlag(TBLR_OFFSET_01_FLAG, TBLR_FLAG_5_DEF_TOP));

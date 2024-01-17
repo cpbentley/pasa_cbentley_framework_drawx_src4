@@ -2,7 +2,7 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.string;
+package pasa.cbentley.framework.drawx.src4.string.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
@@ -13,7 +13,10 @@ import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.core.src4.utils.interfaces.IColorsStatic;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFont;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
-import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.string.FxStringFactory;
+import pasa.cbentley.framework.drawx.src4.string.StringFx;
+import pasa.cbentley.framework.drawx.src4.string.StringStyleApplicatorIndex;
 
 /**
  * {@link ByteObject} template for defining String text effects. Creator is {@link FxStringFactory}.

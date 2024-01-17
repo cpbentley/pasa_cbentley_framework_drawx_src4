@@ -2,11 +2,11 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.tech;
+package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 
-public interface ITechPass extends IByteObject {
+public interface IBOPass extends IByteObject {
 
    public static final int PASS_0_FIGURE           = 0;
 
@@ -64,7 +64,7 @@ public interface ITechPass extends IByteObject {
    public static final int PASS_OFFSET_01_FLAG1    = A_OBJECT_BASIC_SIZE;
 
    /**
-    * {@link ITechPass#PASS_0_FIGURE}
+    * {@link IBOPass#PASS_0_FIGURE}
     */
    public static final int PASS_OFFSET_02_TYPE1    = A_OBJECT_BASIC_SIZE + 1;
 

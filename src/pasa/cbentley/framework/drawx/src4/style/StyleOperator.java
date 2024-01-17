@@ -21,13 +21,14 @@ import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.TblrFactory;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOTblr;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
-import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
 import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
 import pasa.cbentley.layouter.src4.interfaces.ISizeCtx;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
 
-public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITechFigure, IBOTypesDrw, ITechTblr {
+public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITechFigure, IBOTypesDrw, IBOTblr {
 
    protected final DrwCtx dc;
 
@@ -69,19 +70,19 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
     * @return
     */
    public boolean isOpaqueBgLayersStyle(ByteObject style, int[] areas) {
-      boolean bg1 = isStyleFigureOpaque(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_1_BG, areas, 1);
+      boolean bg1 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_1_BG, areas, 1);
       if (bg1) {
          return true;
       }
-      boolean bg2 = isStyleFigureOpaque(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_2_BG, areas, 3);
+      boolean bg2 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_2_BG, areas, 3);
       if (bg2) {
          return true;
       }
-      boolean bg3 = isStyleFigureOpaque(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_3_BG, areas, 5);
+      boolean bg3 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_3_BG, areas, 5);
       if (bg3) {
          return true;
       }
-      boolean bg4 = isStyleFigureOpaque(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_4_BG, areas, 7);
+      boolean bg4 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_4_BG, areas, 7);
       if (bg4) {
          return true;
       }
@@ -229,7 +230,7 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
    }
 
    /**
-    * Return the style element linked to {@link ITechStyle#STYLE_FLAGA_1_CONTENT}
+    * Return the style element linked to {@link IBOStyle#STYLE_FLAGA_1_CONTENT}
     * <br>
     * When not load, returns default
     * <br>
@@ -238,7 +239,7 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
     * @return non null {@link ByteObject}
     */
    public ByteObject getContentStyle(ByteObject style) {
-      return getStyleElement(style, ITechStyle.STYLE_FLAGA_1_CONTENT);
+      return getStyleElement(style, IBOStyle.STYLE_FLAGA_1_CONTENT);
    }
 
    public int getMargin(ByteObject style, int pos) {
@@ -516,24 +517,24 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
     */
    public int getStyleDLayerPosition(ByteObject style, ByteObject figure) {
       int val = -1;
-      if (getStyleDrw(style, ITechStyle.STYLE_OFFSET_1_FLAGA, ITechStyle.STYLE_FLAGA_1_CONTENT) == figure) {
+      if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_1_FLAGA, IBOStyle.STYLE_FLAGA_1_CONTENT) == figure) {
          val = 0;
       } else {
-         if (getStyleDrw(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_1_BG) == figure) {
+         if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_1_BG) == figure) {
             val = 1;
-         } else if (getStyleDrw(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_2_BG) == figure) {
+         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_2_BG) == figure) {
             val = 2;
-         } else if (getStyleDrw(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_3_BG) == figure) {
+         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_3_BG) == figure) {
             val = 3;
-         } else if (getStyleDrw(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_4_BG) == figure) {
+         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_4_BG) == figure) {
             val = 4;
-         } else if (getStyleDrw(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_5_FG) == figure) {
+         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_5_FG) == figure) {
             val = 5;
-         } else if (getStyleDrw(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_6_FG) == figure) {
+         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_6_FG) == figure) {
             val = 6;
-         } else if (getStyleDrw(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_7_FG) == figure) {
+         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_7_FG) == figure) {
             val = 7;
-         } else if (getStyleDrw(style, ITechStyle.STYLE_OFFSET_2_FLAGB, ITechStyle.STYLE_FLAGB_8_FG) == figure) {
+         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_8_FG) == figure) {
             val = 8;
          }
       }
@@ -564,7 +565,7 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
    }
 
    /**
-    * Get the member position at flag for elements at {@link ITechStyle#STYLE_OFFSET_1_FLAGA}
+    * Get the member position at flag for elements at {@link IBOStyle#STYLE_OFFSET_1_FLAGA}
     * <br>
     * <br>
     * @param style
@@ -837,7 +838,7 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
          tblr.checkType(TYPE_060_TBLR);
          //get TBLR type
          int type = tblr.get1(TBLR_OFFSET_02_TYPE1);
-         if (type == ITechTblr.TYPE_0_ONE) {
+         if (type == IBOTblr.TYPE_0_ONE) {
             int val = tblrFactory.getTBLRValue(tblr, pos);
             //TBLR is defined as a value.
             return getPixelSizeTBLR(val, pos, c);
@@ -878,9 +879,9 @@ public class StyleOperator extends BOAbstractOperator implements ITechStyle, ITe
    public boolean isStyleFigureOpaque(ByteObject style, int pointer, int flag, int[] areas, int anc) {
       ByteObject bg = getStyleDrw(style, pointer, flag);
       if (bg != null) {
-         final int type = bg.getValue(FIG__OFFSET_01_TYPE1, 1);
+         final int type = bg.getValue(IBOFigure.FIG__OFFSET_01_TYPE1, 1);
          if (type == FIG_TYPE_01_RECTANGLE) {
-            if (bg.hasFlag(FIG__OFFSET_03_FLAGP, FIG_FLAGP_3OPAQUE)) {
+            if (bg.hasFlag(IBOFigure.FIG__OFFSET_03_FLAGP, IBOFigure.FIG_FLAGP_3OPAQUE)) {
                return true;
             }
          }

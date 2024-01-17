@@ -11,15 +11,15 @@ import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
-import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
 import pasa.cbentley.layouter.src4.tech.ITechPozer;
 import pasa.cbentley.layouter.src4.tech.ITechSizer;
 
 /**
- * FactoryEngine for {@link ITechBox}
+ * FactoryEngine for {@link IBOBox}
  * <br>
  * Boxes constrain Figures to specific areas of the drawing rectangle
  * Creates a lightweight layout in a drawing rectangle. No concept of GUI. Just drawing
@@ -28,7 +28,7 @@ import pasa.cbentley.layouter.src4.tech.ITechSizer;
  * @author Charles Bentley
  *
  */
-public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITechBox {
+public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBox {
 
    private LayoutOperator sizable;
 
@@ -81,7 +81,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITech
    }
 
    /**
-    * For all 4 int parameters, -1 means undefined. Thus any -1 will set object as {@link ITechBox#BOX_FLAG_1_INCOMPLETE}
+    * For all 4 int parameters, -1 means undefined. Thus any -1 will set object as {@link IBOBox#BOX_FLAG_1_INCOMPLETE}
     * For alignments the values are : <br>
     * <li>{@link ITechAnchor#ALIGN_1_TOP}
     * <li>{@link ITechAnchor#ALIGN_2_BOTTOM}
@@ -92,7 +92,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, ITech
     * <br>
     * <br>
     * 
-    * {@link ITechBox}
+    * {@link IBOBox}
     * 
     * Type : {@link IBOTypesDrw#TYPE_051_BOX}
     * <br>

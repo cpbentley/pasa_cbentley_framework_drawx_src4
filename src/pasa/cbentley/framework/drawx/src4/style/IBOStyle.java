@@ -72,7 +72,7 @@ import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
  * <br>
  * @author Charles-Philip Bentley
  */
-public interface ITechStyle extends IByteObject {
+public interface IBOStyle extends IByteObject {
    /**
     * Default anchoring for style layers.
     * <br>
@@ -230,53 +230,53 @@ public interface ITechStyle extends IByteObject {
    /**
     * Flags flagging existence of the following {@link ByteObject}s 
     * 
-    * <li> {@link ITechStyle#STYLE_FLAGA_1_CONTENT}
-    * <li> {@link ITechStyle#STYLE_FLAGA_2_ANCHOR}
-    * <li> {@link ITechStyle#STYLE_FLAGA_3_PADDING}
-    * <li> {@link ITechStyle#STYLE_FLAGA_4_BORDER}
-    * <li> {@link ITechStyle#STYLE_FLAGA_5_MARGIN}
-    * <li> {@link ITechStyle#STYLE_FLAGA_6_ANIMATIONS}
+    * <li> {@link IBOStyle#STYLE_FLAGA_1_CONTENT}
+    * <li> {@link IBOStyle#STYLE_FLAGA_2_ANCHOR}
+    * <li> {@link IBOStyle#STYLE_FLAGA_3_PADDING}
+    * <li> {@link IBOStyle#STYLE_FLAGA_4_BORDER}
+    * <li> {@link IBOStyle#STYLE_FLAGA_5_MARGIN}
+    * <li> {@link IBOStyle#STYLE_FLAGA_6_ANIMATIONS}
     */
    public static final int STYLE_OFFSET_1_FLAGA             = A_OBJECT_BASIC_SIZE;
 
    /**
     * Flags for bg and fg layers
     * 
-    *  <li> {@link ITechStyle#STYLE_FLAGB_1_BG}
-    *  <li> {@link ITechStyle#STYLE_FLAGB_2_BG}
-    *  <li> {@link ITechStyle#STYLE_FLAGB_3_BG}
-    *  <li> {@link ITechStyle#STYLE_FLAGB_4_BG}
-    *  <li> {@link ITechStyle#STYLE_FLAGB_5_FG}
-    *  <li> {@link ITechStyle#STYLE_FLAGB_6_FG}
-    *  <li> {@link ITechStyle#STYLE_FLAGB_7_FG}
-    *  <li> {@link ITechStyle#STYLE_FLAGB_8_FG}
+    *  <li> {@link IBOStyle#STYLE_FLAGB_1_BG}
+    *  <li> {@link IBOStyle#STYLE_FLAGB_2_BG}
+    *  <li> {@link IBOStyle#STYLE_FLAGB_3_BG}
+    *  <li> {@link IBOStyle#STYLE_FLAGB_4_BG}
+    *  <li> {@link IBOStyle#STYLE_FLAGB_5_FG}
+    *  <li> {@link IBOStyle#STYLE_FLAGB_6_FG}
+    *  <li> {@link IBOStyle#STYLE_FLAGB_7_FG}
+    *  <li> {@link IBOStyle#STYLE_FLAGB_8_FG}
     */
    public static final int STYLE_OFFSET_2_FLAGB             = A_OBJECT_BASIC_SIZE + 1;
 
    /**
     * Flag for filters and animations
     *  
-    *  <li> {@link ITechStyle#STYLE_FLAGC_1_FILTER_BG}
-    *  <li> {@link ITechStyle#STYLE_FLAGC_2_FILTER_CONTENT}
-    *  <li> {@link ITechStyle#STYLE_FLAGC_3_FILTER_FG}
-    *  <li> {@link ITechStyle#STYLE_FLAGC_4_FILTER_BG_CONTENT}
-    *  <li> {@link ITechStyle#STYLE_FLAGC_5_FILTER_ALL}
-    *  <li> {@link ITechStyle#STYLE_FLAGC_6_ANIM_ENTRY}
-    *  <li> {@link ITechStyle#STYLE_FLAGC_7_ANIM_MAIN}
-    *  <li> {@link ITechStyle#STYLE_FLAGC_8_ANIM_EXIT}
+    *  <li> {@link IBOStyle#STYLE_FLAGC_1_FILTER_BG}
+    *  <li> {@link IBOStyle#STYLE_FLAGC_2_FILTER_CONTENT}
+    *  <li> {@link IBOStyle#STYLE_FLAGC_3_FILTER_FG}
+    *  <li> {@link IBOStyle#STYLE_FLAGC_4_FILTER_BG_CONTENT}
+    *  <li> {@link IBOStyle#STYLE_FLAGC_5_FILTER_ALL}
+    *  <li> {@link IBOStyle#STYLE_FLAGC_6_ANIM_ENTRY}
+    *  <li> {@link IBOStyle#STYLE_FLAGC_7_ANIM_MAIN}
+    *  <li> {@link IBOStyle#STYLE_FLAGC_8_ANIM_EXIT}
     */
    public static final int STYLE_OFFSET_3_FLAGC             = A_OBJECT_BASIC_SIZE + 2;
 
    /**
     * For quickly know if there are any Bgs, Fgs, Filters, Anims
     * 
-    *  <li> {@link ITechStyle#STYLE_FLAG_PERF_1_BG}
-    *  <li> {@link ITechStyle#STYLE_FLAG_PERF_2_FG}
-    *  <li> {@link ITechStyle#STYLE_FLAG_PERF_3_FILTERS}
-    *  <li> {@link ITechStyle#STYLE_FLAG_PERF_4_ANIMS}
-    *  <li> {@link ITechStyle#STYLE_FLAG_PERF_5_FULL}
-    *  <li> {@link ITechStyle#STYLE_FLAG_PERF_6_EXTRA_BOUNDARY}
-    *  <li> {@link ITechStyle#STYLE_FLAG_PERF_8_STATIC_POINTER}
+    *  <li> {@link IBOStyle#STYLE_FLAG_PERF_1_BG}
+    *  <li> {@link IBOStyle#STYLE_FLAG_PERF_2_FG}
+    *  <li> {@link IBOStyle#STYLE_FLAG_PERF_3_FILTERS}
+    *  <li> {@link IBOStyle#STYLE_FLAG_PERF_4_ANIMS}
+    *  <li> {@link IBOStyle#STYLE_FLAG_PERF_5_FULL}
+    *  <li> {@link IBOStyle#STYLE_FLAG_PERF_6_EXTRA_BOUNDARY}
+    *  <li> {@link IBOStyle#STYLE_FLAG_PERF_8_STATIC_POINTER}
     */
    public static final int STYLE_OFFSET_4_FLAG_PERF         = A_OBJECT_BASIC_SIZE + 3;
 

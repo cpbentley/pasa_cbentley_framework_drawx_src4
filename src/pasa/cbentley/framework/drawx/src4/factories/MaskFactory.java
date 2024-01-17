@@ -12,9 +12,9 @@ import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
 
-public class MaskFactory extends AbstractDrwFactory implements ITechMask {
+public class MaskFactory extends AbstractDrwFactory implements IBOMask {
 
    public MaskFactory(DrwCtx drc) {
       super(drc);
@@ -56,10 +56,10 @@ public class MaskFactory extends AbstractDrwFactory implements ITechMask {
     * Gets a {@link IBOTypesDrw#TYPE_058_MASK}
     * <br>
     * <br>
-    * @param colorBg {@link ITechMask#MASK_OFFSET_2_COLOR_BG4}
-    * @param colorMid {@link ITechMask#MASK_OFFSET_3_COLOR_MID4}
-    * @param colorShape {@link ITechMask#MASK_OFFSET_4_COLOR_SHAPE4}
-    * @param alphaBg {@link ITechMask#MASK_OFFSET_5_BLEND_BG1}
+    * @param colorBg {@link IBOMask#MASK_OFFSET_2_COLOR_BG4}
+    * @param colorMid {@link IBOMask#MASK_OFFSET_3_COLOR_MID4}
+    * @param colorShape {@link IBOMask#MASK_OFFSET_4_COLOR_SHAPE4}
+    * @param alphaBg {@link IBOMask#MASK_OFFSET_5_BLEND_BG1}
     * @param alphaShape
     * @param blendBg
     * @param blendMid

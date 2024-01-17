@@ -5,8 +5,9 @@
 package pasa.cbentley.framework.drawx.src4.tech;
 
 import pasa.cbentley.framework.drawx.src4.factories.ScaleOperator;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPass;
 
-public interface ITechScaler extends ITechPass {
+public interface ITechScaler extends IBOPass {
 
    /**
     * algo for scaling is linear

@@ -13,9 +13,9 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMosaic;
-import pasa.cbentley.framework.drawx.src4.tech.ITechPass;
-import pasa.cbentley.framework.drawx.src4.tech.ITechSkewer;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMosaic;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPass;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOSkewer;
 
 public class PassDrawOperator extends AbstractDrwOperator {
 
@@ -40,9 +40,9 @@ public class PassDrawOperator extends AbstractDrwOperator {
       RgbImage topRight = ri;
       RgbImage botLeft = ri;
       RgbImage botRight = ri;
-      boolean trans = mosaic.hasFlag(ITechMosaic.PMOSAIC_OFFSET_01_FLAG1, ITechMosaic.PMOSAIC_FLAG_1_TRANSFORMATION);
+      boolean trans = mosaic.hasFlag(IBOMosaic.PMOSAIC_OFFSET_01_FLAG1, IBOMosaic.PMOSAIC_FLAG_1_TRANSFORMATION);
       if (trans) {
-         int root = mosaic.get1(ITechMosaic.PMOSAIC_OFFSET_03_ROOT1);
+         int root = mosaic.get1(IBOMosaic.PMOSAIC_OFFSET_03_ROOT1);
          int[] transs = new int[4];
          if (root == 0) {
             transs[0] = IImage.TRANSFORM_0_NONE;
@@ -61,9 +61,9 @@ public class PassDrawOperator extends AbstractDrwOperator {
          botRight = ri.getTransform(transs[3]);
 
       }
-      int overlayW = mosaic.get2(ITechMosaic.PMOSAIC_OFFSET_04_OVERLAY_W2);
-      int overlayH = mosaic.get2(ITechMosaic.PMOSAIC_OFFSET_05_OVERLAY_H2);
-      int blend = mosaic.get1(ITechMosaic.PMOSAIC_OFFSET_06_BLEND_OVERLAY1);
+      int overlayW = mosaic.get2(IBOMosaic.PMOSAIC_OFFSET_04_OVERLAY_W2);
+      int overlayH = mosaic.get2(IBOMosaic.PMOSAIC_OFFSET_05_OVERLAY_H2);
+      int blend = mosaic.get1(IBOMosaic.PMOSAIC_OFFSET_06_BLEND_OVERLAY1);
       //the blending should only apply to non empty area
       BlendOp bo = g.getBlendOp();
       g.setBlendingModeRGB(blend);
@@ -83,13 +83,13 @@ public class PassDrawOperator extends AbstractDrwOperator {
       int imgIndex = 0;
       int rw = ri.getWidth();
       int rh = ri.getHeight();
-      boolean trans = mosaic.hasFlag(ITechMosaic.PMOSAIC_OFFSET_01_FLAG1, ITechMosaic.PMOSAIC_FLAG_1_TRANSFORMATION);
-      int overlayW = mosaic.get2(ITechMosaic.PMOSAIC_OFFSET_04_OVERLAY_W2);
-      int overlayH = mosaic.get2(ITechMosaic.PMOSAIC_OFFSET_05_OVERLAY_H2);
-      int nw = mosaic.get1(ITechMosaic.PMOSAIC_OFFSET_07_NUM_W1);
-      int nh = mosaic.get1(ITechMosaic.PMOSAIC_OFFSET_08_NUM_H1);
-      boolean isdiff = mosaic.hasFlag(ITechMosaic.PMOSAIC_OFFSET_01_FLAG1, ITechMosaic.PMOSAIC_FLAG_2_DIFF_SOURCES);
-      int blend = mosaic.get1(ITechMosaic.PMOSAIC_OFFSET_06_BLEND_OVERLAY1);
+      boolean trans = mosaic.hasFlag(IBOMosaic.PMOSAIC_OFFSET_01_FLAG1, IBOMosaic.PMOSAIC_FLAG_1_TRANSFORMATION);
+      int overlayW = mosaic.get2(IBOMosaic.PMOSAIC_OFFSET_04_OVERLAY_W2);
+      int overlayH = mosaic.get2(IBOMosaic.PMOSAIC_OFFSET_05_OVERLAY_H2);
+      int nw = mosaic.get1(IBOMosaic.PMOSAIC_OFFSET_07_NUM_W1);
+      int nh = mosaic.get1(IBOMosaic.PMOSAIC_OFFSET_08_NUM_H1);
+      boolean isdiff = mosaic.hasFlag(IBOMosaic.PMOSAIC_OFFSET_01_FLAG1, IBOMosaic.PMOSAIC_FLAG_2_DIFF_SOURCES);
+      int blend = mosaic.get1(IBOMosaic.PMOSAIC_OFFSET_06_BLEND_OVERLAY1);
       BlendOp bo = g.getBlendOp();
       g.setBlendingModeRGB(blend);
       int dw = rw - 2 * overlayW;
@@ -133,14 +133,14 @@ public class PassDrawOperator extends AbstractDrwOperator {
    }
 
    protected void applyPreFilter(ByteObject pass, RgbImage ri) {
-      if (pass.hasFlag(ITechPass.PASS_OFFSET_01_FLAG1, ITechPass.PASS_FLAG_1_PRE_FILTER)) {
+      if (pass.hasFlag(IBOPass.PASS_OFFSET_01_FLAG1, IBOPass.PASS_FLAG_1_PRE_FILTER)) {
          ByteObject filter = pass.getSubValueMatch(IBOTypesDrw.TYPE_056_COLOR_FILTER, IBOFilter.FILTER_OFFSET_07_ID1, 1, IBOFilter.FILTER_ID_1_PRE);
          drc.getRgbImageOperator().applyColorFilter(filter, ri);
       }
    }
 
    public void drawMosaic(GraphicsX g, RgbImage[] ri, int x, int y) {
-      drawMosaic(g, ri, x, y, drc.getScalerFactory().getMosaic(ITechMosaic.PMOSAIC_TYPE_1_SQUARE4, true));
+      drawMosaic(g, ri, x, y, drc.getScalerFactory().getMosaic(IBOMosaic.PMOSAIC_TYPE_1_SQUARE4, true));
    }
 
    /**
@@ -153,10 +153,10 @@ public class PassDrawOperator extends AbstractDrwOperator {
     */
    public void drawMosaic(GraphicsX g, RgbImage[] ris, int x, int y, ByteObject mos) {
       RgbImage ri = ris[0];
-      int type = mos.get1(ITechMosaic.PMOSAIC_OFFSET_02_TYPE1);
-      if (type == ITechMosaic.PMOSAIC_TYPE_1_SQUARE4) {
+      int type = mos.get1(IBOMosaic.PMOSAIC_OFFSET_02_TYPE1);
+      if (type == IBOMosaic.PMOSAIC_TYPE_1_SQUARE4) {
          drawMosaic4(g, ri, x, y, mos);
-      } else if (type == ITechMosaic.PMOSAIC_TYPE_2_SQUARE9) {
+      } else if (type == IBOMosaic.PMOSAIC_TYPE_2_SQUARE9) {
          drawMosaic9(g, ri, x, y, mos);
       } else {
          drawMosaicGen(g, ris, x, type, mos);
@@ -203,7 +203,7 @@ public class PassDrawOperator extends AbstractDrwOperator {
       }
       applyPreFilter(skewer, ri);
 
-      int op = skewer.get1(ITechSkewer.SKEWER_OFFSET_09_BLENDER1);
+      int op = skewer.get1(IBOSkewer.SKEWER_OFFSET_09_BLENDER1);
       GraphicsX gt = g;
       RgbImage rm = null;
       if (op != 0) {
@@ -211,11 +211,11 @@ public class PassDrawOperator extends AbstractDrwOperator {
          g = rm.getGraphicsX();
          g.setBlendingModeRGB(op);
       }
-      int drawOrder = skewer.get1(ITechSkewer.SKEWER_OFFSET_10_DRAW_ORDER3);
+      int drawOrder = skewer.get1(IBOSkewer.SKEWER_OFFSET_10_DRAW_ORDER3);
 
       RgbImage riLeft = ri;
       RgbImage riFloor = ri;
-      if (skewer.hasFlag(ITechSkewer.SKEWER_OFFSET_01_FLAG1, ITechSkewer.SKEWER_FLAG_6_NO_TRANSFORMS)) {
+      if (skewer.hasFlag(IBOSkewer.SKEWER_OFFSET_01_FLAG1, IBOSkewer.SKEWER_FLAG_6_NO_TRANSFORMS)) {
 
       } else {
          riLeft = ri.getTransform(IImage.TRANSFORM_2_FLIP_V_MIRROR);
@@ -223,10 +223,10 @@ public class PassDrawOperator extends AbstractDrwOperator {
       }
 
       //when true, there is an issue when w or h is uneven. one pixel is left. so code has to
-      boolean isSymmetric = skewer.hasFlag(ITechSkewer.SKEWER_OFFSET_01_FLAG1, ITechSkewer.SKEWER_FLAG_7_SYMMETRIC);
+      boolean isSymmetric = skewer.hasFlag(IBOSkewer.SKEWER_OFFSET_01_FLAG1, IBOSkewer.SKEWER_FLAG_7_SYMMETRIC);
       //we must find bet and H based on image with 
-      int extraX = skewer.get2(ITechSkewer.SKEWER_OFFSET_04_EXTRA_X2);
-      int extraY = skewer.get2(ITechSkewer.SKEWER_OFFSET_05_EXTRA_Y2);
+      int extraX = skewer.get2(IBOSkewer.SKEWER_OFFSET_04_EXTRA_X2);
+      int extraY = skewer.get2(IBOSkewer.SKEWER_OFFSET_05_EXTRA_Y2);
 
       int xSkewLeft = (w - rw) / 2;
       int ySkewTop = (h - rh) / 2;
@@ -252,7 +252,7 @@ public class PassDrawOperator extends AbstractDrwOperator {
       int y2 = rh;
       //left
       RgbImage skewedLeft = riLeft.skew(x0, y0, x1, y1, x2, y2, x3, y3, skewer);
-      if (!skewer.hasFlag(ITechSkewer.SKEWER_OFFSET_01_FLAG1, ITechSkewer.SKEWER_FLAG_4_HIDE_LEFT)) {
+      if (!skewer.hasFlag(IBOSkewer.SKEWER_OFFSET_01_FLAG1, IBOSkewer.SKEWER_FLAG_4_HIDE_LEFT)) {
          //g.toLog().printBusiness("#drawSkewBox " + skewedLeft.toString());
          //skewedLeft.setFlag(RgbImage.FLAG_05_IGNORE_ALPHA, true);
          g.drawImage(skewedLeft, x, y - extraY, ANCHOR, IImage.TRANSFORM_0_NONE);
@@ -272,7 +272,7 @@ public class PassDrawOperator extends AbstractDrwOperator {
       //bot right
       x2 = xSkewRight;
       y2 = rh + ySkewBot + extraY;
-      if (!skewer.hasFlag(ITechSkewer.SKEWER_OFFSET_01_FLAG1, ITechSkewer.SKEWER_FLAG_5_HIDE_RIGHT)) {
+      if (!skewer.hasFlag(IBOSkewer.SKEWER_OFFSET_01_FLAG1, IBOSkewer.SKEWER_FLAG_5_HIDE_RIGHT)) {
          RgbImage skewedRight = riLeft.skew(x0, y0, x1, y1, x2, y2, x3, y3, skewer);
          if (isSymmetric) {
             RgbImage riSkewedTopForRight = skewedLeft.getTransform(IImage.TRANSFORM_2_FLIP_V_MIRROR);
@@ -297,7 +297,7 @@ public class PassDrawOperator extends AbstractDrwOperator {
       y3 = ySkewTop;
 
       RgbImage riSkewedTopp = riFloor.skew(x0, y0, x1, y1, x2, y2, x3, y3, skewer);
-      if (!skewer.hasFlag(ITechSkewer.SKEWER_OFFSET_01_FLAG1, ITechSkewer.SKEWER_FLAG_2_HIDE_TOP)) {
+      if (!skewer.hasFlag(IBOSkewer.SKEWER_OFFSET_01_FLAG1, IBOSkewer.SKEWER_FLAG_2_HIDE_TOP)) {
          //top
          //RgbImage riSkewedFloor = riSkewedTop;
          g.drawImage(riSkewedTopp, x - extraX, y, ANCHOR, IImage.TRANSFORM_0_NONE);
@@ -317,7 +317,7 @@ public class PassDrawOperator extends AbstractDrwOperator {
       x3 = -xSkewLeft - extraX;
       y3 = ySkewBot;
       //bottom
-      if (!skewer.hasFlag(ITechSkewer.SKEWER_OFFSET_01_FLAG1, ITechSkewer.SKEWER_FLAG_3_HIDE_BOT)) {
+      if (!skewer.hasFlag(IBOSkewer.SKEWER_OFFSET_01_FLAG1, IBOSkewer.SKEWER_FLAG_3_HIDE_BOT)) {
          if (isSymmetric) {
             RgbImage riSkewedTopForBot = riSkewedTopp.getTransform(IImage.TRANSFORM_3_ROT_180);
             g.drawImage(riSkewedTopForBot, x - extraX, y + rh + ySkewTop, ANCHOR);
@@ -326,9 +326,9 @@ public class PassDrawOperator extends AbstractDrwOperator {
             g.drawImage(riSkewedFloor, x - extraX, y + rh + ySkewTop, ANCHOR);
          }
       }
-      if (!skewer.hasFlag(ITechSkewer.SKEWER_OFFSET_01_FLAG1, ITechSkewer.SKEWER_FLAG_1_HIDE_CENTER)) {
+      if (!skewer.hasFlag(IBOSkewer.SKEWER_OFFSET_01_FLAG1, IBOSkewer.SKEWER_FLAG_1_HIDE_CENTER)) {
          //draw final image
-         int centerTrans = skewer.get1(ITechSkewer.SKEWER_OFFSET_07_CENTER_TRANS1);
+         int centerTrans = skewer.get1(IBOSkewer.SKEWER_OFFSET_07_CENTER_TRANS1);
          g.drawImage(ri, x + xSkewLeft, y + ySkewTop, ANCHOR, centerTrans);
 
       }

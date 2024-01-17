@@ -1,17 +1,18 @@
-package pasa.cbentley.framework.drawx.src4.tech;
+package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
+import pasa.cbentley.framework.drawx.src4.tech.ITechScaler;
 
 public interface IBOScaler extends IByteObject, ITechScaler {
 
-   public static final int SCALE_BASE_OFFSET         = ITechPass.PASS_BASIC_SIZE;
+   public static final int SCALE_BASE_OFFSET         = IBOPass.PASS_BASIC_SIZE;
 
    /**
     * 1 byte flags
     * 1 byte scale type
     * 1 byte scale id
     */
-   public static final int SCALE_BASIC_SIZE          = ITechPass.PASS_BASIC_SIZE + 3;
+   public static final int SCALE_BASIC_SIZE          = IBOPass.PASS_BASIC_SIZE + 3;
 
    /**
     * Try to use

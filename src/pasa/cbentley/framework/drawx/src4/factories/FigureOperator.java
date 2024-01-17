@@ -26,14 +26,26 @@ import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.factories.drawer.DrawerString;
 import pasa.cbentley.framework.drawx.src4.factories.drawer.DrawerTriangle;
-import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOArtifact;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigArlequin;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigBorder;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigCardsCPCTrefle;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigCross;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigEllipse;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigLine;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigPixels;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigRectangle;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigRepeater;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigSuperLines;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigTriangle;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOTblr;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
-import pasa.cbentley.framework.drawx.src4.tech.ITechArtifact;
-import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
-import pasa.cbentley.framework.drawx.src4.tech.ITechTblr;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 import pasa.cbentley.layouter.src4.ctx.LayouterCtx;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
@@ -48,7 +60,7 @@ import pasa.cbentley.layouter.src4.tech.ITechLayout;
  * @author Charles-Philip Bentley
  *
  */
-public class FigureOperator extends AbstractDrwOperator implements ITechBox {
+public class FigureOperator extends AbstractDrwOperator implements IBOBox {
 
    protected DrawerString   stringDrawer;
 
@@ -90,23 +102,23 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
             //figure is opaque
             return merge;
          }
-         int fig = root.get1(ITechFigure.FIG__OFFSET_01_TYPE1);
-         int rcolor = root.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
-         int mainFigureFlag = mm.mergeFlag(root, merge, mergeMask, ITechFigure.FIG__OFFSET_02_FLAG, MERGE_MASK_OFFSET_1FLAG1);
-         int figurePerfFlags = mm.mergeFlag(root, merge, mergeMask, ITechFigure.FIG__OFFSET_03_FLAGP, MERGE_MASK_OFFSET_2FLAG1);
+         int fig = root.get1(IBOFigure.FIG__OFFSET_01_TYPE1);
+         int rcolor = root.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
+         int mainFigureFlag = mm.mergeFlag(root, merge, mergeMask, IBOFigure.FIG__OFFSET_02_FLAG, MERGE_MASK_OFFSET_1FLAG1);
+         int figurePerfFlags = mm.mergeFlag(root, merge, mergeMask, IBOFigure.FIG__OFFSET_03_FLAGP, MERGE_MASK_OFFSET_2FLAG1);
 
          if (mergeMask.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_1)) {
-            fig = merge.get1(ITechFigure.FIG__OFFSET_01_TYPE1);
+            fig = merge.get1(IBOFigure.FIG__OFFSET_01_TYPE1);
             //when this happens, the figure does a reverse stamping by only taking the main color and figure
             //attributes (Filter,Gradient,Mask)
             ByteObject newFigure = (ByteObject) merge.clone();
-            newFigure.setValue(ITechFigure.FIG__OFFSET_06_COLOR4, rcolor, 4);
-            newFigure.setValue(ITechFigure.FIG__OFFSET_02_FLAG, mainFigureFlag, 1);
-            newFigure.setValue(ITechFigure.FIG__OFFSET_03_FLAGP, figurePerfFlags, 1);
+            newFigure.setValue(IBOFigure.FIG__OFFSET_06_COLOR4, rcolor, 4);
+            newFigure.setValue(IBOFigure.FIG__OFFSET_02_FLAG, mainFigureFlag, 1);
+            newFigure.setValue(IBOFigure.FIG__OFFSET_03_FLAGP, figurePerfFlags, 1);
             return newFigure;
          }
          if (mergeMask.hasFlag(MERGE_MASK_OFFSET_5VALUES1, ITechMergeMaskFigure.MM_VALUES5_FLAG_2_COLOR)) {
-            rcolor = merge.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+            rcolor = merge.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
          }
          ByteObject newFigure = null;
          switch (fig) {
@@ -121,17 +133,17 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
          }
          ByteObject grad = root.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
          //TODO when merging figure has a gradient. what happens if root figure also has a gradient? override or merge gradients?
-         if (merge.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT)) {
+         if (merge.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_2_GRADIENT)) {
             grad = merge.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
          }
          //same for filters?
          ByteObject filter = root.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
-         if (merge.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER)) {
+         if (merge.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_5_FILTER)) {
             filter = merge.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
          }
          drc.getFigureFactory().setFigLinks(newFigure, grad, filter, null);
-         newFigure.setValue(ITechFigure.FIG__OFFSET_02_FLAG, mainFigureFlag, 1);
-         newFigure.setValue(ITechFigure.FIG__OFFSET_03_FLAGP, figurePerfFlags, 1);
+         newFigure.setValue(IBOFigure.FIG__OFFSET_02_FLAG, mainFigureFlag, 1);
+         newFigure.setValue(IBOFigure.FIG__OFFSET_03_FLAGP, figurePerfFlags, 1);
          return newFigure;
       } else {
          throw new IllegalArgumentException();
@@ -146,17 +158,17 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @return
     */
    public ByteObject mergeFigRectangle(ByteObject root, ByteObject merge, ByteObject mm) {
-      int arcw = root.get1(ITechFigure.FIG_RECTANGLE_OFFSET_2_ARCW1);
-      int arch = root.get1(ITechFigure.FIG_RECTANGLE_OFFSET_3_ARCH1);
-      int size = root.get1(ITechFigure.FIG_RECTANGLE_OFFSET_4_SIZEF1);
+      int arcw = root.get1(IBOFigRectangle.FIG_RECTANGLE_OFFSET_2_ARCW1);
+      int arch = root.get1(IBOFigRectangle.FIG_RECTANGLE_OFFSET_3_ARCH1);
+      int size = root.get1(IBOFigRectangle.FIG_RECTANGLE_OFFSET_4_SIZEF1);
       if (mm.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG5_1)) {
-         arcw = merge.get1(ITechFigure.FIG_RECTANGLE_OFFSET_2_ARCW1);
+         arcw = merge.get1(IBOFigRectangle.FIG_RECTANGLE_OFFSET_2_ARCW1);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG5_2)) {
-         arch = merge.get1(ITechFigure.FIG_RECTANGLE_OFFSET_3_ARCH1);
+         arch = merge.get1(IBOFigRectangle.FIG_RECTANGLE_OFFSET_3_ARCH1);
       }
       if (mm.hasFlag(MERGE_MASK_OFFSET_6VALUES1, MERGE_MASK_FLAG5_3)) {
-         size = merge.get1(ITechFigure.FIG_RECTANGLE_OFFSET_4_SIZEF1);
+         size = merge.get1(IBOFigRectangle.FIG_RECTANGLE_OFFSET_4_SIZEF1);
       }
       return drc.getFigureFactory().getFigRect(0, arcw, arch, size, null, null, null, null);
 
@@ -206,21 +218,36 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    }
 
    public int getMergeColor(ByteObject root, ByteObject merge, ByteObject mm) {
-      int rcolor = root.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+      int rcolor = root.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
       if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_2)) {
-         rcolor = merge.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+         rcolor = merge.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
       }
       return rcolor;
    }
 
+   /**
+    * Takes the figure and clone with with the direction provided
+    * 
+    * <li> {@link C#DIR_0_TOP}
+    * <li> {@link C#DIR_1_BOTTOM}
+    * <li> {@link C#DIR_2_LEFT}
+    * <li> {@link C#DIR_3_RIGHT}
+    * <li> {@link C#DIR_4_TopLeft}
+    * <li> {@link C#DIR_5_TopRight}
+    * <li> {@link C#DIR_6_BotLeft}
+    * <li> {@link C#DIR_7_BotRight}
+    * @param fig
+    * @param dir
+    * @return
+    */
    public ByteObject cloneFigDirectionanl(ByteObject fig, int dir) {
-      int type = fig.get1(ITechFigure.FIG__OFFSET_01_TYPE1);
+      int type = fig.get1(IBOFigure.FIG__OFFSET_01_TYPE1);
       ByteObject clone = fig.cloneCopyHeadRefParams();
       switch (type) {
-         case ITechFigure.FIG_TYPE_3_TRIANGLE:
-            clone.set1(ITechFigure.FIG_TRIANGLE_OFFSET_2_ANGLE2, dir);
-            clone.setFlag(ITechFigure.FIG_TRIANGLE_OFFSET_1_FLAG1, ITechFigure.FIG_TRIANGLE_FLAG_2_ANGLE360, false);
-            clone.setValue4Bits1(ITechFigure.FIG__OFFSET_05_DIR1, dir);
+         case ITechFigure.FIG_TYPE_03_TRIANGLE:
+            clone.set1(IBOFigTriangle.FIG_TRIANGLE_OFFSET_03_ANGLE2, dir);
+            clone.setFlag(IBOFigTriangle.FIG_TRIANGLE_OFFSET_01_FLAG1, IBOFigTriangle.FIG_TRIANGLE_FLAG_2_ANGLE360, false);
+            clone.setValue4Bits1(IBOFigure.FIG__OFFSET_05_DIR1, dir);
             break;
          case ITechFigure.FIG_TYPE_01_RECTANGLE:
 
@@ -231,10 +258,10 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    }
 
    void drawFigArlequin(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      int pcolor = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
-      int scolor = p.get4(ITechFigure.FIG_ARLEQUIN_OFFSET_2COLOR4);
-      int size = p.get4(ITechFigure.FIG_ARLEQUIN_OFFSET_3SIZE4);
-      if (p.hasFlag(ITechFigure.FIG__OFFSET_03_FLAGP, ITechFigure.FIG_FLAGP_5IGNORE_ALPHA)) {
+      int pcolor = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
+      int scolor = p.get4(IBOFigArlequin.FIG_ARLEQUIN_OFFSET_2COLOR4);
+      int size = p.get4(IBOFigArlequin.FIG_ARLEQUIN_OFFSET_3SIZE4);
+      if (p.hasFlag(IBOFigure.FIG__OFFSET_03_FLAGP, IBOFigure.FIG_FLAGP_5IGNORE_ALPHA)) {
          pcolor = ColorUtils.setOpaque(pcolor);
          scolor = ColorUtils.setOpaque(scolor);
       }
@@ -300,17 +327,17 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       }
       int dx = x;
       int dy = y;
-      int cornerShift = p.get1(ITechFigure.FIG_BORDER_OFFSET_2CORNER_SHIFT1);
-      boolean isDotted = p.get1(ITechFigure.FIG_BORDER_OFFSET_3STROKE_STYLE1) == 1;
+      int cornerShift = p.get1(IBOFigBorder.FIG_BORDER_OFFSET_2CORNER_SHIFT1);
+      boolean isDotted = p.get1(IBOFigBorder.FIG_BORDER_OFFSET_3STROKE_STYLE1) == 1;
       if (isDotted) {
          g.setStrokeStyle(GraphicsX.STROKE_1_DOTTED);
       }
-      if (tblr.hasFlag(ITechTblr.TBLR_OFFSET_01_FLAG, ITechTblr.TBLR_FLAG_4_SAME_VALUE) && p.hasFlag(ITechFigure.FIG_BORDER_OFFSET_1FLAG, ITechFigure.FIG_BORDER_FLAG_5FIGURE)) {
+      if (tblr.hasFlag(IBOTblr.TBLR_OFFSET_01_FLAG, IBOTblr.TBLR_FLAG_4_SAME_VALUE) && p.hasFlag(IBOFigBorder.FIG_BORDER_OFFSET_1FLAG, IBOFigBorder.FIG_BORDER_FLAG_5FIGURE)) {
 
          int size = getTblrFactory().getTBLRValue(tblr, C.POS_0_TOP);
          if (size == 0)
             return;
-         if (p.hasFlag(ITechFigure.FIG_BORDER_OFFSET_1FLAG, ITechFigure.FIG_BORDER_FLAG_1OUTER)) {
+         if (p.hasFlag(IBOFigBorder.FIG_BORDER_OFFSET_1FLAG, IBOFigBorder.FIG_BORDER_FLAG_1OUTER)) {
             //outer
             dx -= size;
             dy -= size;
@@ -323,7 +350,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
             if (rect == null) {
                throw new NullPointerException("Rectangle Definition for Border is null");
             }
-            rect.setValue(ITechFigure.FIG_RECTANGLE_OFFSET_4_SIZEF1, size, 1);
+            rect.setValue(IBOFigRectangle.FIG_RECTANGLE_OFFSET_4_SIZEF1, size, 1);
             paintFigureSwitch(g, dx, dy, w, h, rect);
          } else {
             if (cornerShift >= size) {
@@ -333,7 +360,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
             //draw 4 lines
             ByteObject rect = p.getSubOrder(IBOTypesDrw.TYPE_050_FIGURE, 0);
             ByteObject grad = rect.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
-            int color = rect.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+            int color = rect.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
             if (g.hasGradient() && grad != null) {
                ColorIterator ci = drc.getColorFunctionFactory().getColorIterator(color, grad, pixelSize);
                int count = 0;
@@ -360,14 +387,14 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
          int sizeLeft = getTblrFactory().getTBLRValue(tblr, C.POS_2_LEFT);
          int sizeRight = getTblrFactory().getTBLRValue(tblr, C.POS_3_RIGHT);
          int sizeBot = getTblrFactory().getTBLRValue(tblr, C.POS_1_BOT);
-         if (p.hasFlag(ITechFigure.FIG_BORDER_OFFSET_1FLAG, ITechFigure.FIG_BORDER_FLAG_1OUTER)) {
+         if (p.hasFlag(IBOFigBorder.FIG_BORDER_OFFSET_1FLAG, IBOFigBorder.FIG_BORDER_FLAG_1OUTER)) {
             //outer
             dx -= sizeLeft;
             dy -= sizeTop;
             w += (sizeLeft + sizeRight);
             h += (sizeTop + sizeBot);
          }
-         if (p.hasFlag(ITechFigure.FIG_BORDER_OFFSET_1FLAG, ITechFigure.FIG_BORDER_FLAG_8FIGURES)) {
+         if (p.hasFlag(IBOFigBorder.FIG_BORDER_OFFSET_1FLAG, IBOFigBorder.FIG_BORDER_FLAG_8FIGURES)) {
             //top
             int ch = h - sizeTop - sizeBot;
             int cw = w - sizeLeft - sizeRight;
@@ -380,7 +407,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
             paintFigure(g, dx + sizeLeft, dy + h - sizeBot, cw, sizeBot, figBot); //bottom
             paintFigure(g, dx, dy + sizeTop, sizeLeft, ch, figLeft); // left
             paintFigure(g, dx + w - sizeRight, dy + sizeTop, sizeRight, ch, figRight); // left
-            if (p.hasFlag(ITechFigure.FIG_BORDER_OFFSET_1FLAG, ITechFigure.FIG_BORDER_FLAG_4COIN)) {
+            if (p.hasFlag(IBOFigBorder.FIG_BORDER_OFFSET_1FLAG, IBOFigBorder.FIG_BORDER_FLAG_4COIN)) {
                ByteObject figTL = p.getSubAtIndex(4);
                ByteObject figTR = p.getSubAtIndex(5);
                ByteObject figBL = p.getSubAtIndex(6);
@@ -423,12 +450,12 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     */
    public void drawFigRectangle(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
       //4 cases. opaque rectangle,
-      int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
-      boolean grad = p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT);
+      int color = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
+      boolean grad = p.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_2_GRADIENT);
       ByteObject gradient = null;
-      int arcw = p.getValue(ITechFigure.FIG_RECTANGLE_OFFSET_2_ARCW1, 1);
-      int arch = p.getValue(ITechFigure.FIG_RECTANGLE_OFFSET_3_ARCH1, 1);
-      int sizeFill = p.getValue(ITechFigure.FIG_RECTANGLE_OFFSET_4_SIZEF1, 1);
+      int arcw = p.getValue(IBOFigRectangle.FIG_RECTANGLE_OFFSET_2_ARCW1, 1);
+      int arch = p.getValue(IBOFigRectangle.FIG_RECTANGLE_OFFSET_3_ARCH1, 1);
+      int sizeFill = p.getValue(IBOFigRectangle.FIG_RECTANGLE_OFFSET_4_SIZEF1, 1);
       if (grad) {
          gradient = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
       }
@@ -437,7 +464,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       } else {
          if (sizeFill != 0) {
             //draw method =>  it with d
-            if (p.hasFlag(ITechFigure.FIG_RECTANGLE_OFFSET_1_FLAG, ITechFigure.FIG_RECTANGLE_FLAG_2_ROUND_INSIDE)) {
+            if (p.hasFlag(IBOFigRectangle.FIG_RECTANGLE_OFFSET_1_FLAG, IBOFigRectangle.FIG_RECTANGLE_FLAG_2_ROUND_INSIDE)) {
                //color = 0xFFFFFF;
                g.setColor(color);
                g.fillRoundRect(x, y, w, h, arcw, arch);
@@ -454,11 +481,11 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
                drawFigRectangleShape(g, x, y, w - 1, h - 1, color, sizeFill, arcw, arch);
             }
          } else {
-            if (p.hasFlag(ITechFigure.FIG_RECTANGLE_OFFSET_1_FLAG, ITechFigure.FIG_RECTANGLE_FLAG_1_ROUND)) {
+            if (p.hasFlag(IBOFigRectangle.FIG_RECTANGLE_OFFSET_1_FLAG, IBOFigRectangle.FIG_RECTANGLE_FLAG_1_ROUND)) {
                g.setColor(color);
                g.fillRoundRect(x, y, w, h, arcw, arch);
             } else {
-               boolean ignoreAlpha = p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAGP_5IGNORE_ALPHA);
+               boolean ignoreAlpha = p.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAGP_5IGNORE_ALPHA);
                if (ignoreAlpha) {
                   color = (255 << 24) + (color & 0xFFFFFF);
                }
@@ -492,7 +519,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    void drawFigRepeater(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
       //first check if figure is opaque
       //when opaque just use the copy method
-      int bgColor = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+      int bgColor = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
       ByteObject figure = p.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
       ByteObject anchor = p.getSubFirst(IBOTypesDrw.TYPE_051_BOX);
       if (figure == null)
@@ -525,8 +552,8 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       //#debug
       g.toDLog().pDraw("numX=" + numX + " numY=" + numY + " fw=" + fw + " fh=" + fh, p, FigureOperator.class, "drawFigRepeater");
 
-      if (p.hasFlag(ITechFigure.FIG_REPEATER_OFFSET_1_FLAG, ITechFigure.FIG_REPEATER_FLAG_1_FORCECOPYAREA) || figure.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAGP_3OPAQUE)) {
-         if (p.hasFlag(ITechFigure.FIG_REPEATER_OFFSET_1_FLAG, ITechFigure.FIG_REPEATER_FLAG_2_USE_BGCOLOR)) {
+      if (p.hasFlag(IBOFigRepeater.FIG_REPEATER_OFFSET_1_FLAG, IBOFigRepeater.FIG_REPEATER_FLAG_1_FORCECOPYAREA) || figure.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAGP_3OPAQUE)) {
+         if (p.hasFlag(IBOFigRepeater.FIG_REPEATER_OFFSET_1_FLAG, IBOFigRepeater.FIG_REPEATER_FLAG_2_USE_BGCOLOR)) {
             //fill bg background color
          }
          paintFigure(g, fx, fy, fw, fh, figure);
@@ -544,7 +571,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       } else {
          //create an image
          int color = 0;
-         if (p.hasFlag(ITechFigure.FIG_REPEATER_OFFSET_1_FLAG, ITechFigure.FIG_REPEATER_FLAG_2_USE_BGCOLOR)) {
+         if (p.hasFlag(IBOFigRepeater.FIG_REPEATER_OFFSET_1_FLAG, IBOFigRepeater.FIG_REPEATER_FLAG_2_USE_BGCOLOR)) {
             //fill bg background color
             color = bgColor;
          }
@@ -566,12 +593,12 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * Gets an image of the figure parameters in the rectangle [w,h] <br>
     * For performance reasons, one might want to draw figure of primitives using given pseudo background color
     * 
-    * For non RGB figure {@link ITechFigure#FIG_FLAGP_1RGB}, image background is 
+    * For non RGB figure {@link IBOFigure#FIG_FLAGP_1RGB}, image background is 
     * <br>either black transparent
     * <br> white opaque
     * <br> given color
     * <br>
-    * For figures with flag {@link ITechFigure#FIG_FLAGP_1RGB}, background is transparent black
+    * For figures with flag {@link IBOFigure#FIG_FLAGP_1RGB}, background is transparent black
     * 
     * if just switch is true, the figure is drawn without the controls of filters, mask etc.
     * @param fig
@@ -584,7 +611,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    public RgbImage getFigImage(ByteObject fig, int w, int h, boolean justSwitch, boolean whiteopaque, int bgColor) {
       int mode = GraphicsX.MODE_1_IMAGE;
       RgbImage figImg = null;
-      if (fig.hasFlag(ITechFigure.FIG__OFFSET_03_FLAGP, ITechFigure.FIG_FLAGP_1RGB)) {
+      if (fig.hasFlag(IBOFigure.FIG__OFFSET_03_FLAGP, IBOFigure.FIG_FLAGP_1RGB)) {
          figImg = drc.getCache().create(w, h, bgColor);
       } else {
          if (whiteopaque) {
@@ -673,9 +700,9 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
      * @param p
      */
    void drawLine(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      int linesize = p.getValue(ITechFigure.FIG_LINE_OFFSET_2SIZE1, 1);
-      int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
-      boolean horiz = p.hasFlag(ITechFigure.FIG_LINE_OFFSET_1FLAG, ITechFigure.FIG_LINE_FLAG_HORIZ);
+      int linesize = p.getValue(IBOFigLine.FIG_LINE_OFFSET_2SIZE1, 1);
+      int color = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
+      boolean horiz = p.hasFlag(IBOFigLine.FIG_LINE_OFFSET_1FLAG, IBOFigLine.FIG_LINE_FLAG_HORIZ);
       g.setColor(color);
       if (horiz) {
          for (int j = 0; j < linesize; j++) {
@@ -701,8 +728,8 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       //TODO the buffer does not get the BlendOp correctly
       RgbImage data = null;
       //or create a new empty image with the background color
-      if (p.hasFlag(ITechFigure.FIG_PIXEL_OFFSET_01_FLAG, ITechFigure.FIG_PIXEL_FLAG_3_NEW_IMAGE)) {
-         int color = p.get4(ITechFigure.FIG_PIXEL_OFFSET_04_COLOR_EXTRA4);
+      if (p.hasFlag(IBOFigPixels.FIG_PIXEL_OFFSET_01_FLAG, IBOFigPixels.FIG_PIXEL_FLAG_3_NEW_IMAGE)) {
+         int color = p.get4(IBOFigPixels.FIG_PIXEL_OFFSET_04_COLOR_EXTRA4);
          data = drc.getCache().createRGB(w, h, color);
       } else {
          //either reads existing data 
@@ -716,7 +743,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    public void addFilter(ByteObject figure, ByteObject filter) {
       if (filter != null) {
          figure.addSub(filter);
-         figure.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER, true);
+         figure.setFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_5_FILTER, true);
       }
 
    }
@@ -734,24 +761,24 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param blendMode the mode for blending the pixel with existing pixel in rgb array.
     */
    public void drawPixels(int[] rgb, int offset, int scan, int m, int n, int w, int h, ByteObject p) {
-      int lengthHoriz = p.getValue(ITechFigure.FIG_PIXEL_OFFSET_07_LENGTH_H2, 2);
-      int lengthVert = p.getValue(ITechFigure.FIG_PIXEL_OFFSET_08_LENGTH_V2, 2);
+      int lengthHoriz = p.getValue(IBOFigPixels.FIG_PIXEL_OFFSET_07_LENGTH_H2, 2);
+      int lengthVert = p.getValue(IBOFigPixels.FIG_PIXEL_OFFSET_08_LENGTH_V2, 2);
       if (lengthHoriz <= 0)
          lengthHoriz = 1;
       if (lengthVert <= 0)
          lengthVert = 1;
-      int blendMode = p.get1(ITechFigure.FIG_PIXEL_OFFSET_05_BLENDERX1);
+      int blendMode = p.get1(IBOFigPixels.FIG_PIXEL_OFFSET_05_BLENDERX1);
 
-      boolean randomLength = p.hasFlag(ITechFigure.FIG_PIXEL_OFFSET_01_FLAG, ITechFigure.FIG_PIXEL_FLAG_1_RANDOM_SIZE);
-      boolean randomColor = p.hasFlag(ITechFigure.FIG_PIXEL_OFFSET_01_FLAG, ITechFigure.FIG_PIXEL_FLAG_2_RANDOM_COLOR);
+      boolean randomLength = p.hasFlag(IBOFigPixels.FIG_PIXEL_OFFSET_01_FLAG, IBOFigPixels.FIG_PIXEL_FLAG_1_RANDOM_SIZE);
+      boolean randomColor = p.hasFlag(IBOFigPixels.FIG_PIXEL_OFFSET_01_FLAG, IBOFigPixels.FIG_PIXEL_FLAG_2_RANDOM_COLOR);
       //or use gradient
       ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
-      int[] colors = p.getValues(ITechFigure.FIG_PIXEL_OFFSET_04_COLORSX);
+      int[] colors = p.getValues(IBOFigPixels.FIG_PIXEL_OFFSET_04_COLORSX);
       int colorIndex = 0;
       int maxc = colors.length;
       int add = lengthHoriz;
-      int baseColor = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
-      int gradSize = p.get1(ITechFigure.FIG_PIXEL_OFFSET_09_GRAD_SIZE1);
+      int baseColor = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
+      int gradSize = p.get1(IBOFigPixels.FIG_PIXEL_OFFSET_09_GRAD_SIZE1);
 
       ColorIterator ci = new ColorIterator(boc, colors);
       if (grad != null) {
@@ -761,7 +788,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       }
 
       //define the randomness of the iteration.
-      int seed = p.get4(ITechFigure.FIG_PIXEL_OFFSET_03_SEED4);
+      int seed = p.get4(IBOFigPixels.FIG_PIXEL_OFFSET_03_SEED4);
       Random r = drc.getUCtx().getRandom(seed);
       //SystemLog.pDraw("#DrwParamFig#drawPixels m=" + m + " n=" + n + " w=" + w + " h=" + h + " scan=" + scan + " offset=" + offset);
       BlendOp bop = new BlendOp(boc, blendMode);
@@ -821,12 +848,12 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       //check if ByteObject p has a link to a free to use cached array?
       int[] rgb = new int[w * h];
       int index = 0;
-      int length = p.getValue(ITechFigure.FIG_PIXEL_OFFSET_07_LENGTH_H2, 2);
+      int length = p.getValue(IBOFigPixels.FIG_PIXEL_OFFSET_07_LENGTH_H2, 2);
       if (length <= 0)
          length = 1;
-      boolean randomLength = p.hasFlag(ITechFigure.FIG_PIXEL_OFFSET_01_FLAG, ITechFigure.FIG_PIXEL_FLAG_1_RANDOM_SIZE);
-      boolean randomColor = p.hasFlag(ITechFigure.FIG_PIXEL_OFFSET_01_FLAG, ITechFigure.FIG_PIXEL_FLAG_2_RANDOM_COLOR);
-      int[] colors = p.getValues(ITechFigure.FIG_PIXEL_OFFSET_04_COLORSX);
+      boolean randomLength = p.hasFlag(IBOFigPixels.FIG_PIXEL_OFFSET_01_FLAG, IBOFigPixels.FIG_PIXEL_FLAG_1_RANDOM_SIZE);
+      boolean randomColor = p.hasFlag(IBOFigPixels.FIG_PIXEL_OFFSET_01_FLAG, IBOFigPixels.FIG_PIXEL_FLAG_2_RANDOM_COLOR);
+      int[] colors = p.getValues(IBOFigPixels.FIG_PIXEL_OFFSET_04_COLORSX);
       int colorIndex = 0;
       int maxc = colors.length;
       if (maxc == 0) {
@@ -835,7 +862,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       int add = length;
       boolean exit = false;
       int total = h * w;
-      int seed = p.get4(ITechFigure.FIG_PIXEL_OFFSET_03_SEED4);
+      int seed = p.get4(IBOFigPixels.FIG_PIXEL_OFFSET_03_SEED4);
       Random r = drc.getUCtx().getRandom(seed);
       while (index < total) {
          int color = 0;
@@ -866,7 +893,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    }
 
    public void setFigAnchor(ByteObject fig, ByteObject anchor) {
-      fig.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_1_ANCHOR, true);
+      fig.setFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_ANCHOR, true);
       fig.addSub(anchor);
    }
 
@@ -906,17 +933,17 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
          return;
       }
       p.checkType(IBOTypesDrw.TYPE_050_FIGURE);
-      if (p.hasFlag(ITechFigure.FIG__OFFSET_03_FLAGP, ITechFigure.FIG_FLAGP_8POSTPONE)) {
+      if (p.hasFlag(IBOFigure.FIG__OFFSET_03_FLAGP, IBOFigure.FIG_FLAGP_8POSTPONE)) {
          g.postpone(x, y, w, h, p);
          return;
       }
       ByteObject filter = null;
-      if (p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER)) {
+      if (p.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_5_FILTER)) {
          filter = p.getSubOrder(IBOTypesDrw.TYPE_056_COLOR_FILTER, 0);
       }
       ByteObject mask = null;
       RgbImage rgbMask = null;
-      if (p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK)) {
+      if (p.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK)) {
          mask = p.getSubFirst(IBOTypesDrw.TYPE_058_MASK);
          if (mask == null) {
             throw new IllegalArgumentException("Mask is null");
@@ -932,7 +959,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
             //At best,  GraphicsX is Rgb Virgin and Figure is Rgb -> 0 buffer is created. Only SRC Blending is possible
             //At middle GraphicsX is Primitive and Figure is Rgb -> 1 buffer is created for figure: RGB
             //At worst, Figure is Primitive  -> 2 buffers are created. One for Image and one for Rgb filter : RGB_IMAGE
-            boolean rgb = p.hasFlag(ITechFigure.FIG__OFFSET_03_FLAGP, ITechFigure.FIG_FLAGP_1RGB);
+            boolean rgb = p.hasFlag(IBOFigure.FIG__OFFSET_03_FLAGP, IBOFigure.FIG_FLAGP_1RGB);
             GraphicsX gi = null;
             RgbImage buffer = null;
             if (rgb) {
@@ -991,13 +1018,13 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    }
 
    void paintFigureSwitch(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      final int type = p.getValue(ITechFigure.FIG__OFFSET_01_TYPE1, 1);
+      final int type = p.getValue(IBOFigure.FIG__OFFSET_01_TYPE1, 1);
       switch (type) {
          case ITechFigure.FIG_TYPE_01_RECTANGLE:
             //no trans filter
             drawFigRectangle(g, x, y, w, h, p);
             break;
-         case ITechFigure.FIG_TYPE_3_TRIANGLE:
+         case ITechFigure.FIG_TYPE_03_TRIANGLE:
             drawerTriangle.drawFigTriangle(g, x, y, w, h, p);
             break;
          case ITechFigure.FIG_TYPE_05_LINE:
@@ -1057,7 +1084,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param p
     */
    private void paintFigureSwitchSubFigures(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      if (p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_7_SUB_FIGURE)) {
+      if (p.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_7_SUB_FIGURE)) {
          //find sub figures which are sized
          int index = getSubFiguresDrwIndex(p);
          ByteObject[] params = p.getSubs();
@@ -1095,18 +1122,18 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param p
     */
    public void drawSuperLines(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      int sepsize = p.getValue(ITechFigure.FIG_SL_OFFSET_4SEPARATION2, 2);
-      int linesize = p.getValue(ITechFigure.FIG_SL_OFFSET_2LINE_SIZE1, 1);
-      int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
-      boolean horiz = p.hasFlag(ITechFigure.FIG_SL_OFFSET_1FLAG, ITechFigure.FIG_SL_FLAG_3HORIZ);
+      int sepsize = p.getValue(IBOFigSuperLines.FIG_SL_OFFSET_4SEPARATION2, 2);
+      int linesize = p.getValue(IBOFigSuperLines.FIG_SL_OFFSET_2LINE_SIZE1, 1);
+      int color = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
+      boolean horiz = p.hasFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_3HORIZ);
       g.setColor(color);
-      int numLines = p.getValue(ITechFigure.FIG_SL_OFFSET_3REPEAT2, 2);
-      boolean isIFirst = p.hasFlag(ITechFigure.FIG_SL_OFFSET_1FLAG, ITechFigure.FIG_SL_FLAG_7IGNORE_FIRST);
-      boolean isILast = p.hasFlag(ITechFigure.FIG_SL_OFFSET_1FLAG, ITechFigure.FIG_SL_FLAG_8IGNORE_LAST);
+      int numLines = p.getValue(IBOFigSuperLines.FIG_SL_OFFSET_3REPEAT2, 2);
+      boolean isIFirst = p.hasFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_7IGNORE_FIRST);
+      boolean isILast = p.hasFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_8IGNORE_LAST);
       ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
       int count = 0;
       if (horiz) {
-         if (p.hasFlag(ITechFigure.FIG_SL_OFFSET_1FLAG, ITechFigure.FIG_SL_FLAG_6FILL)) {
+         if (p.hasFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_6FILL)) {
             int end = y + h;
             while (y < end) {
                if (!(isIFirst && count == 0)) {
@@ -1128,7 +1155,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
             }
          }
       } else {
-         if (p.hasFlag(ITechFigure.FIG_SL_OFFSET_1FLAG, ITechFigure.FIG_SL_FLAG_6FILL)) {
+         if (p.hasFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_6FILL)) {
             int end = x + w;
             while (x < end) {
                if (!(isIFirst && count == 0)) {
@@ -1159,10 +1186,10 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     */
    public int getSubFiguresDrwIndex(ByteObject p) {
       int index = 0;
-      if (p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER)) {
+      if (p.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_5_FILTER)) {
          index++;
       }
-      if (p.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_6_ANIMATED)) {
+      if (p.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_6_ANIMATED)) {
          index++;
       }
       return index;
@@ -1212,7 +1239,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
 
    public void drawArc(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
       ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
-      int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+      int color = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
       int angle = 0;
       g.setColor(color);
    }
@@ -1249,14 +1276,14 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param r
     */
    public void drawArtifactsHoriz(GraphicsX g, int color, int x, int y, int width, ByteObject art, Random r) {
-      boolean isRndSpace = art.hasFlag(ITechArtifact.ARTIFACT_OFFSET_1FLAG, ITechArtifact.ARTIFACT_FLAG_3RANDOM_SPACING);
-      boolean isRndW = art.hasFlag(ITechArtifact.ARTIFACT_OFFSET_1FLAG, ITechArtifact.ARTIFACT_FLAG_1RANDOM_W);
-      boolean isRndH = art.hasFlag(ITechArtifact.ARTIFACT_OFFSET_1FLAG, ITechArtifact.ARTIFACT_FLAG_2RANDOM_H);
-      int type = art.get1(ITechArtifact.ARTIFACT_OFFSET_5TYPE1);
+      boolean isRndSpace = art.hasFlag(IBOArtifact.ARTIFACT_OFFSET_01_FLAG, IBOArtifact.ARTIFACT_FLAG_3_RANDOM_SPACING);
+      boolean isRndW = art.hasFlag(IBOArtifact.ARTIFACT_OFFSET_01_FLAG, IBOArtifact.ARTIFACT_FLAG_1_RANDOM_W);
+      boolean isRndH = art.hasFlag(IBOArtifact.ARTIFACT_OFFSET_01_FLAG, IBOArtifact.ARTIFACT_FLAG_2_RANDOM_H);
+      int type = art.get1(IBOArtifact.ARTIFACT_OFFSET_05_TYPE1);
 
-      int artW = art.get1(ITechArtifact.ARTIFACT_OFFSET_2W1);
-      int artH = art.get1(ITechArtifact.ARTIFACT_OFFSET_3H1);
-      int aspace = art.get1(ITechArtifact.ARTIFACT_OFFSET_4SPACING_CAP1);
+      int artW = art.get1(IBOArtifact.ARTIFACT_OFFSET_02_W1);
+      int artH = art.get1(IBOArtifact.ARTIFACT_OFFSET_03_H1);
+      int aspace = art.get1(IBOArtifact.ARTIFACT_OFFSET_04_SPACING_CAP1);
       if (aspace <= 0)
          aspace = 1;
       g.setColor(color);
@@ -1368,7 +1395,7 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param p
     */
    public void drawCross(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+      int color = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
       g.setColor(color);
       ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
       if (g.hasGradient() && grad != null) {
@@ -1397,10 +1424,10 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param p
     */
    public void drawCrossAsLine(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      int positionVerticalBar = p.get1(ITechFigure.FIG_CROSS_OFFSET_4XOFFSET1);
-      int positionHorizontalBar = p.get1(ITechFigure.FIG_CROSS_OFFSET_5YOFFSET1);
-      int heightHorizontalBar = p.get1(ITechFigure.FIG_CROSS_OFFSET_2HTHICK1);
-      int widthVerticalBar = p.get1(ITechFigure.FIG_CROSS_OFFSET_3VTHICK1);
+      int positionVerticalBar = p.get1(IBOFigCross.FIG_CROSS_OFFSET_4XOFFSET1);
+      int positionHorizontalBar = p.get1(IBOFigCross.FIG_CROSS_OFFSET_5YOFFSET1);
+      int heightHorizontalBar = p.get1(IBOFigCross.FIG_CROSS_OFFSET_2HTHICK1);
+      int widthVerticalBar = p.get1(IBOFigCross.FIG_CROSS_OFFSET_3VTHICK1);
       int ch = h * heightHorizontalBar / 100;
       int cw = w * widthVerticalBar / 100;
       int h1 = (h - ch) * positionHorizontalBar / 100;
@@ -1459,8 +1486,8 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param p
     */
    public void drawCrossFill(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      int heightHorizontalBar = p.get1(ITechFigure.FIG_CROSS_OFFSET_2HTHICK1);
-      int widthVerticalBar = p.get1(ITechFigure.FIG_CROSS_OFFSET_3VTHICK1);
+      int heightHorizontalBar = p.get1(IBOFigCross.FIG_CROSS_OFFSET_2HTHICK1);
+      int widthVerticalBar = p.get1(IBOFigCross.FIG_CROSS_OFFSET_3VTHICK1);
       int crossHheight = h * heightHorizontalBar / 100;
       int crossVwidth = w * widthVerticalBar / 100;
 
@@ -1475,8 +1502,8 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    }
 
    public void drawCoeur(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
-      int color2 = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+      int color = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
+      int color2 = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
       int w2 = w / 2;
       int w3_demi = w - w2;
       int def = h / 3;
@@ -1546,13 +1573,13 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    }
 
    public void drawTrefle(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
+      int color = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
       //2 bytes sizer
-      int base = p.get2(ITechFigure.FIG_TREFLE_OFFSET_2_BASE2);
+      int base = p.get2(IBOFigCardsCPCTrefle.FIG_TREFLE_OFFSET_2_BASE2);
       if (base == 0) {
          base = w / 4;
       }
-      int leafSize = p.get2(ITechFigure.FIG_TREFLE_OFFSET_3_LEAF2);
+      int leafSize = p.get2(IBOFigCardsCPCTrefle.FIG_TREFLE_OFFSET_3_LEAF2);
       if (leafSize == 0) {
          leafSize = w / 2;
       }
@@ -1583,13 +1610,13 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
     * @param p
     */
    public void drawEllipse(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      int color = p.get4(ITechFigure.FIG__OFFSET_06_COLOR4);
-      int border = p.get1(ITechFigure.FIG_ELLIPSE_OFFSET_03_SIZE_FILL1);
+      int color = p.get4(IBOFigure.FIG__OFFSET_06_COLOR4);
+      int border = p.get1(IBOFigEllipse.FIG_ELLIPSE_OFFSET_03_SIZE_FILL1);
       if (border != 0) {
          //we must draw using a mask
          ByteObject borderSizer = p.getSubFirst(IBOTypesLayout.FTYPE_3_SIZER);
       }
-      boolean isArc = p.hasFlag(ITechFigure.FIG_ELLIPSE_OFFSET_01_FLAG1, ITechFigure.FIG_ELLIPSE_FLAG_3_FIL_DE_FER);
+      boolean isArc = p.hasFlag(IBOFigEllipse.FIG_ELLIPSE_OFFSET_01_FLAG1, IBOFigEllipse.FIG_ELLIPSE_FLAG_3_FIL_DE_FER);
       g.setFillMode(!isArc);
       ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
       if (g.hasGradient() && grad != null) {
@@ -1600,8 +1627,8 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
    }
 
    public void drawEllipse(GraphicsX g, int x, int y, int w, int h, int color, ByteObject p) {
-      int start = p.get2(ITechFigure.FIG_ELLIPSE_OFFSET_05_ANGLE_START2);
-      int amplitude = p.get2(ITechFigure.FIG_ELLIPSE_OFFSET_06_ANGLE_END2);
+      int start = p.get2(IBOFigEllipse.FIG_ELLIPSE_OFFSET_05_ANGLE_START2);
+      int amplitude = p.get2(IBOFigEllipse.FIG_ELLIPSE_OFFSET_06_ANGLE_END2);
 
       g.setColor(color);
       g.fiArc(x, y, w, h, start, amplitude);
@@ -1611,11 +1638,11 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
       final int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
       int gradSize = GradientOperator.getEllipseGradSize(w, h, grad);
       int count = 0;
-      int start = p.get2(ITechFigure.FIG_ELLIPSE_OFFSET_05_ANGLE_START2);
-      int amplitude = p.get2(ITechFigure.FIG_ELLIPSE_OFFSET_06_ANGLE_END2);
-      int slip = p.get2(ITechFigure.FIG_ELLIPSE_OFFSET_07_ANGLE_SLIP2);
+      int start = p.get2(IBOFigEllipse.FIG_ELLIPSE_OFFSET_05_ANGLE_START2);
+      int amplitude = p.get2(IBOFigEllipse.FIG_ELLIPSE_OFFSET_06_ANGLE_END2);
+      int slip = p.get2(IBOFigEllipse.FIG_ELLIPSE_OFFSET_07_ANGLE_SLIP2);
       ColorIterator ci = drc.getColorFunctionFactory().getColorIterator(color, grad, gradSize);
-      if (p.hasFlag(ITechFigure.FIG_ELLIPSE_OFFSET_01_FLAG1, ITechFigure.FIG_ELLIPSE_FLAG_4_RECTANGLE_FILL)) {
+      if (p.hasFlag(IBOFigEllipse.FIG_ELLIPSE_OFFSET_01_FLAG1, IBOFigEllipse.FIG_ELLIPSE_FLAG_4_RECTANGLE_FILL)) {
          g.setColor(ci.getCurrentColor());
          g.fillRect(x, y, w, h);
       }
@@ -1866,14 +1893,14 @@ public class FigureOperator extends AbstractDrwOperator implements ITechBox {
 
    public void drawRectangleGradientArt(GraphicsX g, int x, int y, int width, int height, int arcw, int arch, int color, int gradSize, ByteObject grad, ByteObject art) {
       int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
-      int aw = art.get1(ITechArtifact.ARTIFACT_OFFSET_2W1);
-      int ah = art.get1(ITechArtifact.ARTIFACT_OFFSET_3H1);
-      int aspace = art.get1(ITechArtifact.ARTIFACT_OFFSET_4SPACING_CAP1);
+      int aw = art.get1(IBOArtifact.ARTIFACT_OFFSET_02_W1);
+      int ah = art.get1(IBOArtifact.ARTIFACT_OFFSET_03_H1);
+      int aspace = art.get1(IBOArtifact.ARTIFACT_OFFSET_04_SPACING_CAP1);
       if (aspace <= 0)
          aspace = 1;
-      boolean isRndSpace = art.hasFlag(ITechArtifact.ARTIFACT_OFFSET_1FLAG, ITechArtifact.ARTIFACT_FLAG_3RANDOM_SPACING);
-      boolean isRndW = art.hasFlag(ITechArtifact.ARTIFACT_OFFSET_1FLAG, ITechArtifact.ARTIFACT_FLAG_1RANDOM_W);
-      boolean isRndH = art.hasFlag(ITechArtifact.ARTIFACT_OFFSET_1FLAG, ITechArtifact.ARTIFACT_FLAG_2RANDOM_H);
+      boolean isRndSpace = art.hasFlag(IBOArtifact.ARTIFACT_OFFSET_01_FLAG, IBOArtifact.ARTIFACT_FLAG_3_RANDOM_SPACING);
+      boolean isRndW = art.hasFlag(IBOArtifact.ARTIFACT_OFFSET_01_FLAG, IBOArtifact.ARTIFACT_FLAG_1_RANDOM_W);
+      boolean isRndH = art.hasFlag(IBOArtifact.ARTIFACT_OFFSET_01_FLAG, IBOArtifact.ARTIFACT_FLAG_2_RANDOM_H);
       Random r = drc.getRandom();
       int count = 0;
       ColorIterator ci = drc.getColorFunctionFactory().getColorIterator(color, grad, gradSize);

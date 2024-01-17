@@ -17,9 +17,9 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
-import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGraphicsX;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 
 /**
@@ -27,7 +27,7 @@ import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
  * @author Charles Bentley
  *
  */
-public class MaskOperator extends AbstractDrwOperator implements ITechMask, IColors {
+public class MaskOperator extends AbstractDrwOperator implements IBOMask, IColors {
 
    public MaskOperator(DrwCtx drc) {
       super(drc);
@@ -218,11 +218,11 @@ public class MaskOperator extends AbstractDrwOperator implements ITechMask, ICol
 
    public ByteObject getClonedFigureForMask(ByteObject fig) {
       ByteObject figureCloned = fig.cloneCopyHeadRefParams();
-      figureCloned.setValue(ITechFigure.FIG__OFFSET_06_COLOR4, FULLY_OPAQUE_BLACK, 4);
-      figureCloned.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_2_GRADIENT, false);
-      figureCloned.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_6_ANIMATED, false);
-      figureCloned.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK, false);
-      figureCloned.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_5_FILTER, false);
+      figureCloned.setValue(IBOFigure.FIG__OFFSET_06_COLOR4, FULLY_OPAQUE_BLACK, 4);
+      figureCloned.setFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_2_GRADIENT, false);
+      figureCloned.setFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_6_ANIMATED, false);
+      figureCloned.setFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK, false);
+      figureCloned.setFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_5_FILTER, false);
 
       return figureCloned;
    }
@@ -274,7 +274,7 @@ public class MaskOperator extends AbstractDrwOperator implements ITechMask, ICol
    /**
     * 
     * Size of returned image is same as {@link RgbImage}, unless
-    * the mask defines a sizer {@link ITechMask#MASK_FLAG_6_SIZE_MASK}
+    * the mask defines a sizer {@link IBOMask#MASK_FLAG_6_SIZE_MASK}
     * 
     * <br>
     * <br>
@@ -356,14 +356,14 @@ public class MaskOperator extends AbstractDrwOperator implements ITechMask, ICol
     * <br>
     * <br>
     * Shape color
-    * <li> {@link ITechMask#MASK_OFFSET_2_COLOR_BG4}
-    * <li> {@link ITechMask#MASK_OFFSET_3_COLOR_MID4}
-    * <li> {@link ITechMask#MASK_OFFSET_4_COLOR_SHAPE4}
+    * <li> {@link IBOMask#MASK_OFFSET_2_COLOR_BG4}
+    * <li> {@link IBOMask#MASK_OFFSET_3_COLOR_MID4}
+    * <li> {@link IBOMask#MASK_OFFSET_4_COLOR_SHAPE4}
     * 
     * @param figData
     * @param i
     * @param blendOp 
-    * @param shapeColor the color of the shape as defined by {@link ITechMask#MASK_OFFSET_2_COLOR_BG4}
+    * @param shapeColor the color of the shape as defined by {@link IBOMask#MASK_OFFSET_2_COLOR_BG4}
     * @param alphaValue
     */
    void blendMaskPixel(int[] figData, int i, BlendOp blendOp, int shapeColor, int alphaValue) {
@@ -385,9 +385,9 @@ public class MaskOperator extends AbstractDrwOperator implements ITechMask, ICol
    public void addMask(ByteObject figure, ByteObject mask) {
       if (figure == null || mask == null)
          return;
-      if (!figure.hasFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK)) {
+      if (!figure.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK)) {
          figure.addSub(mask);
-         figure.setFlag(ITechFigure.FIG__OFFSET_02_FLAG, ITechFigure.FIG_FLAG_4_MASK, true);
+         figure.setFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK, true);
       }
    }
 

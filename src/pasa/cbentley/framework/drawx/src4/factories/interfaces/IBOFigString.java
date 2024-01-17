@@ -1,11 +1,12 @@
-package pasa.cbentley.framework.drawx.src4.tech;
+package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.coredraw.src4.ctx.IConfigCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFont;
-import pasa.cbentley.framework.drawx.src4.string.IBOFxStr;
-import pasa.cbentley.framework.drawx.src4.string.ITechStringer;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
+import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
  * A mix of {@link ITechFont} and {@link ITechStringer}
@@ -21,7 +22,7 @@ public interface IBOFigString extends ITechFigure {
     * 3 bytes for font
     * 2 bytes for char
     */
-   public static final int FIG_STRING_BASIC_SIZE               = ITechFigure.FIG__BASIC_SIZE + 12;
+   public static final int FIG_STRING_BASIC_SIZE               = IBOFigure.FIG__BASIC_SIZE + 12;
 
    /**
     * Scaling flag telling a {@link IBOTypesDrw#TYPE_055_SCALE} {@link ByteObject} is in the params
@@ -30,7 +31,7 @@ public interface IBOFigString extends ITechFigure {
     * <li>scale type id -> (linear,bilinear {@link IBOScaler#SCALE_OFFSET_03_ID1}
     * 
     * <p>
-    * {@link ITechFigure#FIG_FLAG_1_ANCHOR} is ignored if scaled.. otherwise anchor.
+    * {@link IBOFigure#FIG_FLAG_1_ANCHOR} is ignored if scaled.. otherwise anchor.
     * when no anchor, centered by default
     * 
     * </p>
@@ -127,9 +128,9 @@ public interface IBOFigString extends ITechFigure {
     */
    public static final int FIG_STRING_FLAGX_8_                 = 1 << 7;
 
-   public static final int FIG_STRING_OFFSET_01_FLAG           = ITechFigure.FIG__BASIC_SIZE;
+   public static final int FIG_STRING_OFFSET_01_FLAG           = IBOFigure.FIG__BASIC_SIZE;
 
-   public static final int FIG_STRING_OFFSET_02_FLAGX          = ITechFigure.FIG__BASIC_SIZE + 1;
+   public static final int FIG_STRING_OFFSET_02_FLAGX          = IBOFigure.FIG__BASIC_SIZE + 1;
 
    /**
     * MM: flag 1 of offset 6.
@@ -139,7 +140,7 @@ public interface IBOFigString extends ITechFigure {
     * <br>
     * Bigger values means a custom font
     */
-   public static final int FIG_STRING_OFFSET_03_FACE1          = ITechFigure.FIG__BASIC_SIZE + 2;
+   public static final int FIG_STRING_OFFSET_03_FACE1          = IBOFigure.FIG__BASIC_SIZE + 2;
 
    /**
     * MM: flag 2 of offset 6.
@@ -147,7 +148,7 @@ public interface IBOFigString extends ITechFigure {
     * <li>{@link ITechFont#STYLE_ITALIC}
     * <li>{@link ITechFont#STYLE_PLAIN}
     */
-   public static final int FIG_STRING_OFFSET_04_STYLE1         = ITechFigure.FIG__BASIC_SIZE + 3;
+   public static final int FIG_STRING_OFFSET_04_STYLE1         = IBOFigure.FIG__BASIC_SIZE + 3;
 
    /**
     * MM: flag 3 of offset 6.
@@ -171,13 +172,13 @@ public interface IBOFigString extends ITechFigure {
     * <br>
     * 
     */
-   public static final int FIG_STRING_OFFSET_05_SIZE1          = ITechFigure.FIG__BASIC_SIZE + 4;
+   public static final int FIG_STRING_OFFSET_05_SIZE1          = IBOFigure.FIG__BASIC_SIZE + 4;
 
    /**
     * <li> {@link ITechStringer#NEWLINE_MANAGER_0_IGNORE}
     * <li> {@link ITechStringer#NEWLINE_MANAGER_1_WORK}
     */
-   public static final int FIG_STRING_OFFSET_06_NEWLINE1       = ITechFigure.FIG__BASIC_SIZE + 5;
+   public static final int FIG_STRING_OFFSET_06_NEWLINE1       = IBOFigure.FIG__BASIC_SIZE + 5;
 
    /**
     * <li> {@link ITechStringer#WORDWRAP_0_NONE}
@@ -185,7 +186,7 @@ public interface IBOFigString extends ITechFigure {
     * <li> {@link ITechStringer#WORDWRAP_2_NICE_WORD}
     * <li> {@link ITechStringer#WORDWRAP_3_NICE_HYPHENATION}
     */
-   public static final int FIG_STRING_OFFSET_07_WORDWRAP1      = ITechFigure.FIG__BASIC_SIZE + 6;
+   public static final int FIG_STRING_OFFSET_07_WORDWRAP1      = IBOFigure.FIG__BASIC_SIZE + 6;
 
    /**
     * Ignores 0 and <0 and assumes 1 as default
@@ -194,7 +195,7 @@ public interface IBOFigString extends ITechFigure {
     * 
     * A trim artifacts might be drawn {@link IBOFigString#FIG_STRING_FLAG_3_TRIM_ARTIFACT}
     */
-   public static final int FIG_STRING_OFFSET_08_MAXLINES1      = ITechFigure.FIG__BASIC_SIZE + 7;
+   public static final int FIG_STRING_OFFSET_08_MAXLINES1      = IBOFigure.FIG__BASIC_SIZE + 7;
 
    /**
     * Decide the policy of dealing with spaces
@@ -202,14 +203,14 @@ public interface IBOFigString extends ITechFigure {
     * <li> {@link ITechStringer#SPACETRIM_1_NORMAL} 
     * <li> {@link ITechStringer#SPACETRIM_2_JUSTIFIED} 
     */
-   public static final int FIG_STRING_OFFSET_09_SPACE_TRIM1    = ITechFigure.FIG__BASIC_SIZE + 8;
+   public static final int FIG_STRING_OFFSET_09_SPACE_TRIM1    = IBOFigure.FIG__BASIC_SIZE + 8;
 
    /**
     * <li> {@link ITechStringer#TAB_MANAGER_0_SINGLE_SPACE}
     * <li> {@link ITechStringer#TAB_MANAGER_1_ESCAPED}
     * <li> {@link ITechStringer#TAB_MANAGER_2_COLUMN}
     */
-   public static final int FIG_STRING_OFFSET_10_TAB_MANAGER1   = ITechFigure.FIG__BASIC_SIZE + 9;
+   public static final int FIG_STRING_OFFSET_10_TAB_MANAGER1   = IBOFigure.FIG__BASIC_SIZE + 9;
 
    /**
     * Depends on the Tab manager value.
@@ -218,7 +219,7 @@ public interface IBOFigString extends ITechFigure {
     * In Column mode tells the size in spaces for one column. Historically it is often 8 or 4
     * </p>
     */
-   public static final int FIG_STRING_OFFSET_11_TAB_AUX1       = ITechFigure.FIG__BASIC_SIZE + 10;
+   public static final int FIG_STRING_OFFSET_11_TAB_AUX1       = IBOFigure.FIG__BASIC_SIZE + 10;
 
    /**
     * Character Unicode. <br>
@@ -238,6 +239,6 @@ public interface IBOFigString extends ITechFigure {
     * <li> Blend layer
     * <li> Rotation
     */
-   public static final int FIG_STRING_OFFSET_12_CHAR2          = ITechFigure.FIG__BASIC_SIZE + 11;
+   public static final int FIG_STRING_OFFSET_12_CHAR2          = IBOFigure.FIG__BASIC_SIZE + 11;
 
 }

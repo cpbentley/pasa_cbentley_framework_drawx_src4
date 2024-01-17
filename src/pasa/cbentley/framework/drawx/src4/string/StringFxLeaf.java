@@ -9,9 +9,10 @@ import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
-import pasa.cbentley.framework.drawx.src4.tech.ITechBox;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
 
 /**
  * A {@link StringFxLeaf} has a consistent {@link StringFx} applied to all its characters.
@@ -47,7 +48,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechMask;
  * @author Charles Bentley
  *
  */
-public class StringFxLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, ITechMask, ITechBox, ITechStringer {
+public class StringFxLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, IBOMask, IBOBox, ITechStringer {
 
    /**
     * The style to be applied to all the characters in this interval
@@ -209,7 +210,7 @@ public class StringFxLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw,
             fx.setColor(g, count);
             fx.setFont(g, count);
 
-            g.drawChar(c, cx, cy, ITechBox.ANCHOR);
+            g.drawChar(c, cx, cy, IBOBox.ANCHOR);
 
             //#debug
             g.toDLog().pDraw("Single Char " + c + " at [" + cx + "," + cy + "]", this, StringDraw.class, "drawChar", ITechLvl.LVL_05_FINE, true);

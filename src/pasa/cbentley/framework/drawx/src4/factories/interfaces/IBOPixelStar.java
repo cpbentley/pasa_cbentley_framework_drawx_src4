@@ -2,9 +2,11 @@
  * (c) 2018-2020 Charles-Philip Bentley
  * This code is licensed under MIT license (see LICENSE.txt for details)
  */
-package pasa.cbentley.framework.drawx.src4.tech;
+package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
-public interface ITechFigPixelStar extends ITechFigure {
+import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
+
+public interface IBOPixelStar extends IByteObject {
    
    public static final int PIXSTAR_BASIC_SIZE                = A_OBJECT_BASIC_SIZE + 6;
 

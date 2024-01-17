@@ -1,4 +1,4 @@
-package pasa.cbentley.framework.drawx.src4.string;
+package pasa.cbentley.framework.drawx.src4.string.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 

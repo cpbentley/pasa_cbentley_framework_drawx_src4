@@ -6,7 +6,8 @@ import pasa.cbentley.core.src4.structs.BufferObject;
 import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.core.src4.structs.IntIntervals;
 import pasa.cbentley.core.src4.utils.StringUtils;
-import pasa.cbentley.framework.drawx.src4.tech.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 
 public class LineAlgo {
@@ -99,9 +100,9 @@ public class LineAlgo {
 
    private boolean      isTrimArtifact;
 
-   private boolean isStop;
+   private boolean      isStop;
 
-   private int maxHeight;
+   private int          maxHeight;
 
    public LineAlgo(Stringer stringer) {
       this.stringer = stringer;
@@ -413,7 +414,7 @@ public class LineAlgo {
       isTestWidth = false;
       maxLineWidth = stringer.getBreakW();
       maxHeight = stringer.getBreakH();
-      
+
       if (maxLineWidth <= 0) {
          maxLineWidth = Integer.MAX_VALUE; //ignore
       } else {
@@ -517,15 +518,22 @@ public class LineAlgo {
       }
    }
 
-   private int                 tabMaxNum      = 0;
+   private int                 tabMaxNum       = 0;
 
-   private int                 tabLineCounter = 0;
+   private int                 tabLineCounter  = 0;
 
-   private int                 tabCurrentTab  = -1;
+   private int                 tabCurrentTab   = -1;
+
+   /**
+    * An end markup has to be on the same line
+    */
+   private char                markupStartChar = '〖';
+
+   private char                markupEndChar   = '〗';
 
    private TabColumnStringer[] tabCols;
 
-   private char lastChar;
+   private char                lastChar;
 
    /**
     * TODO how to deal with hidden characters.. when selecting a visible char.. index visible is not equal to
@@ -541,7 +549,9 @@ public class LineAlgo {
          //are we still in the current line
          lastChar = stringer.getCharAtRelative(i);
          //check only newline chars if requested.. can be turned off for perf reasons
-         if (lastChar == StringUtils.NEW_LINE) {
+         if (lastChar == markupStartChar) {
+            //check markup
+         } else if (lastChar == StringUtils.NEW_LINE) {
             //TODO. is the index included in the newLine?
             regularCharNewLine(i);
          } else if (lastChar == StringUtils.NEW_LINE_CARRIAGE_RETURN) {
@@ -554,7 +564,7 @@ public class LineAlgo {
          if (maxLinesNum != 0 && finalLines.getSize() == maxLinesNum) {
             return;
          }
-         if(isStop) {
+         if (isStop) {
             return;
          }
       }
@@ -786,7 +796,7 @@ public class LineAlgo {
       }
 
       //we have our lines
-      
+
       //case 1 when no chars. we have a single empty line
       //case 2 when it ends with \n. create the same scneario with an "fictive" line 
       if (stringer.lengthChars == 0 || lastChar == StringUtils.NEW_LINE) {
