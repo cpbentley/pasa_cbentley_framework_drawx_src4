@@ -16,8 +16,8 @@ import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
-import pasa.cbentley.layouter.src4.tech.ITechPozer;
-import pasa.cbentley.layouter.src4.tech.ITechSizer;
+import pasa.cbentley.layouter.src4.tech.IBOPozer;
+import pasa.cbentley.layouter.src4.tech.IBOSizer;
 
 /**
  * 

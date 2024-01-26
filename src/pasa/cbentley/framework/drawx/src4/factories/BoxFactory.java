@@ -15,15 +15,15 @@ import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
-import pasa.cbentley.layouter.src4.tech.ITechPozer;
-import pasa.cbentley.layouter.src4.tech.ITechSizer;
+import pasa.cbentley.layouter.src4.tech.IBOPozer;
+import pasa.cbentley.layouter.src4.tech.IBOSizer;
 
 /**
  * FactoryEngine for {@link IBOBox}
  * <br>
  * Boxes constrain Figures to specific areas of the drawing rectangle
  * Creates a lightweight layout in a drawing rectangle. No concept of GUI. Just drawing
- * Simplified {@link ITechSizer} and {@link ITechPozer} in a single ByteObject of 16 bytes 
+ * Simplified {@link IBOSizer} and {@link IBOPozer} in a single ByteObject of 16 bytes 
  * Move to Layouter
  * @author Charles Bentley
  *
