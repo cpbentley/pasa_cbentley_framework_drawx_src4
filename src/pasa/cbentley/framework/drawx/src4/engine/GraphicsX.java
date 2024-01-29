@@ -31,6 +31,7 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFeaturesDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOAnchor;
@@ -107,7 +108,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechStyles;
  * @see IGraphics
  * 
  */
-public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
+public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX, IColorSettable {
 
    /**
     * Graphics wide value that applies to all primitive operations.
@@ -182,7 +183,6 @@ public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
     */
    private int       clipY             = 0;
 
-   private DrwCtx    drc;
 
    private int       excludeColor;
 
@@ -320,9 +320,7 @@ public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
 
    private long      tickTime;
 
-   //#debug
-   private String    toStringName;
-
+  
    /**
     * Class own translate x component.
     */
@@ -341,15 +339,15 @@ public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
     * @param g
     */
    public GraphicsX(DrwCtx drc) {
-      this.drc = drc;
+      super(drc);
       this.cache = drc.getCache();
       paintMode = MODE_0_SCREEN;
       aInit();
    }
 
    GraphicsX(DrwCtx drc, RgbCache rc, RgbImage rgbImg, boolean isNull) {
+      super(drc);
       if (isNull) {
-         this.drc = drc;
          this.cache = rc;
          this.imageRgbData = rgbImg;
          paintMode = MODE_4_NULL;
@@ -384,9 +382,9 @@ public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
     * @param h
     */
    GraphicsX(DrwCtx drc, RgbCache rc, RgbImage rgbImg, int paintingMode, int x, int y, int w, int h) {
+      super(drc);
       if (paintingMode == MODE_0_SCREEN)
          throw new IllegalArgumentException("Cannot have SCREEN mode with a RgbImage");
-      this.drc = drc;
       this.cache = rc;
       aInit();
       this.imageRgbData = rgbImg;
@@ -2358,10 +2356,6 @@ public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
       return System.currentTimeMillis() - tickTime;
    }
 
-   //#mdebug
-   public IDLog toDLog() {
-      return drc.toDLog();
-   }
 
    public void toggleBlendBack() {
       blendOpImages = saved;
@@ -2390,14 +2384,12 @@ public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
       return v;
    }
 
-   public String toString() {
-      return Dctx.toString(this);
-   }
 
    public void toString(Dctx dc) {
       dc.root(this, GraphicsX.class, "@line2450");
       toStringPrivate(dc);
-
+      super.toString(dc.sup());
+      
       dc.appendVarWithSpace("isPseudoColorMode", isPseudoColorMode);
       dc.appendVarWithSpace("isAlphaMode", isAlphaMode);
       dc.appendVarWithSpace("isFillMode", isFillMode);
@@ -2434,13 +2426,10 @@ public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
       dc.nlLvl(imageRgbData, "imageRgbData");
    }
 
-   public String toString1Line() {
-      return Dctx.toString1Line(this);
-   }
-
    public void toString1Line(Dctx dc) {
       dc.root1Line(this, GraphicsX.class);
       toStringPrivate(dc);
+      super.toString1Line(dc.sup1Line());
    }
 
    public String toStringClip() {
@@ -2492,21 +2481,9 @@ public class GraphicsX implements IStringable, ITechGraphicsX, IColorSettable {
       }
    }
 
-   public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
-   }
 
    private void toStringPrivate(Dctx dc) {
-      dc.appendVarWithSpace("debugName", toStringName);
-      dc.appendVarWithSpace("paintMode", ToStringStaticDrawx.toStringPaintMode(paintMode));
-   }
-
-   public void toStringSetName(String name) {
-      if (toStringName == null) {
-         toStringName = name;
-      } else {
-         toStringName = toStringName + " - " + name;
-      }
+       dc.appendVarWithSpace("paintMode", ToStringStaticDrawx.toStringPaintMode(paintMode));
    }
 
    /**

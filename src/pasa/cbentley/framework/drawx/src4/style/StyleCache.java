@@ -6,9 +6,7 @@ package pasa.cbentley.framework.drawx.src4.style;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
-import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
-import pasa.cbentley.core.src4.logging.IDLog;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
@@ -27,11 +25,9 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
 
    private ILayoutable   ctx;
 
-   private DrwCtx        dc;
-
    private int           flagsValidity;
 
-   protected boolean     isValid;
+   protected boolean     isValidStyleAreas;
 
    private ByteObject    style;
 
@@ -157,7 +153,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
          this.areas = areas;
       }
       if (areas == null) {
-         
+
          //#debug
          toDLog().pNull("x=" + x + " y=" + y + " w=" + w + " h=" + h, this, StyleCache.class, "getStyleAreas");
          throw new IllegalStateException("Areas must not be null");
@@ -168,6 +164,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHAll() {
       if (isValueInvalid(SC_FLAG_02_HEIGHT_ALL)) {
          styleHAll = getStyleHBotAll() + getStyleHTopAll();
+         setValueValid(SC_FLAG_02_HEIGHT_ALL);
       }
       return styleHAll;
    }
@@ -175,6 +172,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHBorder() {
       if (isValueInvalid(SC_FLAG_25_BORDER_HEIGHT)) {
          styleHBorder = getStyleHBorderBot() + getStyleHBorderTop();
+         setValueValid(SC_FLAG_25_BORDER_HEIGHT);
       }
       return styleHBorder;
    }
@@ -182,6 +180,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHBorderBot() {
       if (isValueInvalid(SC_FLAG_15_BORDER_BOT)) {
          styleHBorderBot = styleOp.getStyleBorderBot(style, ctx);
+         setValueValid(SC_FLAG_15_BORDER_BOT);
       }
       return styleHBorderBot;
    }
@@ -189,6 +188,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHBorderTop() {
       if (isValueInvalid(SC_FLAG_14_BORDER_TOP)) {
          styleHBorderTop = styleOp.getStyleBorderTop(style, ctx);
+         setValueValid(SC_FLAG_14_BORDER_TOP);
       }
       return styleHBorderTop;
    }
@@ -196,6 +196,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHBotAll() {
       if (isValueInvalid(SC_FLAG_06_HEIGHT_BOT)) {
          styleHAllBot = getStyleHBorderBot() + getStyleHPaddingBot() + getStyleHMarginBot();
+         setValueValid(SC_FLAG_06_HEIGHT_BOT);
       }
       return styleHAllBot;
    }
@@ -203,6 +204,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHMargin() {
       if (isValueInvalid(SC_FLAG_27_MARGIN_HEIGHT)) {
          styleHMargin = getStyleHMarginBot() + getStyleHMarginTop();
+         setValueValid(SC_FLAG_27_MARGIN_HEIGHT);
       }
       return styleHMargin;
    }
@@ -210,6 +212,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHMarginBot() {
       if (isValueInvalid(SC_FLAG_19_MARGIN_BOT)) {
          styleHMarginBot = styleOp.getStyleMarginBot(style, ctx);
+         setValueValid(SC_FLAG_19_MARGIN_BOT);
       }
       return styleHMarginBot;
    }
@@ -217,6 +220,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHMarginTop() {
       if (isValueInvalid(SC_FLAG_18_MARGIN_TOP)) {
          styleHMarginTop = styleOp.getStyleMarginTop(style, ctx);
+         setValueValid(SC_FLAG_18_MARGIN_TOP);
       }
       return styleHMarginTop;
    }
@@ -224,13 +228,39 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHPadding() {
       if (isValueInvalid(SC_FLAG_23_PADDING_HEIGHT)) {
          styleHPadding = getStyleHPaddingBot() + getStyleHPaddingTop();
+         setValueValid(SC_FLAG_23_PADDING_HEIGHT);
       }
       return styleHPadding;
+   }
+
+   public int getStyleHPaddingBorderMargin() {
+      return getStyleHPadding() + getStyleHBorder() + getStyleHMargin();
+   }
+
+   public int getStyleWBorderMargin() {
+      return getStyleWBorder() + getStyleWMargin();
+   }
+
+   public int getStyleHBorderMargin() {
+      return getStyleHBorder() + getStyleHMargin();
+   }
+
+   public int getStyleWPaddingBorderMargin() {
+      return getStyleWPadding() + getStyleWBorder() + getStyleWMargin();
+   }
+
+   public int getStyleHPaddingBorder() {
+      return getStyleHPadding() + getStyleHBorder();
+   }
+
+   public int getStyleWPaddingBorder() {
+      return getStyleWPadding() + getStyleWBorder();
    }
 
    public int getStyleHPaddingBot() {
       if (isValueInvalid(SC_FLAG_11_PADDING_BOT)) {
          styleHPaddingBot = styleOp.getStylePaddingBot(style, ctx);
+         setValueValid(SC_FLAG_11_PADDING_BOT);
       }
       return styleHPaddingBot;
    }
@@ -238,6 +268,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHPaddingTop() {
       if (isValueInvalid(SC_FLAG_10_PADDING_TOP)) {
          styleHPaddingTop = styleOp.getStylePaddingTop(style, ctx);
+         setValueValid(SC_FLAG_10_PADDING_TOP);
       }
       return styleHPaddingTop;
    }
@@ -245,6 +276,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleHTopAll() {
       if (isValueInvalid(SC_FLAG_05_HEIGHT_TOP)) {
          styleHAllTop = getStyleHMarginTop() + getStyleHBorderTop() + getStyleHPaddingTop();
+         setValueValid(SC_FLAG_05_HEIGHT_TOP);
       }
       return styleHAllTop;
    }
@@ -252,6 +284,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWAll() {
       if (isValueInvalid(SC_FLAG_01_WIDTH_ALL)) {
          styleWAll = getStyleWLeftAll() + getStyleWRightAll();
+         setValueValid(SC_FLAG_01_WIDTH_ALL);
       }
       return styleWAll;
    }
@@ -259,6 +292,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWBorder() {
       if (isValueInvalid(SC_FLAG_24_BORDER_WIDTH)) {
          styleWBorder = getStyleWBorderLeft() + getStyleWBorderRite();
+         setValueValid(SC_FLAG_24_BORDER_WIDTH);
       }
       return styleWBorder;
    }
@@ -266,6 +300,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWBorderLeft() {
       if (isValueInvalid(SC_FLAG_16_BORDER_LEFT)) {
          styleWBorderLeft = styleOp.getStyleBorderLeft(style, ctx);
+         setValueValid(SC_FLAG_16_BORDER_LEFT);
       }
       return styleWBorderLeft;
    }
@@ -273,6 +308,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWBorderRite() {
       if (isValueInvalid(SC_FLAG_17_BORDER_RITE)) {
          styleWBorderRite = styleOp.getStyleBorderRite(style, ctx);
+         setValueValid(SC_FLAG_17_BORDER_RITE);
       }
       return styleWBorderRite;
    }
@@ -280,6 +316,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWLeftAll() {
       if (isValueInvalid(SC_FLAG_03_WIDTH_LEFT)) {
          styleWAllLeft = getStyleWBorderLeft() + getStyleWMarginLeft() + getStyleWPaddingLeft();
+         setValueValid(SC_FLAG_03_WIDTH_LEFT);
       }
       return styleWAllLeft;
    }
@@ -287,6 +324,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWMargin() {
       if (isValueInvalid(SC_FLAG_26_MARGIN_WIDTH)) {
          styleWMargin = getStyleWMarginLeft() + getStyleWMarginRite();
+         setValueValid(SC_FLAG_26_MARGIN_WIDTH);
       }
       return styleWMargin;
    }
@@ -294,6 +332,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWMarginLeft() {
       if (isValueInvalid(SC_FLAG_20_MARGIN_LEFT)) {
          styleWMarginLeft = styleOp.getStyleMarginLeft(style, ctx);
+         setValueValid(SC_FLAG_20_MARGIN_LEFT);
       }
       return styleWMarginLeft;
    }
@@ -301,6 +340,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWMarginRite() {
       if (isValueInvalid(SC_FLAG_21_MARGIN_RITE)) {
          styleWMarginRite = styleOp.getStyleMarginRite(style, ctx);
+         setValueValid(SC_FLAG_21_MARGIN_RITE);
       }
       return styleWMarginRite;
    }
@@ -308,6 +348,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWPadding() {
       if (isValueInvalid(SC_FLAG_22_PADDING_WIDTH)) {
          styleWPadding = getStyleWPaddingLeft() + getStyleWPaddingRite();
+         setValueValid(SC_FLAG_22_PADDING_WIDTH);
       }
       return styleWPadding;
    }
@@ -315,6 +356,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWPaddingLeft() {
       if (isValueInvalid(SC_FLAG_12_PADDING_LEFT)) {
          styleWPaddingLeft = styleOp.getStylePaddingLeft(style, ctx);
+         setValueValid(SC_FLAG_12_PADDING_LEFT);
       }
       return styleWPaddingLeft;
    }
@@ -326,6 +368,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWPaddingRite() {
       if (isValueInvalid(SC_FLAG_13_PADDING_RITE)) {
          styleWPaddingRite = styleOp.getStylePaddingRite(style, ctx);
+         setValueValid(SC_FLAG_13_PADDING_RITE);
       }
       return styleWPaddingRite;
    }
@@ -333,6 +376,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    public int getStyleWRightAll() {
       if (isValueInvalid(SC_FLAG_04_WIDTH_RITE)) {
          styleWAllRite = getStyleWBorderRite() + getStyleWMarginRite() + getStyleWPaddingRite();
+         setValueValid(SC_FLAG_04_WIDTH_RITE);
       }
       return styleWAllRite;
    }
@@ -342,38 +386,94 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
     */
    public void invalidateValues() {
       flagsValidity = 0;
+      isValidStyleAreas = false;
    }
 
    public boolean isValid() {
-      return isValid;
+      return isValidStyleAreas;
    }
 
-   public boolean isValueInvalid(int flag) {
-      //global disable of cache
+   private void setValueValid(int flag) {
+      BitUtils.setFlag(flagsValidity, flag, true);
+   }
+
+   private boolean isValueInvalid(int flag) {
+      return !BitUtils.hasFlag(flagsValidity, flag);
+   }
+
+   public boolean isValueValid(int flag) {
       return BitUtils.hasFlag(flagsValidity, flag);
    }
 
    public void setNewStyle(ByteObject style) {
-      isValid = false;
+      isValidStyleAreas = false;
       this.style = style;
    }
 
    public void setValid() {
-      isValid = true;
+      isValidStyleAreas = true;
    }
 
    //#mdebug
    public void toString(Dctx dc) {
-      dc.root(this, StyleCache.class, "@line5");
+      dc.root(this, StyleCache.class, 368);
       toStringPrivate(dc);
       super.toString(dc.sup());
-      
+
+      dc.nlLvl("styleAreas", areas, 4);
+
       dc.nlLvl(style, "Style");
       dc.nlLvl(ctx, ILayoutable.class);
+
+      appendCache(dc, "styleHAll", styleHAll, SC_FLAG_02_HEIGHT_ALL);
+      appendCache(dc, "styleHAllTop", styleHAllTop, SC_FLAG_05_HEIGHT_TOP);
+      appendCache(dc, "styleHAllBot", styleHAllBot, SC_FLAG_06_HEIGHT_BOT);
+
+      dc.nl();
+      appendCache(dc, "styleHPadding", styleHPadding, SC_FLAG_23_PADDING_HEIGHT);
+      appendCache(dc, "styleHPaddingTop", styleHPaddingTop, SC_FLAG_10_PADDING_TOP);
+      appendCache(dc, "styleHPaddingBot", styleHPaddingBot, SC_FLAG_11_PADDING_BOT);
+
+      dc.nl();
+      appendCache(dc, "styleHBorder", styleHBorder, SC_FLAG_25_BORDER_HEIGHT);
+      appendCache(dc, "styleHBorderTop", styleHBorderTop, SC_FLAG_14_BORDER_TOP);
+      appendCache(dc, "styleHBorderBot", styleHBorderBot, SC_FLAG_15_BORDER_BOT);
+
+      dc.nl();
+      appendCache(dc, "styleHMargin", styleHMargin, SC_FLAG_27_MARGIN_HEIGHT);
+      appendCache(dc, "styleHMarginTop", styleHMarginTop, SC_FLAG_18_MARGIN_TOP);
+      appendCache(dc, "styleHMarginBot", styleHMarginBot, SC_FLAG_19_MARGIN_BOT);
+
+      dc.nl();
+      appendCache(dc, "styleWAll", styleWAll, SC_FLAG_01_WIDTH_ALL);
+      appendCache(dc, "styleWAllLeft", styleWAllLeft, SC_FLAG_03_WIDTH_LEFT);
+      appendCache(dc, "styleWAllRite", styleWAllRite, SC_FLAG_04_WIDTH_RITE);
+
+      dc.nl();
+      appendCache(dc, "styleHPadding", styleWPadding, SC_FLAG_22_PADDING_WIDTH);
+      appendCache(dc, "styleHPaddingTop", styleWPaddingLeft, SC_FLAG_12_PADDING_LEFT);
+      appendCache(dc, "styleHPaddingBot", styleWPaddingRite, SC_FLAG_13_PADDING_RITE);
+
+      dc.nl();
+      appendCache(dc, "styleWBorder", styleWBorder, SC_FLAG_24_BORDER_WIDTH);
+      appendCache(dc, "styleWBorderLeft", styleWBorderLeft, SC_FLAG_16_BORDER_LEFT);
+      appendCache(dc, "styleWBorderRite", styleWBorderRite, SC_FLAG_17_BORDER_RITE);
+
+      dc.nl();
+      appendCache(dc, "styleHMargin", styleWMargin, SC_FLAG_26_MARGIN_WIDTH);
+      appendCache(dc, "styleWMarginLeft", styleWMarginLeft, SC_FLAG_20_MARGIN_LEFT);
+      appendCache(dc, "styleWMarginRite", styleWMarginRite, SC_FLAG_21_MARGIN_RITE);
+
+   }
+
+   private void appendCache(Dctx dc, String name, int val, int flag) {
+      dc.appendVarWithSpace(name, val);
+      dc.appendBracketedWithSpace(isValueValid(flag));
    }
 
    private void toStringPrivate(Dctx dc) {
-      
+      dc.appendVarWithSpace("isValid", isValidStyleAreas);
+
    }
 
    public void toString1Line(Dctx dc) {
@@ -383,7 +483,5 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    }
 
    //#enddebug
-   
-
 
 }

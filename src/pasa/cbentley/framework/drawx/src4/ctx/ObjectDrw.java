@@ -17,6 +17,9 @@ import pasa.cbentley.core.src4.logging.IStringable;
 public abstract class ObjectDrw implements IStringable {
    protected final DrwCtx drc;
 
+   //#debug
+   private String         toStringName;
+
    public ObjectDrw(DrwCtx drc) {
       this.drc = drc;
    }
@@ -34,6 +37,14 @@ public abstract class ObjectDrw implements IStringable {
       return toStringGetUCtx().toDLog();
    }
 
+   public void toStringSetName(String name) {
+      if (toStringName == null) {
+         toStringName = name;
+      } else {
+         toStringName = toStringName + " - " + name;
+      }
+   }
+
    public String toString() {
       return Dctx.toString(this);
    }
@@ -48,7 +59,7 @@ public abstract class ObjectDrw implements IStringable {
    }
 
    private void toStringPrivate(Dctx dc) {
-
+      dc.appendVarWithSpace("debugName", toStringName);
    }
 
    public void toString1Line(Dctx dc) {

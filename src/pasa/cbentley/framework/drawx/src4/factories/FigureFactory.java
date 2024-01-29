@@ -1214,11 +1214,25 @@ public class FigureFactory extends AbstractDrwFactory implements IBOMergeMask, I
       return getFigTriangle(color, dir, h, false, grad, anchor, filter, subs);
    }
 
+   /**
+    * {@link ITechFigure#FIG_TRIANGLE_TYPE_1_DIRECTIONAL}
+    * @param color
+    * @param type {@link C#TYPE_00_TOP} etc.
+    * @return
+    */
    public ByteObject getFigTriangleType(int color, int type) {
       return getFigTriangleType(color, type, null);
    }
 
    /**
+    * {@link ITechFigure#FIG_TRIANGLE_TYPE_1_DIRECTIONAL}
+    * <li>{@link C#TYPE_00_TOP}
+    * <li>{@link C#TYPE_01_BOTTOM}
+    * <li>{@link C#TYPE_02_LEFT}
+    * <li>{@link C#TYPE_03_RIGHT}
+    * <li>{@link C#TYPE_04_TopLeft}
+    * <li>{@link C#TYPE_15_TopRightDiagLeft}
+    * <li>{@link C#TYPE_19_BotRightDiagLeft}
     * 
     * @param color
     * @param type {@link C#TYPE_00_TOP} etc.
@@ -1232,7 +1246,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOMergeMask, I
    public ByteObject getFigTriangleAnchors(int color, int x1, int y1, int x2, int y2, int x3, int y3) {
       return getFigTriangleAnchor(color, x1, y1, x2, y2, x3, y3, null);
    }
-   
+
    public ByteObject getFigTriangleAnchor(int color, int x1, int y1, int x2, int y2, int x3, int y3) {
       return getFigTriangleAnchor(color, x1, y1, x2, y2, x3, y3, null);
    }
@@ -1259,7 +1273,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOMergeMask, I
       p.set1(IBOFigTriangle.FIG_TRIANGLE_OFFSET_03_ANGLE2 + 3, y2);
       p.set1(IBOFigTriangle.FIG_TRIANGLE_OFFSET_03_ANGLE2 + 4, x3);
       p.set1(IBOFigTriangle.FIG_TRIANGLE_OFFSET_03_ANGLE2 + 5, y3);
-      
+
       p.set1(IBOFigTriangle.FIG_TRIANGLE_OFFSET_02_TYPE1, ITechFigure.FIG_TRIANGLE_TYPE_2_ANCHORS);
       setFigLinks(p, grad, null, null, null);
       return p;
