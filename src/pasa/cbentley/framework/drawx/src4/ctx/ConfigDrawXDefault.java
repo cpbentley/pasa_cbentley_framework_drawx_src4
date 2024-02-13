@@ -8,7 +8,7 @@ import pasa.cbentley.byteobjects.src4.ctx.ConfigAbstractBO;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 
-public class ConfigDrawXDefault extends ConfigAbstractBO implements IConfigDrawx, IFlagsToStringDrw, ITechCtxSettingsDrwx {
+public class ConfigDrawXDefault extends ConfigAbstractBO implements IConfigDrawX, IFlagsToStringDrw, ITechCtxSettingsDrwx {
 
    private char[] lineBreaks;
 

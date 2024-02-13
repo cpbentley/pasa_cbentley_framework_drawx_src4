@@ -12,9 +12,7 @@ import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
 import pasa.cbentley.byteobjects.src4.objects.color.IColorSettable;
 import pasa.cbentley.byteobjects.src4.objects.color.ITechBlend;
 import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
-import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
-import pasa.cbentley.core.src4.logging.IDLog;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.logging.ITechLvl;
 import pasa.cbentley.core.src4.structs.IntBuffer;
@@ -183,7 +181,6 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
     */
    private int       clipY             = 0;
 
-
    private int       excludeColor;
 
    /**
@@ -235,7 +232,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
 
    boolean           isFillMode        = true;
 
-   private boolean   isIgnoreClip      = true;
+   private boolean   isIgnoreClip      = false;
 
    /**
     * System Flag. This is not a user flag.
@@ -320,7 +317,6 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
 
    private long      tickTime;
 
-  
    /**
     * Class own translate x component.
     */
@@ -2356,7 +2352,6 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       return System.currentTimeMillis() - tickTime;
    }
 
-
    public void toggleBlendBack() {
       blendOpImages = saved;
    }
@@ -2384,12 +2379,11 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       return v;
    }
 
-
    public void toString(Dctx dc) {
-      dc.root(this, GraphicsX.class, "@line2450");
+      dc.root(this, GraphicsX.class, 2390);
       toStringPrivate(dc);
       super.toString(dc.sup());
-      
+
       dc.appendVarWithSpace("isPseudoColorMode", isPseudoColorMode);
       dc.appendVarWithSpace("isAlphaMode", isAlphaMode);
       dc.appendVarWithSpace("isFillMode", isFillMode);
@@ -2414,16 +2408,18 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       dc.line();
       toStringTranslate(dc);
 
+      dc.nlLvl(blendOpImages, "blendOpImages");
+      dc.nlLvl(imageLayer, "ImageLayer");
+      dc.nlLvl(imageRgbData, "imageRgbData");
+      
+      //we don't want font stuff here
+      dc.setFlagData(drc, IFlagsToStringDrw.D_FLAG_28_IGNORE_FONT, true);
       if (dc.hasFlagData(drc, IFlagsToStringDrw.D_FLAG_25_IGNORE_IGRAPHICS)) {
          dc.line();
          dc.append(" [IGraphics Ignored]");
       } else {
          dc.nlLvl(g, "IGraphics");
       }
-
-      dc.nlLvl(blendOpImages, "blendOpImages");
-      dc.nlLvl(imageLayer, "ImageLayer");
-      dc.nlLvl(imageRgbData, "imageRgbData");
    }
 
    public void toString1Line(Dctx dc) {
@@ -2481,9 +2477,8 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       }
    }
 
-
    private void toStringPrivate(Dctx dc) {
-       dc.appendVarWithSpace("paintMode", ToStringStaticDrawx.toStringPaintMode(paintMode));
+      dc.appendVarWithSpace("paintMode", ToStringStaticDrawx.toStringPaintMode(paintMode));
    }
 
    /**
@@ -2497,11 +2492,9 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
    }
 
    public void toStringTranslate(Dctx dc) {
-      dc.append("Translation [");
-      dc.append(translateX);
-      dc.append(",");
-      dc.append(translateY);
-      dc.append("]");
+      dc.append("Translate On GraphicsX ");
+      dc.appendVarWithSpace("translateX", translateX);
+      dc.appendVarWithSpace("translateY", translateY);
       if (g != null) {
          dc.append("Translation on IGraphics [");
          dc.append(g.getTranslateX());

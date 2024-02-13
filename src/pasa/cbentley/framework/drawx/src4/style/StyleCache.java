@@ -10,8 +10,8 @@ import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOTblr;
 import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
+import pasa.cbentley.layouter.src4.tech.IBOTblr;
 
 /**
  * The context for sizing style values is the {@link ILayoutable}
@@ -89,67 +89,122 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
     */
    public StyleCache(DrwCtx dc, ILayoutable ctx, ByteObject style) {
       super(dc);
+      if(ctx == null) {
+         throw new NullPointerException();
+      }
       this.ctx = ctx;
+      if(style == null) {
+         throw new NullPointerException();
+      }
       this.style = style;
       this.styleOp = dc.getStyleOperator();
    }
 
+   public ByteObject getStyle() {
+      return style;
+   }
+   private void appendCache(Dctx dc, String name, int val, int flag) {
+      dc.appendVarWithSpace(name, val);
+      dc.appendBracketedWithSpace(isValueValid(flag));
+   }
+
+   public void computeStyleDimensions(int w, int h) {
+      areas = createStyleArea(0, 0, w, h);
+   }
+
+
    /**
-    * Direct reference which may be null.
+    * Compute x,y,w,h values for the 4 style structures.
+    * 
+    * <p>
+    * Optimize often used style areas. Those values will be used by style layers to draw themselves.
+    * </p>
+    * 
+    * <p>
+    * The returned array has the following data :
+    * <li>0-3 = at margin rectangle
+    * <li>4-7 = at border rectangle
+    * <li>8-11 = at padding rectangle
+    * <li>12-15 = at content rectangle
+    * 
+    * </p>
+    * @param x
+    * @param y
+    * @param w
+    * @param h
+    * @param style
+    * @return
+    * 
+    */
+   public int[] createStyleArea(int x, int y, int w, int h) {
+      int[] areas = new int[16];
+      areas[4] = x;
+      areas[5] = y;
+      areas[6] = w;
+      areas[7] = h;
+      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_5_MARGIN)) {
+         int marginLeft = getStyleWMarginLeft();
+         int marginTop = getStyleHMarginTop();
+         x += marginLeft;
+         y += marginTop;
+         w = w - marginLeft - getStyleWMarginRite();
+         h = h - marginTop - getStyleHMarginBot();
+      }
+      areas[0] = x;
+      areas[1] = y;
+      areas[2] = w;
+      areas[3] = h;
+      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_4_BORDER)) {
+         int borderLeft = getStyleWBorderLeft();
+         int borderTop = getStyleHBorderTop();
+         x += borderLeft;
+         y += borderTop;
+         w = w - borderLeft - getStyleWBorderRite();
+         h = h - borderTop - getStyleHBorderBot();
+      }
+      areas[12] = x;
+      areas[13] = y;
+      areas[14] = w;
+      areas[15] = h;
+      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_3_PADDING)) {
+         int paddingLeft = getStyleWPaddingLeft();
+         int paddingTop = getStyleHPaddingTop();
+         x += paddingLeft;
+         y += paddingTop;
+         w = w - paddingLeft - getStyleWPaddingRite();
+         h = h - paddingTop - getStyleHPaddingBot();
+      }
+      areas[8] = x;
+      areas[9] = y;
+      areas[10] = w;
+      areas[11] = h;
+      return areas;
+   }
+
+   /**
+    * Direct reference.
+    * Cannot be null. Must be called after compute.
+    * 
+    * provides x y diff values and w,h for margin,border,pad content areas
+    * 
+    * That 4*4 values = 16
     * @return
     */
    public int[] getStyleAreas() {
+      if (areas == null) {
+         areas = getStyleAreas(ctx.getPozeX(), ctx.getPozeY(), ctx.getSizeDrawnWidth(), ctx.getSizeDrawnHeight());
+      }
       return areas;
    }
 
    public int[] getStyleAreas(int x, int y, int w, int h) {
-
       //#debug
       toDLog().pFlow("x=" + x + " y=" + y + " w=" + w + " h=" + h, this, StyleCache.class, "getStyleAreas", LVL_05_FINE, true);
-
+      
       if (areas == null || isValueInvalid(SC_FLAG_30_AREAS)) {
          areas = styleOp.getStyleAreas(x, y, w, h, style, ctx);
-         int[] areas = new int[16];
-         areas[4] = x;
-         areas[5] = y;
-         areas[6] = w;
-         areas[7] = h;
-         if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_5_MARGIN)) {
-            int marginLeft = getStyleWMarginLeft();
-            int marginTop = getStyleHMarginTop();
-            x += marginLeft;
-            y += marginTop;
-            w = w - marginLeft - getStyleWMarginRite();
-            h = h - marginTop - getStyleHMarginBot();
-         }
-         areas[0] = x;
-         areas[1] = y;
-         areas[2] = w;
-         areas[3] = h;
-         if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_4_BORDER)) {
-            int borderLeft = getStyleWBorderLeft();
-            int borderTop = getStyleHBorderTop();
-            x += borderLeft;
-            y += borderTop;
-            w = w - borderLeft - getStyleWBorderRite();
-            h = h - borderTop - getStyleHBorderBot();
-         }
-         areas[12] = x;
-         areas[13] = y;
-         areas[14] = w;
-         areas[15] = h;
-         if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_3_PADDING)) {
-            int paddingLeft = getStyleWPaddingLeft();
-            int paddingTop = getStyleHPaddingTop();
-            x += paddingLeft;
-            y += paddingTop;
-            w = w - paddingLeft - getStyleWPaddingRite();
-            h = h - paddingTop - getStyleHPaddingBot();
-         }
-         areas[8] = x;
-         areas[9] = y;
-         areas[10] = w;
-         areas[11] = h;
+         
+         int[] areas = createStyleArea(x, y, w, h);
          this.areas = areas;
       }
       if (areas == null) {
@@ -183,6 +238,10 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
          setValueValid(SC_FLAG_15_BORDER_BOT);
       }
       return styleHBorderBot;
+   }
+
+   public int getStyleHBorderMargin() {
+      return getStyleHBorder() + getStyleHMargin();
    }
 
    public int getStyleHBorderTop() {
@@ -233,28 +292,12 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
       return styleHPadding;
    }
 
-   public int getStyleHPaddingBorderMargin() {
-      return getStyleHPadding() + getStyleHBorder() + getStyleHMargin();
-   }
-
-   public int getStyleWBorderMargin() {
-      return getStyleWBorder() + getStyleWMargin();
-   }
-
-   public int getStyleHBorderMargin() {
-      return getStyleHBorder() + getStyleHMargin();
-   }
-
-   public int getStyleWPaddingBorderMargin() {
-      return getStyleWPadding() + getStyleWBorder() + getStyleWMargin();
-   }
-
    public int getStyleHPaddingBorder() {
       return getStyleHPadding() + getStyleHBorder();
    }
 
-   public int getStyleWPaddingBorder() {
-      return getStyleWPadding() + getStyleWBorder();
+   public int getStyleHPaddingBorderMargin() {
+      return getStyleHPadding() + getStyleHBorder() + getStyleHMargin();
    }
 
    public int getStyleHPaddingBot() {
@@ -305,6 +348,10 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
       return styleWBorderLeft;
    }
 
+   public int getStyleWBorderMargin() {
+      return getStyleWBorder() + getStyleWMargin();
+   }
+
    public int getStyleWBorderRite() {
       if (isValueInvalid(SC_FLAG_17_BORDER_RITE)) {
          styleWBorderRite = styleOp.getStyleBorderRite(style, ctx);
@@ -353,6 +400,14 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
       return styleWPadding;
    }
 
+   public int getStyleWPaddingBorder() {
+      return getStyleWPadding() + getStyleWBorder();
+   }
+
+   public int getStyleWPaddingBorderMargin() {
+      return getStyleWPadding() + getStyleWBorder() + getStyleWMargin();
+   }
+
    public int getStyleWPaddingLeft() {
       if (isValueInvalid(SC_FLAG_12_PADDING_LEFT)) {
          styleWPaddingLeft = styleOp.getStylePaddingLeft(style, ctx);
@@ -393,10 +448,6 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
       return isValidStyleAreas;
    }
 
-   private void setValueValid(int flag) {
-      BitUtils.setFlag(flagsValidity, flag, true);
-   }
-
    private boolean isValueInvalid(int flag) {
       return !BitUtils.hasFlag(flagsValidity, flag);
    }
@@ -412,6 +463,10 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
 
    public void setValid() {
       isValidStyleAreas = true;
+   }
+
+   private void setValueValid(int flag) {
+      BitUtils.setFlag(flagsValidity, flag, true);
    }
 
    //#mdebug
@@ -466,20 +521,15 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
 
    }
 
-   private void appendCache(Dctx dc, String name, int val, int flag) {
-      dc.appendVarWithSpace(name, val);
-      dc.appendBracketedWithSpace(isValueValid(flag));
+   public void toString1Line(Dctx dc) {
+      dc.root1Line(this, StyleCache.class);
+      toStringPrivate(dc);
+      super.toString1Line(dc.sup1Line());
    }
 
    private void toStringPrivate(Dctx dc) {
       dc.appendVarWithSpace("isValid", isValidStyleAreas);
 
-   }
-
-   public void toString1Line(Dctx dc) {
-      dc.root1Line(this, StyleCache.class);
-      toStringPrivate(dc);
-      super.toString1Line(dc.sup1Line());
    }
 
    //#enddebug

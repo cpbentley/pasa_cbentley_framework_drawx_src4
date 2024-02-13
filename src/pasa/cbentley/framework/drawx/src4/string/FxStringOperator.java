@@ -27,6 +27,7 @@ import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrLine;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrPara;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrWord;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
+import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
 
 public class FxStringOperator extends AbstractDrwOperator implements ITechFigure, IBOTypesDrw, IBOFxStr, IBOFxApplicator, IBOFxStrLine, IBOFxStrWord, IBOFxStrPara {
 
@@ -177,7 +178,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       ByteObject line = null; //fx for line
       ByteObject ch = null;
       //by construction, only 1 mask is present at a 
-      if (strFigure.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_5_EFFECT)) {
+      if (strFigure.hasFlag(IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_2_DEFINED_FX)) {
 
          ByteObject effect = strFigure.getSubFirst(TYPE_070_TEXT_EFFECTS);
          if (effect.hasFlag(FX_OFFSET_01_FLAG, FX_FLAG_3_VERTICAL)) {
@@ -316,36 +317,6 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       return 0;
    }
 
-   /**
-    * Pixel width consumed by this string rendered using the given text effects.
-    * <br>
-    * <br>
-    * @param txt
-    * @param str
-    * @param offset
-    * @param len
-    * @return
-    */
-   public int getStringSubStringW(ByteObject txt, String str, int offset, int len) {
-      IMFont f = getStringFont(txt);
-      int extraLeft = 0;
-      int extraRight = 0;
-      if (txt.hasFlag(FX_OFFSET_01_FLAG, FX_FLAG_4_EXTRA_SPACE_TBLR)) {
-         ByteObject tblr = txt.getSubFirst(TYPE_060_TBLR);
-         extraLeft = drc.getTblrFactory().getTBLRValue(tblr, C.POS_2_LEFT);
-         extraRight = drc.getTblrFactory().getTBLRValue(tblr, C.POS_3_RIGHT);
-      }
-      return f.substringWidth(str, offset, len) + extraLeft + extraRight;
-   }
-
-   public int getStringSubStringWidth(ByteObject style, String str, int offset, int len) {
-      ByteObject text = style.getSubFirst(TYPE_070_TEXT_EFFECTS);
-      IMFont f = drc.getFontFactory().getDefaultFont();
-      if (text != null) {
-         f = getStringFont(text);
-      }
-      return f.substringWidth(str, offset, len);
-   }
 
    /**
     * Extra Number of pixels used left by the text effect décoration

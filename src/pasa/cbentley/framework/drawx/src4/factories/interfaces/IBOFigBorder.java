@@ -1,6 +1,5 @@
 package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
-import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 public interface IBOFigBorder extends IBOFigure {
@@ -12,31 +11,48 @@ public interface IBOFigBorder extends IBOFigure {
     * 4 bytes for secondary color
     * 1 byte gradient position
     */
-   int FIG_BORDER_BASIC_SIZE              = IBOFigure.FIG__BASIC_SIZE + 3;
+   public static final int FIG_BORDER_BASIC_SIZE             = IBOFigure.FIG__BASIC_SIZE + 3;
+
    /**
-    * around the define boundary. default is inside
+    * When flag is set, it draws the border around the provided figure boundary.
     */
-   int FIG_BORDER_FLAG_1OUTER             = 1;
+   public static final int FIG_BORDER_FLAG_1_OUTER           = 1 << 0;
+
+   /**
+    * Draws border using filled primitives
+    */
+   public static final int FIG_BORDER_FLAG_2_FILLED          = 1 << 1;
+
    /**
     * Are coins defined
     */
-   int FIG_BORDER_FLAG_4COIN              = 8;
-   int FIG_BORDER_FLAG_5FIGURE            = 16;
+   public static final int FIG_BORDER_FLAG_4_COIN            = 1 << 3;
+
    /**
-    * Flag set when the 8 first ByteObject are the 8 figures
+    * Set to true when border has a Rectangle figure
     */
-   int FIG_BORDER_FLAG_8FIGURES           = 128;
-   int FIG_BORDER_OFFSET_1FLAG            = IBOFigure.FIG__BASIC_SIZE;
+   public static final int FIG_BORDER_FLAG_5_FIGURE          = 1 << 4;
+
+   /**
+    * Flag set when the 8 first ByteObject are the 8 figures to be drawn.
+    * <li>4 coins
+    * <li>4 rectangles for the TBLR
+    */
+   public static final int FIG_BORDER_FLAG_8_FIGURES         = 1 << 7;
+
+   public static final int FIG_BORDER_OFFSET_1_FLAG          = IBOFigure.FIG__BASIC_SIZE;
+
    /** 
     * The pixel shift applied at the 4 corners.<br>
     * Size of border depends on a ByteObject TBLR.
     * Shift reduce that value
     */
-   int FIG_BORDER_OFFSET_2CORNER_SHIFT1   = IBOFigure.FIG__BASIC_SIZE + 1;
+   public static final int FIG_BORDER_OFFSET_2_CORNER_SHIFT1 = IBOFigure.FIG__BASIC_SIZE + 1;
+
    /**
     * <li>  {@link ITechFigure#STROKE_0_SOLID}
     * <li>  {@link ITechFigure#STROKE_1_SIMPLE_DOTS}
     */
-   int FIG_BORDER_OFFSET_3STROKE_STYLE1   = IBOFigure.FIG__BASIC_SIZE + 2;
+   public static final int FIG_BORDER_OFFSET_3_STROKE_STYLE1 = IBOFigure.FIG__BASIC_SIZE + 2;
 
 }

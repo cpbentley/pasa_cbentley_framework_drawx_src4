@@ -21,9 +21,10 @@ import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOTblr;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
+import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
+import pasa.cbentley.layouter.src4.tech.IBOTblr;
 
 /**
  * Java object wrapper of the ByteObject {@link IBOTypesDrw#TYPE_070_TEXT_EFFECTS} or {@link IBOTypesDrw#TYPE_050_FIGURE}  whose responsabilities are :
@@ -220,7 +221,7 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
       if (tblr == null) {
          return 0;
       } else {
-         return drc.getTblrFactory().getTBLRValue(tblr, C.POS_2_LEFT);
+         return stringer.getTBLRValueStringerArea(tblr, C.POS_2_LEFT);
       }
    }
 
@@ -228,7 +229,7 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
       if (tblr == null) {
          return 0;
       } else {
-         return drc.getTblrFactory().getTBLRValue(tblr, C.POS_3_RIGHT);
+         return stringer.getTBLRValueStringerArea(tblr, C.POS_3_RIGHT);
       }
    }
 
@@ -236,7 +237,7 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
       if (tblr == null) {
          return 0;
       } else {
-         return drc.getTblrFactory().getTBLRValue(tblr, C.POS_1_BOT);
+         return stringer.getTBLRValueStringerArea(tblr, C.POS_1_BOT);
       }
    }
 
@@ -244,7 +245,7 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
       if (tblr == null) {
          return 0;
       } else {
-         return drc.getTblrFactory().getTBLRValue(tblr, C.POS_0_TOP);
+         return stringer.getTBLRValueStringerArea(tblr, C.POS_0_TOP);
       }
    }
 
@@ -321,7 +322,7 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
       font = drc.getFxStringOperator().getFont(face, style, size);
 
       if (srcFx.hasFlag(FX_OFFSET_01_FLAG, FX_FLAG_4_EXTRA_SPACE_TBLR)) {
-         tblr = srcFx.getSubFirst(TYPE_060_TBLR);
+         tblr = srcFx.getSubFirst(IBOTypesLayout.FTYPE_2_TBLR);
       }
       typeStruct = FX_STRUCT_TYPE_0_BASIC_HORIZONTAL;
       bgFigureScope = srcFx.get1(FX_OFFSET_05_SCOPE_FX1);
@@ -387,7 +388,7 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
       dc.root(this, StringFx.class, 412);
       dc.nl();
       dc.appendVarWithSpace("color", ToStringStaticDrawx.toStringColor(color));
-      dc.appendVarWithSpace("font", ToStringStaticDrawx.debugFontBrackets(font));
+      dc.appendVarWithSpace("font", ToStringStaticDrawx.toStringFontBrackets(font));
 
       dc.appendVarWithSpace("fxLineExtraBetween", fxLineExtraBetween);
       dc.appendVarWithSpace("fxLineExtraW", fxLineExtraW);

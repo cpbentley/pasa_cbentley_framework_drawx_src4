@@ -132,7 +132,7 @@ public interface IBOStyle extends IByteObject {
 
    /**
     * When the style has at least one bg or fg figure that is extra boundary
-    * {@link IDrw#FIG_FLAGP_2EXTRA_BOUNDARY}
+    * {@link IDrw#FIG_FLAGP_2_EXTRA_BOUNDARY}
     */
    public static final int STYLE_FLAG_PERF_6_EXTRA_BOUNDARY = 32;
 

@@ -2,6 +2,7 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 import java.util.Enumeration;
 
+import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.structs.BufferObject;
 import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.core.src4.structs.IntIntervals;
@@ -32,6 +33,8 @@ public class LineAlgo {
    private boolean      isIgnoreNewLines;
 
    private boolean      isTestWidth;
+
+   private boolean      isTestHeight;
 
    private int          maxLinesNum;
 
@@ -104,13 +107,19 @@ public class LineAlgo {
 
    private int          maxHeight;
 
+   private LineStringer previousLine;
+
    public LineAlgo(Stringer stringer) {
       this.stringer = stringer;
 
    }
 
+   private boolean isMaxLinesReached() {
+      return (maxLinesNum != 0 && finalLines.getSize() >= maxLinesNum);
+   }
+
    private void createNewLineANiceWordLastLine() {
-      if (maxLinesNum != 0 && finalLines.getSize() >= maxLinesNum) {
+      if (isMaxLinesReached()) {
          return;
       }
       //do the inverse because this is the last line.. so no wrap
@@ -159,6 +168,7 @@ public class LineAlgo {
             int lineLastCharIndex = lineStartingOffset + niceLineLength - 1;
             newLine.charMapTo(lineLastCharIndex, '.');
             newLine.charMapTo(lineLastCharIndex - 1, '.');
+            stringer.setState(ITechStringer.STATE_04_TRIMMED, true);
          }
       } else {
          //do not trim spaces on a trimmed line
@@ -195,6 +205,7 @@ public class LineAlgo {
       tempLineLength = newTempLineLength;
       tempLineWidth = newTempLineWidth;
       tempDiffFontHeights = false;
+      previousLine = newLine;
       newLine = new LineStringer(stringer);
       newLine.setOffset(tempLineStartOffsetRelative);
    }
@@ -301,6 +312,7 @@ public class LineAlgo {
          int lineLastCharIndex = lineStartingOffset + tempLineLength - 1;
          newLine.charMapTo(lineLastCharIndex, '.');
          newLine.charMapTo(lineLastCharIndex - 1, '.');
+         stringer.setState(ITechStringer.STATE_04_TRIMMED, true);
       }
 
       newLine.build();
@@ -319,7 +331,22 @@ public class LineAlgo {
       newLine.setY(dy);
       dy += tempMaxLineHeight;
       linesTotalH += tempMaxLineHeight;
-      finalLines.add(newLine);
+      if (isTestHeight && linesTotalH > maxHeight) {
+         isStop = true;
+         if (isTrimArtifact) {
+            if (!stringer.hasState(ITechStringer.STATE_04_TRIMMED)) {
+               //take previous and add trim cue
+               int lineLastCharIndex = previousLine.getOffsetLast();
+               previousLine.charMapTo(lineLastCharIndex, '.');
+               previousLine.charMapTo(lineLastCharIndex - 1, '.');
+               //!!! we need to rebuild the line
+               previousLine.build();
+               stringer.setState(ITechStringer.STATE_04_TRIMMED, true);
+            }
+         }
+      } else {
+         finalLines.add(newLine);
+      }
    }
 
    public void createNewLineChar(int tentativeNewLineOffset) {
@@ -329,7 +356,7 @@ public class LineAlgo {
    }
 
    public void createNewLineLast() {
-      if (maxLinesNum != 0 && finalLines.getSize() >= maxLinesNum) {
+      if (isMaxLinesReached()) {
          return;
       }
       int wordwrap = stringer.getWordwrap();
@@ -406,26 +433,44 @@ public class LineAlgo {
     */
    public void init() {
 
+      ByteObject textFigure = stringer.getTextFigure();
+
       IntIntervals leaves = stringer.getIntervalsOfLeaves();
       this.intervals = leaves.getIntervalEnumeration();
 
       finalLines = new BufferObject(stringer.getUC());
 
-      isTestWidth = false;
       maxLineWidth = stringer.getBreakW();
-      maxHeight = stringer.getBreakH();
-
       if (maxLineWidth <= 0) {
          maxLineWidth = Integer.MAX_VALUE; //ignore
+         isTestWidth = false;
       } else {
-         isTestWidth = true;
+         int wordwrap = textFigure.get1(IBOFigString.FIG_STRING_OFFSET_07_WRAP_WIDTH1);
+         if(wordwrap == ITechStringer.WORDWRAP_0_NONE) {
+            isTestWidth = false;
+         } else {
+            isTestWidth = true;
+         }
       }
+      maxHeight = stringer.getBreakH();
+      if (maxHeight <= 0) {
+         maxHeight = Integer.MAX_VALUE; //ignore
+         isTestHeight = false;
+      } else {
+         int linewrap = textFigure.get1(IBOFigString.FIG_STRING_OFFSET_08_WRAP_HEIGHT1);
+         if(linewrap == ITechStringer.LINEWRAP_0_NONE) {
+            isTestHeight = false;
+         } else {
+            isTestHeight = true;
+         }
+      }
+
       isIgnoreNewLines = stringer.getNewLineManager() == ITechStringer.NEWLINE_MANAGER_0_IGNORE;
       if (stringer.getWordwrap() >= ITechStringer.WORDWRAP_2_NICE_WORD) {
          isIgnoreNewLines = false;
       }
       maxLinesNum = stringer.getBreakMaxLines();
-      isTrimArtifact = stringer.getTextFigure().hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_3_TRIM_ARTIFACT);
+      isTrimArtifact = textFigure.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_3_TRIM_ARTIFACT);
       tempMaxLineHeight = -1;
       tempDiffFontHeights = false;
       tempLineWidth = 0;
@@ -561,7 +606,7 @@ public class LineAlgo {
          } else {
             regularNoNewLinesChar(offset, i, lastChar);
          }
-         if (maxLinesNum != 0 && finalLines.getSize() == maxLinesNum) {
+         if (isMaxLinesReached()) {
             return;
          }
          if (isStop) {

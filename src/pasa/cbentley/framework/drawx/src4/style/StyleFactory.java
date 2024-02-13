@@ -10,9 +10,10 @@ import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.factories.TblrFactory;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigureString;
+import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
+import pasa.cbentley.layouter.src4.engine.TblrFactory;
 
 public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOTypesDrw {
 
@@ -164,9 +165,9 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
       StyleOperator styleOperator = gc.getStyleOperator();
       flagv = styleOperator.setFlagNotNullStyleFieldFlag(content, flagv, STYLE_FLAGA_1_CONTENT, TYPE_050_FIGURE);
       flagv = styleOperator.setFlagNotNullStyleFieldFlag(anchor, flagv, STYLE_FLAGA_2_ANCHOR, TYPE_069_ANCHOR);
-      flagv = styleOperator.setFlagNotNullStyleFieldFlag(pad, flagv, STYLE_FLAGA_3_PADDING, TYPE_060_TBLR);
-      flagv = styleOperator.setFlagNotNullStyleFieldFlag(border, flagv, STYLE_FLAGA_4_BORDER, TYPE_060_TBLR);
-      flagv = styleOperator.setFlagNotNullStyleFieldFlag(margin, flagv, STYLE_FLAGA_5_MARGIN, TYPE_060_TBLR);
+      flagv = styleOperator.setFlagNotNullStyleFieldFlag(pad, flagv, STYLE_FLAGA_3_PADDING, IBOTypesLayout.FTYPE_2_TBLR);
+      flagv = styleOperator.setFlagNotNullStyleFieldFlag(border, flagv, STYLE_FLAGA_4_BORDER, IBOTypesLayout.FTYPE_2_TBLR);
+      flagv = styleOperator.setFlagNotNullStyleFieldFlag(margin, flagv, STYLE_FLAGA_5_MARGIN, IBOTypesLayout.FTYPE_2_TBLR);
       int flagg = 0;
       if (bg != null && bg.length != 0) {
          if (bg.length > 4) {
@@ -238,7 +239,7 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
 
    public ByteObject getStyle(ByteObject[] bg, ByteObject content, ByteObject anchor, int pad, int border) {
       TblrFactory tblrFactory = gc.getTblrFactory();
-      return getStyle(bg, content, anchor, tblrFactory.getTBLR(pad), tblrFactory.getTBLR(border));
+      return getStyle(bg, content, anchor, tblrFactory.getTBLRCoded(pad), tblrFactory.getTBLRCoded(border));
    }
 
    public ByteObject getStyle(ByteObject[] bg, int pad, int border) {

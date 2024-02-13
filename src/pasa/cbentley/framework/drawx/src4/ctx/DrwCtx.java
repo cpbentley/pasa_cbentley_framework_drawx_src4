@@ -12,7 +12,6 @@ import pasa.cbentley.byteobjects.src4.ctx.ABOCtx;
 import pasa.cbentley.byteobjects.src4.ctx.BOCtx;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.byteobjects.src4.ctx.IConfigBO;
-import pasa.cbentley.byteobjects.src4.ctx.IToStringsDIDsBoc;
 import pasa.cbentley.byteobjects.src4.objects.color.ColorFunctionFactory;
 import pasa.cbentley.byteobjects.src4.objects.color.FilterFactory;
 import pasa.cbentley.byteobjects.src4.objects.color.FilterOperator;
@@ -44,7 +43,6 @@ import pasa.cbentley.framework.drawx.src4.factories.RgbImageOperator;
 import pasa.cbentley.framework.drawx.src4.factories.ScaleOperator;
 import pasa.cbentley.framework.drawx.src4.factories.ScalerFactory;
 import pasa.cbentley.framework.drawx.src4.factories.ScalerOperatorTests;
-import pasa.cbentley.framework.drawx.src4.factories.TblrFactory;
 import pasa.cbentley.framework.drawx.src4.image.PngEncoder;
 import pasa.cbentley.framework.drawx.src4.interfaces.IToStringsDIDsDraw;
 import pasa.cbentley.framework.drawx.src4.string.FxCache;
@@ -56,6 +54,7 @@ import pasa.cbentley.framework.drawx.src4.style.StyleOperator;
 import pasa.cbentley.framework.drawx.src4.utils.RgbImageRotateUtils;
 import pasa.cbentley.layouter.src4.ctx.LayouterCtx;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
+import pasa.cbentley.layouter.src4.engine.TblrFactory;
 
 /**
  * Context Object for the Draw Base Module.
@@ -93,7 +92,7 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
 
    protected final CoreDrawCtx cdc;
 
-   private IConfigDrawx        configDrawX;
+   private IConfigDrawX        configDrawX;
 
    private FigureFactory       facFig;
 
@@ -141,8 +140,6 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
 
    private StyleOperator       styleOperator;
 
-   private TblrFactory         tblrFactory;
-
    public DrwCtx(CoreDrawCtx cdc, LayouterCtx lac) {
       this(new ConfigDrawXDefault(cdc.getUCtx()), cdc, lac);
    }
@@ -152,7 +149,7 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
     * @param user
     * @param root
     */
-   public DrwCtx(IConfigDrawx config, CoreDrawCtx cdc, LayouterCtx lac) {
+   public DrwCtx(IConfigDrawX config, CoreDrawCtx cdc, LayouterCtx lac) {
       super(config, cdc.getBOC());
       //any settings in ctx manager is not loaded here
 
@@ -163,7 +160,7 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
       this.cdc = cdc;
       this.boc = cdc.getBOC();
       this.lac = lac;
-      
+
       //we need a sizer and root
       module = new BOModuleDrawx(this);
 
@@ -174,8 +171,7 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
       CtxManager c = cdc.getUCtx().getCtxManager();
       //#debug
       c.registerStaticRange(this, IStaticIDs.SID_DIDS, IToStringsDIDsDraw.A_DID_OFFSET_A_DRAW, IToStringsDIDsDraw.A_DID_OFFSET_Z_DRAW);
-     
-      
+
       if (this.getClass() == DrwCtx.class) {
          a_Init();
       }
@@ -237,7 +233,7 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
       return boc.getColorFunctionFactory();
    }
 
-   public IConfigDrawx getConfigDrawX() {
+   public IConfigDrawX getConfigDrawX() {
       return configDrawX;
    }
 
@@ -307,6 +303,10 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
 
    public LayouterCtx getLAC() {
       return lac;
+   }
+
+   public LayoutOperator getLayoutOperator() {
+      return lac.getLayoutOperator();
    }
 
    public MaskFactory getMaskFactory() {
@@ -401,7 +401,7 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
     * @return
     */
    public ByteObject getSettingsCtxDrw() {
-      return getSettingsBO();
+      return getBOCtxSettings();
    }
 
    public LayoutOperator getSizer() {
@@ -423,10 +423,7 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
    }
 
    public TblrFactory getTblrFactory() {
-      if (tblrFactory == null) {
-         tblrFactory = new TblrFactory(this);
-      }
-      return tblrFactory;
+      return lac.getTblrFactory();
    }
 
    /**
@@ -448,26 +445,26 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
    }
 
    protected void matchConfig(IConfigBO config, ByteObject settings) {
-      IConfigDrawx c = (IConfigDrawx) config;
+      IConfigDrawX c = (IConfigDrawX) config;
       int flags = c.getFlagsDrw();
       settings.set1(CTX_DRW_OFFSET_01_FLAG1, flags);
    }
 
    //#mdebug
    public void toString(Dctx dc) {
-      dc.root(this, "DrwCtx");
+      dc.root(this, DrwCtx.class, 450);
       toStringPrivate(dc);
       super.toString(dc.sup());
    }
 
-   public void toString1Line(Dctx dc) {
-      dc.root1Line(this, "DrwCtx");
-      toStringPrivate(dc);
-      super.toString1Line(dc.sup1Line());
-   }
-
    private void toStringPrivate(Dctx dc) {
 
+   }
+
+   public void toString1Line(Dctx dc) {
+      dc.root1Line(this, DrwCtx.class);
+      toStringPrivate(dc);
+      super.toString1Line(dc.sup1Line());
    }
 
    //#enddebug

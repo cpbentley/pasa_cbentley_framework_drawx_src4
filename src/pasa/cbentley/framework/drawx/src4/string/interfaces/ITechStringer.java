@@ -50,7 +50,7 @@ public interface ITechStringer {
    /**
     * Does not create newlines at \n and \r. Also ignore \f 
     * <p>
-    * {@link IBOFigString#FIG_STRING_OFFSET_06_NEWLINE1}
+    * {@link IBOFigString#FIG_STRING_OFFSET_14_MANAGER_NEWLINE1}
     * </p>
     * Does not even look for trim.
     * Fastest algo but no artifacts.
@@ -61,12 +61,12 @@ public interface ITechStringer {
    /**
     * Create newlines at \n and \r\n, or trims when not enough space due to {@link Stringer#setBreakWidth(int)}
     * <p>
-    * The trim trigger is because of {@link IBOFigString#FIG_STRING_OFFSET_08_MAXLINES1} set to 1 or more.
+    * The trim trigger is because of {@link IBOFigString#FIG_STRING_OFFSET_10_MAXLINES1} set to 1 or more.
     * This forces the algo to stop at 1 line and trim it. Double dot artifact if
     * {@link IBOFigString#FIG_STRING_FLAG_3_TRIM_ARTIFACT} is set to true
     * </p>
     * <p>
-    * {@link IBOFigString#FIG_STRING_OFFSET_06_NEWLINE1}
+    * {@link IBOFigString#FIG_STRING_OFFSET_14_MANAGER_NEWLINE1}
     * </p>
     */
    public static final int NEWLINE_MANAGER_1_WORK               = 1;
@@ -119,11 +119,18 @@ public interface ITechStringer {
     * </p>
     * 
     * <p>
-    * Value is set here -> {@link IBOFigString#FIG_STRING_OFFSET_07_WORDWRAP1}.
+    * Value is set here -> {@link IBOFigString#FIG_STRING_OFFSET_07_WRAP_WIDTH1}.
     * </p>
     * 
     */
    public static final int WORDWRAP_0_NONE                      = 0;
+
+   public static final int LINEWRAP_0_NONE                      = 0;
+
+   /**
+    * Draws lines fitting the height provided
+    */
+   public static final int LINEWRAP_1_ANYWHERE                  = 1;
 
    /**
     * Cuts anywhere in a word without any artifacts
@@ -160,7 +167,7 @@ public interface ITechStringer {
     * Usually used in combination with hyphenated word wrap.
     * </p>
     * See {@link ITechStringer#WORDWRAP_3_NICE_HYPHENATION} 
-    * on {@link IBOFigString#FIG_STRING_OFFSET_07_WORDWRAP1}
+    * on {@link IBOFigString#FIG_STRING_OFFSET_07_WRAP_WIDTH1}
     * <p>
     * This mode force the use of char individual width as spaces will gain extra pixels to exactly match
     * the pixel width given to the line

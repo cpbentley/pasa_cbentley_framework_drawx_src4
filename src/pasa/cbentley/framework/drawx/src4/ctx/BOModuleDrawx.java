@@ -164,8 +164,6 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
             return drc.getBoxFactory().mergeBox(root, merge);
          case TYPE_058_MASK:
             return drc.getMaskOperator().mergeMask(root, merge);
-         case TYPE_060_TBLR:
-            return drc.getTblrFactory().mergeTBLR(root, merge);
          case TYPE_069_ANCHOR:
             return drc.getAnchorFactory().mergeAnchor(root, merge);
          case TYPE_071_STYLE:
@@ -271,9 +269,6 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IBOTypesDrw.TYPE_058_MASK:
             drc.getMaskFactory().toStringMask(bo, sb);
             break;
-         case IBOTypesDrw.TYPE_060_TBLR:
-            drc.getTblrFactory().toStringTBLR(bo, sb);
-            break;
          case IBOTypesDrw.TYPE_069_ANCHOR:
             drc.getAnchorFactory().toStringAnchor(bo, sb);
             break;
@@ -316,9 +311,6 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IBOTypesDrw.TYPE_058_MASK:
             drc.getMaskFactory().toStringMask(bo, dc);
             break;
-         case IBOTypesDrw.TYPE_060_TBLR:
-            drc.getTblrFactory().toStringTBLR(bo, dc);
-            break;
          case IBOTypesDrw.TYPE_069_ANCHOR:
             drc.getAnchorFactory().toStringAnchor(bo, dc);
             break;
@@ -358,8 +350,6 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
             return "Mosaic";
          case TYPE_059_GRADIENT:
             return "Gradient";
-         case TYPE_060_TBLR:
-            return "TBLR";
          case TYPE_061_COLOR_RANDOM:
             return "ColorRandomizer";
          case TYPE_062_BLENDER:

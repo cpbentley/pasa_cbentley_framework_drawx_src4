@@ -77,7 +77,7 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
       this.setFontStyle(fx, textFigure.get1(IBOFigString.FIG_STRING_OFFSET_04_STYLE1));
       this.setFontSize(fx, textFigure.get1(IBOFigString.FIG_STRING_OFFSET_05_SIZE1));
 
-      if(textFigure.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_5_EFFECT)) {
+      if(textFigure.hasFlag(IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_2_DEFINED_FX)) {
          ByteObject fxFigStr = textFigure.getSubFirst(TYPE_070_TEXT_EFFECTS);
          if(fxFigStr != null) {
             int scope = fxFigStr.get1(FX_OFFSET_05_SCOPE_FX1);

@@ -15,7 +15,7 @@ import pasa.cbentley.core.src4.utils.IntUtils;
 import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IConfigDrawx;
+import pasa.cbentley.framework.drawx.src4.ctx.IConfigDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
@@ -50,7 +50,7 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
    int[]                  breaksWord;
 
    /**
-    *  Textbreak constants set in constructor from the {@link IConfigDrawx#getLineBreakChars()}
+    *  Textbreak constants set in constructor from the {@link IConfigDrawX#getLineBreakChars()}
     *  
     *  <p>
     *   How do deal with line breaks in a language such as arabic ?

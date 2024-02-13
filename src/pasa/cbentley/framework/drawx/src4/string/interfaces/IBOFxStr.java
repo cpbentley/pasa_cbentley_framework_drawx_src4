@@ -81,7 +81,7 @@ public interface IBOFxStr extends IByteObject {
    public static final int FX_FLAG_3_VERTICAL              = 1 << 2;
 
    /**
-    * Has the Text effect a {@link IDrwTypes#TYPE_060_TBLR}  defining extra pixel space used by text effect
+    * Has the Text effect a {@link IDrwTypes#FTYPE_2_TBLR}  defining extra pixel space used by text effect
     * on the fringe of the to be displayed text.
     * <br>
     * <br>

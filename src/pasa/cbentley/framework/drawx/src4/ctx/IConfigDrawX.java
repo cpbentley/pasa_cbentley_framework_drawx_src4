@@ -6,7 +6,7 @@ package pasa.cbentley.framework.drawx.src4.ctx;
 
 import pasa.cbentley.byteobjects.src4.ctx.IConfigBO;
 
-public interface IConfigDrawx extends IConfigBO {
+public interface IConfigDrawX extends IConfigBO {
 
    /**
     * {@link IFlagsToStringDrw}

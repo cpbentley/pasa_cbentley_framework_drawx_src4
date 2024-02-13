@@ -162,7 +162,7 @@ public interface ITechFigure extends IByteObject {
    /**
     * A figure that draw blocks of colors
     */
-   public static final int FIG_TYPE_18_DIAG_BLOCKS         = 35;
+   public static final int FIG_TYPE_18_DIAG_BLOCKS         = 18;
 
    /**
     * Grid of lines filled by colors. On intersection, an artifact may be drawn.
@@ -189,6 +189,8 @@ public interface ITechFigure extends IByteObject {
    public static final int FIG_TYPE_32_PIQUE               = 32;
 
    public static final int FIG_TYPE_33_TREFLE              = 33;
+
+   public static final int FIG_TYPE_35_TESSON              = 35;
 
    public static final int STROKE_0_SOLID                  = 0;
 

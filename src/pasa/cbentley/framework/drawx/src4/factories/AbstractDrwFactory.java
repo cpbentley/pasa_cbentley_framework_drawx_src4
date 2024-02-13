@@ -7,6 +7,7 @@ package pasa.cbentley.framework.drawx.src4.factories;
 import pasa.cbentley.byteobjects.src4.core.BOAbstractFactory;
 import pasa.cbentley.core.src4.logging.IDLog;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.layouter.src4.engine.TblrFactory;
 
 public class AbstractDrwFactory extends BOAbstractFactory {
 

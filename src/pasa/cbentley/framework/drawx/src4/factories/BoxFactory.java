@@ -124,7 +124,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
          p.setFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_5_DEF_WIDTH, true);
          if (perc) {
             //create sizers
-            w = sizable.codedSizeEncode(MODE_2_RATIO, w, 0, 0, 0);
+            w = sizable.codedSizeEncode(MODE_2_FUNCTION, w, 0, 0, 0);
          }
       } else {
          incomplete = true;
@@ -133,7 +133,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
       if (h != BOX_UNDEFINED) {
          p.setFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_6_DEF_HEIGHT, true);
          if (perc) {
-            h = sizable.codedSizeEncode(MODE_2_RATIO, h, 0, 0, 0);
+            h = sizable.codedSizeEncode(MODE_2_FUNCTION, h, 0, 0, 0);
          }
       } else {
          incomplete = true;

@@ -9,6 +9,8 @@ import java.util.Enumeration;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
+import pasa.cbentley.core.src4.interfaces.C;
+import pasa.cbentley.core.src4.io.XString;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.structs.IntBuffer;
@@ -35,47 +37,57 @@ import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
+import pasa.cbentley.layouter.src4.engine.LayoutOperator;
+import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
 
 /**
  * Tracks the metering and drawing of a String of characters.
- * <br>
- * <br>
+ * 
+ * <p>
+ * 
  * Provides access to character positions with the class {@link StringMetrics}. This allow the editing module
  * to position the caret at any characters.
- * <br>
- * <br>
- * Initialized with {@link Stringer#setStringFig(ByteObject, String)}
- * {@link Stringer#initTextEffects(ByteObject, ByteObject[])}
- *  Stuff used by both drawing and metrics.
- * <br>
- * <br>
+ * </p>
+ * <p>
+ * Usage : Initialize the Stringer
+ * <li> {@link Stringer#setStringFig(ByteObject, String)}
+ * <li> {@link Stringer#initTextEffects(ByteObject, ByteObject[])}
+ * 
+ * <li> {@link Stringer#buildAgain()} 
+ * </p>
+ * <p>
  * Optimization. Buffer for String Editing.
  * <br>
- * <br>
- * <b>String selection</b>
- * <br>
- * <br>
+ * </p>
+ * 
+ * <p>
+ * <b>String selection</b><br>
  * String selection is implemented with an interval which is rendered using an additional Text Fx.
  * and setting interval {@link Stringer#setInterval(int, int)}
- * <br>
+ * </p>
  * <br>
  * Selection style will override some of the underlying style, like the foreground color and background color.
  * Like in Eclipse, it may decide to key the font and the face.
  * <br>
+ * 
+ * <p>
+ * 
  * How  do you defined 10 different style of fx assigned by order or randomly to each character of a word?
  * The root fx defines 10 sub object of type {@link IDrwTypes#TYPE_050_FIGURE}
- * <br>
+ * </p>
  * <br>
  * <p>
  * <b>Layers</b> : {@link Stringer#getStyleLayer(int)}
  * <li> 0 based
  * <li> identifies overlaping styles. 0 for base, 1 for selection
  * </p>
- * @see StringFx
+ * 
+ * 
  * @see StringMetrics
+ * @see StringDraw
+ * @see StringFx
+ * @see StringerEditor
  * @see IBOFxStr
- * <br>
- * <br>
  * 
  * @author Charles-Philip Bentley
  *
@@ -178,6 +190,8 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    int                               drawWordType;
 
+   private StringerEditor            editor;
+
    /**
     * Payloads are {@link StringFxLeaf} objects
     */
@@ -187,6 +201,10 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * Computed when {@link Stringer} needs to apply fx scoped to words
     */
    private IntIntervals              intervalOfWords;
+
+   private boolean isShowHiddenChars = false;
+
+   private boolean                   isTrimArtifacts;
 
    private int                       lastNumDrawnChars     = 0;
 
@@ -287,10 +305,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    private int                       tabManager;
 
    /**
-    * Text figure of type  TYPE_050_FIGURE.
-    * 
-    * <li>{@link IBOFigString#FIG_STRING_FLAG_1_SCALING}
-    * <li>{@link IBOFigString#FIG_STRING_FLAG_5_EFFECT}
+    * Text figure of type  {@link IBOFigString}.
     */
    ByteObject                        text;
 
@@ -307,10 +322,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    private boolean                   toStringDebugBreakLines;
 
    private int                       wordwrap;
-
-   private boolean                   isTrimArtifacts;
-
-   private StringerEditor            editor;
 
    /**
     * 
@@ -391,18 +402,18 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return nextID;
    }
 
+   /**
+    * Dev commands to add a newline at current caret
+    */
+   public void appendNewLine() {
+      areaY += stringMetrics.getLineHeight();
+      stringDraw.initTrackerXY(0, areaY);
+   }
+
    public void buildAgain() {
       setTextFigure(text);
       buildTextEffects();
       stringMetrics.meterString(); //FX must be deployed
-   }
-
-   public boolean isProtected() {
-      return hasState(STATE_30_PROTECTED);
-   }
-
-   public void setProtected(boolean v) {
-      this.setState(STATE_30_PROTECTED, v);
    }
 
    /**
@@ -839,6 +850,10 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return areaW;
    }
 
+   /**
+    * 
+    * @return
+    */
    public int getAreaX() {
       return areaX;
    }
@@ -860,11 +875,11 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    }
 
    /**
-    * The maximum number of displayed lines.
+    * The maximum number of displayed lines, first decided by {@link IBOFigString#FIG_STRING_OFFSET_10_MAXLINES1}.
     * <p>
     * 0 or negative means no maximum
     * </p>
-    * Unless set by {@link Stringer#setBreakMaxLines(int)}, value comes from {@link IBOFigString#FIG_STRING_OFFSET_08_MAXLINES1}
+    * Unless set by {@link Stringer#setBreakMaxLines(int)}
     * @return
     */
    public int getBreakMaxLines() {
@@ -933,17 +948,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return chars;
    }
 
-   /**
-    * 
-    * @return
-    */
-   public StringerEditor getEditor() {
-      if (editor == null) {
-         editor = new StringerEditor(this);
-      }
-      return editor;
-   }
-
    public int getCharsStart() {
       return offsetChars;
    }
@@ -961,6 +965,17 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    public StringDraw getDraw() {
       return stringDraw;
+   }
+
+   /**
+    * 
+    * @return
+    */
+   public StringerEditor getEditor() {
+      if (editor == null) {
+         editor = new StringerEditor(this);
+      }
+      return editor;
    }
 
    /**
@@ -1125,6 +1140,10 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return stringFx;
    }
 
+   public XString getStringX() {
+      return new XString(drc.getUCtx(), chars, offsetChars, lengthChars);
+   }
+
    /**
     * {@link StringStyleLayer} on which you can set new intervals.
     * 
@@ -1153,6 +1172,19 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    public int getTabManager() {
       return tabManager;
+   }
+
+   /**
+    * Compute the TBLR value with implicit {@link ILayoutable} etalon being the area X,Y-W,H.
+    * 
+    * @param tblr possibly having a sizer requiring an {@link ILayoutable}
+    * @param pos {@link C#POS_0_TOP}
+    * @return
+    */
+   public int getTBLRValueStringerArea(ByteObject tblr, int pos) {
+      LayoutOperator layoutOperator = drc.getLayoutOperator();
+      int value = layoutOperator.getTBLRValue(tblr, pos, this.areaX, this.areaY, this.areaW, this.areaH);
+      return value;
    }
 
    public ByteObject getTextFigure() {
@@ -1260,6 +1292,8 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return line.getWordBreaks();
    }
 
+   //#mdebug
+
    /**
     * Word breaks on this line for the given interval..
     * @param offset offset is relative to line offset
@@ -1275,8 +1309,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    public int[] getWordBreaks(IntInterval interval) {
       return getWordBreaks(interval.getOffset(), interval.getLen());
    }
-
-   //#mdebug
 
    public int getWordwrap() {
       return wordwrap;
@@ -1312,16 +1344,25 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       stringMetrics.reset(); //TODO
    }
 
+   public boolean isProtected() {
+      return hasState(STATE_30_PROTECTED);
+   }
+
+   public boolean isShowHiddenChars() {
+      return isShowHiddenChars;
+   }
+
    public boolean isStyleReady() {
       return stringFx != null;
    }
 
-   /**
-    * Dev commands to add a newline at current caret
-    */
-   public void appendNewLine() {
-      areaY += stringMetrics.getLineHeight();
-      stringDraw.initTrackerXY(0, areaY);
+   public boolean isTrimArtifacts() {
+      return isTrimArtifacts;
+   }
+
+   public boolean isValidAbsoluteIndex(int index) {
+      boolean b = index >= this.offsetChars && index < this.offsetChars + this.lengthChars;
+      return b;
    }
 
    /**
@@ -1338,6 +1379,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
          intervalOfStringLeaves.clear();
       }
       setState(STATE_06_CHAR_POSITIONS, false);
+      setState(STATE_04_TRIMMED, false);
       setState(STATE_07_BROKEN, false);
       setState(STATE_20_METERED_FULL, false);
       setState(STATE_21_ZERO_WIDTH_CHARS, false);
@@ -1390,6 +1432,10 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       areaW = contentW;
       areaH = contentH;
 
+   }
+
+   public void setBreakHeight(int breakH) {
+      this.breakH = breakH;
    }
 
    public void setBreakMaxLines(int breakMaxLines) {
@@ -1498,6 +1544,14 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       areaY = contentY;
    }
 
+   public void setProtected(boolean v) {
+      this.setState(STATE_30_PROTECTED, v);
+   }
+
+   public void setShowHiddenChars(boolean isShowHiddenChars) {
+      this.isShowHiddenChars = isShowHiddenChars;
+   }
+
    /**
     * Sets the {@link StringBBuilder} as the source of chars..
     * 
@@ -1564,10 +1618,10 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
       this.text = textFigure;
       this.scale = text.getSubFirst(TYPE_055_SCALE);
-      this.newLineManager = text.get1(IBOFigString.FIG_STRING_OFFSET_06_NEWLINE1);
-      this.wordwrap = text.get1(IBOFigString.FIG_STRING_OFFSET_07_WORDWRAP1);
-      this.breakMaxLines = text.get1(IBOFigString.FIG_STRING_OFFSET_08_MAXLINES1);
-      this.tabManager = text.get1(IBOFigString.FIG_STRING_OFFSET_10_TAB_MANAGER1);
+      this.newLineManager = text.get1(IBOFigString.FIG_STRING_OFFSET_14_MANAGER_NEWLINE1);
+      this.wordwrap = text.get1(IBOFigString.FIG_STRING_OFFSET_07_WRAP_WIDTH1);
+      this.breakMaxLines = text.get1(IBOFigString.FIG_STRING_OFFSET_10_MAXLINES1);
+      this.tabManager = text.get1(IBOFigString.FIG_STRING_OFFSET_13_MANAGER_TAB1);
       this.spaceTrimManager = text.get1(IBOFigString.FIG_STRING_OFFSET_09_SPACE_TRIM1);
       this.isShowHiddenChars = text.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_2_SHOW_HIDDEN_CHARS);
       this.isTrimArtifacts = text.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_3_TRIM_ARTIFACT);
@@ -1582,29 +1636,8 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    }
 
-   /**
-    * 
-    * Update String figure if different
-    * 
-    * <p>
-    * This method is ussed in relation with state style updates that modify the structure?
-    * In Those cases, we need to update the Stringer with new style characteristics without changing
-    * the string. And update is there necessary after the reset
-    * </p>
-    * 
-    * @param text
-    * @param x
-    * @param y
-    * @param w
-    * @param h
-    */
-   public void setTextObjectArea(ByteObject text, int x, int y, int w, int h) {
-      if (this.text != text) {
-         setTextFigure(text);
-         setAreaXYWH(x, y, w, h);
-         resetFigure();
-         resetFxDefinition();
-      }
+   public void setTrimArtifacts(boolean isTrimArtifacts) {
+      this.isTrimArtifacts = isTrimArtifacts;
    }
 
    /**
@@ -1645,9 +1678,17 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    //#mdebug
    public void toString(Dctx dc) {
-      dc.root(this, Stringer.class, "1600");
+      dc.root(this, Stringer.class, "1695");
       toStringPrivate(dc);
       super.toString(dc.sup());
+
+      dc.appendWithNewLine("Area = [" + areaX + "," + areaY + " - " + areaW + "," + areaH + "]");
+      
+      IntToStrings stateFlags = ToStringStaticDrawx.stringerStateFlagMap(toStringGetUCtx());
+      dc.nl();
+      dc.appendFlagsPositive(states, "States ->", stateFlags);
+      dc.nl();
+      dc.appendFlagsNegative(states, "States ->", stateFlags);
 
       dc.nlLvl(text, "textFigure");
 
@@ -1658,17 +1699,8 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
       dc.nlLvl(stringFont, "stringFont");
 
-      dc.nl();
-      dc.append("Area = " + areaX + "," + areaY + " " + areaW + "," + areaH);
-      dc.nl();
-      dc.append("States ->");
-      dc.nl();
-      IntToStrings stateFlags = ToStringStaticDrawx.stringerStateFlagMap(toStringGetUCtx());
-      dc.appendFlagsPositive(states, "States ->", stateFlags);
-      dc.nl();
-      dc.appendFlagsNegative(states, "States ->", stateFlags);
 
-      dc.nlLvl(anchor);
+      dc.nlLvl(anchor,"anchor");
 
       dc.nlLvl(stringMetrics);
       dc.nlLvl(stringDraw);
@@ -1690,8 +1722,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return toStringDebugArea;
    }
 
-   private boolean isShowHiddenChars = false;
-
    private void toStringPrivate(Dctx dc) {
       dc.appendVarWithSpace("offsetChars", offsetChars);
       dc.appendVarWithSpace("lengthChars", lengthChars);
@@ -1711,22 +1741,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    public void ToStringSetDebugBreakLines(boolean toStringSetDebugBreakLines) {
       this.toStringDebugBreakLines = toStringSetDebugBreakLines;
-   }
-
-   public boolean isShowHiddenChars() {
-      return isShowHiddenChars;
-   }
-
-   public void setShowHiddenChars(boolean isShowHiddenChars) {
-      this.isShowHiddenChars = isShowHiddenChars;
-   }
-
-   public boolean isTrimArtifacts() {
-      return isTrimArtifacts;
-   }
-
-   public void setTrimArtifacts(boolean isTrimArtifacts) {
-      this.isTrimArtifacts = isTrimArtifacts;
    }
 
 }

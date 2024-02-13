@@ -50,7 +50,7 @@ public abstract class ObjectDrw implements IStringable {
    }
 
    public void toString(Dctx dc) {
-      dc.root(this, ObjectDrw.class, "@line35");
+      dc.root(this, ObjectDrw.class, 50);
       toStringPrivate(dc);
    }
 
@@ -59,7 +59,9 @@ public abstract class ObjectDrw implements IStringable {
    }
 
    private void toStringPrivate(Dctx dc) {
-      dc.appendVarWithSpace("debugName", toStringName);
+      if(toStringName != null) {
+         dc.appendWithSpace(toStringName);
+      }
    }
 
    public void toString1Line(Dctx dc) {

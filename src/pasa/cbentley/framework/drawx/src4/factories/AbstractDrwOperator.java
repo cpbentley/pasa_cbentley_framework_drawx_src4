@@ -14,12 +14,14 @@ import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IDLog;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.layouter.src4.engine.LayoutOperator;
+import pasa.cbentley.layouter.src4.engine.TblrFactory;
 
 public abstract class AbstractDrwOperator extends BOAbstractOperator implements IStringable, IBOMergeMask {
 
    protected final DrwCtx drc;
 
-   protected final BOCtx boc;
+   protected final BOCtx  boc;
 
    public AbstractDrwOperator(DrwCtx drc) {
       super(drc.getBOC());
@@ -37,6 +39,10 @@ public abstract class AbstractDrwOperator extends BOAbstractOperator implements 
 
    public TblrFactory getTblrFactory() {
       return drc.getTblrFactory();
+   }
+
+   public LayoutOperator getLayoutOperator() {
+      return drc.getLayoutOperator();
    }
 
    //#mdebug

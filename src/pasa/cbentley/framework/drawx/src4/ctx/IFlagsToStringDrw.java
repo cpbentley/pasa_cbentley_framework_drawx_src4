@@ -26,16 +26,18 @@ public interface IFlagsToStringDrw extends IToStringFlags {
 
    public static final int D_FLAG_25_IGNORE_IGRAPHICS = 1 << 24;
 
+   public static final int D_FLAG_28_IGNORE_FONT      = 1 << 27;
+
    public static final int D_FLAG_27_CACHE            = 1 << 26;
 
    /**
     * {@link Dctx#setFlagData(ICtx, int, boolean)}
     */
-   int DATA_FLAG_20_HIDE_CACHE       = 19 << 1;
+   public static final int DATA_FLAG_20_HIDE_CACHE    = 19 << 1;
 
    /**
     * Set it to prevent {@link GraphicsX} debug data in {@link RgbImage}
     */
-   int DATA_FLAG_22_HIDE_GRAPHICS    = 21 << 1;
+   public static final int DATA_FLAG_22_HIDE_GRAPHICS = 21 << 1;
 
 }

@@ -203,7 +203,11 @@ public class LineStringer extends ObjectDrw {
          if (isMonospaced) {
             return len * widthMono;
          } else {
-            return getCharsWidth(indexRelative, len);
+            if (charsWidth == null) {
+               return stringer.getMetrics().getWidthConsumed(indexRelative, len);
+            } else {
+               return getCharsWidth(indexRelative, len);
+            }
          }
       }
    }
@@ -433,9 +437,9 @@ public class LineStringer extends ObjectDrw {
       dc.appendVarWithSpace("offset", offset);
       dc.appendVarWithSpace("len", len);
       dc.append('[');
-      dc.append((offset));
+      dc.append(getOffset());
       dc.append(',');
-      dc.append((len - offset - 1));
+      dc.append(getOffsetLast());
       dc.append(']');
    }
 
@@ -468,7 +472,7 @@ public class LineStringer extends ObjectDrw {
          //model equals visible
          appendCharFromOffsets(sb, offsetStart, offsetEnd);
       } else {
-         map.appendStringSrc(sb,offsetStart, offsetEnd);
+         map.appendStringSrc(sb, offsetStart, offsetEnd);
       }
    }
 
