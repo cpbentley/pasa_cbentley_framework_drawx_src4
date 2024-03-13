@@ -7,7 +7,6 @@ package pasa.cbentley.framework.drawx.src4.ctx;
 import pasa.cbentley.byteobjects.src4.core.BOModuleAbstract;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.byteobjects.src4.ctx.ToStringStaticBO;
 import pasa.cbentley.byteobjects.src4.objects.color.ColorFunction;
 import pasa.cbentley.byteobjects.src4.objects.color.GradientFunction;
@@ -45,7 +44,7 @@ import pasa.cbentley.framework.drawx.src4.utils.ShaderFunction;
  * <li>With Java : class.field = function(class.field)
  * <li>With ByteObject : function(class,pointer). Pointer identifies field.
  * <br>
- * Now a function is able to work on a {@link IBOTypesDrw#TYPE_POINTER} defining an offset and a pointer byte size.
+ * Now a function is able to work on a {@link IBOTypesDrawX#TYPE_POINTER} defining an offset and a pointer byte size.
  * <br>
  * <b>Philosophy</b>. 
  * <li> ByteObject framework is designed for fast creation, many instances. Generally, create instead of modify
@@ -107,7 +106,7 @@ import pasa.cbentley.framework.drawx.src4.utils.ShaderFunction;
  * @author Charles-Philip Bentley
  *
  */
-public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOTypesDrw, IDebugStringable, IToStringsDIDsDraw, IBOFilter {
+public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOTypesDrawX, IDebugStringable, IToStringsDIDsDraw, IBOFilter {
 
    protected final DrwCtx drc;
 
@@ -125,7 +124,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    public ByteObject getFlagOrderedBO(ByteObject bo, int offset, int flag) {
       int type = bo.getType();
       switch (type) {
-         case TYPE_071_STYLE:
+         case TYPE_DRWX_12_STYLE:
             return drc.getStyleOperator().getStyleDrw(bo, offset, flag);
       }
       return null;
@@ -158,17 +157,17 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    public ByteObject merge(ByteObject root, ByteObject merge) {
       int type = merge.getType();
       switch (type) {
-         case TYPE_050_FIGURE:
+         case TYPE_DRWX_00_FIGURE:
             return drc.getFigureOperator().mergeFigure(root, merge);
-         case TYPE_051_BOX:
+         case TYPE_DRWX_01_BOX:
             return drc.getBoxFactory().mergeBox(root, merge);
-         case TYPE_058_MASK:
+         case TYPE_DRWX_06_MASK:
             return drc.getMaskOperator().mergeMask(root, merge);
-         case TYPE_069_ANCHOR:
+         case TYPE_DRWX_10_ANCHOR:
             return drc.getAnchorFactory().mergeAnchor(root, merge);
-         case TYPE_071_STYLE:
+         case TYPE_DRWX_12_STYLE:
             return drc.getStyleOperator().mergeStyle(root, merge);
-         case TYPE_070_TEXT_EFFECTS:
+         case TYPE_DRWX_11_TEXT_EFFECTS:
             return drc.getFxStringOperator().mergeTxtEffects(root, merge);
       }
       return null;
@@ -202,7 +201,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    public int[] getArrayFrom(ByteObject bo, int[] param) {
       final int type = bo.getType();
       switch (type) {
-         case IBOTypesDrw.TYPE_059_GRADIENT:
+         case IBOTypesBOC.TYPE_038_GRADIENT:
             GradientFunction gf = new GradientFunction(boc);
             int gradSize = param[0];
             int primaryColor = param[1];
@@ -243,8 +242,8 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
       toStringPrivate(dc);
       super.toString(dc.sup());
 
-      dc.appendVarWithNewLine(toStringType(TYPE_050_FIGURE), TYPE_050_FIGURE);
-      dc.appendVarWithNewLine(toStringType(TYPE_051_BOX), TYPE_051_BOX);
+      dc.appendVarWithNewLine(toStringType(TYPE_DRWX_00_FIGURE), TYPE_DRWX_00_FIGURE);
+      dc.appendVarWithNewLine(toStringType(TYPE_DRWX_01_BOX), TYPE_DRWX_01_BOX);
 
    }
 
@@ -253,32 +252,32 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    public boolean toString(Dctx sb, ByteObject bo) {
       final int type = bo.getType();
       switch (type) {
-         case IBOTypesDrw.TYPE_055_SCALE:
+         case IBOTypesDrawX.TYPE_DRWX_05_SCALE:
             drc.getScalerFactory().toStringScaler(bo, sb);
             break;
-         case IBOTypesDrw.TYPE_052_ARTIFACT:
+         case IBOTypesDrawX.TYPE_DRWX_02_ARTIFACT:
             drc.getArtifactFactory().toStringArtifact(bo, sb);
             break;
-         case IBOTypesDrw.TYPE_050_FIGURE:
+         case IBOTypesDrawX.TYPE_DRWX_00_FIGURE:
             drc.getFigureFactory().toStringFigure(bo, sb);
             break;
-         case IBOTypesDrw.TYPE_051_BOX:
+         case IBOTypesDrawX.TYPE_DRWX_01_BOX:
             //we need to give the context
             drc.getBoxFactory().toStringBox(bo, sb);
             break;
-         case IBOTypesDrw.TYPE_058_MASK:
+         case IBOTypesDrawX.TYPE_DRWX_06_MASK:
             drc.getMaskFactory().toStringMask(bo, sb);
             break;
-         case IBOTypesDrw.TYPE_069_ANCHOR:
+         case IBOTypesDrawX.TYPE_DRWX_10_ANCHOR:
             drc.getAnchorFactory().toStringAnchor(bo, sb);
             break;
-         case TYPE_071_STYLE:
+         case TYPE_DRWX_12_STYLE:
             drc.getStyleOperator().toStringStyle(bo, sb);
             break;
-         case TYPE_070_TEXT_EFFECTS:
+         case TYPE_DRWX_11_TEXT_EFFECTS:
             drc.getFxStringOperator().toStringTxtEffect(bo, sb);
             break;
-         case TYPE_072_FX_APPLICATOR:
+         case TYPE_DRWX_13_FX_APPLICATOR:
             drc.getFxStringOperator().toStringFxApplicator(bo, sb);
             break;
          default:
@@ -296,31 +295,31 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    public boolean toString1Line(Dctx dc, ByteObject bo) {
       final int type = bo.getType();
       switch (type) {
-         case IBOTypesDrw.TYPE_050_FIGURE:
+         case IBOTypesDrawX.TYPE_DRWX_00_FIGURE:
             drc.getFigureFactory().toStringFigure1Line(bo, dc);
             break;
-         case IBOTypesDrw.TYPE_051_BOX:
+         case IBOTypesDrawX.TYPE_DRWX_01_BOX:
             drc.getBoxFactory().toStringBox(bo, dc);
             break;
-         case IBOTypesDrw.TYPE_052_ARTIFACT:
+         case IBOTypesDrawX.TYPE_DRWX_02_ARTIFACT:
             drc.getArtifactFactory().toStringArtifact(bo, dc);
             break;
-         case IBOTypesDrw.TYPE_055_SCALE:
+         case IBOTypesDrawX.TYPE_DRWX_05_SCALE:
             drc.getScalerFactory().toStringScaler(bo, dc);
             break;
-         case IBOTypesDrw.TYPE_058_MASK:
+         case IBOTypesDrawX.TYPE_DRWX_06_MASK:
             drc.getMaskFactory().toStringMask(bo, dc);
             break;
-         case IBOTypesDrw.TYPE_069_ANCHOR:
+         case IBOTypesDrawX.TYPE_DRWX_10_ANCHOR:
             drc.getAnchorFactory().toStringAnchor(bo, dc);
             break;
-         case TYPE_071_STYLE:
+         case TYPE_DRWX_12_STYLE:
             drc.getStyleOperator().toString1LineStyle(bo, dc);
             break;
-         case TYPE_070_TEXT_EFFECTS:
+         case TYPE_DRWX_11_TEXT_EFFECTS:
             drc.getFxStringOperator().toString1LineTxtEffect(bo, dc);
             break;
-         case TYPE_072_FX_APPLICATOR:
+         case TYPE_DRWX_13_FX_APPLICATOR:
             drc.getFxStringOperator().toString1LineFxApplicator(bo, dc);
             break;
          default:
@@ -340,27 +339,27 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
 
    public String toStringType(int type) {
       switch (type) {
-         case TYPE_050_FIGURE:
+         case TYPE_DRWX_00_FIGURE:
             return "Figure";
-         case TYPE_051_BOX:
+         case TYPE_DRWX_01_BOX:
             return "Box";
-         case TYPE_052_ARTIFACT:
+         case TYPE_DRWX_02_ARTIFACT:
             return "Artifact";
-         case TYPE_053_MOSAIC:
+         case TYPE_DRWX_03_MOSAIC:
             return "Mosaic";
-         case TYPE_059_GRADIENT:
+         case IBOTypesBOC.TYPE_038_GRADIENT:
             return "Gradient";
-         case TYPE_061_COLOR_RANDOM:
+         case IBOTypesBOC.TYPE_041_COLOR_RANDOM:
             return "ColorRandomizer";
-         case TYPE_062_BLENDER:
+         case IBOTypesBOC.TYPE_039_BLENDER:
             return "Blender";
-         case TYPE_063_PIX_STAR:
+         case TYPE_DRWX_09_PIX_STAR:
             return "PixStar";
-         case TYPE_069_ANCHOR:
+         case TYPE_DRWX_10_ANCHOR:
             return "Anchor";
-         case TYPE_070_TEXT_EFFECTS:
+         case TYPE_DRWX_11_TEXT_EFFECTS:
             return "TextEffects";
-         case TYPE_071_STYLE:
+         case TYPE_DRWX_12_STYLE:
             return "Style";
       }
       return null;

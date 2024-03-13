@@ -11,7 +11,7 @@ public interface IBOFigBorder extends IBOFigure {
     * 4 bytes for secondary color
     * 1 byte gradient position
     */
-   public static final int FIG_BORDER_BASIC_SIZE             = IBOFigure.FIG__BASIC_SIZE + 3;
+   public static final int FIG_BORDER_BASIC_SIZE             = FIG__BASIC_SIZE + 3;
 
    /**
     * When flag is set, it draws the border around the provided figure boundary.
@@ -40,19 +40,19 @@ public interface IBOFigBorder extends IBOFigure {
     */
    public static final int FIG_BORDER_FLAG_8_FIGURES         = 1 << 7;
 
-   public static final int FIG_BORDER_OFFSET_1_FLAG          = IBOFigure.FIG__BASIC_SIZE;
+   public static final int FIG_BORDER_OFFSET_1_FLAG          = FIG__BASIC_SIZE;
 
    /** 
     * The pixel shift applied at the 4 corners.<br>
     * Size of border depends on a ByteObject TBLR.
     * Shift reduce that value
     */
-   public static final int FIG_BORDER_OFFSET_2_CORNER_SHIFT1 = IBOFigure.FIG__BASIC_SIZE + 1;
+   public static final int FIG_BORDER_OFFSET_2_CORNER_SHIFT1 = FIG__BASIC_SIZE + 1;
 
    /**
     * <li>  {@link ITechFigure#STROKE_0_SOLID}
     * <li>  {@link ITechFigure#STROKE_1_SIMPLE_DOTS}
     */
-   public static final int FIG_BORDER_OFFSET_3_STROKE_STYLE1 = IBOFigure.FIG__BASIC_SIZE + 2;
+   public static final int FIG_BORDER_OFFSET_3_STROKE_STYLE1 = FIG__BASIC_SIZE + 2;
 
 }

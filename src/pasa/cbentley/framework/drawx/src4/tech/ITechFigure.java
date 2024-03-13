@@ -6,8 +6,8 @@ package pasa.cbentley.framework.drawx.src4.tech;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.interfaces.C;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigTriangle;
 
 public interface ITechFigure extends IByteObject {
@@ -138,7 +138,7 @@ public interface ITechFigure extends IByteObject {
 
    /**
     * The single char figure with scaling to fit the figure's drawing area. <br>
-    * More complex string of characters are possible with {@link IBOTypesDrw#TYPE_RAW}.
+    * More complex string of characters are possible with {@link IBOTypesDrawX#TYPE_RAW}.
     * How does it relate to a number 10 scaled up in big font?
     */
    public static final int FIG_TYPE_10_STRING              = 60;

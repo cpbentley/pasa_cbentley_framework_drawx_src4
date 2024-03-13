@@ -286,7 +286,7 @@ public class LineStringer extends ObjectDrw {
     */
    public int[] getWordBreaks() {
       if (wordBreaks == null) {
-         StringUtils strU = drc.getUCtx().getStrU();
+         StringUtils strU = drc.getUC().getStrU();
          int offsetStartLine = stringer.offsetChars + offset;
          return strU.getBreaksWord(stringer.chars, offsetStartLine, len);
       }

@@ -5,7 +5,6 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.byteobjects.src4.objects.function.Function;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
@@ -16,6 +15,7 @@ import pasa.cbentley.core.src4.structs.IntIntervals;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
@@ -38,7 +38,7 @@ import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
  * @author Charles-Philip Bentley
  *
  */
-public class StringDraw extends ObjectDrw implements IStringable, ITechFigure, IBOTypesDrw, IBOMask, IBOBox, ITechStringer {
+public class StringDraw extends ObjectDrw implements IStringable, ITechFigure, IBOTypesDrawX, IBOMask, IBOBox, ITechStringer {
 
    /**
     * Tracks current char x coordinate

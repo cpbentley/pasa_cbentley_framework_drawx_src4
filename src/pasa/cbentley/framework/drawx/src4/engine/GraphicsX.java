@@ -395,7 +395,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
    }
 
    private void aInit() {
-      clipHistory = new IntBuffer(drc.getUCtx());
+      clipHistory = new IntBuffer(drc.getUC());
       this.excludeColor = GraphicsX.PRIMITIVE_COLOR_BASE;
       //bgOpCyan = new BlendOpGraphicsX(dd, BlendOp.BLENDING_00_OVER, DrawUtilz.FULLY_OPAQUE_CYAN);
       //bgOpPurple = new BlendOpGraphicsX(dd, BlendOp.BLENDING_00_OVER, DrawUtilz.FULLY_OPAQUE_PURPLE);
@@ -1499,7 +1499,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
    }
 
    private Geo2dUtils getGeo2dUtils() {
-      return drc.getUCtx().getGeo2dUtils();
+      return drc.getUC().getGeo2dUtils();
    }
 
    /**
@@ -1528,7 +1528,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
    }
 
    public IntUtils getIntUtils() {
-      return drc.getUCtx().getIU();
+      return drc.getUC().getIU();
    }
 
    /**
@@ -2490,6 +2490,10 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       toStringTranslate(dc);
       return dc.toString();
    }
+   
+   public String toStringColor() {
+      return g.toStringGetUCtx().getColorU().toStringColor(mycolor);
+   }
 
    public void toStringTranslate(Dctx dc) {
       dc.append("Translate On GraphicsX ");
@@ -2504,5 +2508,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       }
    }
    //#enddebug
+
+
 
 }

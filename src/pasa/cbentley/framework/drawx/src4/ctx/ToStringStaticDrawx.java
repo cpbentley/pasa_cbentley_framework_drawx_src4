@@ -5,7 +5,7 @@
 package pasa.cbentley.framework.drawx.src4.ctx;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.logging.ToStringStaticBase;
@@ -16,7 +16,7 @@ import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPass;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.style.IBOStyle;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
@@ -318,17 +318,17 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
 
    public static String toStringDrwType(final int type) {
       switch (type) {
-         case IBOTypesDrw.TYPE_050_FIGURE:
+         case IBOTypesDrawX.TYPE_DRWX_00_FIGURE:
             return "FIGURE";
-         case IBOTypesDrw.TYPE_051_BOX:
+         case IBOTypesDrawX.TYPE_DRWX_01_BOX:
             return "ANCHOR";
-         case IBOTypesDrw.TYPE_058_MASK:
+         case IBOTypesDrawX.TYPE_DRWX_06_MASK:
             return "MASK";
-         case IBOTypesDrw.TYPE_059_GRADIENT:
+         case IBOTypesBOC.TYPE_038_GRADIENT:
             return "GRADIENT";
-         case IBOTypesDrw.TYPE_070_TEXT_EFFECTS:
+         case IBOTypesDrawX.TYPE_DRWX_11_TEXT_EFFECTS:
             return "TEXT_EFFECTS";
-         case IBOTypesDrw.TYPE_056_COLOR_FILTER:
+         case IBOTypesBOC.TYPE_040_COLOR_FILTER:
             return "COLOR_FILTER";
          default:
             return "UNKNOWN " + type;
@@ -379,13 +379,13 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
 
    public static String toStringFxScope(int scope) {
       switch (scope) {
-         case IBOFxStr.FX_SCOPE_1_CHAR:
+         case ITechStringDrw.FX_SCOPE_1_CHAR:
             return "Char";
-         case IBOFxStr.FX_SCOPE_2_WORD:
+         case ITechStringDrw.FX_SCOPE_2_WORD:
             return "Word";
-         case IBOFxStr.FX_SCOPE_3_PARA:
+         case ITechStringDrw.FX_SCOPE_3_PARA:
             return "Paragraph";
-         case IBOFxStr.FX_SCOPE_0_TEXT:
+         case ITechStringDrw.FX_SCOPE_0_TEXT:
             return "Text";
          default:
             return "Unknown scope " + scope;

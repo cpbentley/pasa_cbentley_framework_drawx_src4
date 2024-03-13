@@ -1,12 +1,12 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.ITechLvl;
 import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
@@ -48,7 +48,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
  * @author Charles Bentley
  *
  */
-public class StringFxLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrw, IBOMask, IBOBox, ITechStringer {
+public class StringFxLeaf extends ObjectDrw implements ITechFigure, IBOTypesDrawX, IBOMask, IBOBox, ITechStringer {
 
    /**
     * The style to be applied to all the characters in this interval

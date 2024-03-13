@@ -5,10 +5,18 @@
 package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
 import pasa.cbentley.byteobjects.src4.objects.color.ITechBlend;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 
+/**
+ * 
+ * {@link IBOTypesDrawX#TYPE_DRWX_06_MASK}
+ * 
+ * @author Charles Bentley
+ *
+ */
 public interface IBOMask extends IByteObject {
 
    /**
@@ -117,7 +125,7 @@ public interface IBOMask extends IByteObject {
    public static final int MASK_OFFSET_5_BLEND_BG1          = A_OBJECT_BASIC_SIZE + 13;
 
    /**
-    * When the black and white mask is produced, a {@link IBOTypesDrw#TYPE_056_COLOR_FILTER} maybe applied
+    * When the black and white mask is produced, a {@link IBOTypesBOC#TYPE_040_COLOR_FILTER} maybe applied
     * which modifies the alpha values of white and/or black pixels.
     * <br>
     * <br>

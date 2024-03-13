@@ -1,9 +1,9 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOArtifact;
 
 public class ArtifactFactory extends AbstractDrwFactory {
@@ -25,7 +25,7 @@ public class ArtifactFactory extends AbstractDrwFactory {
     * @return
     */
    public ByteObject getArtifact(int type, int w, int h, int spac, boolean rw, boolean rh, boolean rs) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_052_ARTIFACT, IBOArtifact.ARTIFACT_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_02_ARTIFACT, IBOArtifact.ARTIFACT_BASIC_SIZE);
       p.setValue(IBOArtifact.ARTIFACT_OFFSET_02_W1, w, 1);
       p.setValue(IBOArtifact.ARTIFACT_OFFSET_03_H1, h, 1);
       p.setValue(IBOArtifact.ARTIFACT_OFFSET_04_SPACING_CAP1, spac, 1);

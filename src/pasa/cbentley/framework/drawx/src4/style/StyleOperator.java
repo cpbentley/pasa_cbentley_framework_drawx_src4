@@ -8,7 +8,6 @@ import pasa.cbentley.byteobjects.src4.core.BOAbstractOperator;
 import pasa.cbentley.byteobjects.src4.core.BOModulesManager;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.byteobjects.src4.ctx.IToStringFlagsBO;
 import pasa.cbentley.byteobjects.src4.objects.pointer.IBOPointer;
 import pasa.cbentley.core.src4.interfaces.C;
@@ -17,6 +16,7 @@ import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
@@ -32,7 +32,7 @@ import pasa.cbentley.layouter.src4.interfaces.ISizeCtx;
 import pasa.cbentley.layouter.src4.tech.IBOTblr;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
 
-public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITechFigure, IBOTypesDrw, IBOTblr {
+public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITechFigure, IBOTypesDrawX, IBOTblr {
 
    protected final DrwCtx dc;
 
@@ -367,7 +367,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    public ByteObject getStyleAnchor(ByteObject style) {
-      return style.getSubFirst(IBOTypesDrw.TYPE_051_BOX);
+      return style.getSubFirst(IBOTypesDrawX.TYPE_DRWX_01_BOX);
    }
 
    /**
@@ -564,7 +564,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
                //#debug
                String msg = "Index sx " + sx + " invalid for STYLE_OFFSET_1_FLAGV " + flag;
                //we want to debug byteObject raw only
-               Dctx dc = new Dctx(boc.getUCtx());
+               Dctx dc = new Dctx(boc.getUC());
                //override any configured flags on boc
                dc.setFlagData(boc, IToStringFlagsBO.TOSTRING_FLAG_3_IGNORE_CONTENT, true);
                dc.append(msg);
@@ -884,13 +884,13 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     */
    public ByteObject mergeStyle(ByteObject root, ByteObject merge) {
       //force the pooling
-      ByteObject styleResult = dc.getBOC().getByteObjectFactory().createByteObject(TYPE_071_STYLE, STYLE_BASIC_SIZE);
+      ByteObject styleResult = dc.getBOC().getByteObjectFactory().createByteObject(TYPE_DRWX_12_STYLE, STYLE_BASIC_SIZE);
 
       //#debug
-      root.checkType(TYPE_071_STYLE);
+      root.checkType(TYPE_DRWX_12_STYLE);
       //#debug
       if (merge != null) {
-         merge.checkType(TYPE_071_STYLE);
+         merge.checkType(TYPE_DRWX_12_STYLE);
       }
 
       //build the merged array of sub byteobjects
@@ -1039,8 +1039,8 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    public ByteObject styleMergeOver(ByteObject root, ByteObject styleO) {
-      root.checkType(TYPE_071_STYLE);
-      styleO.checkType(TYPE_071_STYLE);
+      root.checkType(TYPE_DRWX_12_STYLE);
+      styleO.checkType(TYPE_DRWX_12_STYLE);
 
       //create a new possible
       ByteObject content = styleMergePartOver(root, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_1_CONTENT, styleO);

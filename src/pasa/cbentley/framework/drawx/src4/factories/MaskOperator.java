@@ -7,7 +7,6 @@ package pasa.cbentley.framework.drawx.src4.factories;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.BOCtx;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.core.src4.utils.interfaces.IColors;
@@ -15,6 +14,7 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
@@ -126,13 +126,13 @@ public class MaskOperator extends AbstractDrwOperator implements IBOMask, IColor
       if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_1)) {
          shapeAlpha = merge.get4(MASK_OFFSET_9_ALPHA_SHAPE1);
       }
-      ByteObject maskFilter = root.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
+      ByteObject maskFilter = root.getSubFirst(IBOTypesBOC.TYPE_040_COLOR_FILTER);
       if (merge.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_1_MASK_FILTER)) {
-         maskFilter = merge.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
+         maskFilter = merge.getSubFirst(IBOTypesBOC.TYPE_040_COLOR_FILTER);
       }
-      ByteObject bgFigure = root.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
+      ByteObject bgFigure = root.getSubFirst(IBOTypesDrawX.TYPE_DRWX_00_FIGURE);
       if (merge.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_2_BG_FIGURE)) {
-         bgFigure = merge.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
+         bgFigure = merge.getSubFirst(IBOTypesDrawX.TYPE_DRWX_00_FIGURE);
       }
       ByteObject newMask = drc.getMaskFactory().getMask(maskBgColor, maskMidColor, maskShapeColor, bgAlpha, shapeAlpha, blendBg, blendMid, blendShape, maskFilter, bgFigure);
       return newMask;
@@ -209,7 +209,7 @@ public class MaskOperator extends AbstractDrwOperator implements IBOMask, IColor
       figImg.disposeGraphics();
 
       if (mask.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_1_MASK_FILTER)) {
-         ByteObject maskColorFilter = mask.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
+         ByteObject maskColorFilter = mask.getSubFirst(IBOTypesBOC.TYPE_040_COLOR_FILTER);
          drc.getRgbImageOperator().applyColorFilter(maskColorFilter, figImg);
          //image will be switch to RGB mode.
       }
@@ -309,7 +309,7 @@ public class MaskOperator extends AbstractDrwOperator implements IBOMask, IColor
       int[] figData = null;
       RgbImage figBackgroundImg;
       if (mask.hasFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_2_BG_FIGURE)) {
-         ByteObject bgFigure = mask.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
+         ByteObject bgFigure = mask.getSubFirst(IBOTypesDrawX.TYPE_DRWX_00_FIGURE);
          //#debug      
          drc.toStringCheckNull(bgFigure);
 

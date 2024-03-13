@@ -10,8 +10,9 @@ import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.core.interfaces.IBOCtxSettings;
 import pasa.cbentley.byteobjects.src4.ctx.ABOCtx;
 import pasa.cbentley.byteobjects.src4.ctx.BOCtx;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.ctx.IConfigBO;
+import pasa.cbentley.byteobjects.src4.ctx.IStaticIDsBO;
 import pasa.cbentley.byteobjects.src4.objects.color.ColorFunctionFactory;
 import pasa.cbentley.byteobjects.src4.objects.color.FilterFactory;
 import pasa.cbentley.byteobjects.src4.objects.color.FilterOperator;
@@ -141,7 +142,7 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
    private StyleOperator       styleOperator;
 
    public DrwCtx(CoreDrawCtx cdc, LayouterCtx lac) {
-      this(new ConfigDrawXDefault(cdc.getUCtx()), cdc, lac);
+      this(new ConfigDrawXDefault(cdc.getUC()), cdc, lac);
    }
 
    /**
@@ -168,7 +169,9 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
       facFig = new FigureFactory(this);
       bx = new BoxFactory(this);
 
-      CtxManager c = cdc.getUCtx().getCtxManager();
+      CtxManager c = cdc.getUC().getCtxManager();
+      c.registerStaticRange(this, IStaticIDsBO.SID_BYTEOBJECT_TYPES, IBOTypesDrawX.A_SID_DRWTYPE_A, IBOTypesDrawX.A_SID_DRWTYPE_Z);
+
       //#debug
       c.registerStaticRange(this, IStaticIDs.SID_DIDS, IToStringsDIDsDraw.A_DID_OFFSET_A_DRAW, IToStringsDIDsDraw.A_DID_OFFSET_Z_DRAW);
 
@@ -207,7 +210,7 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
     * @return
     */
    public ByteObject getBlender(int type, int alpha) {
-      ByteObject p = boc.getByteObjectFactory().createByteObject(IBOTypesDrw.TYPE_062_BLENDER, IBOBlend.BLEND_BASIC_SIZE);
+      ByteObject p = boc.getByteObjectFactory().createByteObject(IBOTypesBOC.TYPE_039_BLENDER, IBOBlend.BLEND_BASIC_SIZE);
       p.set2(IBOBlend.BLEND_OFFSET_03_TYPE2, type);
       p.set1(IBOBlend.BLEND_OFFSET_02_ALPHA1, alpha);
       return p;

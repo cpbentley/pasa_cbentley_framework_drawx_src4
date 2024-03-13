@@ -5,10 +5,10 @@
 package pasa.cbentley.framework.drawx.src4.style;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
 import pasa.cbentley.layouter.src4.tech.IBOTblr;
@@ -19,7 +19,7 @@ import pasa.cbentley.layouter.src4.tech.IBOTblr;
  * @author Charles Bentley
  *
  */
-public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypesDrw, ITechStyleCache {
+public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypesDrawX, ITechStyleCache {
 
    private int[]         areas;
 

@@ -6,7 +6,6 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.byteobjects.src4.objects.color.ColorFunction;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
@@ -16,21 +15,23 @@ import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
 import pasa.cbentley.layouter.src4.tech.IBOTblr;
 
 /**
- * Java object wrapper of the ByteObject {@link IBOTypesDrw#TYPE_070_TEXT_EFFECTS} or {@link IBOTypesDrw#TYPE_050_FIGURE}  whose responsabilities are :
+ * Java object wrapper of the ByteObject {@link IBOTypesDrawX#TYPE_DRWX_11_TEXT_EFFECTS} or {@link IBOTypesDrawX#TYPE_DRWX_00_FIGURE}  whose responsabilities are :
  * 
  * <ul>
- * <li> Manages a FX group which is the merge of several {@link IDrwTypes#TYPE_070_TEXT_EFFECTS} definitions.
+ * <li> Manages a FX group which is the merge of several {@link IDrwTypes#TYPE_DRWX_11_TEXT_EFFECTS} definitions.
  * <li> Unwraps the values stored in a text effect definition {@link IBOFxStr}.
  * <ul>
  *      <li>Font face, size and color
@@ -87,7 +88,7 @@ import pasa.cbentley.layouter.src4.tech.IBOTblr;
  * @author Charles-Philip Bentley
  *
  */
-public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOTypesDrw {
+public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOTypesDrawX {
 
    public int         anchor = IBOBox.ANCHOR;
 
@@ -95,11 +96,11 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
 
    /**
     * How should this figure be drawn
-    * {@link IBOFxStr#FX_SCOPE_1_CHAR}
-    * {@link IBOFxStr#FX_SCOPE_2_WORD}
-    * {@link IBOFxStr#FX_SCOPE_2_LINE}
-    * {@link IBOFxStr#FX_SCOPE_3_PARA}
-    * {@link IBOFxStr#FX_SCOPE_5_FRAZ}
+    * {@link ITechStringDrw#FX_SCOPE_1_CHAR}
+    * {@link ITechStringDrw#FX_SCOPE_2_WORD}
+    * {@link ITechStringDrw#FX_SCOPE_2_LINE}
+    * {@link ITechStringDrw#FX_SCOPE_3_PARA}
+    * {@link ITechStringDrw#FX_SCOPE_5_FRAZ}
     */
    int                bgFigureScope;
 
@@ -143,9 +144,9 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
    int                fxLineOffsetY;
 
    /**
-    * <li> {@link IBOFxStr#FX_SCOPE_1_CHAR}
-    * <li> {@link IBOFxStr#FX_SCOPE_2_WORD}
-    * <li> {@link IBOFxStr#FX_SCOPE_2_LINE}
+    * <li> {@link ITechStringDrw#FX_SCOPE_1_CHAR}
+    * <li> {@link ITechStringDrw#FX_SCOPE_2_WORD}
+    * <li> {@link ITechStringDrw#FX_SCOPE_2_LINE}
     */
    int                maskScope;
 
@@ -295,8 +296,8 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
    }
 
    /**
-    * Initializae the {@link StringFx} instance with the {@link IDrwTypes#TYPE_070_TEXT_EFFECTS} object.
-    * or a {@link IDrwTypes#TYPE_050_FIGURE} 
+    * Initializae the {@link StringFx} instance with the {@link IDrwTypes#TYPE_DRWX_11_TEXT_EFFECTS} object.
+    * or a {@link IDrwTypes#TYPE_DRWX_00_FIGURE} 
     * <br>
     * <br>
     * 
@@ -304,11 +305,11 @@ public class StringFx extends ObjectDrw implements IBOFxStr, ITechStringer, IBOT
     */
    public void initFx(ByteObject fx) {
       //#debug
-      fx.checkType(TYPE_070_TEXT_EFFECTS);
+      fx.checkType(TYPE_DRWX_11_TEXT_EFFECTS);
       srcFx = fx;
 
-      mask = srcFx.getSubFirst(TYPE_058_MASK);
-      bgFigure = srcFx.getSubFirst(TYPE_050_FIGURE);
+      mask = srcFx.getSubFirst(TYPE_DRWX_06_MASK);
+      bgFigure = srcFx.getSubFirst(TYPE_DRWX_00_FIGURE);
       color = srcFx.get4(IBOFxStr.FX_OFFSET_09_COLOR4);
       
       ByteObject colorFunctionDef = srcFx.getSubFirst(TYPE_021_FUNCTION);

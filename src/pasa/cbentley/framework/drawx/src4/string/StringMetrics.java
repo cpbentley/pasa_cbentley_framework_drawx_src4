@@ -83,7 +83,7 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
    /**
     * Char x positions relative to first char at 0, computed during breaking
     * <br>
-    * Those values are used for caret positioning. All {@link StringFx} scoped to {@link IBOFxStr#FX_SCOPE_1_CHAR}  artifacts use it.
+    * Those values are used for caret positioning. All {@link StringFx} scoped to {@link ITechStringDrw#FX_SCOPE_1_CHAR}  artifacts use it.
     * <br>
     * Values depends on {@link StringDraw} anchoring {@link Anchor}
     * <br>
@@ -303,7 +303,7 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
     * <p>
     * Line Based {@link StringFx}:<br>
     * In case of width based string breaking, line based styles cannot be assigned until text is broken
-    * The scope {@link IBOFxStr#FX_SCOPE_2_LINE} is used
+    * The scope {@link ITechStringDrw#FX_SCOPE_2_LINE} is used
     * </p>
     * 
     * 
@@ -407,7 +407,7 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
    }
 
    public IntUtils getIntUtils() {
-      return drc.getUCtx().getIU();
+      return drc.getUC().getIU();
    }
 
    public LineStringer getLine(int lineIndex) {
@@ -660,6 +660,16 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
       ph = lineAlgo.getLinesTotalH();
       charWidthMono = lineAlgo.getSameCharWidthFactValue();
       charBiggestW = lineAlgo.getCharBiggestWidth();
+      
+      //align y coordinates
+      if(stringer.anchor != null) {
+         int dy = AnchorUtils.getYAlign(stringer.anchor, 0, stringer.areaH, ph);
+         for (int i = 0; i < lines.length; i++) {
+            LineStringer line = lines[i];
+            int ny = line.getY() + dy;
+            line.setY(ny);
+         }
+      }
    }
 
    public void reset() {

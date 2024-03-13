@@ -7,7 +7,6 @@ package pasa.cbentley.framework.drawx.src4.string;
 import java.util.Enumeration;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.io.XString;
@@ -25,12 +24,14 @@ import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.coredraw.src4.ctx.IFlagToStringCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigChar;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrChar;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
@@ -73,7 +74,7 @@ import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
  * <p>
  * 
  * How  do you defined 10 different style of fx assigned by order or randomly to each character of a word?
- * The root fx defines 10 sub object of type {@link IDrwTypes#TYPE_050_FIGURE}
+ * The root fx defines 10 sub object of type {@link IDrwTypes#TYPE_DRWX_00_FIGURE}
  * </p>
  * <br>
  * <p>
@@ -92,7 +93,7 @@ import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
  * @author Charles-Philip Bentley
  *
  */
-public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBOTypesDrw, IBOFxStr, ITechStringer {
+public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBOTypesDrawX, IBOFxStr, ITechStringer {
 
    public static final String        NAME_ROOT_STYLE_LAYER = "Root";
 
@@ -101,7 +102,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * {@link ITechAnchor}
     * 
     * Anchors the String figure in the box defined by the Stringer area.
-    * <br>
     * However String have a locale associated with it.
     * Therefore the String is a 
     * <li> Bidi (bi directional) texts also are a challenge
@@ -202,7 +202,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    private IntIntervals              intervalOfWords;
 
-   private boolean isShowHiddenChars = false;
+   private boolean                   isShowHiddenChars     = false;
 
    private boolean                   isTrimArtifacts;
 
@@ -347,7 +347,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    public void addFx(ByteObject fx) {
       //#debug
-      fx.checkType(IBOTypesDrw.TYPE_070_TEXT_EFFECTS);
+      fx.checkType(IBOTypesDrawX.TYPE_DRWX_11_TEXT_EFFECTS);
 
    }
 
@@ -416,6 +416,11 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       stringMetrics.meterString(); //FX must be deployed
    }
 
+   public void buildFxAndMeter() {
+      buildTextEffects();
+      stringMetrics.meterString();
+   }
+
    /**
     * Keep existing string
     * @param textFigure
@@ -440,7 +445,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    public StringInterval[] buildIntervalWords() {
       if (textModel == null) {
-         textModel = new TextModel(drc.getUCtx());
+         textModel = new TextModel(drc.getUC());
          textModel.setChars(chars, offsetChars, lengthChars);
          textModel.buildModel();
       }
@@ -501,7 +506,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       if (stringFx.getFont().isMonospace()) {
          setState(STATE_18_FULL_MONOSPACE, true);
       }
-      IntIntervals intervalsOfLeaves = new IntIntervals(drc.getUCtx());
+      IntIntervals intervalsOfLeaves = new IntIntervals(drc.getUC());
       intervalsOfLeaves.setPayLoadCheck(true); //we want to break down intervals with different payloads
 
       IntInterval rootInterval = intervalsOfLeaves.addInterval(0, lengthChars, leafRoot);
@@ -592,7 +597,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    }
 
    public void buildTextEffects(ByteObject textFigure) {
-      int num = textFigure.getSubNum(TYPE_070_TEXT_EFFECTS);
+      int num = textFigure.getSubNum(TYPE_DRWX_11_TEXT_EFFECTS);
       ByteObject fxRoot = drc.getFxStringFactory().createFxFromFigure(textFigure);
 
       if (num == 0 && styleLayers == null) {
@@ -619,7 +624,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
          //create a Fx object from textFigure parameters
          ByteObject[] fxs = new ByteObject[num + 1];
          fxs[0] = fxRoot;
-         textFigure.getSubsAppend(TYPE_070_TEXT_EFFECTS, fxs, 1);
+         textFigure.getSubsAppend(TYPE_DRWX_11_TEXT_EFFECTS, fxs, 1);
 
          //merges everything and use that
          ByteObject fxSrc = fxRoot;
@@ -745,7 +750,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * It tries to honour the offset. Line offsets are meaningless if there is one line.
     * <br>
     * <br>
-    * This is fine for line {@link StringFx} but what happens to Paragraph or {@link IBOFxStr#FX_SCOPE_0_TEXT}
+    * This is fine for line {@link StringFx} but what happens to Paragraph or {@link ITechStringDrw#FX_SCOPE_0_TEXT}
     * when a line is drawn again?
     * <br>
     * <br>
@@ -1070,44 +1075,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return newLineManager;
    }
 
-   /**
-    * Returns the number of Fx with the flag {@link IBOFxStr#FX_FLAGZ_2_DYNAMIC}
-    * 
-    * <p>
-    * Opposite method of {@link Stringer#getNumFxStaticIndex(ByteObject[])}
-    * </p>
-    * @param textFigure
-    * @return
-    */
-   int getNumFxDynamic(ByteObject[] subs) {
-      int count = 0;
-      if (subs != null) {
-         for (int i = 0; i < subs.length; i++) {
-            if (subs[i] != null && subs[i].hasFlag(FX_OFFSET_04_FLAGZ, FX_FLAGZ_2_DYNAMIC)) {
-               count++;
-            }
-         }
-      }
-      return count;
-   }
-
-   /**
-    * Opposite method of {@link Stringer#getNumFxDynamic(ByteObject[])}
-    * @param subs
-    * @return
-    */
-   int getNumFxStaticIndex(ByteObject[] subs) {
-      int count = 0;
-      for (int i = 0; i < subs.length; i++) {
-         if (subs[i] != null && !subs[i].hasFlag(FX_OFFSET_04_FLAGZ, FX_FLAGZ_2_DYNAMIC)) {
-            if (subs[i].hasFlag(FX_OFFSET_04_FLAGZ, FX_FLAGZ_1_STATIC_INDEX)) {
-               count++;
-            }
-         }
-      }
-      return count;
-   }
-
    public int getNumLinesPerPage() {
       if (numLinesPerPage == 0) {
          //generate it from areaH
@@ -1141,7 +1108,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    }
 
    public XString getStringX() {
-      return new XString(drc.getUCtx(), chars, offsetChars, lengthChars);
+      return new XString(drc.getUC(), chars, offsetChars, lengthChars);
    }
 
    /**
@@ -1232,7 +1199,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       int lineWidth = 0;
       int lineCount = 1;
       int numCharOnLine = 0;
-      IntBuffer data = new IntBuffer(drc.getUCtx());
+      IntBuffer data = new IntBuffer(drc.getUC());
       StringMetrics sm = this.getMetrics();
       int charw = 0;
       int lineStartOffset = 0;
@@ -1301,7 +1268,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * @return
     */
    public int[] getWordBreaks(int offset, int len) {
-      StringUtils strU = drc.getUCtx().getStrU();
+      StringUtils strU = drc.getUC().getStrU();
       int offsetStartLine = this.offsetChars + offset;
       return strU.getBreaksWord(this.chars, offsetStartLine, len);
    }
@@ -1431,7 +1398,11 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       areaY = y;
       areaW = contentW;
       areaH = contentH;
+   }
 
+   public void setAreaXY(int x, int y) {
+      areaX = x;
+      areaY = y;
    }
 
    public void setBreakHeight(int breakH) {
@@ -1610,14 +1581,14 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    public void setTextFigure(ByteObject textFigure) {
       //#debug
-      textFigure.checkType(TYPE_050_FIGURE);
+      textFigure.checkType(TYPE_DRWX_00_FIGURE);
 
       //invalidate
       resetFigure();
       resetFxDefinition();
 
       this.text = textFigure;
-      this.scale = text.getSubFirst(TYPE_055_SCALE);
+      this.scale = text.getSubFirst(TYPE_DRWX_05_SCALE);
       this.newLineManager = text.get1(IBOFigString.FIG_STRING_OFFSET_14_MANAGER_NEWLINE1);
       this.wordwrap = text.get1(IBOFigString.FIG_STRING_OFFSET_07_WRAP_WIDTH1);
       this.breakMaxLines = text.get1(IBOFigString.FIG_STRING_OFFSET_10_MAXLINES1);
@@ -1627,7 +1598,34 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       this.isTrimArtifacts = text.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_3_TRIM_ARTIFACT);
 
       if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_ANCHOR)) {
-         anchor = text.getSubFirst(TYPE_069_ANCHOR);
+         anchor = text.getSubFirst(TYPE_DRWX_10_ANCHOR);
+      }
+      if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK)) {
+         //figure has a mask, move it to text mask fx.
+
+      }
+
+   }
+
+   public void setFigureChar(ByteObject figChar) {
+      //#debug
+      figChar.checkType(TYPE_DRWX_00_FIGURE);
+      //#debug
+      figChar.checkValue(IBOFigure.FIG__OFFSET_01_TYPE1, 1, ITechFigure.FIG_TYPE_04_CHAR);
+
+      //invalidate
+      resetFigure();
+      resetFxDefinition();
+
+      char c = (char) figChar.get2(IBOFigChar.FIG_CHAR_OFFSET_2_UTF16_VALUE2);
+      chars[offsetChars] = c;
+      lengthChars = 1;
+
+      this.text = figChar;
+      this.scale = text.getSubFirst(TYPE_DRWX_05_SCALE);
+
+      if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_ANCHOR)) {
+         anchor = text.getSubFirst(TYPE_DRWX_10_ANCHOR);
       }
       if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK)) {
          //figure has a mask, move it to text mask fx.
@@ -1683,7 +1681,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       super.toString(dc.sup());
 
       dc.appendWithNewLine("Area = [" + areaX + "," + areaY + " - " + areaW + "," + areaH + "]");
-      
+
       IntToStrings stateFlags = ToStringStaticDrawx.stringerStateFlagMap(toStringGetUCtx());
       dc.nl();
       dc.appendFlagsPositive(states, "States ->", stateFlags);
@@ -1699,8 +1697,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
       dc.nlLvl(stringFont, "stringFont");
 
-
-      dc.nlLvl(anchor,"anchor");
+      dc.nlLvl(anchor, "anchor");
 
       dc.nlLvl(stringMetrics);
       dc.nlLvl(stringDraw);

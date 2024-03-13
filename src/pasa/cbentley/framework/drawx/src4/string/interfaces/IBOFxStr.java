@@ -8,23 +8,22 @@ import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 import pasa.cbentley.byteobjects.src4.objects.function.Function;
 import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
-import pasa.cbentley.core.src4.text.TextModel;
 import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.core.src4.utils.interfaces.IColorsStatic;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFont;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.string.FxStringFactory;
 import pasa.cbentley.framework.drawx.src4.string.StringFx;
 import pasa.cbentley.framework.drawx.src4.string.StringStyleApplicatorIndex;
+import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
  * {@link ByteObject} template for defining String text effects. Creator is {@link FxStringFactory}.
  * <br>
  * <br>
  * Each definition is set to a scope
- * <li> {@link IBOFxStr#FX_SCOPE_1_CHAR}
- * <li> {@link IBOFxStr#FX_SCOPE_2_LINE}
+ * <li> {@link ITechStringDrw#FX_SCOPE_1_CHAR}
+ * <li> {@link ITechStringDrw#FX_SCOPE_2_LINE}
  * <li> {@link IBOFxStr#FX_SCOPE_2_COMPOSITE}
  * <br>
  * <br>
@@ -57,6 +56,12 @@ public interface IBOFxStr extends IByteObject {
    public static final int FX_BASIC_SIZE_FRAZ              = FX_BASIC_SIZE + 4;
 
    public static final int FX_BASIC_SIZE_TEXT              = FX_BASIC_SIZE + 4;
+
+   public static final int FX_FIG_SCOPE_0_TEXT             = 0;
+
+   public static final int FX_FIG_SCOPE_1_CHAR             = 1;
+
+   public static final int FX_FIG_SCOPE_2_WORD             = 2;
 
    /**
     * When effect is very specific and {@link IBOFxStr#FX_OFFSET_12_INDEX2} gives the
@@ -164,7 +169,7 @@ public interface IBOFxStr extends IByteObject {
    public static final int FX_FLAGY_2_FIGURE               = 1 << 1;
 
    /**
-    * Defines a {@link IDrwTypes#TYPE_058_MASK} in its parameters.
+    * Defines a {@link IDrwTypes#TYPE_DRWX_06_MASK} in its parameters.
     * <br>
     * <br>
     * 
@@ -193,7 +198,7 @@ public interface IBOFxStr extends IByteObject {
     * The rectangular area controlled by the scoped element is treated with a Style element.
     * <br>
     * <br>
-    * The style {@link IViewTypes#TYPE_071_STYLE} is stored as a sub parameter of this object.
+    * The style {@link IViewTypes#TYPE_DRWX_12_STYLE} is stored as a sub parameter of this object.
     * <br>
     * <br>
     * The figure will be a char, a word or a line.
@@ -209,7 +214,7 @@ public interface IBOFxStr extends IByteObject {
     * 
     * Allows to define a specific scope based 
     * Provides {@link IBOFxStr#FX_OFFSET_12_INDEX2} scope
-    * <li> First character of every word char scope index 0, scope {@link IBOFxStr#FX_SCOPE_2_WORD}.
+    * <li> First character of every word char scope index 0, scope {@link ITechStringDrw#FX_SCOPE_2_WORD}.
     * <li> First line of every paragraph.
     * <li> Random index of every word bigger than 2 letters. Index {@link Function} and Acceptor for Word.
     * <br>
@@ -235,14 +240,7 @@ public interface IBOFxStr extends IByteObject {
     * to have a specific 
     * @see IBOFxStr#FX_FLAGZ_2_DYNAMIC
     */
-   public static final int FX_FLAGZ_1_STATIC_INDEX         = 1 << 0;
-
-   /**
-    * Index is computed starting from the last element
-    * 
-    * @see IBOFxStr#FX_FLAG_1_SPECIFIC_SWITCH
-    */
-   public static final int FX_FLAGZ_1_STATIC_INDEX_LAST    = 1 << 0;
+   public static final int FX_FLAGZ_1_                     = 1 << 0;
 
    /**
     * Flag saying this definition is to be activated upon some user actions.
@@ -262,6 +260,21 @@ public interface IBOFxStr extends IByteObject {
     * </p>
     */
    public static final int FX_FLAGZ_2_DYNAMIC              = 1 << 1;
+
+   /**
+    * Index is computed starting from the last element
+    * 
+    * @see IBOFxStr#FX_FLAG_1_SPECIFIC_SWITCH
+    */
+   public static final int FX_FLAGZ_3_                     = 1 << 2;
+
+   public static final int FX_FLAGZ_4_                     = 1 << 3;
+
+   public static final int FX_FLAGZ_5_                     = 1 << 4;
+
+   public static final int FX_FLAGZ_6_                     = 1 << 5;
+
+   public static final int FX_FLAGZ_7_                     = 1 << 6;
 
    /**
     * The effect is actually to be choosen by a function using the sub text effect of this instance.
@@ -340,32 +353,36 @@ public interface IBOFxStr extends IByteObject {
     * <br>
     * <br>
     * This allows code to know which template to use for reading this {@link ByteObject} without error.
-    * <li> {@link IBOFxStr#FX_SCOPE_1_CHAR} -> {@link IBOFxStr#FXCHAR_BASIC_SIZE}
-    * <li> {@link IBOFxStr#FX_SCOPE_2_WORD} -> {@link IBOFxStr#FXWORD_BASIC_SIZE}
-    * <li> {@link IBOFxStr#FX_SCOPE_2_LINE} -> {@link IBOFxStr#FXLINE_BASIC_SIZE}
-    * <li> {@link IBOFxStr#FX_SCOPE_3_PARA} -> {@link IBOFxStr#FXPARA_BASIC_SIZE}
-    * <li> {@link IBOFxStr#FX_SCOPE_0_TEXT} -> {@link IBOFxStr#FX_BASIC_SIZE_TEXT}
+    * <li> {@link ITechStringDrw#FX_SCOPE_1_CHAR} -> {@link IBOFxStr#FXCHAR_BASIC_SIZE}
+    * <li> {@link ITechStringDrw#FX_SCOPE_2_WORD} -> {@link IBOFxStr#FXWORD_BASIC_SIZE}
+    * <li> {@link ITechStringDrw#FX_SCOPE_2_LINE} -> {@link IBOFxStr#FXLINE_BASIC_SIZE}
+    * <li> {@link ITechStringDrw#FX_SCOPE_3_PARA} -> {@link IBOFxStr#FXPARA_BASIC_SIZE}
+    * <li> {@link ITechStringDrw#FX_SCOPE_0_TEXT} -> {@link IBOFxStr#FX_BASIC_SIZE_TEXT}
     * <br>
     * Mask background figure will be drawn over the area of scope.
     */
-   public static final int FX_OFFSET_05_SCOPE_FX1        = A_OBJECT_BASIC_SIZE + 5;
+   public static final int FX_OFFSET_05_SCOPE_FX1          = A_OBJECT_BASIC_SIZE + 5;
 
    /**
-    * MergeMask: flag 1 of offset 6.
-    * <br>
-    * <br>
     * ID To a set of fonts defined by driver.
     * 
-    * {@link ITechFigureString}
+    * {@link ITechFigure}
     * 
     * <li> {@link ITechFont#FACE_MONOSPACE}
     * <li> {@link ITechFont#FACE_PROPORTIONAL}
     * <li> {@link ITechFont#FACE_SYSTEM}
+    * 
+    * <p>
+    * MergeMask: flag 1 of offset 6.
+    * </p>
     */
    public static final int FX_OFFSET_06_FACE1              = A_OBJECT_BASIC_SIZE + 6;
 
    /**
+    * 
     * MM: flag 2 of offset 6.
+    * 
+    * 
     * <li> {@link ITechFont#STYLE_BOLD}
     * <li> {@link ITechFont#STYLE_ITALIC}
     * <li> {@link ITechFont#STYLE_PLAIN}
@@ -395,89 +412,14 @@ public interface IBOFxStr extends IByteObject {
     */
    public static final int FX_OFFSET_09_COLOR4             = A_OBJECT_BASIC_SIZE + 9;
 
-
    /**
     * The anchoring to be used for this effect. Such as {@link ITechGraphics#TOP} | {@link ITechGraphics#LEFT}
     * <br>
-    * <br>
     * Value of 0 defaults to TOP LEFT.
-    * <br>
     * <li> {@link ITechGraphics#TOP}
     * <li> {@link ITechGraphics#LEFT}
-    * <br>
     * 
     */
    public static final int FX_OFFSET_11_ANCHOR1            = A_OBJECT_BASIC_SIZE + 14;
-   
-
-   public static final int FX_FIG_SCOPE_0_TEXT                 = 0;
-   public static final int FX_FIG_SCOPE_1_CHAR                 = 1;
-   public static final int FX_FIG_SCOPE_2_WORD                 = 2;
-
-   /**
-    * The CHAR level is the first one. It defines how characters are drawn relative to each other.
-    * <br>
-    * <br>
-    * 
-    * Random styling: each char has a random font from pooling defined
-    * <br>
-    * <br>
-    * Effect to be create for each characters.
-    * <br>
-    * <br>
-    * <li> individual char level Mask Figure
-    */
-   public static final int FX_SCOPE_1_CHAR                 = 1;
-
-   /**
-    * FX is applied to string 'word'.
-    * What happens when the word is cut with -? Right now words are not cut.
-    * 
-    * <p>
-    * Competing Word and Line Fx ?
-    * Examples. Word Mask vs Line Mask Smaller Scope wins in practice.
-    * But if Word Mask fx applies to the first word of a line, the line mask is applied to the whole line including the first word
-    * Line Mask might make the space glow in a certain way! so Line Mask does not lose completely
-    * </p>
-    */
-   public static final int FX_SCOPE_2_WORD                 = 2;
-
-   /**
-    * At the LINE level we find the following options : 
-    * <br>
-    * <li>The Relative function positioning.
-    * 	Default is x unchanged and y increment by Font/Line Height
-    * 	Function similar to the Relative Function Position of characters 
-    * 	but applied to lines
-    * <li>RFP has an impact the width and height consumed by the text effect
-    * <li>One Word Per Line
-    * <li>x-Line Level Mask Figure (apply mask underyling figure to X lines at a time
-    * <br>
-    * <br>
-    * TODO how do model alternative line background styling ?
-    * index based function .. style applicator ?
-    */
-   public static final int FX_SCOPE_2_LINE                 = 2;
-
-   /**
-    * Each text block separated with an empty line
-    */
-   public static final int FX_SCOPE_3_PARA                 = 3;
-
-   /**
-    * Treat the whole text as referential
-    */
-   public static final int FX_SCOPE_0_TEXT                 = 0;
-
-   /**
-    * Break text into sentences. The start of a sentence is always a abcABC character?
-    */
-   public static final int FX_SCOPE_5_FRAZ                 = 5;
-
-   /**
-    * Only applies to word separators as defined in {@link TextModel}.
-    * usually whitespace and ,
-    */
-   public static final int FX_SCOPE_6_SEPARATORS           = 6;
 
 }

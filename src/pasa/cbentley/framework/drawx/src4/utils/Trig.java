@@ -7,6 +7,7 @@ import pasa.cbentley.core.src4.ctx.ObjectU;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.Geo2dUtils;
+import pasa.cbentley.core.src4.utils.MathUtils;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 
 /**
@@ -16,6 +17,14 @@ import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
  *
  */
 public class Trig extends ObjectU {
+
+   /**
+    * The value of 180 is equal to PI radians
+    * 
+    */
+   public static final double ONE_RADIAN            = 180 / Math.PI;
+
+   public static final double ONE_RADIAN_IN_DEGREES = 57.2958;
 
    static double area(int x1, int y1, int x2, int y2, int x3, int y3) {
       int rectArea = x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2);
@@ -41,6 +50,16 @@ public class Trig extends ObjectU {
       ar[2] = new Trig(uc, x1, y1, x, y + h, x + w, y + h);
       ar[3] = new Trig(uc, x1, y1, x + w, y + h, x + w, y);
       return ar;
+   }
+
+   /**
+    * Tan alpha = opposite / adjacent
+    * @param opposite 
+    * @param adjacent
+    * @return
+    */
+   public static double getAlpha(int opposite, int adjacent) {
+      return MathUtils.aTan(opposite, adjacent);
    }
 
    /**
@@ -364,6 +383,7 @@ public class Trig extends ObjectU {
    public float d1Square() {
       return Geo2dUtils.getDistanceSquare(xHead, yHead, x1, y1);
    }
+
    /**
     * When base is sitting flat below.. d2 is the right vertice
     * @return

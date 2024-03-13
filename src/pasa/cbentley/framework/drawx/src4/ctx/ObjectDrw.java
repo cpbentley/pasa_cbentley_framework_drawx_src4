@@ -29,7 +29,7 @@ public abstract class ObjectDrw implements IStringable {
    }
 
    public UCtx getUC() {
-      return drc.getUCtx();
+      return drc.getUC();
    }
 
    //#mdebug
@@ -70,7 +70,7 @@ public abstract class ObjectDrw implements IStringable {
    }
 
    public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
+      return drc.getUC();
    }
 
    //#enddebug

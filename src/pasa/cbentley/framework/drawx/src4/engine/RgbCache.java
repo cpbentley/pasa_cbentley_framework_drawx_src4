@@ -1627,7 +1627,7 @@ public class RgbCache implements IMemFreeable {
    }
 
    public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
+      return drc.getUC();
    }
 
    //#enddebug

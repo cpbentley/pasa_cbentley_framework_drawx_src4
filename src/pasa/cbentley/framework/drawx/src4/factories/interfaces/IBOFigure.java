@@ -1,15 +1,20 @@
 package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
+import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.objects.color.IBOBlend;
 import pasa.cbentley.byteobjects.src4.objects.color.IBOFilter;
 import pasa.cbentley.byteobjects.src4.objects.color.ITechGradient;
+import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFeaturesDraw;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
+import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
+import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
 
 public interface IBOFigure extends IByteObject {
 
@@ -24,6 +29,19 @@ public interface IBOFigure extends IByteObject {
 
    /**
     * Type of figure (circle, losange, line, etc)
+    * 
+    * <li> {@link ITechFigure#FIG_TYPE_01_RECTANGLE}
+    * <li> {@link ITechFigure#FIG_TYPE_02_BORDER}
+    * <li> {@link ITechFigure#FIG_TYPE_03_TRIANGLE}
+    * <li> {@link ITechFigure#FIG_TYPE_04_CHAR}
+    * <li> {@link ITechFigure#FIG_TYPE_05_LINE}
+    * <li> {@link ITechFigure#FIG_TYPE_06_LOSANGE}
+    * <li> {@link ITechFigure#FIG_TYPE_07_ELLIPSE}
+    * <li> {@link ITechFigure#FIG_TYPE_08_GERMANCROSS}
+    * <li> {@link ITechFigure#FIG_TYPE_09_PIXELS}
+    * <li> {@link ITechFigure#FIG_TYPE_10_STRING}
+    * <li> {@link ITechFigure#FIG_TYPE_11_GRID}
+    * <li> {@link ITechFigure#FIG_TYPE_12_ARROW}
     */
    public static final int FIG__OFFSET_01_TYPE1        = A_OBJECT_BASIC_SIZE;
 
@@ -79,15 +97,16 @@ public interface IBOFigure extends IByteObject {
     * 
     * 
     * Those last bits tells the cache engine about the nature of the figure.
-    * {@link IBOTypesDrw#TYPE_059_GRADIENT} often modifies Figure's perceptual direction.
+    * {@link IBOTypesBOC#TYPE_038_GRADIENT} often modifies Figure's perceptual direction.
     * <br>
     * If Gradient exists, engine must ask the gradient definition sheet for gradient direction
     * For the Rectangle figure, the only neutral gradient is {@link GRADIENT_TYPE_RECT_0SQUARE}.
     * <p>
     * 
     * <b>Parametrized Drawing</b><br>
-    * Draw a figure
-    * Call the dynamic direction in the {@link ByteObjectFig#paintFigure(GraphicsX, int, int, int, int, DrwParam)} call.
+    * 
+    * Call the dynamic direction in the {@link FigureOperator#paintFigureDir(GraphicsX, int, int, int, int, ByteObject, int)} call.
+    * 
     * Tag figure as being a transformation of a cached figure.
     * </p>
     * 
@@ -98,7 +117,12 @@ public interface IBOFigure extends IByteObject {
    public static final int FIG__OFFSET_05_DIR1         = A_OBJECT_BASIC_SIZE + 4;
 
    /**
-    * offset of figure's main color or pointer to color serie
+    * offset of figure's main color or pointer to color serie.
+    * 
+    * <p>
+    * MM: {@link IBOMergeMask#MERGE_MASK_OFFSET_5VALUES1} with {@link ITechMergeMaskFigure#MM_VALUES5_FLAG_2_COLOR}
+    * </p>
+    * 
     */
    public static final int FIG__OFFSET_06_COLOR4       = A_OBJECT_BASIC_SIZE + 5;
 
@@ -252,7 +276,7 @@ public interface IBOFigure extends IByteObject {
    /**
     * {@link IBOScaler} is defined
     * 
-    * When the figure is loaded with a {@link IBOTypesDrw#TYPE_055_SCALE} object.
+    * When the figure is loaded with a {@link IBOTypesDrawX#TYPE_DRWX_05_SCALE} object.
     * 
     * 
     */

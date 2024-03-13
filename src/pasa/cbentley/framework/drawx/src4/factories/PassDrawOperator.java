@@ -5,7 +5,7 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
 import pasa.cbentley.byteobjects.src4.objects.color.IBOFilter;
 import pasa.cbentley.core.src4.utils.ColorUtils;
@@ -134,7 +134,7 @@ public class PassDrawOperator extends AbstractDrwOperator {
 
    protected void applyPreFilter(ByteObject pass, RgbImage ri) {
       if (pass.hasFlag(IBOPass.PASS_OFFSET_01_FLAG1, IBOPass.PASS_FLAG_1_PRE_FILTER)) {
-         ByteObject filter = pass.getSubValueMatch(IBOTypesDrw.TYPE_056_COLOR_FILTER, IBOFilter.FILTER_OFFSET_07_ID1, 1, IBOFilter.FILTER_ID_1_PRE);
+         ByteObject filter = pass.getSubValueMatch(IBOTypesBOC.TYPE_040_COLOR_FILTER, IBOFilter.FILTER_OFFSET_07_ID1, 1, IBOFilter.FILTER_ID_1_PRE);
          drc.getRgbImageOperator().applyColorFilter(filter, ri);
       }
    }

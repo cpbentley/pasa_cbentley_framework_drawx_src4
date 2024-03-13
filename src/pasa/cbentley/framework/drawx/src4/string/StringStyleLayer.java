@@ -3,12 +3,12 @@ package pasa.cbentley.framework.drawx.src4.string;
 import java.util.Enumeration;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.core.src4.structs.IntIntervals;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
@@ -43,7 +43,7 @@ public class StringStyleLayer extends ObjectDrw {
    /**
     * Tracks the intervals for the Dynamic Styles.  {@link IBOFxStr#FX_FLAGZ_2_DYNAMIC}
     * <br>
-    * {@link IDrwTypes#TYPE_070_TEXT_EFFECTS} already affecting an index will merge with the dynamic style.
+    * {@link IDrwTypes#TYPE_DRWX_11_TEXT_EFFECTS} already affecting an index will merge with the dynamic style.
     * <br>
     * <br>
     * By Default Dynamic text effect merges over, which means it replaces static style definitions
@@ -63,7 +63,7 @@ public class StringStyleLayer extends ObjectDrw {
       super(drc);
       this.st = st;
       this.id = id;
-      intervals = new IntIntervals(drc.getUCtx());
+      intervals = new IntIntervals(drc.getUC());
       intervals.setPayLoadCheck(true);
    }
 
@@ -93,7 +93,7 @@ public class StringStyleLayer extends ObjectDrw {
    }
 
    /**
-    * Returns the {@link IBOTypesDrw#TYPE_070_TEXT_EFFECTS} for the given interval at offset
+    * Returns the {@link IBOTypesDrawX#TYPE_DRWX_11_TEXT_EFFECTS} for the given interval at offset
     * @param offset
     * @return null if interval defined at index
     */
@@ -125,7 +125,7 @@ public class StringStyleLayer extends ObjectDrw {
     */
    public IntInterval addInterval(int offset, int len, ByteObject fx) {
       //#debug
-      fx.checkType(IBOTypesDrw.TYPE_070_TEXT_EFFECTS);
+      fx.checkType(IBOTypesDrawX.TYPE_DRWX_11_TEXT_EFFECTS);
 
       IntInterval interval =  new IntInterval(getUC(), offset, len, fx);
       //merge listener .. merge only when same style

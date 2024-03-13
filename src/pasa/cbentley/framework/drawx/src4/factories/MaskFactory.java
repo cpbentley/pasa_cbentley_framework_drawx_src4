@@ -5,12 +5,13 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.objects.color.ITechGradient;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
 
@@ -53,7 +54,7 @@ public class MaskFactory extends AbstractDrwFactory implements IBOMask {
    }
 
    /**
-    * Gets a {@link IBOTypesDrw#TYPE_058_MASK}
+    * Gets a {@link IBOTypesDrawX#TYPE_DRWX_06_MASK}
     * <br>
     * <br>
     * @param colorBg {@link IBOMask#MASK_OFFSET_2_COLOR_BG4}
@@ -69,7 +70,7 @@ public class MaskFactory extends AbstractDrwFactory implements IBOMask {
     * @return
     */
    public ByteObject getMask(int colorBg, int colorMid, int colorShape, int alphaBg, int alphaShape, int blendBg, int blendMid, int blendShape, ByteObject filter, ByteObject bgFigure) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_058_MASK, MASK_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_06_MASK, MASK_BASIC_SIZE);
       p.setValue(MASK_OFFSET_2_COLOR_BG4, colorBg, 4);
       p.setValue(MASK_OFFSET_3_COLOR_MID4, colorShape, 4);
       p.setValue(MASK_OFFSET_4_COLOR_SHAPE4, colorShape, 4);
@@ -80,13 +81,13 @@ public class MaskFactory extends AbstractDrwFactory implements IBOMask {
       p.setValue(MASK_OFFSET_9_ALPHA_SHAPE1, alphaShape, 1);
       if (filter != null) {
          //#debug
-         filter.checkType(IBOTypesDrw.TYPE_056_COLOR_FILTER);
+         filter.checkType(IBOTypesBOC.TYPE_040_COLOR_FILTER);
          p.setFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_1_MASK_FILTER, true);
          p.addSub(filter);
       }
       if (bgFigure != null) {
          //#debug
-         bgFigure.checkType(IBOTypesDrw.TYPE_050_FIGURE);
+         bgFigure.checkType(IBOTypesDrawX.TYPE_DRWX_00_FIGURE);
          p.setFlag(MASK_OFFSET_1_FLAG1, MASK_FLAG_2_BG_FIGURE, true);
          p.addSub(bgFigure);
       }
@@ -123,8 +124,8 @@ public class MaskFactory extends AbstractDrwFactory implements IBOMask {
    public void toStringMask(ByteObject bo, Dctx dc) {
       dc.rootN(bo, "Mask", MaskFactory.class, 110);
       dc.nl();
-      StringBBuilder tru = new StringBBuilder(drc.getUCtx());
-      StringBBuilder fal = new StringBBuilder(drc.getUCtx());
+      StringBBuilder tru = new StringBBuilder(drc.getUC());
+      StringBBuilder fal = new StringBBuilder(drc.getUC());
       ToStringStaticDrawx.debugFlagTrueOrFalse(bo, MASK_OFFSET_1_FLAG1, MASK_FLAG_6_SIZE_MASK, "hasSizeMask", tru, fal);
       dc.append("TrueFlags:");
       dc.append(tru.toString());

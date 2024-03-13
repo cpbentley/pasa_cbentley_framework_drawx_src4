@@ -73,7 +73,7 @@ public abstract class AbstractDrwOperator extends BOAbstractOperator implements 
    }
 
    public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
+      return drc.getUC();
    }
 
    //#enddebug

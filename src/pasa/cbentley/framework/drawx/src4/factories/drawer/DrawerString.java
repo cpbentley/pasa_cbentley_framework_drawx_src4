@@ -6,7 +6,6 @@ package pasa.cbentley.framework.drawx.src4.factories.drawer;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
@@ -18,11 +17,13 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigChar;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.string.StringDrawUtils;
 import pasa.cbentley.framework.drawx.src4.string.Stringer;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
@@ -41,7 +42,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
  * @author Charles-Philip Bentley
  *
  */
-public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
+public class DrawerString implements IStringable, IBOTypesDrawX, ITechFigure {
 
    /** New line constant */
    public static final char   NEWLINE    = '\n';
@@ -51,9 +52,20 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
 
    protected final DrwCtx     drc;
 
+   private Stringer stringerChar;
+
    public DrawerString(DrwCtx drc) {
       this.drc = drc;
-
+     
+      
+   }
+   
+   public Stringer getStringerChar() {
+      if(stringerChar == null) {
+         stringerChar = new Stringer(drc);
+         stringerChar.setString(new char[1], 0, 1);
+      }
+      return stringerChar;
    }
 
    /**
@@ -103,6 +115,16 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
       return drc.getImageFactory().createRGBImage(newData, newW, newH, true);
    }
 
+
+   public void drawFigChar(GraphicsX g, int x, int y, int w, int h, ByteObject fig) {
+      Stringer st = getStringerChar();
+      st.setAreaXYWH(x, y, w, h);
+      st.setFigureChar(fig);
+      st.buildFxAndMeter();
+      st.draw(g);
+   }
+
+   
    /**
     * The figure must have some raw text.
     * <br>
@@ -157,8 +179,8 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
     * @param strFigure
     */
    public void drawString(GraphicsX g, int x, int y, String[] s, ByteObject strFigure) {
-      ByteObject sc = strFigure.getSubFirst(IBOTypesDrw.TYPE_055_SCALE);
-      ByteObject anchor = strFigure.getSubFirst(IBOTypesDrw.TYPE_051_BOX);
+      ByteObject sc = strFigure.getSubFirst(IBOTypesDrawX.TYPE_DRWX_05_SCALE);
+      ByteObject anchor = strFigure.getSubFirst(IBOTypesDrawX.TYPE_DRWX_01_BOX);
       IMFont f = getStringFont(strFigure);
       int color = getStringColor(strFigure);
       g.setColor(color);
@@ -201,7 +223,7 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
     * @return
     */
    public int[] getNewLineBreaks(String text) {
-      IntBuffer ib = new IntBuffer(drc.getUCtx(), 5);
+      IntBuffer ib = new IntBuffer(drc.getUC(), 5);
       for (int i = 0; i < text.length(); i++) {
          if (text.charAt(i) == NEWLINE) {
             ib.addInt(i);
@@ -261,7 +283,7 @@ public class DrawerString implements IStringable, IBOTypesDrw, ITechFigure {
    }
 
    public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
+      return drc.getUC();
    }
    //#enddebug
 }

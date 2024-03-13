@@ -5,7 +5,7 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPass;
@@ -84,7 +84,7 @@ public class ScaleOperator extends AbstractDrwOperator implements ITechScaler {
       int[] nr = null;
       int num = 0;
       if (scaler.hasFlag(IBOPass.PASS_OFFSET_01_FLAG1, IBOPass.PASS_FLAG_1_PRE_FILTER)) {
-         ByteObject preFilter = scaler.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
+         ByteObject preFilter = scaler.getSubFirst(IBOTypesBOC.TYPE_040_COLOR_FILTER);
          drc.getRgbImageOperator().applyColorFilter(preFilter, rgb);
          num++;
       }
@@ -126,7 +126,7 @@ public class ScaleOperator extends AbstractDrwOperator implements ITechScaler {
             break;
       }
       if (scaler.hasFlag(IBOPass.PASS_OFFSET_01_FLAG1, IBOPass.PASS_FLAG_2_POST_FILTER)) {
-         ByteObject postFilter = scaler.getSubOrder(IBOTypesDrw.TYPE_056_COLOR_FILTER, num);
+         ByteObject postFilter = scaler.getSubOrder(IBOTypesBOC.TYPE_040_COLOR_FILTER, num);
          drc.getFilterOperator().applyColorFilter(postFilter, nr, 0, newWidth, newHeight);
       }
       return rgb.getRgbCache().createImage(nr, newWidth, newHeight);

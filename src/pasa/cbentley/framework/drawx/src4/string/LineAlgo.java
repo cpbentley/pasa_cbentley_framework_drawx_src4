@@ -7,7 +7,7 @@ import pasa.cbentley.core.src4.structs.BufferObject;
 import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.core.src4.structs.IntIntervals;
 import pasa.cbentley.core.src4.utils.StringUtils;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 
@@ -850,6 +850,8 @@ public class LineAlgo {
          //finish algo by making sure at least 1 line is created
          createNewLineLast();
       }
+      
+   
    }
 
    void createNewLineEmptyFictive() {

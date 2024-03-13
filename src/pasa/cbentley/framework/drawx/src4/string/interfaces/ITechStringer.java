@@ -4,7 +4,6 @@
  */
 package pasa.cbentley.framework.drawx.src4.string.interfaces;
 
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.string.LineStringer;
 import pasa.cbentley.framework.drawx.src4.string.StringFx;
 import pasa.cbentley.framework.drawx.src4.string.StringFxLeaf;
@@ -400,5 +399,9 @@ public interface ITechStringer {
    public static final int STATE_31_                            = 1 << 30;
 
    public static final int STATE_32_                            = 1 << 31;
+
+   int                     FX_PATTERN_0_NONE           = 0;
+
+   int                     FX_PATTERN_1_ALL_INSTANCES  = 1;
 
 }

@@ -1,12 +1,12 @@
 package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 
 public interface IBOAnchor extends IByteObject {
 
-   int ANCHOR_TYPE                      = IBOTypesDrw.TYPE_069_ANCHOR;
+   int ANCHOR_TYPE                      = IBOTypesDrawX.TYPE_DRWX_10_ANCHOR;
    int ANCHOR_G_TOP_LEFT                = ITechGraphics.TOP | ITechGraphics.LEFT;
    int ANCHOR_G_CENTER_CENTER           = ITechGraphics.HCENTER | ITechGraphics.VCENTER;
    /**

@@ -8,7 +8,7 @@ public interface IBOFxStrChar extends IBOFxStr {
    public static final int FXCHAR_BASIC_SIZE           = FX_BASIC_SIZE + 4;
 
    /**
-    * Flags specific to the {@link IBOFxStr#FX_SCOPE_1_CHAR}.
+    * Flags specific to the {@link ITechStringDrw#FX_SCOPE_1_CHAR}.
     * 
     */
    public static final int FXCHAR_OFFSET_01_FLAG       = FX_BASIC_SIZE;

@@ -6,10 +6,10 @@ package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
@@ -94,7 +94,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
     * 
     * {@link IBOBox}
     * 
-    * Type : {@link IBOTypesDrw#TYPE_051_BOX}
+    * Type : {@link IBOTypesDrawX#TYPE_DRWX_01_BOX}
     * <br>
     * <br>
     * 
@@ -106,7 +106,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
     * @return
     */
    public ByteObject createBox(int ha, int va, int w, int h, boolean perc) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_051_BOX, BOX_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_01_BOX, BOX_BASIC_SIZE);
       boolean incomplete = false;
       if (ha != BOX_UNDEFINED) {
          p.setFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_7_DEF_HORIZ_ALIGN, true);
@@ -180,7 +180,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
    * <br>
    * <br>
    * @param h
-   * @return {@link ByteObject} of type {@link IBOTypesDrw#TYPE_051_BOX}.
+   * @return {@link ByteObject} of type {@link IBOTypesDrawX#TYPE_DRWX_01_BOX}.
    */
    public ByteObject getAnchorH(int h) {
       return createBox(BOX_UNDEFINED, BOX_UNDEFINED, BOX_UNDEFINED, h, false);

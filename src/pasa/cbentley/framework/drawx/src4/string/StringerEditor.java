@@ -5,7 +5,7 @@ import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.utils.CharUtils;
 import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 
 /**

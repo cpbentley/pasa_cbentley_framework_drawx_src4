@@ -4,18 +4,27 @@
  */
 package pasa.cbentley.framework.drawx.src4.tech;
 
-import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
+import pasa.cbentley.core.src4.interfaces.ITech;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
+import pasa.cbentley.layouter.src4.tech.IBOPozer;
+import pasa.cbentley.layouter.src4.tech.IBOSizer;
 
 /**
  * A {@link ITechAnchor} defines how to position some content relative to a Box.
- * <br>
- * It is some kind of pozer with parent/context the box?
+ * 
+ * <p>
+ * It is a simple ancestor of the pozer.
+ * See
+ * <li> {@link IBOPozer}
+ * <li> {@link IBOSizer}
+ * <li> {@link IBOBox}
+ * </p>
  * 
  * @author Charles Bentley
  *
  */
-public interface ITechAnchor extends IByteObject {
+public interface ITechAnchor extends ITech {
 
    public static final int ALIGN_0_UNDEFINED                = 0;
 

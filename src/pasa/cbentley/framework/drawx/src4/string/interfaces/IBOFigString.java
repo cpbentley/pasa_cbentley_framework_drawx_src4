@@ -1,12 +1,13 @@
-package pasa.cbentley.framework.drawx.src4.factories.interfaces;
+package pasa.cbentley.framework.drawx.src4.string.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
+import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
 import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.coredraw.src4.ctx.IConfigCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFont;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOScaler;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
@@ -74,7 +75,7 @@ public interface IBOFigString extends ITechFigure {
    public static final int FIG_STRING_FLAG_8_                     = 1 << 7;
 
    /**
-    * Scaling flag telling a {@link IBOTypesDrw#TYPE_055_SCALE} {@link ByteObject} is in the params
+    * Scaling flag telling a {@link IBOTypesDrawX#TYPE_DRWX_05_SCALE} {@link ByteObject} is in the params
     * 
     * <li>scaler fit type ->  {@link IBOScaler#SCALE_OFFSET_02_FIT_TYPE1} 
     * <li>scale type id -> (linear,bilinear {@link IBOScaler#SCALE_OFFSET_03_ID1}
@@ -94,7 +95,7 @@ public interface IBOFigString extends ITechFigure {
     * <li>shadow
     * <li>vertical/diagonal text
     * 
-    * Defined by {@link IBOFxStr}, {@link IBOTypesDrw#TYPE_070_TEXT_EFFECTS}
+    * Defined by {@link IBOFxStr}, {@link IBOTypesDrawX#TYPE_DRWX_11_TEXT_EFFECTS}
     * 
     */
    public static final int FIG_STRING_FLAGX_2_DEFINED_FX          = 1 << 1;
@@ -143,10 +144,14 @@ public interface IBOFigString extends ITechFigure {
    public static final int FIG_STRING_OFFSET_03_FACE1             = IBOFigure.FIG__BASIC_SIZE + 2;
 
    /**
-    * MM: flag 2 of offset 6.
+    * 
     * <li>{@link ITechFont#STYLE_BOLD} 
     * <li>{@link ITechFont#STYLE_ITALIC}
     * <li>{@link ITechFont#STYLE_PLAIN}
+    * 
+    * <p>
+    * MM: flag 2 of offset 6. {@link IBOMergeMask#MERGE_MASK_FLAG6_2}
+    * </p>
     */
    public static final int FIG_STRING_OFFSET_04_STYLE1            = IBOFigure.FIG__BASIC_SIZE + 3;
 

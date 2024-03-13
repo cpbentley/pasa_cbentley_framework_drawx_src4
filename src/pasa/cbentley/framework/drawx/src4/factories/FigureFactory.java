@@ -6,12 +6,9 @@ package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
-import pasa.cbentley.byteobjects.src4.ctx.ToStringStaticBO;
 import pasa.cbentley.byteobjects.src4.objects.color.IBOGradient;
 import pasa.cbentley.byteobjects.src4.objects.color.ITechGradient;
 import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
-import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.ToStringStaticC;
@@ -22,10 +19,12 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFont;
 import pasa.cbentley.framework.drawx.src4.ctx.BOModuleDrawx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigArlequin;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigBorder;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigCardsCPCTrefle;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigChar;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigCross;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigEllipse;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigFallenPixels;
@@ -36,25 +35,25 @@ import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigPixels;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigRays;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigRectangle;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigRepeater;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigSuperLines;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigTesson;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigTriangle;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPixelStar;
 import pasa.cbentley.framework.drawx.src4.string.Stringer;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
 import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
 
 /**
- * Create {@link ByteObject} of type {@link IBOTypesDrw#TYPE_050_FIGURE}
+ * Create {@link ByteObject} of type {@link IBOTypesDrawX#TYPE_DRWX_00_FIGURE}
  * <br>
  * @author Charles Bentley
  *
  */
-public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOMergeMask, IBOPixelStar, ITechFigure, IBOFigBorder, IBOFigString {
+public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOFigLosange, IBOMergeMask, IBOPixelStar, ITechFigure, IBOFigBorder, IBOFigString {
 
    public FigureFactory(DrwCtx drc) {
       super(drc);
@@ -103,12 +102,12 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFig4Trig(ByteObject trig) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigTriangle.FIG_4TRIG_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigTriangle.FIG_4TRIG_BASIC_SIZE);
       return p;
    }
 
    public ByteObject getFigArlequin(int pcolor, int scolor) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigArlequin.FIG_ARLEQUIN_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigArlequin.FIG_ARLEQUIN_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_17_ARLEQUIN, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, pcolor, 4);
       p.setValue(IBOFigArlequin.FIG_ARLEQUIN_OFFSET_2_COLOR4, scolor, 4);
@@ -123,7 +122,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigArlequin(int pcolor, int scolor, int size) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigArlequin.FIG_ARLEQUIN_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigArlequin.FIG_ARLEQUIN_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_17_ARLEQUIN, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, pcolor, 4);
       p.setValue(IBOFigArlequin.FIG_ARLEQUIN_OFFSET_2_COLOR4, scolor, 4);
@@ -149,7 +148,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     */
    public ByteObject getFigBorder(ByteObject tblr, ByteObject rect, boolean outer) {
       tblr = getFigBorderTBLR(tblr);
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, FIG_BORDER_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, FIG_BORDER_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_02_BORDER, 1);
       p.setFlag(FIG__OFFSET_03_FLAGP, FIG_FLAGP_2_EXTRA_BOUNDARY, outer);
       p.setFlag(FIG_BORDER_OFFSET_1_FLAG, FIG_BORDER_FLAG_1_OUTER, outer);
@@ -198,7 +197,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     */
    public ByteObject getFigBorder(ByteObject tblr, ByteObject[] figures, boolean outer) {
       tblr = getFigBorderTBLR(tblr);
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, FIG_BORDER_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, FIG_BORDER_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_02_BORDER, 1);
       p.setFlag(FIG__OFFSET_03_FLAGP, FIG_FLAGP_2_EXTRA_BOUNDARY, outer);
       p.setFlag(FIG_BORDER_OFFSET_1_FLAG, FIG_BORDER_FLAG_1_OUTER, outer);
@@ -309,29 +308,37 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
       return tblr;
    }
 
+   public ByteObject getFigChar(char c, int color) {
+      ByteObject fig = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigChar.FIG_CHAR_BASIC_SIZE);
+      fig.set1(FIG__OFFSET_01_TYPE1, FIG_TYPE_04_CHAR);
+      fig.set4(FIG__OFFSET_06_COLOR4, color);
+      fig.set2(IBOFigChar.FIG_CHAR_OFFSET_2_UTF16_VALUE2, c);
+      return fig;
+   }
+
    public ByteObject getFigCardCarreau(int color) {
-      ByteObject fig = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigCardsCPCTrefle.FIG_CARREAU_BASIC_SIZE);
+      ByteObject fig = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigCardsCPCTrefle.FIG_CARREAU_BASIC_SIZE);
       fig.set1(FIG__OFFSET_01_TYPE1, FIG_TYPE_31_CARREAU);
       fig.set4(FIG__OFFSET_06_COLOR4, color);
       return fig;
    }
 
    public ByteObject getFigCardCoeur(int color) {
-      ByteObject fig = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigCardsCPCTrefle.FIG_COEUR_BASIC_SIZE);
+      ByteObject fig = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigCardsCPCTrefle.FIG_COEUR_BASIC_SIZE);
       fig.set1(FIG__OFFSET_01_TYPE1, FIG_TYPE_30_COEUR);
       fig.set4(FIG__OFFSET_06_COLOR4, color);
       return fig;
    }
 
    public ByteObject getFigCardPique(int color) {
-      ByteObject fig = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigCardsCPCTrefle.FIG_PIQUE_BASIC_SIZE);
+      ByteObject fig = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigCardsCPCTrefle.FIG_PIQUE_BASIC_SIZE);
       fig.set1(FIG__OFFSET_01_TYPE1, FIG_TYPE_32_PIQUE);
       fig.set4(FIG__OFFSET_06_COLOR4, color);
       return fig;
    }
 
    public ByteObject getFigCardTrefle(int color) {
-      ByteObject fig = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigCardsCPCTrefle.FIG_TREFLE_BASIC_SIZE);
+      ByteObject fig = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigCardsCPCTrefle.FIG_TREFLE_BASIC_SIZE);
       fig.set1(FIG__OFFSET_01_TYPE1, FIG_TYPE_33_TREFLE);
       fig.set4(FIG__OFFSET_06_COLOR4, color);
       return fig;
@@ -350,7 +357,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigCrossHair(int color, int sizeH, int sizeV, int lenH, int lenV, int spacingH, int spacingV) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigCross.FIG_CROSS_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigCross.FIG_CROSS_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_20_CROSS, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
       p.setValue(IBOFigCross.FIG_CROSS_OFFSET_6SPACINGH1, spacingH, 1);
@@ -371,7 +378,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigCrossRatio(int color, int widthVerticalBar, int heightHorizontalBar, int positionVerticalBar, int positionHorizontalBar, ByteObject grad) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigCross.FIG_CROSS_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigCross.FIG_CROSS_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_20_CROSS, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
       p.setValue(IBOFigCross.FIG_CROSS_OFFSET_2HTHICK1, heightHorizontalBar, 1);
@@ -396,7 +403,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    }
 
    public ByteObject getFigEllipse(int color, int fillSize, ByteObject grad, ByteObject anchor, ByteObject filter, ByteObject[] sub) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigEllipse.FIG_ELLIPSE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigEllipse.FIG_ELLIPSE_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_07_ELLIPSE, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
       if (fillSize < 0)
@@ -429,13 +436,23 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
       return getFigEllipse(color, grad, null, null, null);
    }
 
+   public ByteObject getFigEllipseGrad(int color, int scolor, int sec, int type, int color3, int step) {
+      ByteObject grad = drc.getGradientFactory().getGradient(scolor, sec, type, step, color3);
+      return getFigEllipse(color, grad, null, null, null);
+   }
+
+   public ByteObject getFigEllipseGrad(int color, int scolor, int sec, int[] types, int color3, int step) {
+      ByteObject grad = drc.getGradientFactory().getGradient(scolor, sec, types, step, color3);
+      return getFigEllipse(color, grad, null, null, null);
+   }
+
    /**
     * Default parameters
     * @param filter
     * @return
     */
    public ByteObject getFigFallenPixel(ByteObject filter) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigFallenPixels.FIG_FALLING_PIXEL_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigFallenPixels.FIG_FALLING_PIXEL_BASIC_SIZE);
       return p;
    }
 
@@ -450,7 +467,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigGrid(int hsize, int vsize, int hcolor, int vcolor) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigGrid.FIG_GRID_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigGrid.FIG_GRID_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_11_GRID, 1);
       p.setFlag(IBOFigGrid.FIG_GRID_OFFSET_FLAG, IBOFigGrid.FIG_GRID_FLAG_CACHE_SEP, true);
       p.setValue(IBOFigGrid.FIG_GRID_OFFSET_HSIZE, hsize, 1);
@@ -477,7 +494,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigGrid(int hsize, int vsize, int hcolor, int vcolor, int hSepSize, int vSepSize) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigGrid.FIG_GRID_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigGrid.FIG_GRID_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_11_GRID, 1);
       p.setValue(IBOFigGrid.FIG_GRID_OFFSET_HSIZE, hsize, 1);
       p.setValue(IBOFigGrid.FIG_GRID_OFFSET_VSIZE, vsize, 1);
@@ -506,7 +523,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigLine(int size, int color, boolean horiz, int anchor, int numsub) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigLine.FIG_LINE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigLine.FIG_LINE_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_05_LINE, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
       p.setValue(IBOFigLine.FIG_LINE_OFFSET_2SIZE1, size, 1);
@@ -517,7 +534,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    public ByteObject getFigLine(int[] colors, boolean horiz, int stickTLColor, int stickBRColor, int exSize, int exColor, boolean stickEx, int anchor, int numsub) {
       int psize = getFigSize(IBOFigLine.FIG_LINE_COLORED_SIZE, numsub);
       psize += colors.length * 4;
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, psize);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, psize);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_05_LINE, 1);
       p.setFlag(IBOFigLine.FIG_LINE_OFFSET_1FLAG, IBOFigLine.FIG_LINE_FLAG_HORIZ, horiz);
       int flagTL = IBOFigLine.FIG_LINE_FLAGX_STICK_LEFT;
@@ -554,10 +571,10 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigLosange(ByteObject trig, boolean pap, boolean contour) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigLosange.FIG_LOSANGE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, FIG_LOSANGE_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_06_LOSANGE, 1);
-      p.set1(IBOFigLosange.FIG_LOSANGE_OFFSET_4_TYPE1, FIG_LOSANGE_TYPE_1_TRIANGLE);
-      p.setFlag(IBOFigLosange.FIG_LOSANGE_OFFSET_1_FLAG, IBOFigLosange.FIG_LOSANGE_FLAG_4_NOED_PAPILLION, pap);
+      p.set1(FIG_LOSANGE_OFFSET_4_TYPE1, FIG_LOSANGE_TYPE_1_TRIANGLE);
+      p.setFlag(FIG_LOSANGE_OFFSET_1_FLAG, FIG_LOSANGE_FLAG_4_NOED_PAPILLION, pap);
       p.addByteObject(trig);
       return p;
    }
@@ -573,16 +590,32 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    }
 
    public ByteObject getFigLosange(ByteObject trig1, ByteObject trig2, int overstep, boolean horiz, boolean pap) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigLosange.FIG_LOSANGE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, FIG_LOSANGE_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_06_LOSANGE, 1);
-      p.setValue(IBOFigLosange.FIG_LOSANGE_OFFSET_2_OVERSTEP2, overstep, 2);
-      p.set1(IBOFigLosange.FIG_LOSANGE_OFFSET_4_TYPE1, FIG_LOSANGE_TYPE_2_TRIANGLES);
-      p.setFlag(IBOFigLosange.FIG_LOSANGE_OFFSET_1_FLAG, IBOFigLosange.FIG_LOSANGE_FLAG_1_HORIZ, horiz);
-      p.setFlag(IBOFigLosange.FIG_LOSANGE_OFFSET_1_FLAG, IBOFigLosange.FIG_LOSANGE_FLAG_2_NEG_OVERSTEP, overstep < 0);
-      p.setFlag(IBOFigLosange.FIG_LOSANGE_OFFSET_1_FLAG, IBOFigLosange.FIG_LOSANGE_FLAG_4_NOED_PAPILLION, pap);
+      p.setValue(FIG_LOSANGE_OFFSET_2_OVERSTEP2, overstep, 2);
+      p.set1(FIG_LOSANGE_OFFSET_4_TYPE1, FIG_LOSANGE_TYPE_2_TRIANGLES);
+      p.setFlag(FIG_LOSANGE_OFFSET_1_FLAG, FIG_LOSANGE_FLAG_1_HORIZ, horiz);
+      p.setFlag(FIG_LOSANGE_OFFSET_1_FLAG, FIG_LOSANGE_FLAG_2_NEG_OVERSTEP, overstep < 0);
+      p.setFlag(FIG_LOSANGE_OFFSET_1_FLAG, FIG_LOSANGE_FLAG_4_NOED_PAPILLION, pap);
       p.addByteObject(trig1);
       p.addByteObject(trig2);
       return p;
+   }
+
+   public ByteObject getFigLosangeGrad(int color, int overstep, boolean horiz, boolean pap, boolean contour, int color2, int sec, int gradType, int color3, int step) {
+      ByteObject grad = drc.getGradientFactory().getGradient(color2, sec, gradType, step, color3);
+      return getFigLosange(color, overstep, horiz, pap, contour, grad);
+   }
+
+   public ByteObject getFigLosangeGrad(int color, int overstep, boolean horiz, boolean pap, boolean contour, int color2, int sec, int gradType, int sizeType, int color3, int step) {
+      ByteObject grad = drc.getGradientFactory().getGradient(color2, sec, gradType, step, color3, sizeType);
+      return getFigLosange(color, overstep, horiz, pap, contour, grad);
+   }
+
+   public ByteObject getFigLosangeGrad(int color, int overstep, boolean horiz, boolean pap, boolean contour, int color2, int sec, int gradType, int sizeType, int divid, int color3, int step) {
+      ByteObject grad = drc.getGradientFactory().getGradient(color2, sec, gradType, step, color3, sizeType);
+      grad.set1(IBOGradient.GRADIENT_OFFSET_14_GRADSIZE_OP_V1, divid);
+      return getFigLosange(color, overstep, horiz, pap, contour, grad);
    }
 
    /**
@@ -597,15 +630,15 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigLosange(int color, int overstep, boolean horiz, boolean pap, boolean contour, ByteObject grad) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigLosange.FIG_LOSANGE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, FIG_LOSANGE_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_06_LOSANGE, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
-      p.setValue(IBOFigLosange.FIG_LOSANGE_OFFSET_2_OVERSTEP2, overstep, 2);
-      p.set1(IBOFigLosange.FIG_LOSANGE_OFFSET_4_TYPE1, FIG_LOSANGE_TYPE_0_COLOR);
-      p.setFlag(IBOFigLosange.FIG_LOSANGE_OFFSET_1_FLAG, IBOFigLosange.FIG_LOSANGE_FLAG_1_HORIZ, horiz);
-      p.setFlag(IBOFigLosange.FIG_LOSANGE_OFFSET_1_FLAG, IBOFigLosange.FIG_LOSANGE_FLAG_2_NEG_OVERSTEP, overstep < 0);
-      p.setFlag(IBOFigLosange.FIG_LOSANGE_OFFSET_1_FLAG, IBOFigLosange.FIG_LOSANGE_FLAG_3_CONTOUR, contour);
-      p.setFlag(IBOFigLosange.FIG_LOSANGE_OFFSET_1_FLAG, IBOFigLosange.FIG_LOSANGE_FLAG_4_NOED_PAPILLION, pap);
+      p.setValue(FIG_LOSANGE_OFFSET_2_OVERSTEP2, overstep, 2);
+      p.set1(FIG_LOSANGE_OFFSET_4_TYPE1, FIG_LOSANGE_TYPE_0_COLOR);
+      p.setFlag(FIG_LOSANGE_OFFSET_1_FLAG, FIG_LOSANGE_FLAG_1_HORIZ, horiz);
+      p.setFlag(FIG_LOSANGE_OFFSET_1_FLAG, FIG_LOSANGE_FLAG_2_NEG_OVERSTEP, overstep < 0);
+      p.setFlag(FIG_LOSANGE_OFFSET_1_FLAG, FIG_LOSANGE_FLAG_3_CONTOUR, contour);
+      p.setFlag(FIG_LOSANGE_OFFSET_1_FLAG, FIG_LOSANGE_FLAG_4_NOED_PAPILLION, pap);
       setFigLinks(p, grad, null, null);
       return p;
    }
@@ -635,7 +668,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    public ByteObject getFigPixels(int len, boolean randomSize, boolean randomColor, int[] colors, int seed) {
       int size = IBOFigPixels.FIG_PIXEL_BASIC_SIZE;
       size += colors.length * 4;
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, size);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, size);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_09_PIXELS, 1);
       p.setFlag(FIG__OFFSET_03_FLAGP, FIG_FLAGP_1_RGB, true);
       p.setFlag(IBOFigPixels.FIG_PIXEL_OFFSET_01_FLAG, IBOFigPixels.FIG_PIXEL_FLAG_2_RANDOM_COLOR, randomColor);
@@ -661,7 +694,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    public ByteObject getFigPixels(int lenH, int lenV, boolean randomSize, boolean randomColor, boolean smooth, int[] colors, int seed) {
       int size = IBOFigPixels.FIG_PIXEL_BASIC_SIZE;
       size += colors.length * 4;
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, size);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, size);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_09_PIXELS, 1);
       p.setFlag(FIG__OFFSET_03_FLAGP, FIG_FLAGP_1_RGB, true);
       p.setFlag(IBOFigPixels.FIG_PIXEL_OFFSET_01_FLAG, IBOFigPixels.FIG_PIXEL_FLAG_2_RANDOM_COLOR, randomColor);
@@ -676,7 +709,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    }
 
    public ByteObject getFigRays(int type, int color, int[] colorSeries) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigRays.FIG_RAYS_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigRays.FIG_RAYS_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_15_RAYS, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
 
@@ -746,7 +779,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigRect(int color, int arcw, int arch, int fillSize, ByteObject grad, ByteObject anchor, ByteObject filter, ByteObject[] sub) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigRectangle.FIG_RECTANGLE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigRectangle.FIG_RECTANGLE_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_01_RECTANGLE, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
       boolean isOpaqueShape = true;
@@ -759,7 +792,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
 
       if (arcw != -1 || arch != -1) {
          p.setFlag(IBOFigRectangle.FIG_RECTANGLE_OFFSET_1_FLAG, IBOFigRectangle.FIG_RECTANGLE_FLAG_1_ROUND, true);
-         
+
       }
       if (arcw != -1) {
          p.setFlag(IBOFigRectangle.FIG_RECTANGLE_OFFSET_1_FLAG, IBOFigRectangle.FIG_RECTANGLE_FLAG_7_ARCW1, true);
@@ -789,7 +822,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigRectChopped(int color, ByteObject grad) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigRectangle.FIG_RECTANGLE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigRectangle.FIG_RECTANGLE_BASIC_SIZE);
 
       return p;
    }
@@ -820,8 +853,18 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    }
 
    public ByteObject getFigRectGrad(int pcolor, int scolor, int maxSec, int gradType, int color3) {
-      ByteObject grad = drc.getGradientFactory().getGradient(scolor, maxSec, gradType, color3);
+      ByteObject grad = drc.getGradientFactory().getGradient(scolor, maxSec, gradType, 1, color3);
       return getFigRect(pcolor, grad, null, null, null);
+   }
+
+   public ByteObject getFigRectGrad(int pcolor, int scolor, int maxSec, int gradType, int color3, int step) {
+      ByteObject grad = drc.getGradientFactory().getGradient(scolor, maxSec, gradType, step, color3);
+      return getFigRect(pcolor, grad, null, null, null);
+   }
+
+   public ByteObject getFigRectGrad(int pcolor, int arcw, int arch, int scolor, int maxSec, int gradType, int color3, int step) {
+      ByteObject grad = drc.getGradientFactory().getGradient(scolor, maxSec, gradType, step, color3);
+      return getFigRect(pcolor, arcw, arch, grad, null, null, null);
    }
 
    public ByteObject getFigRectOpaque(int color) {
@@ -840,7 +883,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigRepeater(ByteObject figure, ByteObject anchor) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigRepeater.FIG_REPEATER_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigRepeater.FIG_REPEATER_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_13_REPEATER, 1);
       p.setByteObjects(new ByteObject[] { figure, anchor });
       return p;
@@ -945,7 +988,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigString(String str, int face, int style, int size, int color, ByteObject effects, ByteObject mask, ByteObject scale, ByteObject anchor) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, FIG_STRING_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, FIG_STRING_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_10_STRING, 1);
 
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
@@ -1096,7 +1139,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigStringTrans(int offset, int size, int value, int mergeOffset, int mergeFlag) {
-      ByteObject figure = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, FIG_STRING_BASIC_SIZE);
+      ByteObject figure = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, FIG_STRING_BASIC_SIZE);
       figure.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_10_STRING, 1);
       figure.setValue(offset, value, size);
       drc.getMergeMaskFactory().setMergeMask(figure, mergeOffset, mergeFlag);
@@ -1112,7 +1155,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigSuperLines(int size, int color, int separation, int repeat, boolean horiz) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigSuperLines.FIG_SL_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigSuperLines.FIG_SL_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_16_SUPERLINES, 1);
       p.setFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_1SIMPLE, true);
       p.setFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_2ANGLE, false);
@@ -1133,7 +1176,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getFigSuperLines(int[] lineColors, int separation, int repeat, boolean horiz) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigSuperLines.FIG_SL_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigSuperLines.FIG_SL_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_16_SUPERLINES, 1);
       p.setFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_1SIMPLE, true);
       p.setFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_5EXPLICIT_COLORS, true);
@@ -1148,7 +1191,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
       int sizeDrw = IBOFigSuperLines.FIG_SL_BASIC_SIZE;
       int maxSep = BitUtils.getMaxByteSize(separations);
       int sizeAdd = 4 * lineColors.length + (maxSep * separations.length) + 3 + 3;
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, sizeDrw + sizeAdd);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, sizeDrw + sizeAdd);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_16_SUPERLINES, 1);
       p.setFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_4EXPLICIT_SEP, true);
       p.setFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_5EXPLICIT_COLORS, true);
@@ -1160,7 +1203,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    }
 
    public ByteObject getFigTesson(int color) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigTesson.FIG_TESSON_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigTesson.FIG_TESSON_BASIC_SIZE);
       p.set1(FIG__OFFSET_01_TYPE1, FIG_TYPE_35_TESSON);
       p.set4(FIG__OFFSET_06_COLOR4, color);
       p.set4(IBOFigTesson.FIG_TESSON_OFFSET_2_COLOR4, color);
@@ -1168,7 +1211,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    }
 
    private ByteObject getFigTriangle(int color) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigTriangle.FIG_TRIANGLE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigTriangle.FIG_TRIANGLE_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_03_TRIANGLE, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
       return p;
@@ -1245,7 +1288,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    }
 
    public ByteObject getFigTriangleAngle(int angle, int color, ByteObject grad, ByteObject anchor, ByteObject[] subs) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigTriangle.FIG_TRIANGLE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigTriangle.FIG_TRIANGLE_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_03_TRIANGLE, 1);
       p.setValue(FIG__OFFSET_06_COLOR4, color, 4);
       //custom values of triangle
@@ -1357,6 +1400,11 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
       return getFigTriangleType(color, type, grad, null);
    }
 
+   public ByteObject getFigTriangleTypeGrad(int color, int type, int scolor, int sec, int gtype, int color3, int step) {
+      ByteObject grad = drc.getGradientFactory().getGradient(scolor, sec, gtype, step, color3);
+      return getFigTriangleType(color, type, grad, null);
+   }
+
    /**
     * Merge mask for {@link ITechMergeMaskFigure}
     * @return
@@ -1374,7 +1422,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
     * @return
     */
    public ByteObject getPxStar(int lenH, int lenV) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_063_PIX_STAR, PIXSTAR_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_09_PIX_STAR, PIXSTAR_BASIC_SIZE);
       p.set1(PIXSTAR_OFFSET_03_TOP_SIZE1, lenV);
       p.set1(PIXSTAR_OFFSET_04_BOT_SIZE1, lenV);
       p.set1(PIXSTAR_OFFSET_05_LEFT_SIZE1, lenH);
@@ -1382,8 +1430,13 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
       return p;
    }
 
+   /**
+    * {@link IBOFigRectangle}
+    * @param color
+    * @return {@link IBOFigRectangle}
+    */
    public ByteObject getRect(int color) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrw.TYPE_050_FIGURE, IBOFigRectangle.FIG_RECTANGLE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigRectangle.FIG_RECTANGLE_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_01_RECTANGLE, 1);
       if (((color >> 24) & 0xFF) == 255) {
          p.setFlag(FIG__OFFSET_03_FLAGP, FIG_FLAGP_3_OPAQUE, true);
@@ -1400,6 +1453,12 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
 
    public ByteObject getRect(int color, ByteObject gradient) {
       return getFigRect(color, gradient);
+   }
+
+   public ByteObject getRectT(int color) {
+      ByteObject p = getRect(color);
+      drc.getMergeMaskFactory().setMergeMask(p, IBOMergeMask.MERGE_MASK_OFFSET_5VALUES1, ITechMergeMaskFigure.MM_VALUES5_FLAG_2_COLOR);
+      return p;
    }
 
    /**
@@ -1496,10 +1555,10 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
 
    /**
     * Works for the following types:
-    * <li> {@link IBOTypesDrw#TYPE_056_COLOR_FILTER}
-    * <li> {@link IBOTypesDrw#TYPE_050_FIGURE}
-    * <li> {@link IBOTypesDrw#TYPE_051_BOX}
-    * <li> {@link IBOTypesDrw#TYPE_059_GRADIENT}
+    * <li> {@link IBOTypesBOC#TYPE_040_COLOR_FILTER}
+    * <li> {@link IBOTypesDrawX#TYPE_DRWX_00_FIGURE}
+    * <li> {@link IBOTypesDrawX#TYPE_DRWX_01_BOX}
+    * <li> {@link IBOTypesBOC#TYPE_038_GRADIENT}
     * 
     * @param figure
     * @param links Cannot be reused
@@ -1507,27 +1566,27 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    public void setFigLinks(ByteObject figure, ByteObject[] links) {
       if (links == null)
          return;
-      figure.checkType(IBOTypesDrw.TYPE_050_FIGURE);
+      figure.checkType(IBOTypesDrawX.TYPE_DRWX_00_FIGURE);
       for (int i = 0; i < links.length; i++) {
          int type = links[i].getType();
          int flag = 0;
          switch (type) {
-            case IBOTypesDrw.TYPE_056_COLOR_FILTER:
+            case IBOTypesBOC.TYPE_040_COLOR_FILTER:
                flag = FIG_FLAG_5_FILTER;
                break;
-            case IBOTypesDrw.TYPE_050_FIGURE:
+            case IBOTypesDrawX.TYPE_DRWX_00_FIGURE:
                flag = FIG_FLAG_7_SUB_FIGURE;
                break;
-            case IBOTypesDrw.TYPE_058_MASK:
+            case IBOTypesDrawX.TYPE_DRWX_06_MASK:
                flag = FIG_FLAG_4_MASK;
                break;
-            case IBOTypesDrw.TYPE_051_BOX:
+            case IBOTypesDrawX.TYPE_DRWX_01_BOX:
                flag = FIG_FLAG_1_ANCHOR;
                break;
             case IBOTypesBOC.TYPE_007_LIT_ARRAY_INT:
                flag = FIG_FLAG_3_COLOR_ARRAY;
                break;
-            case IBOTypesDrw.TYPE_059_GRADIENT:
+            case IBOTypesBOC.TYPE_038_GRADIENT:
                flag = FIG_FLAG_2_GRADIENT;
                break;
             default:
@@ -1601,18 +1660,39 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    }
 
    public void setFigStringP4(ByteObject bo, int newLine, int wordWrap, int maxLines) {
-      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, newLine);
       bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, wordWrap);
-      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, maxLines);
+      bo.set1(FIG_STRING_OFFSET_08_WRAP_HEIGHT1, wordWrap);
       bo.set1(FIG_STRING_OFFSET_09_SPACE_TRIM1, maxLines);
+      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, maxLines);
+      bo.set1(FIG_STRING_OFFSET_13_MANAGER_TAB1, newLine);
+      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, newLine);
+      bo.set1(FIG_STRING_OFFSET_15_MANAGER_FORMFEED1, newLine);
+   }
+
+   /**
+    * 
+    * @param bo
+    * @param wordWrap
+    * @param wrapH
+    * @param spaceTrim
+    * @param maxLines
+    */
+   public void setFigStringP6(ByteObject bo, int wordWrap, int wrapH, int spaceTrim, int maxLines, int newLine, int tabLine) {
+      bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, wordWrap);
+      bo.set1(FIG_STRING_OFFSET_08_WRAP_HEIGHT1, wrapH);
+      bo.set1(FIG_STRING_OFFSET_09_SPACE_TRIM1, spaceTrim);
+      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, maxLines);
+      bo.set1(FIG_STRING_OFFSET_13_MANAGER_TAB1, tabLine);
+      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, newLine);
    }
 
    public void setFigStringRegularScroll(ByteObject bo) {
       bo.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_3_TRIM_ARTIFACT, true);
-      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, ITechStringer.NEWLINE_MANAGER_1_WORK);
       bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, ITechStringer.WORDWRAP_2_NICE_WORD);
+      bo.set1(FIG_STRING_OFFSET_08_WRAP_HEIGHT1, ITechStringer.LINEWRAP_0_NONE);
       bo.set1(FIG_STRING_OFFSET_09_SPACE_TRIM1, ITechStringer.SPACETRIM_1_NORMAL);
       bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, 0);
+      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, ITechStringer.NEWLINE_MANAGER_1_WORK);
    }
 
    public void setFigStringRegularScrollWrapAnywhere(ByteObject bo) {
@@ -1666,7 +1746,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    }
 
    public String toStringColor(int color) {
-      return boc.getUCtx().getColorU().toStringColor(color);
+      return boc.getUC().getColorU().toStringColor(color);
    }
 
    /**
@@ -1677,11 +1757,10 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
    public void toStringFigure(ByteObject bo, Dctx dc) {
       dc.rootN(bo, "IBOFigure", FigureFactory.class, 1672);
       final int figType = bo.getValue(FIG__OFFSET_01_TYPE1, 1);
-      
-      
+
       dc.appendVarWithSpace("figType", figType);
       dc.appendBracketedWithSpace(ToStringStaticDrawx.toStringFigType(figType));
-      
+
       int color = bo.get4(FIG__OFFSET_06_COLOR4);
       dc.appendVar("color", color);
       dc.appendBracketedWithSpace(toStringColor(color));
@@ -1694,7 +1773,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
       dc.appendFlagsNewLine(bo.get1(FIG__OFFSET_03_FLAGP), "flagP", ToStringStaticDrawx.flagsFigureFlagP(getUC()));
       dc.appendFlagsNewLine(bo.get1(FIG__OFFSET_04_FLAGX), "flagX", ToStringStaticDrawx.flagsFigureFlagX(getUC()));
       dc.appendFlagsNewLine(bo.get1(FIG__OFFSET_07_FLAGZ1), "flagZ", ToStringStaticDrawx.flagsFigureFlagZ(getUC()));
-      
+
       dc.nl(); //new line for the start of the sub type
       switch (figType) {
          case FIG_TYPE_01_RECTANGLE:
@@ -1864,6 +1943,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOM
       sb.append(" forceCopyArea=" + bo.hasFlag(IBOFigRepeater.FIG_REPEATER_OFFSET_1_FLAG, IBOFigRepeater.FIG_REPEATER_FLAG_1_FORCECOPYAREA));
       sb.append(" BgColor=" + bo.hasFlag(IBOFigRepeater.FIG_REPEATER_OFFSET_1_FLAG, IBOFigRepeater.FIG_REPEATER_FLAG_2_USE_BGCOLOR));
    }
+
    /**
     * Coming from {@link FigureFactory#toStringFigure(ByteObject, Dctx)}
     * @param bo

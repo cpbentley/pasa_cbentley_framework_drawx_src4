@@ -5,7 +5,6 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.utils.ColorUtils;
@@ -14,22 +13,24 @@ import pasa.cbentley.framework.coredraw.src4.ctx.ToStringStaticCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IFontFactory;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwOperator;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxApplicator;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxFxApplicator;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrLine;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrPara;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrWord;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
 
-public class FxStringOperator extends AbstractDrwOperator implements ITechFigure, IBOTypesDrw, IBOFxStr, IBOFxApplicator, IBOFxStrLine, IBOFxStrWord, IBOFxStrPara {
+public class FxStringOperator extends AbstractDrwOperator implements ITechFigure, IBOTypesDrawX, IBOFxStr, IBOStrAuxFxApplicator, IBOFxStrLine, IBOFxStrWord, IBOFxStrPara {
 
    public FxStringOperator(DrwCtx drc) {
       super(drc);
@@ -109,12 +110,12 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
          ntx.set1(FX_OFFSET_05_SCOPE_FX1, merge.get1(FX_OFFSET_05_SCOPE_FX1));
       }
       if (merge.hasFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE)) {
-         ByteObject fig = merge.getSubFirst(TYPE_050_FIGURE);
+         ByteObject fig = merge.getSubFirst(TYPE_DRWX_00_FIGURE);
          drc.getFxStringFactory().setFxFigure(ntx, fig);
       }
 
       if (merge.hasFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_3_MASK)) {
-         ByteObject mask = merge.getSubFirst(TYPE_058_MASK);
+         ByteObject mask = merge.getSubFirst(TYPE_DRWX_06_MASK);
          drc.getFxStringFactory().setMaskToFx(ntx, mask);
       }
       //merged cannot be incomplete
@@ -180,12 +181,12 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       //by construction, only 1 mask is present at a 
       if (strFigure.hasFlag(IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_2_DEFINED_FX)) {
 
-         ByteObject effect = strFigure.getSubFirst(TYPE_070_TEXT_EFFECTS);
+         ByteObject effect = strFigure.getSubFirst(TYPE_DRWX_11_TEXT_EFFECTS);
          if (effect.hasFlag(FX_OFFSET_01_FLAG, FX_FLAG_3_VERTICAL)) {
 
          }
-         line = getSubFxEffect(effect, FX_SCOPE_2_LINE, FX_FLAG_7_LINE);
-         ch = getSubFxEffect(effect, FX_SCOPE_1_CHAR, FX_FLAG_8_CHAR);
+         line = getSubFxEffect(effect, ITechStringDrw.FX_SCOPE_2_LINE, FX_FLAG_7_LINE);
+         ch = getSubFxEffect(effect, ITechStringDrw.FX_SCOPE_1_CHAR, FX_FLAG_8_CHAR);
          GraphicsX sg = g;
          int lineShiftX = 0;
          int lineShiftY = 0;
@@ -244,7 +245,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
    }
 
    public ByteObject getSubCharFx(ByteObject fx) {
-      return getSubFxEffect(fx, FX_SCOPE_1_CHAR, FX_FLAG_8_CHAR);
+      return getSubFxEffect(fx, ITechStringDrw.FX_SCOPE_1_CHAR, FX_FLAG_8_CHAR);
    }
 
    /**
@@ -253,7 +254,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
     * @return
     */
    public ByteObject getSubLineFx(ByteObject fx) {
-      return getSubFxEffect(fx, FX_SCOPE_2_LINE, FX_FLAG_7_LINE);
+      return getSubFxEffect(fx, ITechStringDrw.FX_SCOPE_2_LINE, FX_FLAG_7_LINE);
    }
 
    public void drawStringChar(GraphicsX g, int count, char c, int x, int y, ByteObject fx) {
@@ -374,7 +375,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       } else {
          //mask
          if (charFx.hasFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_3_MASK)) {
-            ByteObject mask = charFx.getSubFirst(TYPE_058_MASK);
+            ByteObject mask = charFx.getSubFirst(TYPE_DRWX_06_MASK);
             drc.getMaskOperator().drawMask(g, x, y, mask, String.valueOf(c), g.getFont());
          }
       }
@@ -384,7 +385,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
     * Returns a new string whose width fits the size and the style
     */
    public String fitString(String s, int width, ByteObject style) {
-      ByteObject txtFx = style.getSubFirst(TYPE_070_TEXT_EFFECTS);
+      ByteObject txtFx = style.getSubFirst(TYPE_DRWX_11_TEXT_EFFECTS);
       IMFont dataFont = getStringFont(txtFx);
       int size = dataFont.stringWidth("..");
       int strWidth = dataFont.stringWidth(s);

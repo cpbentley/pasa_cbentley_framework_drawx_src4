@@ -288,7 +288,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
     * @param img blender image is read into a int[] array.
     */
    public void blend(BlendOp bo, int x, int y, IImage img) {
-      int[] sec = drc.getUCtx().getGeo2dUtils().getIntersectionDest(0, 0, getWidth(), getHeight(), x, y, img.getWidth(), img.getHeight());
+      int[] sec = drc.getUC().getGeo2dUtils().getIntersectionDest(0, 0, getWidth(), getHeight(), x, y, img.getWidth(), img.getHeight());
       int ix = sec[0];
       int iy = sec[1];
       int iw = sec[2];
@@ -1221,7 +1221,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
    }
 
    public int[] getIntersect(int x, int y, int w, int h) {
-      int[] sec = drc.getUCtx().getGeo2dUtils().getIntersection(0, 0, getWidth(), getHeight(), x, y, w, h);
+      int[] sec = drc.getUC().getGeo2dUtils().getIntersection(0, 0, getWidth(), getHeight(), x, y, w, h);
       return sec;
    }
 
@@ -1750,12 +1750,12 @@ public class RgbImage implements IStringable, ITechRgbImage {
 
    public String toStringPixelName(int x, int y) {
       int pixel = getPixel(x, y);
-      return drc.getUCtx().getColorU().toStringColorName(pixel);
+      return drc.getUC().getColorU().toStringColorName(pixel);
    }
 
    public String toStringPixel(int x, int y) {
       int pixel = getPixel(x, y);
-      return drc.getUCtx().getColorU().toStringColor(pixel);
+      return drc.getUC().getColorU().toStringColor(pixel);
    }
 
 
@@ -1902,6 +1902,6 @@ public class RgbImage implements IStringable, ITechRgbImage {
    //#enddebug
 
    public UCtx toStringGetUCtx() {
-      return drc.getUCtx();
+      return drc.getUC();
    }
 }

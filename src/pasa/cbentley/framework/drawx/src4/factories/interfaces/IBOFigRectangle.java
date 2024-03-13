@@ -1,5 +1,10 @@
 package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
+/**
+ * 
+ * @author Charles Bentley
+ *
+ */
 public interface IBOFigRectangle extends IBOFigure {
 
    /**
@@ -53,7 +58,7 @@ public interface IBOFigRectangle extends IBOFigure {
    /**
     * When different from 0, draws "Border" rectangle.
     */
-   public static final int FIG_RECTANGLE_OFFSET_4_SIZE_FILL1    = FIG__BASIC_SIZE + 3;
+   public static final int FIG_RECTANGLE_OFFSET_4_SIZE_FILL1 = FIG__BASIC_SIZE + 3;
 
    /**
     * Another size influencer for smaller gradients

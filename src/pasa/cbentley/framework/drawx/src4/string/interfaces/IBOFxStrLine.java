@@ -19,7 +19,7 @@ public interface IBOFxStrLine extends IBOFxStr {
     * Simple color gradient over the characters in a line
     * <br>
     * <br>
-    * When this flag is set, a {@link IDrwTypes#TYPE_059_GRADIENT} is in the sub parameters.
+    * When this flag is set, a {@link IDrwTypes#TYPE_038_GRADIENT} is in the sub parameters.
     * 
     */
    public static final int FXLINE_FLAG_2_GRADIENT          = 1 << 1;

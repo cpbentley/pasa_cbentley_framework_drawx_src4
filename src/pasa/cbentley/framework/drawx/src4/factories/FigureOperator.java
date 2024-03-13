@@ -8,7 +8,6 @@ import java.util.Random;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesDrw;
 import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
 import pasa.cbentley.byteobjects.src4.objects.color.ColorIterator;
 import pasa.cbentley.byteobjects.src4.objects.color.GradientOperator;
@@ -21,6 +20,7 @@ import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
@@ -37,11 +37,11 @@ import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigLine;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigPixels;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigRectangle;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigRepeater;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigSuperLines;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigTesson;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigTriangle;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
@@ -61,7 +61,7 @@ import pasa.cbentley.layouter.src4.tech.ITechLayout;
  * @author Charles-Philip Bentley
  *
  */
-public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTblr, IBOFigBorder, IBOFigure,IBOFigRectangle,IBOFigString {
+public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTblr, IBOFigBorder, IBOFigure, IBOFigRectangle, IBOFigString {
 
    protected DrawerString   stringDrawer;
 
@@ -97,7 +97,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
     */
    public ByteObject mergeFigure(ByteObject root, ByteObject merge) {
       MergeMaskFactory mm = boc.getMergeMaskFactory();
-      if (merge.getType() == IBOTypesDrw.TYPE_050_FIGURE) {
+      if (merge.getType() == IBOTypesDrawX.TYPE_DRWX_00_FIGURE) {
          ByteObject mergeMask = merge.getSubFirst(IBOTypesBOC.TYPE_011_MERGE_MASK);
          if (mergeMask == null) {
             //figure is opaque
@@ -132,15 +132,15 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
             default:
                throw new RuntimeException("Not implemented Merge Method for Figure " + ToStringStaticDrawx.toStringFigType(fig));
          }
-         ByteObject grad = root.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
+         ByteObject grad = root.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
          //TODO when merging figure has a gradient. what happens if root figure also has a gradient? override or merge gradients?
          if (merge.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_2_GRADIENT)) {
-            grad = merge.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
+            grad = merge.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
          }
          //same for filters?
-         ByteObject filter = root.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
+         ByteObject filter = root.getSubFirst(IBOTypesBOC.TYPE_040_COLOR_FILTER);
          if (merge.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_5_FILTER)) {
-            filter = merge.getSubFirst(IBOTypesDrw.TYPE_056_COLOR_FILTER);
+            filter = merge.getSubFirst(IBOTypesBOC.TYPE_040_COLOR_FILTER);
          }
          drc.getFigureFactory().setFigLinks(newFigure, grad, filter, null);
          newFigure.setValue(FIG__OFFSET_02_FLAG, mainFigureFlag, 1);
@@ -207,9 +207,9 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
          str = boc.getLitteralStringOperator().getLitteralString(raw);
       }
 
-      ByteObject effects = root.getSubFirst(IBOTypesDrw.TYPE_070_TEXT_EFFECTS);
-      ByteObject mask = root.getSubFirst(IBOTypesDrw.TYPE_058_MASK);
-      ByteObject scale = root.getSubFirst(IBOTypesDrw.TYPE_055_SCALE);
+      ByteObject effects = root.getSubFirst(IBOTypesDrawX.TYPE_DRWX_11_TEXT_EFFECTS);
+      ByteObject mask = root.getSubFirst(IBOTypesDrawX.TYPE_DRWX_06_MASK);
+      ByteObject scale = root.getSubFirst(IBOTypesDrawX.TYPE_DRWX_05_SCALE);
       if (root.hasFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_2_DEFINED_FX)) {
 
       }
@@ -352,7 +352,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
          g.setStrokeStyle(GraphicsX.STROKE_1_DOTTED);
       }
       //main rectangle that we need in all configurations
-      ByteObject rect = p.getSubOrder(IBOTypesDrw.TYPE_050_FIGURE, 0);
+      ByteObject rect = p.getSubOrder(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, 0);
       LayoutOperator layoutOperator = getLayoutOperator();
       if (tblr.hasFlag(TBLR_OFFSET_01_FLAG, TBLR_FLAG_4_SAME_VALUE) && p.hasFlag(FIG_BORDER_OFFSET_1_FLAG, FIG_BORDER_FLAG_5_FIGURE)) {
          int size = layoutOperator.getTBLRValue(tblr, C.POS_0_TOP, x, y, w, h);
@@ -382,7 +382,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
             }
             int pixelSize = size - cornerShift;
             //draw 4 lines
-            ByteObject grad = rect.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
+            ByteObject grad = rect.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
             int color = rect.get4(FIG__OFFSET_06_COLOR4);
             if (g.hasGradient() && grad != null) {
                ColorIterator ci = drc.getColorFunctionFactory().getColorIterator(color, grad, pixelSize);
@@ -483,7 +483,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
       int arch = p.get1(FIG_RECTANGLE_OFFSET_3_ARCH1);
       int sizeFill = p.get1(FIG_RECTANGLE_OFFSET_4_SIZE_FILL1);
       if (grad) {
-         gradient = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
+         gradient = p.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
       }
       if (g.hasGradient() && gradient != null) {
          int sizeG = p.get1(FIG_RECTANGLE_OFFSET_5_SIZE_G1);
@@ -495,7 +495,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
                //color = 0xFFFFFF;
                g.setColor(color);
                g.fillRoundRect(x, y, w, h, arcw, arch);
-               ByteObject colori = p.getSubFirst(IBOTypesDrw.TYPE_002_LIT_INT);
+               ByteObject colori = p.getSubFirst(IBOTypesDrawX.TYPE_002_LIT_INT);
                if (colori == null) {
                   g.setColor(0xFFFFFF);
                } else {
@@ -547,8 +547,8 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
       //first check if figure is opaque
       //when opaque just use the copy method
       int bgColor = p.get4(FIG__OFFSET_06_COLOR4);
-      ByteObject figure = p.getSubFirst(IBOTypesDrw.TYPE_050_FIGURE);
-      ByteObject anchor = p.getSubFirst(IBOTypesDrw.TYPE_051_BOX);
+      ByteObject figure = p.getSubFirst(IBOTypesDrawX.TYPE_DRWX_00_FIGURE);
+      ByteObject anchor = p.getSubFirst(IBOTypesDrawX.TYPE_DRWX_01_BOX);
       if (figure == null)
          throw new IllegalArgumentException();
       int fx = x;
@@ -799,7 +799,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
       boolean randomLength = p.hasFlag(IBOFigPixels.FIG_PIXEL_OFFSET_01_FLAG, IBOFigPixels.FIG_PIXEL_FLAG_1_RANDOM_SIZE);
       boolean randomColor = p.hasFlag(IBOFigPixels.FIG_PIXEL_OFFSET_01_FLAG, IBOFigPixels.FIG_PIXEL_FLAG_2_RANDOM_COLOR);
       //or use gradient
-      ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
+      ByteObject grad = p.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
       int[] colors = p.getValues(IBOFigPixels.FIG_PIXEL_OFFSET_04_COLORSX);
       int colorIndex = 0;
       int maxc = colors.length;
@@ -816,7 +816,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
 
       //define the randomness of the iteration.
       int seed = p.get4(IBOFigPixels.FIG_PIXEL_OFFSET_03_SEED4);
-      Random r = drc.getUCtx().getRandom(seed);
+      Random r = drc.getUC().getRandom(seed);
       //SystemLog.pDraw("#DrwParamFig#drawPixels m=" + m + " n=" + n + " w=" + w + " h=" + h + " scan=" + scan + " offset=" + offset);
       BlendOp bop = new BlendOp(boc, blendMode);
 
@@ -890,7 +890,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
       boolean exit = false;
       int total = h * w;
       int seed = p.get4(IBOFigPixels.FIG_PIXEL_OFFSET_03_SEED4);
-      Random r = drc.getUCtx().getRandom(seed);
+      Random r = drc.getUC().getRandom(seed);
       while (index < total) {
          int color = 0;
          if (randomColor) {
@@ -959,19 +959,19 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
          //there is nothing to draw
          return;
       }
-      p.checkType(IBOTypesDrw.TYPE_050_FIGURE);
+      p.checkType(IBOTypesDrawX.TYPE_DRWX_00_FIGURE);
       if (p.hasFlag(FIG__OFFSET_03_FLAGP, FIG_FLAGP_8_POSTPONE)) {
          g.postpone(x, y, w, h, p);
          return;
       }
       ByteObject filter = null;
       if (p.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_5_FILTER)) {
-         filter = p.getSubOrder(IBOTypesDrw.TYPE_056_COLOR_FILTER, 0);
+         filter = p.getSubOrder(IBOTypesBOC.TYPE_040_COLOR_FILTER, 0);
       }
       ByteObject mask = null;
       RgbImage rgbMask = null;
       if (p.hasFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_4_MASK)) {
-         mask = p.getSubFirst(IBOTypesDrw.TYPE_058_MASK);
+         mask = p.getSubFirst(IBOTypesDrawX.TYPE_DRWX_06_MASK);
          if (mask == null) {
             throw new IllegalArgumentException("Mask is null");
          }
@@ -1060,6 +1060,9 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
          case ITechFigure.FIG_TYPE_02_BORDER:
             drawFigBorder(g, x, y, w, h, p);
             break;
+         case ITechFigure.FIG_TYPE_04_CHAR:
+            stringDrawer.drawFigChar(g, x, y, w, h, p);
+            break;
          case ITechFigure.FIG_TYPE_06_LOSANGE:
             drawFigLosange(g, x, y, w, h, p);
             break;
@@ -1121,15 +1124,15 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
          for (int i = index; i < params.length; i++) {
 
             ByteObject fig = params[i];
-            ByteObject anchorBox = fig.getSubFirst(IBOTypesDrw.TYPE_051_BOX);
+            ByteObject anchorBox = fig.getSubFirst(IBOTypesDrawX.TYPE_DRWX_01_BOX);
 
             LayoutOperator sizer = drc.getSizer();
             int figW = sizer.codedSizeDecode(anchorBox, BOX_OFFSET_04_WIDTH4, w, h, ITechLayout.CTX_1_WIDTH);
             int figH = sizer.codedSizeDecode(anchorBox, BOX_OFFSET_05_HEIGHT4, w, h, ITechLayout.CTX_2_HEIGHT);
 
-            fig.getSubFirst(IBOTypesDrw.TYPE_051_BOX);
+            fig.getSubFirst(IBOTypesDrawX.TYPE_DRWX_01_BOX);
 
-            if (fig.getType() == IBOTypesDrw.TYPE_050_FIGURE && anchorBox != null) {
+            if (fig.getType() == IBOTypesDrawX.TYPE_DRWX_00_FIGURE && anchorBox != null) {
                int ha = anchorBox.get4(BOX_OFFSET_02_HORIZ_ALIGN4);
                int va = anchorBox.get4(BOX_OFFSET_03_VERTICAL_ALIGN4);
                int fw = drc.getBoxFactory().computeSizeW(anchorBox, w, h);
@@ -1160,7 +1163,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
       int numLines = p.getValue(IBOFigSuperLines.FIG_SL_OFFSET_3REPEAT2, 2);
       boolean isIFirst = p.hasFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_7IGNORE_FIRST);
       boolean isILast = p.hasFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_8IGNORE_LAST);
-      ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
+      ByteObject grad = p.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
       int count = 0;
       if (horiz) {
          if (p.hasFlag(IBOFigSuperLines.FIG_SL_OFFSET_1FLAG, IBOFigSuperLines.FIG_SL_FLAG_6FILL)) {
@@ -1231,7 +1234,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
     * @return
     */
    public boolean hasFigTransparentPixels(ByteObject p) {
-      p.checkType(IBOTypesDrw.TYPE_050_FIGURE);
+      p.checkType(IBOTypesDrawX.TYPE_DRWX_00_FIGURE);
       return false;
    }
 
@@ -1268,7 +1271,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
    }
 
    public void drawArc(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
-      ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
+      ByteObject grad = p.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
       int color = p.get4(FIG__OFFSET_06_COLOR4);
       int angle = 0;
       g.setColor(color);
@@ -1276,7 +1279,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
 
    public void drawArrow(GraphicsX g, int dir, int x, int y, int base, int H, int h, int length, int thick, int headColor, int bodyColor, ByteObject transFunct) {
       if (transFunct != null) {
-         if (transFunct.getType() != IBOTypesDrw.TYPE_056_COLOR_FILTER)
+         if (transFunct.getType() != IBOTypesBOC.TYPE_040_COLOR_FILTER)
             throw new IllegalArgumentException();
 
       }
@@ -1427,7 +1430,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
    public void drawCross(GraphicsX g, int x, int y, int w, int h, ByteObject p) {
       int color = p.get4(FIG__OFFSET_06_COLOR4);
       g.setColor(color);
-      ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
+      ByteObject grad = p.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
       if (g.hasGradient() && grad != null) {
          int gradSize = Math.min(w, h);
          ColorIterator ci = drc.getColorFunctionFactory().getColorIterator(color, grad, gradSize);
@@ -1648,7 +1651,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
       }
       boolean isArc = p.hasFlag(IBOFigEllipse.FIG_ELLIPSE_OFFSET_01_FLAG1, IBOFigEllipse.FIG_ELLIPSE_FLAG_3_FIL_DE_FER);
       g.setFillMode(!isArc);
-      ByteObject grad = p.getSubFirst(IBOTypesDrw.TYPE_059_GRADIENT);
+      ByteObject grad = p.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
       if (g.hasGradient() && grad != null) {
          drawEllipseGradient(g, x, y, w, h, p, color, grad);
       } else {
@@ -1681,31 +1684,35 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
          ByteObject ar = grad.getSubAtIndex(type);
          types = boc.getLitteralIntOperator().getLitteralArray(ar);
       }
+      int amp = amplitude;
+      int angleChange = 360 / gradSize;
+      boolean v = true;
       while ((count = ci.iteratePixelCount(g)) != -1) {
-         int countX2 = count * 2;
+         v = !v;
+         int count2 = count * 2;
          for (int i = 0; i < types.length; i++) {
             int mtype = types[i];
             switch (mtype) {
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_00_NORMAL:
-                  g.fiArc(x + count, y + count, w - countX2, h - countX2, start, amplitude);
+                  g.fiArc(x + count, y + count, w - count2, h - count2, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_01_HORIZ:
-                  g.fiArc(x, y + count, w, h - countX2, start, amplitude);
+                  g.fiArc(x, y + count, w, h - count2, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_02_VERT:
-                  g.fiArc(x + count, y, w - countX2, h, start, amplitude);
+                  g.fiArc(x + count, y, w - count2, h, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_03_TOP_FLAMME:
-                  g.fiArc(x + count, y, w - countX2, h - count, start, amplitude);
+                  g.fiArc(x + count, y, w - count2, h - count, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_04_BOT_FLAMME:
-                  g.fiArc(x + count, y + count, w - countX2, h - count, start, amplitude);
+                  g.fiArc(x + count, y + count, w - count2, h - count, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_05_LEFT_FLAMME:
-                  g.fiArc(x, y + count, w - count, h - countX2, start, amplitude);
+                  g.fiArc(x, y + count, w - count, h - count2, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_06_RIGHT_FLAMME:
-                  g.fiArc(x + count, y + count, w - count, h - countX2, start, amplitude);
+                  g.fiArc(x + count, y + count, w - count, h - count2, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_07_CLOCHE_TOP:
                   g.fiArc(x, y, w, h - count, start, amplitude);
@@ -1720,16 +1727,16 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
                   g.fiArc(x, y, w - count, h, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_11_WATER_DROP_TOP:
-                  g.fiArc(x + count, y - count, w - countX2, h, start, amplitude);
+                  g.fiArc(x + count, y - count, w - count2, h, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_12_WATER_DROP_BOT:
-                  g.fiArc(x + count, y + count, w - countX2, h, start, amplitude);
+                  g.fiArc(x + count, y + count, w - count2, h, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_13_WATER_DROP_LEFT:
-                  g.fiArc(x - count, y + count, w, h - countX2, start, amplitude);
+                  g.fiArc(x - count, y + count, w, h - count2, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_14_WATER_DROP_RIGHT:
-                  g.fiArc(x + count, y + count, w, h - countX2, start, amplitude);
+                  g.fiArc(x + count, y + count, w, h - count2, start, amplitude);
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_15_TOP_LEFT_BUBBLE:
                   g.fiArc(x, y, w - count, h - count, start, amplitude);
@@ -1742,6 +1749,74 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
                   break;
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_18_BOT_RIGHT_BUBBLE:
                   g.fiArc(x + count, y + count, w - count, h - count, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_19_TEST:
+                  g.fiArc(x + count, y + count, w - count, h - count, start - count, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_20_T:
+                  g.fiArc(x, y, w, h, start + count, 360 - count);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_21_T:
+                  if (count == 0) {
+                     amp = amplitude;
+                  } else {
+                     if (v) {
+                        amp = -180;
+                     } else {
+                        amp = 180;
+                     }
+                  }
+                  g.fiArc(x + count, y + count, w - count2, h - count2, start, amp);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_22_T:
+
+                  g.fiArc(x + count, y + count, w - count2, h - count2, start + count * angleChange, 360 - count * angleChange);
+                  break;
+
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_31_WATER_DROP_TOP:
+                  g.fiArc(x + count, y - count, w - count2, h - count, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_32_WATER_DROP_BOT:
+                  g.fiArc(x + count, y + count2, w - count2, h, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_33_WATER_DROP_LEFT:
+                  g.fiArc(x - count, y + count, w - count, h - count2, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_34_WATER_DROP_RIGHT:
+                  g.fiArc(x + count2, y + count, w - count, h - count2, start, amplitude);
+                  break;
+
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_39_DROP_V_CENTER:
+                  g.fiArc(x + count, y + h / 4 - count / 2, w - count2, h / 2 + count, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_40_DROP_H_CENTER:
+                  g.fiArc(x + w / 4 - count / 2, y + count, w / 2 + count, h - count2, start, amplitude);
+                  break;
+
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_35_WATER_DROP_TOP:
+                  g.fiArc(x + count, y + h / 4 - count / 2, w - count2, ((3 * h) / 4) + 1 - count, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_36_WATER_DROP_BOT:
+                  g.fiArc(x + count, y + h / 4 - count / 2, w - count2, ((3 * h) / 4) + 1 - count / 2, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_37_WATER_DROP_LEFT:
+                  g.fiArc(x + count, y + h / 4 - count / 2, w - count2, ((3 * h) / 4) + 1, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_38_WATER_DROP_RIGHT:
+                  g.fiArc(x + count, y + h / 4 - count / 2, w - count2, ((3 * h) / 4) + count / 2, start, amplitude);
+                  break;
+
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_41_WATER_DROP_TOP:
+                  g.fiArc(x + w / 2 - count, y, w / 2 - count, h - count2, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_42_WATER_DROP_BOT:
+                  g.fiArc(x + w / 4 + count / 2, y + h / 2 - count, w / 2 - count, h / 2 + count, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_43_WATER_DROP_LEFT:
+                  g.fiArc(x + count / 2, y + h / 2 - count, w - count, h / 2 + count, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_44_WATER_DROP_RIGHT:
+                  g.fiArc(x + count, y + h / 2 - count, w - count2, h / 2 + count, start, amplitude);
                   break;
                default:
                   break;
@@ -1770,7 +1845,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
       int hw = ww;
       int hh = wh;
       int[] dim = new int[4];
-      drc.getUCtx().getGeo2dUtils().getIntersection(x, y, w, h, hx, hy, hw, hh, dim);
+      drc.getUC().getGeo2dUtils().getIntersection(x, y, w, h, hx, hy, hw, hh, dim);
       hx = dim[0];
       hy = dim[1];
       hw = dim[2];
@@ -1885,7 +1960,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
       int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
       if (grad.hasFlag(IBOGradient.GRADIENT_OFFSET_01_FLAG, IBOGradient.GRADIENT_FLAG_7_ARTIFACTS)) {
          //artifact definition
-         ByteObject art = grad.getSubFirst(IBOTypesDrw.TYPE_052_ARTIFACT);
+         ByteObject art = grad.getSubFirst(IBOTypesDrawX.TYPE_DRWX_02_ARTIFACT);
          drawRectangleGradientArt(g, x, y, w, h, arcw, arch, color, gradSize, grad, art);
          return;
       }
@@ -1897,13 +1972,13 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
             case ITechGradient.GRADIENT_TYPE_RECT_00_SQUARE:
                g.fillRoundRect(x + count, y + count, w - countX2, h - countX2, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_02_VERT:
-               //g.drawLine(x, y + count, x + width - 1, y + count);
-               g.fillRoundRect(x, y + count, w, h - count, arcw, arch);
-               break;
             case ITechGradient.GRADIENT_TYPE_RECT_01_HORIZ:
                //g.drawLine(x + count, y, x + count, y + height - 1);
                g.fillRoundRect(x + count, y, w - count, h, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_02_VERT:
+               //g.drawLine(x, y + count, x + width - 1, y + count);
+               g.fillRoundRect(x, y + count, w, h - count, arcw, arch);
                break;
             case ITechGradient.GRADIENT_TYPE_RECT_03_TOPLEFT:
                g.fillRoundRect(x, y, w - count, h - count, arcw, arch);
@@ -1928,6 +2003,36 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
                break;
             case ITechGradient.GRADIENT_TYPE_RECT_10_L_RIGHT:
                g.fillRoundRect(x + count, y + count, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_11_TRIG_TOP_LEFT:
+               g.fillRoundRect(x + count, y + count, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_12_TRIG_BOT_LEFT:
+               g.fillRoundRect(x + count/2, y + count, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_13_:
+               g.fillRoundRect(x + count/2, y + count/2, w - countX2, h - count, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_14_:
+               g.fillRoundRect(x + count/2, y + count/2, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_15_:
+               g.fillRoundRect(x + count/2, y + count/2, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_16_:
+               g.fillRoundRect(x + count/2, y + count/2, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_17_:
+               g.fillRoundRect(x + count/2, y + count/2, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_18_:
+               g.fillRoundRect(x + count/2, y + count/2, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_19_:
+               g.fillRoundRect(x + count/2, y + count/2, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_20_SQUARE_THIN:
+               g.fillRoundRect(x + count/2, y + count/2, w - countX2, h - countX2, arcw, arch);
                break;
 
             default:
