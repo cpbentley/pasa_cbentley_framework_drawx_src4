@@ -42,6 +42,9 @@ import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPixelStar;
 import pasa.cbentley.framework.drawx.src4.string.Stringer;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAux;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxFormat;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxSpecialCharDirective;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
@@ -469,11 +472,11 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
    public ByteObject getFigGrid(int hsize, int vsize, int hcolor, int vcolor) {
       ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigGrid.FIG_GRID_BASIC_SIZE);
       p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_11_GRID, 1);
-      p.setFlag(IBOFigGrid.FIG_GRID_OFFSET_FLAG, IBOFigGrid.FIG_GRID_FLAG_CACHE_SEP, true);
-      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_HSIZE, hsize, 1);
-      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_VSIZE, vsize, 1);
-      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_VCOLOR, vcolor, 4);
-      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_HCOLOR, hcolor, 4);
+      p.setFlag(IBOFigGrid.FIG_GRID_OFFSET_01_FLAG, IBOFigGrid.FIG_GRID_FLAG_CACHE_SEP, true);
+      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_04_HSIZE4, hsize, 1);
+      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_05_VSIZE4, vsize, 1);
+      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_05_VSIZE4, vcolor, 4);
+      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_02_HCOLOR4, hcolor, 4);
       //create a pointer for
       return p;
    }
@@ -495,13 +498,13 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
     */
    public ByteObject getFigGrid(int hsize, int vsize, int hcolor, int vcolor, int hSepSize, int vSepSize) {
       ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, IBOFigGrid.FIG_GRID_BASIC_SIZE);
-      p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_11_GRID, 1);
-      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_HSIZE, hsize, 1);
-      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_VSIZE, vsize, 1);
-      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_VCOLOR, vcolor, 4);
-      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_HCOLOR, hcolor, 4);
-      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_HSEPSIZE, hSepSize, 2);
-      p.setValue(IBOFigGrid.FIG_GRID_OFFSET_VSEPSIZE, vSepSize, 2);
+      p.set1(FIG__OFFSET_01_TYPE1, FIG_TYPE_11_GRID);
+      p.set4(IBOFigGrid.FIG_GRID_OFFSET_02_HCOLOR4, hcolor);
+      p.set4(IBOFigGrid.FIG_GRID_OFFSET_03_VCOLOR4, vcolor);
+      p.set4(IBOFigGrid.FIG_GRID_OFFSET_04_HSIZE4, hsize);
+      p.set4(IBOFigGrid.FIG_GRID_OFFSET_05_VSIZE4, vsize);
+      p.set4(IBOFigGrid.FIG_GRID_OFFSET_06_HSEPSIZE4, hSepSize);
+      p.set4(IBOFigGrid.FIG_GRID_OFFSET_07_VSEPSIZE4, vSepSize);
 
       return p;
    }
@@ -926,6 +929,14 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
       return getFigString(null, face, style, size, color, null, null, null);
    }
 
+   public ByteObject getFigStringMonoPlain(int size, int color) {
+      return getFigString(null, ITechFont.FACE_MONOSPACE, ITechFont.STYLE_PLAIN, size, color, null, null, null);
+   }
+
+   public ByteObject getFigStringSystemPlain(int size, int color) {
+      return getFigString(null, ITechFont.FACE_SYSTEM, ITechFont.STYLE_PLAIN, size, color, null, null, null);
+   }
+
    /**
     * Black string
     * @param pooled true if String to be merged in the repository
@@ -1001,12 +1012,11 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
          p.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_1_EXPLICIT, true);
          if (str.length() == 1) {
             p.setFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_6_DEFINED_CHAR, true);
-            p.setValue(FIG_STRING_OFFSET_06_CHAR2, str.charAt(0), 2);
          } else {
             p.setFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_5_DEFINED_STRING, true);
-            raw = boc.getLitteralStringFactory().getLitteralString(str);
-            num++;
          }
+         raw = boc.getLitteralStringFactory().getLitteralString(str);
+         num++;
       }
       if (effects != null) {
          p.setFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_2_DEFINED_FX, true);
@@ -1032,6 +1042,50 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
       }
       if (effects != null) {
          pa[count] = effects;
+         count++;
+      }
+      if (mask != null) {
+         pa[count] = mask;
+         count++;
+      }
+      if (scale != null) {
+         pa[count] = scale;
+         count++;
+      }
+      if (anchor != null) {
+         pa[count] = anchor;
+         count++;
+      }
+
+      p.setByteObjects(pa);
+      return p;
+   }
+
+   public ByteObject getFigString(ByteObject fx, ByteObject struct, ByteObject specials, ByteObject mask, ByteObject scale, ByteObject anchor) {
+      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_00_FIGURE, FIG_STRING_BASIC_SIZE);
+      p.setValue(FIG__OFFSET_01_TYPE1, FIG_TYPE_10_STRING, 1);
+
+      int num = 0;
+      if (fx != null) {
+         p.setFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_2_DEFINED_FX, true);
+         num++;
+      }
+      if (scale != null) {
+         p.setFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_1_DEFINED_SCALER, true);
+         num++;
+      }
+      if (anchor != null) {
+         p.setFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_1_ANCHOR, true);
+         num++;
+      }
+      if (mask != null) {
+         p.setFlag(FIG__OFFSET_02_FLAG, FIG_FLAG_4_MASK, true);
+         num++;
+      }
+      ByteObject[] pa = new ByteObject[num];
+      int count = 0;
+      if (fx != null) {
+         pa[count] = fx;
          count++;
       }
       if (mask != null) {
@@ -1476,7 +1530,6 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
     * <li> {@link IMFont#SIZE_5_HUGE}
     * <li> {@link IMFont#SIZE_1_TINY}
     * 
-    * @param mod
     * @param str can be null.
     * @param face
     * @param style
@@ -1617,121 +1670,6 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
             fig.setFlag(FIG__OFFSET_03_FLAGP, FIG_FLAGP_3_OPAQUE, true);
          }
       }
-   }
-
-   /**
-    * The default settings for
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_1_WORK}
-    * <li> {@link ITechStringer#WORDWRAP_2_NICE_WORD}
-    * <li> {@link ITechStringer#SPACETRIM_1_NORMAL}
-    * @param bo
-    * @param newLine
-    * @param wordWrap
-    * @param maxLines
-    */
-   public void setFigStringBreak(ByteObject bo) {
-      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, ITechStringer.NEWLINE_MANAGER_1_WORK);
-      bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, ITechStringer.WORDWRAP_2_NICE_WORD);
-      bo.set1(FIG_STRING_OFFSET_09_SPACE_TRIM1, ITechStringer.SPACETRIM_1_NORMAL);
-      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, 0);
-      bo.set1(FIG_STRING_OFFSET_13_MANAGER_TAB1, ITechStringer.TAB_MANAGER_0_SINGLE_SPACE);
-   }
-
-   /**
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_0_IGNORE}
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_1_WORK}
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_2_WORD}
-    * 
-    * <p>
-    * <li> {@link ITechStringer#WORDWRAP_0_NONE}
-    * <li> {@link ITechStringer#WORDWRAP_1_ANYWHERE}
-    * <li> {@link ITechStringer#WORDWRAP_2_NICE_WORD}
-    * <li> {@link ITechStringer#WORDWRAP_3_NICE_HYPHENATION}
-    * </p>
-    * @param bo
-    * @param newLine
-    * @param wordWrap
-    * @param maxLines
-    */
-   public void setFigStringP3(ByteObject bo, int newLine, int wordWrap, int maxLines) {
-      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, newLine);
-      bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, wordWrap);
-      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, maxLines);
-   }
-
-   public void setFigStringP4(ByteObject bo, int newLine, int wordWrap, int maxLines) {
-      bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, wordWrap);
-      bo.set1(FIG_STRING_OFFSET_08_WRAP_HEIGHT1, wordWrap);
-      bo.set1(FIG_STRING_OFFSET_09_SPACE_TRIM1, maxLines);
-      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, maxLines);
-      bo.set1(FIG_STRING_OFFSET_13_MANAGER_TAB1, newLine);
-      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, newLine);
-      bo.set1(FIG_STRING_OFFSET_15_MANAGER_FORMFEED1, newLine);
-   }
-
-   /**
-    * 
-    * @param bo
-    * @param wordWrap
-    * @param wrapH
-    * @param spaceTrim
-    * @param maxLines
-    */
-   public void setFigStringP6(ByteObject bo, int wordWrap, int wrapH, int spaceTrim, int maxLines, int newLine, int tabLine) {
-      bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, wordWrap);
-      bo.set1(FIG_STRING_OFFSET_08_WRAP_HEIGHT1, wrapH);
-      bo.set1(FIG_STRING_OFFSET_09_SPACE_TRIM1, spaceTrim);
-      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, maxLines);
-      bo.set1(FIG_STRING_OFFSET_13_MANAGER_TAB1, tabLine);
-      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, newLine);
-   }
-
-   public void setFigStringRegularScroll(ByteObject bo) {
-      bo.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_3_TRIM_ARTIFACT, true);
-      bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, ITechStringer.WORDWRAP_2_NICE_WORD);
-      bo.set1(FIG_STRING_OFFSET_08_WRAP_HEIGHT1, ITechStringer.LINEWRAP_0_NONE);
-      bo.set1(FIG_STRING_OFFSET_09_SPACE_TRIM1, ITechStringer.SPACETRIM_1_NORMAL);
-      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, 0);
-      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, ITechStringer.NEWLINE_MANAGER_1_WORK);
-   }
-
-   public void setFigStringRegularScrollWrapAnywhere(ByteObject bo) {
-      bo.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_3_TRIM_ARTIFACT, true);
-      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, ITechStringer.NEWLINE_MANAGER_1_WORK);
-      bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, ITechStringer.WORDWRAP_1_ANYWHERE);
-      bo.set1(FIG_STRING_OFFSET_09_SPACE_TRIM1, ITechStringer.SPACETRIM_1_NORMAL);
-      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, 0);
-   }
-
-   public void setFigStringTrim1Line(ByteObject bo) {
-      setFigStringTrimMaxLines(bo, 1);
-   }
-
-   /**
-    * There are not specific max lines.. its.
-    * Process newlines 
-    * @param strFig
-    */
-   public void setFigStringTrimFitH(ByteObject bo) {
-      bo.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_3_TRIM_ARTIFACT, true);
-      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, ITechStringer.NEWLINE_MANAGER_1_WORK);
-      bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, ITechStringer.WORDWRAP_2_NICE_WORD);
-      bo.set1(FIG_STRING_OFFSET_09_SPACE_TRIM1, ITechStringer.SPACETRIM_1_NORMAL);
-      bo.set1(FIG_STRING_OFFSET_08_WRAP_HEIGHT1, ITechStringer.LINEWRAP_1_ANYWHERE);
-      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, 0);
-   }
-
-   /**
-    * Cram as much text as possible in the maxlines. Ignores new lines
-    * @param bo
-    * @param maxLines
-    */
-   public void setFigStringTrimMaxLines(ByteObject bo, int maxLines) {
-      bo.setFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_3_TRIM_ARTIFACT, true);
-      bo.set1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1, ITechStringer.NEWLINE_MANAGER_0_IGNORE);
-      bo.set1(FIG_STRING_OFFSET_07_WRAP_WIDTH1, ITechStringer.WORDWRAP_2_NICE_WORD);
-      bo.set1(FIG_STRING_OFFSET_09_SPACE_TRIM1, ITechStringer.SPACETRIM_1_NORMAL);
-      bo.set1(FIG_STRING_OFFSET_10_MAXLINES1, maxLines);
    }
 
    /**
@@ -1954,7 +1892,8 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
 
       if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_1_EXPLICIT)) {
          if (bo.hasFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_6_DEFINED_CHAR)) {
-            dc.append("char=" + (char) bo.get2(FIG_STRING_OFFSET_06_CHAR2));
+            ByteObject raw = bo.getSubFirst(IBOTypesBOC.TYPE_003_LIT_STRING);
+            dc.append("char = " + boc.getLitteralStringOperator().getLitteralString(raw));
          } else if (bo.hasFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_5_DEFINED_STRING)) {
             ByteObject raw = bo.getSubFirst(IBOTypesBOC.TYPE_003_LIT_STRING);
             dc.append("string = " + boc.getLitteralStringOperator().getLitteralString(raw));
@@ -1967,21 +1906,33 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
       dc.append("," + ToStringStaticCoreDraw.debugFontSize(bo.get1(FIG_STRING_OFFSET_05_SIZE1)));
       dc.append("]");
       dc.nl();
-      int wordwrap = bo.get1(FIG_STRING_OFFSET_07_WRAP_WIDTH1);
-      dc.appendVarWithNewLine("wrapwidth", wordwrap);
-      dc.appendBracketedWithSpace(ToStringStaticDrawx.toStringWordWrap(wordwrap));
 
-      int newline = bo.get1(FIG_STRING_OFFSET_14_MANAGER_NEWLINE1);
-      dc.appendVarWithNewLine("newline", newline);
-      dc.appendBracketedWithSpace(ToStringStaticDrawx.toStringNewLineManager(newline));
+      int baseStrAuxType = IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX;
+      int size = 1;
+      if (bo.hasFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_3_DEFINED_FORMAT)) {
+         int index = IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1;
+         ByteObject format = bo.getSubFirst(baseStrAuxType, index, size, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_1_FORMAT);
 
-      int spacetrim = bo.get1(FIG_STRING_OFFSET_09_SPACE_TRIM1);
-      dc.appendVarWithNewLine("spacetrim", spacetrim);
-      dc.appendBracketedWithSpace(ToStringStaticDrawx.toStringSpaceTrim(spacetrim));
+         if (format == null) {
+            dc.append("IBOStrAuxFormat is null. Miscontruction");
+         } else {
+            dc.nlLvl(format, "StrAuxFormat");
+         }
+      } else {
+         dc.append("Format ByteObject flag set to FALSE");
+      }
 
-      int linewrap = bo.get1(FIG_STRING_OFFSET_08_WRAP_HEIGHT1);
-      dc.appendVarWithNewLine("linewrap", linewrap);
-      dc.appendBracketedWithSpace(ToStringStaticDrawx.toStringLineWrap(linewrap));
+      if (bo.hasFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_4_DEFINED_SPECIALS)) {
+         int index = IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1;
+         ByteObject specials = bo.getSubFirst(baseStrAuxType, index, size, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C);
+         if (specials == null) {
+            dc.append("IBOStrAuxFormat is null. Miscontruction");
+         } else {
+            dc.nlLvl(specials, "StrAuxSpecials");
+         }
+      } else {
+         dc.append("Special Characters ByteObject flag set to FALSE");
+      }
    }
 
    private void toStringFigureSuperLines(ByteObject bo, Dctx sb) {

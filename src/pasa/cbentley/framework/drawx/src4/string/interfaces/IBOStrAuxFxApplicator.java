@@ -3,8 +3,10 @@ package pasa.cbentley.framework.drawx.src4.string.interfaces;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 
 /**
+ * Defines an area in the String on which to apply an effect.
  * 
  * Type = {@link IBOTypesDrawX#TYPE_DRWX_13_FX_APPLICATOR}
+ * 
  * 
  * @author Charles Bentley
  *

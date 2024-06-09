@@ -6,13 +6,12 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.objects.function.Function;
-import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.logging.ITechLvl;
 import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.core.src4.structs.IntIntervals;
-import pasa.cbentley.core.src4.utils.ColorUtils;
+import pasa.cbentley.core.src4.text.StringInterval;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
@@ -24,7 +23,6 @@ import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
-import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 
 /**
  * Follow the drawing process of a String  figure.

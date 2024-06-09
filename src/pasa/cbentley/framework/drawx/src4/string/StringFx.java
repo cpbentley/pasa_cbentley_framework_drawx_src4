@@ -5,14 +5,11 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.objects.color.ColorFunction;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
-import pasa.cbentley.core.src4.structs.IntBuffer;
 import pasa.cbentley.core.src4.text.StringInterval;
 import pasa.cbentley.core.src4.utils.BitUtils;
-import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
@@ -20,12 +17,10 @@ import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
-import pasa.cbentley.layouter.src4.tech.IBOTblr;
 
 /**
  * Java object wrapper of the ByteObject {@link IBOTypesDrawX#TYPE_DRWX_11_TEXT_EFFECTS} or {@link IBOTypesDrawX#TYPE_DRWX_00_FIGURE}  whose responsabilities are :

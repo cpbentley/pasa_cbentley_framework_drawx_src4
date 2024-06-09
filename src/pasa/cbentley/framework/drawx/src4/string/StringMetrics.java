@@ -6,14 +6,8 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
-import pasa.cbentley.core.src4.structs.IntBuffer;
-import pasa.cbentley.core.src4.structs.IntInterval;
-import pasa.cbentley.core.src4.structs.IntIntervals;
-import pasa.cbentley.core.src4.structs.IntToInts;
 import pasa.cbentley.core.src4.utils.CharUtils;
 import pasa.cbentley.core.src4.utils.IntUtils;
-import pasa.cbentley.core.src4.utils.StringUtils;
-import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IConfigDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;

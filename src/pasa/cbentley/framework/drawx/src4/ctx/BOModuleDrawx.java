@@ -252,12 +252,6 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    public boolean toString(Dctx sb, ByteObject bo) {
       final int type = bo.getType();
       switch (type) {
-         case IBOTypesDrawX.TYPE_DRWX_05_SCALE:
-            drc.getScalerFactory().toStringScaler(bo, sb);
-            break;
-         case IBOTypesDrawX.TYPE_DRWX_02_ARTIFACT:
-            drc.getArtifactFactory().toStringArtifact(bo, sb);
-            break;
          case IBOTypesDrawX.TYPE_DRWX_00_FIGURE:
             drc.getFigureFactory().toStringFigure(bo, sb);
             break;
@@ -265,13 +259,21 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
             //we need to give the context
             drc.getBoxFactory().toStringBox(bo, sb);
             break;
+         case IBOTypesDrawX.TYPE_DRWX_02_ARTIFACT:
+            drc.getArtifactFactory().toStringArtifact(bo, sb);
+            break;
+         case IBOTypesDrawX.TYPE_DRWX_05_SCALE:
+            drc.getScalerFactory().toStringScaler(bo, sb);
+            break;
          case IBOTypesDrawX.TYPE_DRWX_06_MASK:
             drc.getMaskFactory().toStringMask(bo, sb);
             break;
+         case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX:
+            return drc.getStringAuxFactory().toStringStrAux(bo, sb);
          case IBOTypesDrawX.TYPE_DRWX_10_ANCHOR:
             drc.getAnchorFactory().toStringAnchor(bo, sb);
             break;
-         case TYPE_DRWX_12_STYLE:
+         case IBOTypesDrawX.TYPE_DRWX_12_STYLE:
             drc.getStyleOperator().toStringStyle(bo, sb);
             break;
          case TYPE_DRWX_11_TEXT_EFFECTS:
@@ -310,6 +312,8 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IBOTypesDrawX.TYPE_DRWX_06_MASK:
             drc.getMaskFactory().toStringMask(bo, dc);
             break;
+         case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX:
+            return drc.getStringAuxFactory().toStringStrAux1Line(bo, dc);
          case IBOTypesDrawX.TYPE_DRWX_10_ANCHOR:
             drc.getAnchorFactory().toStringAnchor(bo, dc);
             break;

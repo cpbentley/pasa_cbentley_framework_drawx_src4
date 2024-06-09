@@ -16,7 +16,6 @@ public interface IBOStrAuxFx extends IBOStrAux {
 
    /**
     * 1 byte for flag
-    * 1 byte for type scope
     */
    public static final int STR_AUX_FX_BASIC_SIZE              = STR_AUX_SIZE + 1;
 

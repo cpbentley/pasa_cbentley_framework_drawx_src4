@@ -1,10 +1,19 @@
 package pasa.cbentley.framework.drawx.src4.string.interfaces;
 
+import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 
 /**
- * {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C}
+ * 
+ * {@link ByteObject} of type {@link IBOStrAux} with subtype {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C}.
+ * 
+ * <p>
+ * How do deal with 
+ * <li>newline
+ * <li>formfeed
+ * <li>tab
+ * </p>
  * 
  * @author Charles Bentley
  *
@@ -50,23 +59,23 @@ public interface IBOStrAuxSpecialCharDirective extends IBOStrAux {
 
    /**
     * How to manage special character \n
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_0_IGNORE}
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_1_WORK}
+    * <li> {@link ITechStringer#SPECIALS_NEWLINE_0_IGNORED}
+    * <li> {@link ITechStringer#SPECIALS_NEWLINE_3_WORK}
     */
    public static final int AUX_CHARS_OFFSET_02_NEWLINE1         = STR_AUX_SIZE + 1;
 
    /**
     * How to manage special character \f -> {@link StringUtils#FORM_FEED_F}
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_0_IGNORE}
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_1_WORK}
+    * <li> {@link ITechStringer#SPECIALS_NEWLINE_0_IGNORED}
+    * <li> {@link ITechStringer#SPECIALS_NEWLINE_3_WORK}
     */
    public static final int AUX_CHARS_OFFSET_03_FORMFEED1        = STR_AUX_SIZE + 2;
 
    /**
     * How to manage special character  \t
-    * <li> {@link ITechStringer#TAB_MANAGER_0_SINGLE_SPACE}
-    * <li> {@link ITechStringer#TAB_MANAGER_1_ESCAPED}
-    * <li> {@link ITechStringer#TAB_MANAGER_2_COLUMN}
+    * <li> {@link ITechStringer#SPECIALS_TAB_0_SINGLE_SPACE}
+    * <li> {@link ITechStringer#SPECIALS_TAB_2_JAVA_ESCAPED}
+    * <li> {@link ITechStringer#SPECIALS_TAB_5_COLUMN}
     */
    public static final int AUX_CHARS_OFFSET_04_MANAGER_TAB1     = STR_AUX_SIZE + 3;
 

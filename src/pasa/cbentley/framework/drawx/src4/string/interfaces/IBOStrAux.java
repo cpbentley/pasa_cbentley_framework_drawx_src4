@@ -14,6 +14,6 @@ public interface IBOStrAux extends IByteObject {
     */
    public static final int STR_AUX_SIZE               = A_OBJECT_BASIC_SIZE + 1;
 
-   public static final int STR_AUX_OFFSET_1_EXT_TYPE1 = STR_AUX_SIZE;
+   public static final int STR_AUX_OFFSET_1_EXT_TYPE1 = A_OBJECT_BASIC_SIZE;
 
 }

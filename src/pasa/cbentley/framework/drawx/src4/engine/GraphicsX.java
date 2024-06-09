@@ -2144,6 +2144,11 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       g.setGrayScale(value);
    }
 
+   /**
+    * Related to 
+    *  
+    * @param isIgnore
+    */
    public void setIgnoreClip(boolean isIgnore) {
       if (isIgnoreClip != isIgnore) {
          isIgnoreClip = isIgnore;
@@ -2411,7 +2416,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       dc.nlLvl(blendOpImages, "blendOpImages");
       dc.nlLvl(imageLayer, "ImageLayer");
       dc.nlLvl(imageRgbData, "imageRgbData");
-      
+
       //we don't want font stuff here
       dc.setFlagData(drc, IFlagsToStringDrw.D_FLAG_28_IGNORE_FONT, true);
       if (dc.hasFlagData(drc, IFlagsToStringDrw.D_FLAG_25_IGNORE_IGRAPHICS)) {
@@ -2490,7 +2495,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       toStringTranslate(dc);
       return dc.toString();
    }
-   
+
    public String toStringColor() {
       return g.toStringGetUCtx().getColorU().toStringColor(mycolor);
    }
@@ -2508,7 +2513,5 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       }
    }
    //#enddebug
-
-
 
 }

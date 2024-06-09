@@ -49,6 +49,7 @@ import pasa.cbentley.framework.drawx.src4.interfaces.IToStringsDIDsDraw;
 import pasa.cbentley.framework.drawx.src4.string.FxCache;
 import pasa.cbentley.framework.drawx.src4.string.FxStringFactory;
 import pasa.cbentley.framework.drawx.src4.string.FxStringOperator;
+import pasa.cbentley.framework.drawx.src4.string.StringAuxFactory;
 import pasa.cbentley.framework.drawx.src4.string.Stringer;
 import pasa.cbentley.framework.drawx.src4.style.StyleFactory;
 import pasa.cbentley.framework.drawx.src4.style.StyleOperator;
@@ -188,6 +189,15 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
       cache.applySettings(settingsNew);
    }
 
+   private StringAuxFactory stringAuxFactory;
+
+   public StringAuxFactory getStringAuxFactory() {
+      if (stringAuxFactory == null) {
+         stringAuxFactory = new StringAuxFactory(this);
+      }
+      return stringAuxFactory;
+   }
+
    public AnchorFactory getAnchorFactory() {
       if (anchorFactory == null) {
          anchorFactory = new AnchorFactory(this);
@@ -248,6 +258,7 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
       return CTX_ID;
    }
 
+   
    public FigureFactory getFigureFactory() {
       return facFig;
    }

@@ -52,94 +52,6 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
       }
    }
 
-   public static String toStringFigFlag(int type) {
-      switch (type) {
-         case IBOFigure.FIG_FLAG_1_ANCHOR:
-            return "Anchor";
-         case IBOFigure.FIG_FLAG_2_GRADIENT:
-            return "Gradient";
-         case IBOFigure.FIG_FLAG_3_COLOR_ARRAY:
-            return "ColorArray";
-         case IBOFigure.FIG_FLAG_4_MASK:
-            return "Mask";
-         case IBOFigure.FIG_FLAG_5_FILTER:
-            return "Filter";
-         case IBOFigure.FIG_FLAG_6_ANIMATED:
-            return "Animated";
-         case IBOFigure.FIG_FLAG_7_SUB_FIGURE:
-            return "SubFigure";
-         case IBOFigure.FIG_FLAG_8_:
-            return "8";
-         default:
-            return "Unknown FigFlag" + type;
-      }
-   }
-   public static String toStringFigFlagP(int type) {
-      switch (type) {
-         case IBOFigure.FIG_FLAGP_1_RGB:
-            return "RGB";
-         case IBOFigure.FIG_FLAGP_2_EXTRA_BOUNDARY:
-            return "ExtraBoundary";
-         case IBOFigure.FIG_FLAGP_3_OPAQUE:
-            return "Opaque";
-         case IBOFigure.FIG_FLAGP_4_IS_SUBFIGURE:
-            return "IsSubFigure";
-         case IBOFigure.FIG_FLAGP_5_IGNORE_ALPHA:
-            return "IgnoreAlpha";
-         case IBOFigure.FIG_FLAGP_6_NO_FIT:
-            return "NoFit";
-         case IBOFigure.FIG_FLAGP_7_TRANS_FIG:
-            return "TransFig";
-         case IBOFigure.FIG_FLAGP_8_POSTPONE:
-            return "PostPone";
-         default:
-            return "Unknown FigFlag" + type;
-      }
-   }
-   public static String toStringFigFlagZ(int type) {
-      switch (type) {
-         case IBOFigure.FIG_FLAGZ_1_DEFINED_BLENDER:
-            return "Blender";
-         case IBOFigure.FIG_FLAGZ_2_:
-            return "2";
-         case IBOFigure.FIG_FLAGZ_3_:
-            return "3";
-         case IBOFigure.FIG_FLAGZ_4_:
-            return "4";
-         case IBOFigure.FIG_FLAGZ_5_:
-            return "5";
-         case IBOFigure.FIG_FLAGZ_6_:
-            return "6";
-         case IBOFigure.FIG_FLAGZ_7_AXIS:
-            return "Axis";
-         case IBOFigure.FIG_FLAGZ_8_DIRECTION:
-            return "Direction";
-         default:
-            return "Unknown FigFlag" + type;
-      }
-   }
-   public static String toStringFigFlagX(int type) {
-      switch (type) {
-         case IBOFigure.FIG_FLAGX_1_AREA_FUNCTION:
-            return "";
-         case IBOFigure.FIG_FLAGX_2_CLIP:
-            return "";
-         case IBOFigure.FIG_FLAGX_3_:
-            return "";
-         case IBOFigure.FIG_FLAGX_4_OPAQUE_COLORS:
-            return "";
-         case IBOFigure.FIG_FLAGX_5_SCALER:
-            return "";
-         case IBOFigure.FIG_FLAGX_6_:
-            return "";
-         case IBOFigure.FIG_FLAGX_7_ALIAS_ON:
-            return "";
-         case IBOFigure.FIG_FLAGX_8_ALIAS_OFF:
-            return "";
-         default:
-            return "Unknown FigFlag" + type;
-      }
-   }
    /**
     * Info about anchor
     * @return
@@ -191,22 +103,6 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
       }
    }
 
-
-   public static String toStringFontBrackets(IMFont f) {
-      if (f == null) {
-         return "NULL FONT";
-      }
-      String s = "[" + ToStringStaticCoreDraw.debugFontFace(f.getFace()) + " " + ToStringStaticCoreDraw.debugFontStyle(f.getStyle()) + " " + ToStringStaticCoreDraw.debugFontSize(f.getSize()) + "]";
-      return s;
-   }
-
-   public static String stringerStateFlag(int flag) {
-      String str = toStringStringerStateFlagNull(flag);
-      if (str == null) {
-         str = "Unknown stringerStateFlag " + flag;
-      }
-      return str;
-   }
    public static IntToStrings flagsFigureFlag(UCtx uc) {
       IntToStrings itos = new IntToStrings(uc);
       itos.add(IBOFigure.FIG__OFFSET_02_FLAG, toStringFigFlag(IBOFigure.FIG_FLAG_1_ANCHOR));
@@ -219,43 +115,53 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
       itos.add(IBOFigure.FIG__OFFSET_02_FLAG, toStringFigFlag(IBOFigure.FIG_FLAG_8_));
       return itos;
    }
+
    public static IntToStrings flagsFigureFlagP(UCtx uc) {
       IntToStrings itos = new IntToStrings(uc);
-      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlag(IBOFigure.FIG_FLAGP_1_RGB));
-      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlag(IBOFigure.FIG_FLAGP_2_EXTRA_BOUNDARY));
-      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlag(IBOFigure.FIG_FLAGP_3_OPAQUE));
-      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlag(IBOFigure.FIG_FLAGP_4_IS_SUBFIGURE));
-      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlag(IBOFigure.FIG_FLAGP_5_IGNORE_ALPHA));
-      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlag(IBOFigure.FIG_FLAGP_6_NO_FIT));
-      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlag(IBOFigure.FIG_FLAGP_7_TRANS_FIG));
-      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlag(IBOFigure.FIG_FLAGP_8_POSTPONE));
+      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlagP(IBOFigure.FIG_FLAGP_1_RGB));
+      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlagP(IBOFigure.FIG_FLAGP_2_EXTRA_BOUNDARY));
+      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlagP(IBOFigure.FIG_FLAGP_3_OPAQUE));
+      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlagP(IBOFigure.FIG_FLAGP_4_IS_SUBFIGURE));
+      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlagP(IBOFigure.FIG_FLAGP_5_IGNORE_ALPHA));
+      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlagP(IBOFigure.FIG_FLAGP_6_NO_FIT));
+      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlagP(IBOFigure.FIG_FLAGP_7_TRANS_FIG));
+      itos.add(IBOFigure.FIG__OFFSET_03_FLAGP, toStringFigFlagP(IBOFigure.FIG_FLAGP_8_POSTPONE));
       return itos;
    }
-   public static IntToStrings flagsFigureFlagZ(UCtx uc) {
-      IntToStrings itos = new IntToStrings(uc);
-      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlag(IBOFigure.FIG_FLAGZ_1_DEFINED_BLENDER));
-      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlag(IBOFigure.FIG_FLAGZ_2_));
-      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlag(IBOFigure.FIG_FLAGZ_3_));
-      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlag(IBOFigure.FIG_FLAGZ_4_));
-      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlag(IBOFigure.FIG_FLAGZ_5_));
-      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlag(IBOFigure.FIG_FLAGZ_6_));
-      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlag(IBOFigure.FIG_FLAGZ_7_AXIS));
-      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlag(IBOFigure.FIG_FLAGZ_8_DIRECTION));
-      return itos;
-   }
+
    public static IntToStrings flagsFigureFlagX(UCtx uc) {
       IntToStrings itos = new IntToStrings(uc);
-      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlag(IBOFigure.FIG_FLAGX_1_AREA_FUNCTION));
-      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlag(IBOFigure.FIG_FLAGX_2_CLIP));
-      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlag(IBOFigure.FIG_FLAGX_3_));
-      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlag(IBOFigure.FIG_FLAGX_4_OPAQUE_COLORS));
-      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlag(IBOFigure.FIG_FLAGX_5_SCALER));
-      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlag(IBOFigure.FIG_FLAGX_6_));
-      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlag(IBOFigure.FIG_FLAGX_7_ALIAS_ON));
-      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlag(IBOFigure.FIG_FLAGX_8_ALIAS_OFF));
+      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlagX(IBOFigure.FIG_FLAGX_1_AREA_FUNCTION));
+      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlagX(IBOFigure.FIG_FLAGX_2_CLIP));
+      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlagX(IBOFigure.FIG_FLAGX_3_));
+      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlagX(IBOFigure.FIG_FLAGX_4_OPAQUE_COLORS));
+      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlagX(IBOFigure.FIG_FLAGX_5_SCALER));
+      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlagX(IBOFigure.FIG_FLAGX_6_));
+      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlagX(IBOFigure.FIG_FLAGX_7_ALIAS_ON));
+      itos.add(IBOFigure.FIG__OFFSET_04_FLAGX, toStringFigFlagX(IBOFigure.FIG_FLAGX_8_ALIAS_OFF));
       return itos;
    }
-   
+
+   public static IntToStrings flagsFigureFlagZ(UCtx uc) {
+      IntToStrings itos = new IntToStrings(uc);
+      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlagZ(IBOFigure.FIG_FLAGZ_1_DEFINED_BLENDER));
+      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlagZ(IBOFigure.FIG_FLAGZ_2_));
+      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlagZ(IBOFigure.FIG_FLAGZ_3_));
+      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlagZ(IBOFigure.FIG_FLAGZ_4_));
+      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlagZ(IBOFigure.FIG_FLAGZ_5_));
+      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlagZ(IBOFigure.FIG_FLAGZ_6_));
+      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlagZ(IBOFigure.FIG_FLAGZ_7_AXIS));
+      itos.add(IBOFigure.FIG__OFFSET_07_FLAGZ1, toStringFigFlagZ(IBOFigure.FIG_FLAGZ_8_DIRECTION));
+      return itos;
+   }
+
+   public static String stringerStateFlag(int flag) {
+      String str = toStringStringerStateFlagNull(flag);
+      if (str == null) {
+         str = "Unknown stringerStateFlag " + flag;
+      }
+      return str;
+   }
 
    public static IntToStrings stringerStateFlagMap(UCtx uc) {
       IntToStrings flags = new IntToStrings(uc);
@@ -316,6 +222,55 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
       return "(" + ((c >> 24) & 0xFF) + "," + ((c >> 16) & 0xFF) + "," + ((c >> 8) & 0xFF) + "," + (c & 0xFF) + ")";
    }
 
+   public static String toStringDirectiveFormFeed(int type) {
+      switch (type) {
+         case ITechStringer.SPECIALS_FORMFEED_0_IGNORED:
+            return "Ignored";
+         case ITechStringer.SPECIALS_FORMFEED_1_SPACE_SPECIAL:
+            return "SpaceSpecial";
+         case ITechStringer.SPECIALS_FORMFEED_2_JAVA_ESCAPED:
+            return "Escaped";
+         case ITechStringer.SPECIALS_FORMFEED_3_NEW_PAGE:
+            return "NewPage";
+         default:
+            return "Unknown NewLineManager" + type;
+      }
+   }
+
+   public static String toStringDirectiveNewLine(int type) {
+      switch (type) {
+         case ITechStringer.SPECIALS_NEWLINE_0_IGNORED:
+            return "Ignored";
+         case ITechStringer.SPECIALS_NEWLINE_1_SPACE_SPECIAL:
+            return "SpaceSpecial";
+         case ITechStringer.SPECIALS_NEWLINE_2_JAVA_ESCAPED:
+            return "Escaped";
+         case ITechStringer.SPECIALS_NEWLINE_3_WORK:
+            return "Work";
+         default:
+            return "Unknown NewLineManager" + type;
+      }
+   }
+
+   public static String toStringDirectiveTab(int type) {
+      switch (type) {
+         case ITechStringer.SPECIALS_TAB_0_IGNORED:
+            return "Ignored";
+         case ITechStringer.SPECIALS_TAB_1_SPACE_SPECIAL:
+            return "SpaceSpecial";
+         case ITechStringer.SPECIALS_TAB_2_JAVA_ESCAPED:
+            return "Escaped";
+         case ITechStringer.SPECIALS_TAB_3_NOTEPAD:
+            return "Notepad";
+         case ITechStringer.SPECIALS_TAB_4_ECLIPSE:
+            return "Eclipse";
+         case ITechStringer.SPECIALS_TAB_5_COLUMN:
+            return "Column";
+         default:
+            return "Unknown TabManager" + type;
+      }
+   }
+
    public static String toStringDrwType(final int type) {
       switch (type) {
          case IBOTypesDrawX.TYPE_DRWX_00_FIGURE:
@@ -354,6 +309,98 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
       }
    }
 
+   public static String toStringFigFlag(int type) {
+      switch (type) {
+         case IBOFigure.FIG_FLAG_1_ANCHOR:
+            return "Anchor";
+         case IBOFigure.FIG_FLAG_2_GRADIENT:
+            return "Gradient";
+         case IBOFigure.FIG_FLAG_3_COLOR_ARRAY:
+            return "ColorArray";
+         case IBOFigure.FIG_FLAG_4_MASK:
+            return "Mask";
+         case IBOFigure.FIG_FLAG_5_FILTER:
+            return "Filter";
+         case IBOFigure.FIG_FLAG_6_ANIMATED:
+            return "Animated";
+         case IBOFigure.FIG_FLAG_7_SUB_FIGURE:
+            return "SubFigure";
+         case IBOFigure.FIG_FLAG_8_:
+            return "8";
+         default:
+            return "Unknown FigFlag" + type;
+      }
+   }
+
+   public static String toStringFigFlagP(int type) {
+      switch (type) {
+         case IBOFigure.FIG_FLAGP_1_RGB:
+            return "RGB";
+         case IBOFigure.FIG_FLAGP_2_EXTRA_BOUNDARY:
+            return "ExtraBoundary";
+         case IBOFigure.FIG_FLAGP_3_OPAQUE:
+            return "Opaque";
+         case IBOFigure.FIG_FLAGP_4_IS_SUBFIGURE:
+            return "IsSubFigure";
+         case IBOFigure.FIG_FLAGP_5_IGNORE_ALPHA:
+            return "IgnoreAlpha";
+         case IBOFigure.FIG_FLAGP_6_NO_FIT:
+            return "NoFit";
+         case IBOFigure.FIG_FLAGP_7_TRANS_FIG:
+            return "TransFig";
+         case IBOFigure.FIG_FLAGP_8_POSTPONE:
+            return "PostPone";
+         default:
+            return "Unknown FigFlag" + type;
+      }
+   }
+
+   public static String toStringFigFlagX(int type) {
+      switch (type) {
+         case IBOFigure.FIG_FLAGX_1_AREA_FUNCTION:
+            return "AreaFunction";
+         case IBOFigure.FIG_FLAGX_2_CLIP:
+            return "Clip";
+         case IBOFigure.FIG_FLAGX_3_:
+            return "3";
+         case IBOFigure.FIG_FLAGX_4_OPAQUE_COLORS:
+            return "OpaqueColors";
+         case IBOFigure.FIG_FLAGX_5_SCALER:
+            return "Scaler";
+         case IBOFigure.FIG_FLAGX_6_:
+            return "6";
+         case IBOFigure.FIG_FLAGX_7_ALIAS_ON:
+            return "AliasOn";
+         case IBOFigure.FIG_FLAGX_8_ALIAS_OFF:
+            return "AliasOff";
+         default:
+            return "Unknown FigFlag" + type;
+      }
+   }
+
+   public static String toStringFigFlagZ(int type) {
+      switch (type) {
+         case IBOFigure.FIG_FLAGZ_1_DEFINED_BLENDER:
+            return "Blender";
+         case IBOFigure.FIG_FLAGZ_2_:
+            return "2";
+         case IBOFigure.FIG_FLAGZ_3_:
+            return "3";
+         case IBOFigure.FIG_FLAGZ_4_:
+            return "4";
+         case IBOFigure.FIG_FLAGZ_5_:
+            return "5";
+         case IBOFigure.FIG_FLAGZ_6_:
+            return "6";
+         case IBOFigure.FIG_FLAGZ_7_AXIS:
+            return "Axis";
+         case IBOFigure.FIG_FLAGZ_8_DIRECTION:
+            return "Direction";
+         default:
+            return "Unknown FigFlag" + type;
+      }
+   }
+
    public static String toStringFigType(final int type) {
       switch (type) {
          case ITechFigure.FIG_TYPE_01_RECTANGLE:
@@ -375,6 +422,14 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
          default:
             return "UNKNOWN FIGURE NAME " + type;
       }
+   }
+
+   public static String toStringFontBrackets(IMFont f) {
+      if (f == null) {
+         return "NULL FONT";
+      }
+      String s = "[" + ToStringStaticCoreDraw.debugFontFace(f.getFace()) + " " + ToStringStaticCoreDraw.debugFontStyle(f.getStyle()) + " " + ToStringStaticCoreDraw.debugFontSize(f.getSize()) + "]";
+      return s;
    }
 
    public static String toStringFxScope(int scope) {
@@ -456,19 +511,6 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
             return "3";
          default:
             throw new IllegalArgumentException("Preset " + preset);
-      }
-   }
-
-   public static String toStringNewLineManager(int type) {
-      switch (type) {
-         case ITechStringer.NEWLINE_MANAGER_0_IGNORE:
-            return "Ignore";
-         case ITechStringer.NEWLINE_MANAGER_1_WORK:
-            return "Work";
-         case ITechStringer.NEWLINE_MANAGER_2_WORD:
-            return "Word";
-         default:
-            return "Unknown NewLineManager" + type;
       }
    }
 
@@ -634,21 +676,6 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
             return "AT_PADDING";
          default:
             return "INVALID_ERROR";
-      }
-   }
-
-   public static String toStringTabManager(int type) {
-      switch (type) {
-         case ITechStringer.TAB_MANAGER_0_SINGLE_SPACE:
-            return "SingleSpace";
-         case ITechStringer.TAB_MANAGER_1_ESCAPED:
-            return "Escaped";
-         case ITechStringer.TAB_MANAGER_2_COLUMN:
-            return "Column";
-         case ITechStringer.TAB_MANAGER_3_NOTEPAD:
-            return "Notepad";
-         default:
-            return "Unknown TabManager" + type;
       }
    }
 

@@ -10,6 +10,12 @@ import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 
+/**
+ * Flags that modifies how ToString methods include some information for {@link DrwCtx} classes.
+ * 
+ * @author Charles Bentley
+ *
+ */
 public interface IFlagsToStringDrw extends IToStringFlags {
 
    /**

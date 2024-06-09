@@ -10,11 +10,25 @@ import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 
 /**
- * {@link CharMap} manages the trim replace with 2 dots ..  for lack of space
+ * <p>
+ * {@link CharMap} tracks computations of a single line for the {@link Stringer} class.
+ * </p>
+ * 
+ * <li> {@link CharMapper} when some characters are hidden.  
+ * <li> Is the line with different fonts
+ * <li> width and height of the line
+ * 
+ * <p>
+ * 
+ * {@link CharMap} manages the trim replace with 2 dots ..  for lack of space.
+ * 
  * Example of a trimmed line because it is too big for the {@link Stringer} area and word wrap is set to
  * {@link ITechStringer#WORDWRAP_0_NONE}
+ * </p>
  * 
+ * <p>
  * this sentence is trimmed because not enou..
+ * </p>
  * 
  * @author Charles Bentley
  *
@@ -54,6 +68,8 @@ public class LineStringer extends ObjectDrw {
 
    private int        pixelsH;
 
+   private int        numOfSpaces;
+
    private int        pixelsW;
 
    private Stringer   stringer;
@@ -92,6 +108,16 @@ public class LineStringer extends ObjectDrw {
    public void charMapTo(int offset, char c) {
       int lineMappedOffset = stringer.offsetChars + offset;
       getCharMapper().opReplaceChar(lineMappedOffset, c);
+   }
+
+   public void charMapTo(int offset, String str) {
+      int lineMappedOffset = stringer.offsetChars + offset;
+      getCharMapper().opReplaceWith(lineMappedOffset, str);
+   }
+
+   public void charMapRemove(int offset) {
+      int lineMappedOffset = stringer.offsetChars + offset;
+      getCharMapper().opRemove(lineMappedOffset);
    }
 
    /**
@@ -326,6 +352,10 @@ public class LineStringer extends ObjectDrw {
       pixelsW += val;
    }
 
+   public void incrementNumOfSpaces(int incr) {
+      numOfSpaces += incr;
+   }
+
    public boolean isFictiveLine() {
       return isFictiveLine;
    }
@@ -474,6 +504,14 @@ public class LineStringer extends ObjectDrw {
       } else {
          map.appendStringSrc(sb, offsetStart, offsetEnd);
       }
+   }
+
+   public int getNumOfSpaces() {
+      return numOfSpaces;
+   }
+
+   public void setNumOfSpaces(int numOfSpaces) {
+      this.numOfSpaces = numOfSpaces;
    }
 
    //#enddebug

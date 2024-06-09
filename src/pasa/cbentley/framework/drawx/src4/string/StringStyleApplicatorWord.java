@@ -1,6 +1,5 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
-import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 
 public class StringStyleApplicatorWord extends StringStyleApplicator {

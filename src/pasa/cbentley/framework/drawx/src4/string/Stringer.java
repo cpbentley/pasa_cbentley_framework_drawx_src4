@@ -33,7 +33,8 @@ import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigChar;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrChar;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxFormat;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxSpecialCharDirective;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
@@ -188,9 +189,19 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    private StringInterval            currentInterval;
 
+   private int directiveFormFeed;
+
+   private int                       directiveTab;
+
+   private int                       directiveTabAux       = 4;
+
    int                               drawWordType;
 
    private StringerEditor            editor;
+
+   private int                       formatLineWrap;
+
+   private int                       formatWordWrap;
 
    /**
     * Payloads are {@link StringFxLeaf} objects
@@ -205,6 +216,8 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    private boolean                   isShowHiddenChars     = false;
 
    private boolean                   isTrimArtifacts;
+
+   private boolean isVirtualNewLineForEachWord;
 
    private int                       lastNumDrawnChars     = 0;
 
@@ -321,8 +334,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    private boolean                   toStringDebugBreakLines;
 
-   private int                       wordwrap;
-
    /**
     * 
     * @param drc
@@ -416,11 +427,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       stringMetrics.meterString(); //FX must be deployed
    }
 
-   public void buildFxAndMeter() {
-      buildTextEffects();
-      stringMetrics.meterString();
-   }
-
    /**
     * Keep existing string
     * @param textFigure
@@ -435,6 +441,11 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       setStringFig(textFigure, str);
       buildTextEffects();
       stringMetrics.meterString(); //FX must be deployed
+   }
+
+   public void buildFxAndMeter() {
+      buildTextEffects();
+      stringMetrics.meterString();
    }
 
    /**
@@ -880,7 +891,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    }
 
    /**
-    * The maximum number of displayed lines, first decided by {@link IBOFigString#FIG_STRING_OFFSET_10_MAXLINES1}.
+    * The maximum number of displayed lines, first decided by {@link IBOStrAuxFormat#STR_FORMAT_OFFSET_05_MAXLINES1}.
     * <p>
     * 0 or negative means no maximum
     * </p>
@@ -957,6 +968,14 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return offsetChars;
    }
 
+   public int getDirectiveFormFeed() {
+      return directiveFormFeed;
+   }
+
+   public int getDirectiveTabAux() {
+      return directiveTabAux;
+   }
+
    /**
     * Returns a copy of the displayed string, including special characters
     * @return
@@ -981,6 +1000,14 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
          editor = new StringerEditor(this);
       }
       return editor;
+   }
+
+   public int getFormatLineWrap() {
+      return formatLineWrap;
+   }
+
+   public int getFormatWordWrap() {
+      return formatWordWrap;
    }
 
    /**
@@ -1066,12 +1093,12 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    /**
     * Value telling {@link Stringer} how to deal with new line characters
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_0_IGNORE}
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_1_WORK}
+    * <li> {@link ITechStringer#SPECIALS_NEWLINE_0_IGNORED}
+    * <li> {@link ITechStringer#SPECIALS_NEWLINE_3_WORK}
     * @return
-    * @see Stringer#setNewLineManager(int)
+    * @see Stringer#setDirectiveNewLine(int)
     */
-   public int getNewLineManager() {
+   public int getDirectiveNewLine() {
       return newLineManager;
    }
 
@@ -1278,7 +1305,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    }
 
    public int getWordwrap() {
-      return wordwrap;
+      return formatWordWrap;
    }
 
    /**
@@ -1332,6 +1359,10 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return b;
    }
 
+   public boolean isVirtualNewLineForEachWord() {
+      return isVirtualNewLineForEachWord;
+   }
+
    /**
     * Called when char data has changed.
     * 
@@ -1382,6 +1413,11 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       areaH = contentH;
    }
 
+   public void setAreaXY(int x, int y) {
+      areaX = x;
+      areaY = y;
+   }
+
    /**
     * Sets the area.. used for computing alignments
     * 
@@ -1398,11 +1434,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       areaY = y;
       areaW = contentW;
       areaH = contentH;
-   }
-
-   public void setAreaXY(int x, int y) {
-      areaX = x;
-      areaY = y;
    }
 
    public void setBreakHeight(int breakH) {
@@ -1488,6 +1519,31 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       this.lengthChars = len;
    }
 
+   public void setDirectiveFormFeed(int directiveFormFeed) {
+      this.directiveFormFeed = directiveFormFeed;
+   }
+
+   /**
+    * Sets newline directive without modifying the underlying {@link ByteObject} definition.
+    * <li> {@link ITechStringer#SPECIALS_NEWLINE_0_IGNORED}
+    * <li> {@link ITechStringer#SPECIALS_NEWLINE_3_WORK}
+    * <li> {@link ITechStringer#SPECIALS_NEWLINE_2_WORD}
+    * 
+    * @see Stringer#getDirectiveNewLine()
+    * @param newLineManager
+    */
+   public void setDirectiveNewLine(int newLineManager) {
+      this.newLineManager = newLineManager;
+   }
+
+   public void setDirectiveTab(int directiveTab) {
+      this.directiveTab = directiveTab;
+   }
+
+   public void setDirectiveTabAux(int directiveTabAux) {
+      this.directiveTabAux = directiveTabAux;
+   }
+
    /**
     * Moi j'ai pas beaucoup de dépenses physiques mais je dors bien 🙂
     * 😕 😩 😩 pas assez de depense d'energies physiques
@@ -1496,14 +1552,39 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    private void setDynamicFXs() {
    }
 
-   /**
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_0_IGNORE}
-    * <li> {@link ITechStringer#NEWLINE_MANAGER_1_WORK}
-    * @see Stringer#getNewLineManager()
-    * @param newLineManager
-    */
-   public void setNewLineManager(int newLineManager) {
-      this.newLineManager = newLineManager;
+   public void setFigureChar(ByteObject figChar) {
+      //#debug
+      figChar.checkType(TYPE_DRWX_00_FIGURE);
+      //#debug
+      figChar.checkValue(IBOFigure.FIG__OFFSET_01_TYPE1, 1, ITechFigure.FIG_TYPE_04_CHAR);
+
+      //invalidate
+      resetFigure();
+      resetFxDefinition();
+
+      char c = (char) figChar.get2(IBOFigChar.FIG_CHAR_OFFSET_2_UTF16_VALUE2);
+      chars[offsetChars] = c;
+      lengthChars = 1;
+
+      this.text = figChar;
+      this.scale = text.getSubFirst(TYPE_DRWX_05_SCALE);
+
+      if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_ANCHOR)) {
+         anchor = text.getSubFirst(TYPE_DRWX_10_ANCHOR);
+      }
+      if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK)) {
+         //figure has a mask, move it to text mask fx.
+
+      }
+
+   }
+
+   public void setFormatLineWrap(int formatLineWrap) {
+      this.formatLineWrap = formatLineWrap;
+   }
+
+   public void setFormatWordwrap(int wordwrap) {
+      this.formatWordWrap = wordwrap;
    }
 
    public void setNumLinesPerPage(int numLinesPerPage) {
@@ -1589,53 +1670,36 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
       this.text = textFigure;
       this.scale = text.getSubFirst(TYPE_DRWX_05_SCALE);
-      this.newLineManager = text.get1(IBOFigString.FIG_STRING_OFFSET_14_MANAGER_NEWLINE1);
-      this.wordwrap = text.get1(IBOFigString.FIG_STRING_OFFSET_07_WRAP_WIDTH1);
-      this.breakMaxLines = text.get1(IBOFigString.FIG_STRING_OFFSET_10_MAXLINES1);
-      this.tabManager = text.get1(IBOFigString.FIG_STRING_OFFSET_13_MANAGER_TAB1);
-      this.spaceTrimManager = text.get1(IBOFigString.FIG_STRING_OFFSET_09_SPACE_TRIM1);
+
       this.isShowHiddenChars = text.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_2_SHOW_HIDDEN_CHARS);
-      this.isTrimArtifacts = text.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_3_TRIM_ARTIFACT);
 
       if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_ANCHOR)) {
          anchor = text.getSubFirst(TYPE_DRWX_10_ANCHOR);
       }
       if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK)) {
          //figure has a mask, move it to text mask fx.
-
       }
 
-   }
+      ByteObject strAuxSpecials = drc.getStringAuxFactory().getStrAuxSpecials(text);
+      this.newLineManager = strAuxSpecials.get1(IBOStrAuxSpecialCharDirective.AUX_CHARS_OFFSET_02_NEWLINE1);
+      this.tabManager = strAuxSpecials.get1(IBOStrAuxSpecialCharDirective.AUX_CHARS_OFFSET_04_MANAGER_TAB1);
 
-   public void setFigureChar(ByteObject figChar) {
-      //#debug
-      figChar.checkType(TYPE_DRWX_00_FIGURE);
-      //#debug
-      figChar.checkValue(IBOFigure.FIG__OFFSET_01_TYPE1, 1, ITechFigure.FIG_TYPE_04_CHAR);
+      ByteObject strAuxFormat = drc.getStringAuxFactory().getStrAuxFormat(text);
 
-      //invalidate
-      resetFigure();
-      resetFxDefinition();
-
-      char c = (char) figChar.get2(IBOFigChar.FIG_CHAR_OFFSET_2_UTF16_VALUE2);
-      chars[offsetChars] = c;
-      lengthChars = 1;
-
-      this.text = figChar;
-      this.scale = text.getSubFirst(TYPE_DRWX_05_SCALE);
-
-      if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_ANCHOR)) {
-         anchor = text.getSubFirst(TYPE_DRWX_10_ANCHOR);
-      }
-      if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK)) {
-         //figure has a mask, move it to text mask fx.
-
-      }
+      this.formatWordWrap = strAuxFormat.get1(IBOStrAuxFormat.STR_FORMAT_OFFSET_02_WRAP_WIDTH1);
+      this.formatLineWrap = strAuxFormat.get1(IBOStrAuxFormat.STR_FORMAT_OFFSET_03_WRAP_HEIGHT1);
+      this.spaceTrimManager = strAuxFormat.get1(IBOStrAuxFormat.STR_FORMAT_OFFSET_04_SPACE_TRIM1);
+      this.breakMaxLines = strAuxFormat.get1(IBOStrAuxFormat.STR_FORMAT_OFFSET_05_MAXLINES1);
+      this.isTrimArtifacts = strAuxFormat.hasFlag(IBOStrAuxFormat.STR_FORMAT_OFFSET_01_FLAG, IBOStrAuxFormat.STR_FORMAT_FLAG_3_TRIM_ARTIFACT);
 
    }
 
    public void setTrimArtifacts(boolean isTrimArtifacts) {
       this.isTrimArtifacts = isTrimArtifacts;
+   }
+
+   public void setVirtualNewLineForEachWord(boolean isVirtualNewLineForEachWord) {
+      this.isVirtualNewLineForEachWord = isVirtualNewLineForEachWord;
    }
 
    /**
@@ -1668,10 +1732,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
       //invalidates the styles
       resetFxDefinition();
-   }
-
-   public void setWordwrap(int wordwrap) {
-      this.wordwrap = wordwrap;
    }
 
    //#mdebug
@@ -1734,10 +1794,9 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
    public void ToStringSetDebugArea(boolean toStringDebugArea) {
       this.toStringDebugArea = toStringDebugArea;
    }
-   //#enddebug
 
    public void ToStringSetDebugBreakLines(boolean toStringSetDebugBreakLines) {
       this.toStringDebugBreakLines = toStringSetDebugBreakLines;
    }
-
+   //#enddebug
 }

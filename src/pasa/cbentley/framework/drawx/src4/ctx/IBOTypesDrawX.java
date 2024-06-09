@@ -22,13 +22,13 @@ import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
  */
 public interface IBOTypesDrawX extends IBOTypesBOC {
 
-   public static final int A_SID_DRWTYPE_A                      = 60;
+   public static final int A_SID_DRWTYPE_A                      = 161;
 
    /**
     * When Length is not sufficient anymore, you have to create a new module
     * or sub module
     */
-   public static final int A_SID_DRWTYPE_Z                      = 99;
+   public static final int A_SID_DRWTYPE_Z                      = 180;
 
    /**
     * 1 or 2 bytes defines a figure
@@ -108,13 +108,15 @@ public interface IBOTypesDrawX extends IBOTypesBOC {
 
    public static final int TYPE_DRWX_07_STRING_AUX_0_FX         = 0;
 
-   public static final int TYPE_DRWX_07_STRING_AUX_1_STRUCT     = 1;
+   public static final int TYPE_DRWX_07_STRING_AUX_1_FORMAT     = 1;
 
    public static final int TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C = 2;
 
    public static final int TYPE_DRWX_07_STRING_AUX_3_APPLICATOR = 3;
 
-   public static final int TYPE_DRWX_07_STRING_AUX_XXX          = 4;
+   public static final int TYPE_DRWX_07_STRING_AUX_4_FX_STRUCT  = 4;
+
+   public static final int TYPE_DRWX_07_STRING_AUX_XXX          = 5;
 
    public static final int TYPE_DRWX_08_CONTENT_FX              = A_SID_DRWTYPE_A + 8;
 

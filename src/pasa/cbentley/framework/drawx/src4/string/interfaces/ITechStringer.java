@@ -47,134 +47,6 @@ public interface ITechStringer {
    public static final int BREAK_WINDOW_SIZE                    = 3;
 
    /**
-    * Does not create newlines at \n and \r. Also ignore \f 
-    * <p>
-    * {@link IBOFigString#FIG_STRING_OFFSET_14_MANAGER_NEWLINE1}
-    * </p>
-    * Does not even look for trim.
-    * Fastest algo but no artifacts.
-    * <li> For single line trim. use {@link ITechStringer#WORDWRAP_0_NONE} with 
-    */
-   public static final int NEWLINE_MANAGER_0_IGNORE             = 0;
-
-   /**
-    * Create newlines at \n and \r\n, or trims when not enough space due to {@link Stringer#setBreakWidth(int)}
-    * <p>
-    * The trim trigger is because of {@link IBOFigString#FIG_STRING_OFFSET_10_MAXLINES1} set to 1 or more.
-    * This forces the algo to stop at 1 line and trim it. Double dot artifact if
-    * {@link IBOFigString#FIG_STRING_FLAG_3_TRIM_ARTIFACT} is set to true
-    * </p>
-    * <p>
-    * {@link IBOFigString#FIG_STRING_OFFSET_14_MANAGER_NEWLINE1}
-    * </p>
-    */
-   public static final int NEWLINE_MANAGER_1_WORK               = 1;
-
-   /**
-    * Sets a virtual new line after every word.
-    * 
-    * Removes all whitespaces with {@link ITechStringer#SPACETRIM_1_NORMAL}
-    */
-   public static final int NEWLINE_MANAGER_2_WORD               = 2;
-
-   /**
-    * Tab is replaced with a single space
-    * 
-    * When {@link IBOFigString#FIG_STRING_FLAG_2_SHOW_HIDDEN_CHARS}, the space
-    * is replaced with tab hidden char mapping.
-    */
-   public static final int TAB_MANAGER_0_SINGLE_SPACE           = 0;
-
-   /**
-    * Tab is Java represented with \t.
-    * 
-    * Compatible 
-    */
-   public static final int TAB_MANAGER_1_ESCAPED                = 1;
-
-   /**
-    * The first line decides the width of the tab columns
-    * For next lines, if a char goes over the tab col width, it is move over to the next tab column.
-    * 
-    * In this mode, new lines are accepted, creating empty column.
-    * However word wrap is forcibly set to {@link ITechStringer#WORDWRAP_0_NONE}
-    */
-   public static final int TAB_MANAGER_2_COLUMN                 = 2;
-
-   /**
-    * Notepad behaviour. Does not force columns.
-    * <li>Display Tab as one big blank character. Selection shows one
-    * <li>Depending on tab offset in the line, forward next char to start
-    * at a multiple of Tab aux on the pixel value.
-    * <li> In prop fonts, once the tab portion gets over the pixel value, 
-    * In a line with 5m, tab executes.. you need 10 dots for the tab to execute
-    */
-   public static final int TAB_MANAGER_3_NOTEPAD                = 3;
-
-   /**
-    * Does not do any word wrap. 
-    * <p>
-    * If {@link Stringer} has a break width, it generates a trim visual cue at the end of the broken line
-    * </p>
-    * 
-    * <p>
-    * Value is set here -> {@link IBOFigString#FIG_STRING_OFFSET_07_WRAP_WIDTH1}.
-    * </p>
-    * 
-    */
-   public static final int WORDWRAP_0_NONE                      = 0;
-
-   public static final int LINEWRAP_0_NONE                      = 0;
-
-   /**
-    * Draws lines fitting the height provided
-    */
-   public static final int LINEWRAP_1_ANYWHERE                  = 1;
-
-   /**
-    * Cuts anywhere in a word without any artifacts
-    */
-   public static final int WORDWRAP_1_ANYWHERE                  = 1;
-
-   /**
-    * Tries to cut at words, sending them to next line.. if word too big, cut at size
-    */
-   public static final int WORDWRAP_2_NICE_WORD                 = 2;
-
-   /**
-    * Complex wrap using a - cutting at specific places in a word apple - > ap-ple
-    * 
-    * <p>
-    * Usually in combination with space trim {@link ITechStringer#SPACETRIM_2_JUSTIFIED}
-    * 
-    * </p>
-    */
-   public static final int WORDWRAP_3_NICE_HYPHENATION          = 3;
-
-   public static final int SPACETRIM_0_NONE                     = 0;
-
-   /**
-    * When breaking strings into lines, remove leading and trailing leading white space
-    * characters so that a line never starts/ends with a whitespace character
-    */
-   public static final int SPACETRIM_1_NORMAL                   = 1;
-
-   /**
-    * For big strings on several lines, adds white spaces to that words finish at the end of the line.
-    * 
-    * <p>
-    * Usually used in combination with hyphenated word wrap.
-    * </p>
-    * See {@link ITechStringer#WORDWRAP_3_NICE_HYPHENATION} 
-    * on {@link IBOFigString#FIG_STRING_OFFSET_07_WRAP_WIDTH1}
-    * <p>
-    * This mode force the use of char individual width as spaces will gain extra pixels to exactly match
-    * the pixel width given to the line
-    * </p>
-    */
-   public static final int SPACETRIM_2_JUSTIFIED                = 2;
-
-   /**
     * Helper flag telling us that the {@link StringFx} does not change
     * height between characters.
     */
@@ -199,8 +71,6 @@ public interface ITechStringer {
 
    public static final int FX_FLAG_05_UNSTABLE_COLOR            = 1 << 4;
 
-   public static final int FX_FLAG_07_UNSTABLE_FONT             = 1 << 6;
-
    /**
     * The source char[] array cannot be written outside [offset-offset+len]
     * 
@@ -208,6 +78,11 @@ public interface ITechStringer {
     * {@link Stringer#setStringFig(ByteObject, char[], int, int)S}
     */
    public static final int FX_FLAG_06_PROTECTED_CHARS           = 1 << 5;
+
+   /**
+    * 
+    */
+   public static final int FX_FLAG_07_UNSTABLE_FONT             = 1 << 6;
 
    /**
     *
@@ -233,6 +108,10 @@ public interface ITechStringer {
     *
     */
    public static final int FX_MASKDRAW_TYPE_4_SENTENCE          = 4;
+
+   int                     FX_PATTERN_0_NONE                    = 0;
+
+   int                     FX_PATTERN_1_ALL_INSTANCES           = 1;
 
    /**
     * Drawing the characters of the Interval don't require the {@link StringMetrics}
@@ -260,7 +139,136 @@ public interface ITechStringer {
    */
    public static final int FX_STRUCT_TYPE_2_METRICS_XY          = 2;
 
+   public static final int LINEWRAP_0_NONE                      = 0;
+
+   /**
+    * Draws lines fitting the height provided
+    */
+   public static final int LINEWRAP_1_ANYWHERE                  = 1;
+
    public static final int MAX_STYLE_LAYERS                     = 4;
+
+   public static final int SPACETRIM_0_NONE                     = 0;
+
+   /**
+    * When breaking strings into lines, remove leading and trailing leading white space
+    * characters so that a line never starts/ends with a whitespace character
+    */
+   public static final int SPACETRIM_1_NORMAL                   = 1;
+
+   /**
+    * For big strings on several lines, adds white spaces to that words finish at the end of the line.
+    * 
+    * <p>
+    * Usually used in combination with hyphenated word wrap.
+    * </p>
+    * See {@link ITechStringer#WORDWRAP_3_NICE_HYPHENATION} 
+    * on {@link IBOStrAuxFormat#STR_FORMAT_OFFSET_02_WRAP_WIDTH1}
+    * <p>
+    * This mode force the use of char individual width as spaces will gain extra pixels to exactly match
+    * the pixel width given to the line
+    * </p>
+    * 
+    * <p>
+    * What about the last line of a paragraph ?
+    * </p>
+    */
+   public static final int SPACETRIM_2_JUSTIFIED                = 2;
+
+   /**
+    * \f is ignored completely. 
+    * 
+    */
+   public static final int SPECIALS_FORMFEED_0_IGNORED          = 0;
+
+   public static final int SPECIALS_FORMFEED_1_SPACE_SPECIAL    = 1;
+
+   public static final int SPECIALS_FORMFEED_2_JAVA_ESCAPED     = 2;
+
+   public static final int SPECIALS_FORMFEED_3_NEW_PAGE         = 3;
+
+   /**
+    * Does not create newlines at \n and \r. 
+    * 
+    * It is removed completely
+    * <p>
+    * {@link IBOStrAuxSpecialCharDirective#AUX_CHARS_OFFSET_02_NEWLINE1}
+    * </p>
+    * Does not even look for trim.
+    * Fastest algo but no artifacts.
+    * <li> For single line trim. use {@link ITechStringer#WORDWRAP_0_NONE} with 
+    */
+   public static final int SPECIALS_NEWLINE_0_IGNORED           = 0;
+
+   /**
+    * Replaces the newline \n and \r character with a space or the special char
+    * 
+    */
+   public static final int SPECIALS_NEWLINE_1_SPACE_SPECIAL     = 1;
+
+   /**
+    * 
+    */
+   public static final int SPECIALS_NEWLINE_2_JAVA_ESCAPED      = 2;
+
+   /**
+    * Create newlines at \n and \r\n, or trims when not enough space due to {@link Stringer#setBreakWidth(int)}
+    * <p>
+    * The trim trigger is because of {@link IBOStrAuxFormat#STR_FORMAT_OFFSET_05_MAXLINES1} set to 1 or more.
+    * This forces the algo to stop at 1 line and trim it. Double dot artifact if
+    * {@link IBOStrAuxFormat#STR_FORMAT_FLAG_3_TRIM_ARTIFACT} is set to true
+    * </p>
+    * <p>
+    * {@link IBOStrAuxSpecialCharDirective#AUX_CHARS_OFFSET_02_NEWLINE1}
+    * </p>
+    */
+   public static final int SPECIALS_NEWLINE_3_WORK              = 3;
+
+   public static final int SPECIALS_TAB_0_IGNORED               = 0;
+
+   /**
+    * Tab is replaced with a single space
+    * 
+    * When {@link IBOFigString#FIG_STRING_FLAG_2_SHOW_HIDDEN_CHARS}, the space
+    * is replaced with tab hidden char mapping.
+    */
+   public static final int SPECIALS_TAB_1_SPACE_SPECIAL         = 1;
+
+   /**
+    * Tab is Java represented with \t.
+    * 
+    * Compatible 
+    */
+   public static final int SPECIALS_TAB_2_JAVA_ESCAPED          = 2;
+
+   /**
+    * Notepad behaviour. Does not force columns.
+    * <li>Display Tab as one big blank character. Selection shows one
+    * <li>Depending on tab offset in the line, forward next char to start
+    * at a multiple of Tab aux on the pixel value.
+    * <li> In prop fonts, once the tab portion gets over the pixel value, 
+    * In a line with 5m, tab executes.. you need 10 dots for the tab to execute
+    */
+   public static final int SPECIALS_TAB_3_NOTEPAD               = 3;
+
+   /**
+    * Depending on tab size, insert spaces to reach a multiple of Tabsize of characters count.
+    */
+   public static final int SPECIALS_TAB_4_ECLIPSE               = 4;
+
+   /**
+    * This field decides the space size of a tab column {@link IBOStrAuxSpecialCharDirective#AUX_CHARS_OFFSET_05_MANAGER_TAB_AUX1}
+    * or
+    * The first line decides the width of the tab columns
+    * 
+    * For next lines, if a char goes over the tab col width, it is moved over to the next tab column.
+    * 
+    * In this mode, new lines are accepted, creating empty column.
+    * However word wrap is forcibly set to {@link ITechStringer#WORDWRAP_0_NONE}.
+    * 
+    * 
+    */
+   public static final int SPECIALS_TAB_5_COLUMN                = 5;
 
    /**
     * Set when
@@ -400,8 +408,37 @@ public interface ITechStringer {
 
    public static final int STATE_32_                            = 1 << 31;
 
-   int                     FX_PATTERN_0_NONE           = 0;
+   /**
+    * Does not do any word wrap. 
+    * <p>
+    * If {@link Stringer} has a break width, it generates a trim visual cue at the end of the broken line
+    * </p>
+    * 
+    * <p>
+    * Value is set here -> {@link IBOStrAuxFormat#STR_FORMAT_OFFSET_02_WRAP_WIDTH1}.
+    * </p>
+    * 
+    */
+   public static final int WORDWRAP_0_NONE                      = 0;
 
-   int                     FX_PATTERN_1_ALL_INSTANCES  = 1;
+   /**
+    * Cuts anywhere in a word without any artifacts
+    */
+   public static final int WORDWRAP_1_ANYWHERE                  = 1;
+
+   /**
+    * Tries to cut at words, sending them to next line.. if word too big, cut at size
+    */
+   public static final int WORDWRAP_2_NICE_WORD                 = 2;
+
+   /**
+    * Complex wrap using a - cutting at specific places in a word apple - > ap-ple
+    * 
+    * <p>
+    * Usually in combination with space trim {@link ITechStringer#SPACETRIM_2_JUSTIFIED}
+    * 
+    * </p>
+    */
+   public static final int WORDWRAP_3_NICE_HYPHENATION          = 3;
 
 }

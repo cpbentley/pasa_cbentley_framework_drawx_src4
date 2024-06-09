@@ -6,20 +6,14 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
-import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwFactory;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxFxApplicator;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrChar;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrLine;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrPara;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStrWord;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxFxApplicator;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
-import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
  * Creator of {@link IBOFxStr} templates.
@@ -29,7 +23,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
  * @author Charles-Philip Bentley
  *
  */
-public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBOTypesDrawX, IBOStrAuxFxApplicator, IBOFxStrChar, IBOFxStrLine, IBOFxStrPara, IBOFxStrWord {
+public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBOTypesDrawX, IBOStrAuxFxApplicator {
 
    public FxStringFactory(DrwCtx drc) {
       super(drc);
@@ -100,17 +94,6 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
    }
 
    /**
-    * A Text effect applied on the char
-    * @param mask
-    * @return
-    */
-   public ByteObject getFxChar(ByteObject mask) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_11_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_05_SCOPE_FX1, ITechStringDrw.FX_SCOPE_1_CHAR, 1);
-      return p;
-   }
-
-   /**
     * A character effect that applies to the <code>charIndex</code>
     * @param mask
     * @param charIndex Pointer to identify the characters to which to apply the effect
@@ -123,70 +106,6 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
       return fx;
    }
 
-   /**
-    * Alternating char level fx for all characters.
-    * <br>
-    * <br>
-    * Each char has a different color/font/fx
-    * <br>
-    * <br>
-    * @param fxs
-    * @return
-    */
-   public ByteObject getFxChar(ByteObject[] fxs) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_11_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_05_SCOPE_FX1, ITechStringDrw.FX_SCOPE_1_CHAR, 1);
-      p.addByteObject(fxs);
-      return p;
-   }
-
-   public ByteObject getFxChar(ByteObject[] masks, IMFont[] fonts) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_11_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_05_SCOPE_FX1, ITechStringDrw.FX_SCOPE_1_CHAR, 1);
-      return p;
-   }
-
-   public ByteObject getFxChar(ByteObject[] masks, IMFont[] fonts, int[] indexes) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_11_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_05_SCOPE_FX1, ITechStringDrw.FX_SCOPE_1_CHAR, 1);
-      return p;
-   }
-
-   public ByteObject createStrAuxApplicator() {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_07_STRING_AUX, FXA_BASIC_SIZE);
-      p.set1(STR_AUX_OFFSET_1_EXT_TYPE1, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_3_APPLICATOR);
-      return p;
-   }
-
-   public ByteObject createStrAuxSpecialCharsDirective() {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_07_STRING_AUX, FXA_BASIC_SIZE);
-      p.set1(STR_AUX_OFFSET_1_EXT_TYPE1, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C);
-      return p;
-   }
-
-   public ByteObject createStrAuxStruct() {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_07_STRING_AUX, FXA_BASIC_SIZE);
-      p.set1(STR_AUX_OFFSET_1_EXT_TYPE1, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_1_STRUCT);
-      return p;
-   }
-
-   public ByteObject createStrAuxFx() {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_07_STRING_AUX, FXA_BASIC_SIZE);
-      p.set1(STR_AUX_OFFSET_1_EXT_TYPE1, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_0_FX);
-      return p;
-   }
-
-   /**
-    * Applicator scoped to individual characters defined by the provided indexes.
-    * @param bgFigure
-    * @param indexes
-    * @return {@link IBOStrAuxFxApplicator}
-    */
-   public ByteObject getApplicatorFxChar(ByteObject[] bgFigure, int[] indexes) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_11_TEXT_EFFECTS, FXCHAR_BASIC_SIZE);
-      p.setValue(FX_OFFSET_05_SCOPE_FX1, ITechStringDrw.FX_SCOPE_1_CHAR, 1);
-      return p;
-   }
 
    /**
     * A character effect that applies to the first character of the parent scope.
@@ -281,23 +200,6 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
    }
 
    /**
-    * Line text effect.
-    * <br>
-    * @param xf xf modifier from normal char width (signed byte)
-    * @param yf yf modifier from normal font height (signed byte)
-    * @return
-    */
-   public ByteObject getFxLine(int xf, int yf) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_11_TEXT_EFFECTS, FXLINE_BASIC_SIZE);
-      p.setValue(FX_OFFSET_05_SCOPE_FX1, ITechStringDrw.FX_SCOPE_2_LINE, 1);
-      p.setFlag(FXLINE_OFFSET_02_CHAR_X_OFFSET1, FXLINE_FLAG_5_DEFINED_XF, true);
-      p.setFlag(FXLINE_OFFSET_03_CHAR_Y_OFFSET1, FXLINE_FLAG_6_DEFINED_YF, true);
-      p.setValue(FXLINE_OFFSET_02_CHAR_X_OFFSET1, xf, 1);
-      p.setValue(FXLINE_OFFSET_03_CHAR_Y_OFFSET1, yf, 1);
-      return p;
-   }
-
-   /**
     * Create a Mask FX with the given scope
     * @param mask
     * @param scope
@@ -369,6 +271,11 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
       fx.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE, true);
    }
 
+   /**
+    * Helper method that sets the {@link IBOStrAux#}
+    * @param fx
+    * @param size
+    */
    public void setFontSize(ByteObject fx, int size) {
       fx.set1(FX_OFFSET_08_SIZE1, size);
       fx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_3_UNDEFINED_FONT_SIZE, false);

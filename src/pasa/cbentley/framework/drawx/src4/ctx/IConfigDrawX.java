@@ -6,6 +6,12 @@ package pasa.cbentley.framework.drawx.src4.ctx;
 
 import pasa.cbentley.byteobjects.src4.ctx.IConfigBO;
 
+/**
+ * Configuration for {@link DrwCtx} module.
+ * 
+ * @author Charles Bentley
+ *
+ */
 public interface IConfigDrawX extends IConfigBO {
 
    /**
@@ -14,9 +20,16 @@ public interface IConfigDrawX extends IConfigBO {
     */
    public int getFlagsDrw();
 
+   /**
+    * {@link IFlagsToStringDrw#D_FLAG_01_STYLE}
+    * {@link IFlagsToStringDrw#D_FLAG_01_STYLE}
+    * {@link IFlagsToStringDrw#D_FLAG_25_IGNORE_IGRAPHICS}
+    * {@link IFlagsToStringDrw#D_FLAG_26_GRAPHCISX}
+    * {@link IFlagsToStringDrw#D_FLAG_27_CACHE}
+    * {@link IFlagsToStringDrw#D_FLAG_28_IGNORE_FONT}
+    * @return
+    */
    public int getFlagsStringDrw();
-   
-   public char getNewLine();
 
    /**
     *  
@@ -24,6 +37,12 @@ public interface IConfigDrawX extends IConfigBO {
     * @see ConfigDrawXDefault#getLineBreakChars() for ideas
     */
    public char[] getLineBreakChars();
+
+   /**
+    * 
+    * @return
+    */
+   public char getNewLine();
 
    /**
     * Any

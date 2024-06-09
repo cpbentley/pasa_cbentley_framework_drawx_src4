@@ -3,10 +3,10 @@ package pasa.cbentley.framework.drawx.src4.string;
 import java.util.Enumeration;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.core.src4.structs.IntIntervals;
+import pasa.cbentley.core.src4.text.StringInterval;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;

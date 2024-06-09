@@ -257,9 +257,9 @@ public class DrawerString implements IStringable, IBOTypesDrawX, ITechFigure {
       if (strFig == null) {
          return drc.getFontFactory().getDefaultFont();
       }
-      int face = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_03_FACE1, 1);
-      int style = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_04_STYLE1, 1);
-      int size = strFig.getValue(IBOFigString.FIG_STRING_OFFSET_05_SIZE1, 1);
+      int face = strFig.get1(IBOFigString.FIG_STRING_OFFSET_03_FACE1);
+      int style = strFig.get1(IBOFigString.FIG_STRING_OFFSET_04_STYLE1);
+      int size = strFig.get1(IBOFigString.FIG_STRING_OFFSET_05_SIZE1);
 
       IMFont f = drc.getFontFactory().getFont(face, style, size);
       return f;
