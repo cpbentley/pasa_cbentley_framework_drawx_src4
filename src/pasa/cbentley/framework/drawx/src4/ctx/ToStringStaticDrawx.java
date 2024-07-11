@@ -16,9 +16,9 @@ import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMask;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPass;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.style.IBOStyle;
+import pasa.cbentley.framework.drawx.src4.style.ITechStyleCache;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechScaler;
@@ -199,6 +199,21 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
 
    }
 
+   public static String toStringRelativeType(final int type) {
+      switch (type) {
+         case ITechStyleCache.RELATIVE_TYPE_0_MARGIN:
+            return "Margin";
+         case ITechStyleCache.RELATIVE_TYPE_1_BORDER:
+            return "Border";
+         case ITechStyleCache.RELATIVE_TYPE_2_PADDING:
+            return "Padding";
+         case ITechStyleCache.RELATIVE_TYPE_3_CONTENT:
+            return "Content";
+         default:
+            return "UNKNOWN " + type;
+      }
+   }
+   
    public static String toStringAlign(int a) {
       switch (a) {
          case ITechAnchor.ALIGN_1_TOP:
@@ -274,17 +289,27 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
    public static String toStringDrwType(final int type) {
       switch (type) {
          case IBOTypesDrawX.TYPE_DRWX_00_FIGURE:
-            return "FIGURE";
+            return "Figure";
          case IBOTypesDrawX.TYPE_DRWX_01_BOX:
-            return "ANCHOR";
+            return "Box";
+         case IBOTypesDrawX.TYPE_DRWX_02_ARTIFACT:
+            return "Artifact";
+         case IBOTypesDrawX.TYPE_DRWX_03_MOSAIC:
+            return "Mosaic";
+         case IBOTypesDrawX.TYPE_DRWX_04_SKEWER:
+            return "Skewer";
+         case IBOTypesDrawX.TYPE_DRWX_05_SCALE:
+            return "Scale";
          case IBOTypesDrawX.TYPE_DRWX_06_MASK:
-            return "MASK";
-         case IBOTypesBOC.TYPE_038_GRADIENT:
-            return "GRADIENT";
-         case IBOTypesDrawX.TYPE_DRWX_11_TEXT_EFFECTS:
-            return "TEXT_EFFECTS";
-         case IBOTypesBOC.TYPE_040_COLOR_FILTER:
-            return "COLOR_FILTER";
+            return "Mask";
+         case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX:
+            return "StringAux";
+         case IBOTypesDrawX.TYPE_DRWX_08_STYLE:
+            return "Style";
+         case IBOTypesDrawX.TYPE_DRWX_09_PIX_STAR:
+            return "PixStar";
+         case IBOTypesDrawX.TYPE_DRWX_10_ANCHOR:
+            return "Anchor";
          default:
             return "UNKNOWN " + type;
       }
@@ -434,13 +459,13 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
 
    public static String toStringFxScope(int scope) {
       switch (scope) {
-         case ITechStringDrw.FX_SCOPE_1_CHAR:
+         case ITechStringer.FX_SCOPE_1_CHAR:
             return "Char";
-         case ITechStringDrw.FX_SCOPE_2_WORD:
+         case ITechStringer.FX_SCOPE_2_WORD:
             return "Word";
-         case ITechStringDrw.FX_SCOPE_3_PARA:
+         case ITechStringer.FX_SCOPE_3_PARA:
             return "Paragraph";
-         case ITechStringDrw.FX_SCOPE_0_TEXT:
+         case ITechStringer.FX_SCOPE_0_TEXT:
             return "Text";
          default:
             return "Unknown scope " + scope;
@@ -611,8 +636,8 @@ public class ToStringStaticDrawx extends ToStringStaticBase {
             return "Broken";
          case ITechStringer.STATE_08_ACTIVE_STYLE:
             return "ActiveStyle";
-         case ITechStringer.STATE_09_:
-            return "9";
+         case ITechStringer.STATE_09_EDITING:
+            return "Editing";
          case ITechStringer.STATE_10_ACTIVE_DYNAMIC_STYLE:
             return "ActiveDynStyle";
          case ITechStringer.STATE_11_DIFFERENT_FONTS:

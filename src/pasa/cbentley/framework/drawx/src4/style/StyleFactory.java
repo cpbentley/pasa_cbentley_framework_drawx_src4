@@ -105,7 +105,7 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
     * @return
     */
    public ByteObject getStyle(ByteObject c, int pointer, int flag) {
-      ByteObject style = getBOFactory().createByteObject(TYPE_DRWX_12_STYLE, STYLE_BASIC_SIZE);
+      ByteObject style = getBOFactory().createByteObject(TYPE_DRWX_08_STYLE, STYLE_BASIC_SIZE);
       style.setFlag(pointer, flag, true);
       style.addByteObject(c);
       style.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_7_INCOMPLETE, true);
@@ -161,7 +161,7 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
     * @return
     */
    public ByteObject getStyle(ByteObject[] bg, ByteObject content, ByteObject anchor, ByteObject pad, ByteObject border, ByteObject margin, ByteObject[] fg, ByteObject[] filters, ByteObject[] anims) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_12_STYLE, STYLE_BASIC_SIZE);
+      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_08_STYLE, STYLE_BASIC_SIZE);
       int flagv = 0;
       StyleOperator styleOperator = gc.getStyleOperator();
       flagv = styleOperator.setFlagNotNullStyleFieldFlag(content, flagv, STYLE_FLAGA_1_CONTENT, TYPE_DRWX_00_FIGURE);
@@ -305,7 +305,7 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
    }
 
    public ByteObject getStyleNull() {
-      ByteObject style = getBOFactory().createByteObject(TYPE_DRWX_12_STYLE, STYLE_BASIC_SIZE);
+      ByteObject style = getBOFactory().createByteObject(TYPE_DRWX_08_STYLE, STYLE_BASIC_SIZE);
       style.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_7_INCOMPLETE, true);
       return style;
    }

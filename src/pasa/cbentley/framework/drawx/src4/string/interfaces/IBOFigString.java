@@ -90,12 +90,12 @@ public interface IBOFigString extends IBOFigure {
    public static final int FIG_STRING_FLAGX_1_DEFINED_SCALER   = 1 << 0;
 
    /**
+    * When a {@link IBOStrAuxFx} is subbed.
+    * 
     * Set when an extra effect like 
     * <li>mask
     * <li>shadow
     * <li>vertical/diagonal text
-    * 
-    * Defined by {@link IBOFxStr}, {@link IBOTypesDrawX#TYPE_DRWX_11_TEXT_EFFECTS}
     * 
     */
    public static final int FIG_STRING_FLAGX_2_DEFINED_FX       = 1 << 1;

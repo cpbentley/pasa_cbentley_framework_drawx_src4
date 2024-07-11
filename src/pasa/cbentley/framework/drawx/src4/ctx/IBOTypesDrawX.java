@@ -7,7 +7,11 @@ package pasa.cbentley.framework.drawx.src4.ctx;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
 import pasa.cbentley.framework.coredraw.src4.ctx.IBOTypesCoreDraw;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOArtifact;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMosaic;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOSkewer;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAux;
+import pasa.cbentley.framework.drawx.src4.style.IBOStyle;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
@@ -57,10 +61,19 @@ public interface IBOTypesDrawX extends IBOTypesBOC {
     */
    public static final int TYPE_DRWX_01_BOX                     = A_SID_DRWTYPE_A + 1;
 
+   /**
+    * {@link IBOArtifact}
+    */
    public static final int TYPE_DRWX_02_ARTIFACT                = A_SID_DRWTYPE_A + 2;
 
+   /**
+    * {@link IBOMosaic}
+    */
    public static final int TYPE_DRWX_03_MOSAIC                  = A_SID_DRWTYPE_A + 3;
 
+   /**
+    * {@link IBOSkewer}
+    */
    public static final int TYPE_DRWX_04_SKEWER                  = A_SID_DRWTYPE_A + 4;
 
    /**
@@ -106,19 +119,22 @@ public interface IBOTypesDrawX extends IBOTypesBOC {
     */
    public static final int TYPE_DRWX_07_STRING_AUX              = A_SID_DRWTYPE_A + 7;
 
-   public static final int TYPE_DRWX_07_STRING_AUX_0_FX         = 0;
-
    public static final int TYPE_DRWX_07_STRING_AUX_1_FORMAT     = 1;
 
    public static final int TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C = 2;
 
    public static final int TYPE_DRWX_07_STRING_AUX_3_APPLICATOR = 3;
 
-   public static final int TYPE_DRWX_07_STRING_AUX_4_FX_STRUCT  = 4;
+   public static final int TYPE_DRWX_07_STRING_AUX_4_FX         = 4;
+
+   public static final int TYPE_DRWX_07_STRING_AUX_5_FX_STRUCT  = 5;
 
    public static final int TYPE_DRWX_07_STRING_AUX_XXX          = 5;
 
-   public static final int TYPE_DRWX_08_CONTENT_FX              = A_SID_DRWTYPE_A + 8;
+   /**
+    * {@link IBOStyle}
+    */
+   public static final int TYPE_DRWX_08_STYLE                   = A_SID_DRWTYPE_A + 8;
 
    /**
     * What's this?
@@ -129,57 +145,5 @@ public interface IBOTypesDrawX extends IBOTypesBOC {
     * {@link ITechAnchor}
     */
    public static final int TYPE_DRWX_10_ANCHOR                  = A_SID_DRWTYPE_A + 10;
-
-   /**
-    * Text effect works on the String figure. 
-    * <br>
-    * <br>
-    * 
-    * <b>4 scopes of definitions</b>. Each layer<br>
-    * <ol>
-    * <li>Character Level Effect = a Text Effect is rooted at the character level. <br>
-    * All effects defined at this level are applied for all characters in the string<br>
-    * But some effects may be targeted at specific indexes.
-    * <li>Line Level Effect = draw Method draw the String and apply line level effects and filters<br>
-    * <li>Paragraph Level Effect<br>
-    * <li>Page Level Effect is used for several lines of text where other
-    * effect may be defined.
-    * </ol>
-    * <br>
-    * <br>
-    * The text direction is decided at the char level. Default is horizontal<br>
-    * Extra spacing allows to draw characters spaced differently<br>
-    * Defines Horizontal/Function<br>
-    * For Function we have diagonal, <br>
-    * 1- x and y pixels offset from the last position <br>
-    * 2- x = f(c,n) where x is x coordinate, n is the char index in the String<br>
-    * 3- y = f(n,x) the y depends on  the num 
-    * <br>
-    * This allows the characters to be placed on a Sinusoid.<br>
-    * <br>
-    * <li>char level decoration
-    * <li>Font spec + mods (extra spacing)
-    * <li>Color or Mask Filter (using as mask layer) for antialiasing
-    * <li>Trans filter for aliasing
-    * <li>string level decoration
-    * <li>scaling
-    * <br>
-    * <br>
-    * 
-    * Complex Txt effect plugs into the cache framework offered by Drawable.
-    * <br>
-    * <br>
-    *  
-    * Necessary for mutable text box
-    * Text effect are plugged in styles. So one may define a Bold text effect,
-    * <br>
-    * <br>
-    *  
-    */
-   public static final int TYPE_DRWX_11_TEXT_EFFECTS            = A_SID_DRWTYPE_A + 11;
-
-   public static final int TYPE_DRWX_12_STYLE                   = A_SID_DRWTYPE_A + 12;
-
-   public static final int TYPE_DRWX_13_FX_APPLICATOR           = A_SID_DRWTYPE_A + 13;
 
 }

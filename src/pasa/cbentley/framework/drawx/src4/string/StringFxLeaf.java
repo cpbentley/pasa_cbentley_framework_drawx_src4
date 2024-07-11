@@ -42,7 +42,7 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
  * You create new intervals and the select style is applied 
  * 
  * <li> The sizes inside a {@link StringFxLeaf}
- * <li> {@link StringDraw}
+ * <li> {@link StringerDraw}
  * 
  * @author Charles Bentley
  *
@@ -212,7 +212,7 @@ public class StringFxLeaf extends ObjectDrw implements ITechFigure, IBOTypesDraw
             g.drawChar(c, cx, cy, IBOBox.ANCHOR);
 
             //#debug
-            g.toDLog().pDraw("Single Char " + c + " at [" + cx + "," + cy + "]", this, StringDraw.class, "drawChar", ITechLvl.LVL_05_FINE, true);
+            g.toDLog().pDraw("Single Char " + c + " at [" + cx + "," + cy + "]", this, StringerDraw.class, "drawChar", ITechLvl.LVL_05_FINE, true);
             count += 1;
          }
       }

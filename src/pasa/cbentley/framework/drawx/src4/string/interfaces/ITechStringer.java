@@ -4,6 +4,8 @@
  */
 package pasa.cbentley.framework.drawx.src4.string.interfaces;
 
+import pasa.cbentley.core.src4.text.TextModel;
+import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.drawx.src4.string.LineStringer;
 import pasa.cbentley.framework.drawx.src4.string.StringFx;
 import pasa.cbentley.framework.drawx.src4.string.StringFxLeaf;
@@ -109,9 +111,76 @@ public interface ITechStringer {
     */
    public static final int FX_MASKDRAW_TYPE_4_SENTENCE          = 4;
 
-   int                     FX_PATTERN_0_NONE                    = 0;
+   public static final int FX_PATTERN_0_NONE                    = 0;
 
-   int                     FX_PATTERN_1_ALL_INSTANCES           = 1;
+   public static final int FX_PATTERN_1_ALL_INSTANCES           = 1;
+
+   /**
+    * Default applies the FX to the interval on a line.
+    * Fx applies independantly on each line.
+    */
+   public static final int FX_SCOPE_0_TEXT                      = 0;
+
+   /**
+    * The CHAR level is the first one. It defines how characters are drawn relative to each other.
+    * <br>
+    * <br>
+    * 
+    * Random styling: each char has a random font from pooling defined
+    * <br>
+    * <br>
+    * Effect to be create for each characters.
+    * <br>
+    * <br>
+    * <li> individual char level Mask Figure
+    */
+   public static final int FX_SCOPE_1_CHAR                      = 1;
+
+   /**
+    * At the LINE level we find the following options : 
+    * <br>
+    * <li>The Relative function positioning.
+    * 	Default is x unchanged and y increment by Font/Line Height
+    * 	Function similar to the Relative Function Position of characters 
+    * 	but applied to lines
+    * <li>RFP has an impact the width and height consumed by the text effect
+    * <li>One Word Per Line
+    * <li>x-Line Level Mask Figure (apply mask underyling figure to X lines at a time
+    * <br>
+    * <br>
+    * TODO how do model alternative line background styling ?
+    * index based function .. style applicator ?
+    */
+   public static final int FX_SCOPE_4_LINE                      = 4;
+
+   /**
+    * FX is applied to string 'word'.
+    * What happens when the word is cut with -? Right now words are not cut.
+    * 
+    * <p>
+    * Competing Word and Line Fx ?
+    * Examples. Word Mask vs Line Mask Smaller Scope wins in practice.
+    * But if Word Mask fx applies to the first word of a line, the line mask is applied to the whole line including the first word
+    * Line Mask might make the space glow in a certain way! so Line Mask does not lose completely
+    * </p>
+    */
+   public static final int FX_SCOPE_2_WORD                      = 2;
+
+   /**
+    * Each text block separated with an empty line
+    */
+   public static final int FX_SCOPE_3_PARA                      = 3;
+
+   /**
+    * Break text into sentences. The start of a sentence is always a abcABC character?
+    */
+   public static final int FX_SCOPE_5_FRAZ                      = 5;
+
+   /**
+    * Only applies to word separators as defined in {@link TextModel}.
+    * usually whitespace and ,
+    */
+   public static final int FX_SCOPE_6_SEPARATORS                = 6;
 
    /**
     * Drawing the characters of the Interval don't require the {@link StringMetrics}
@@ -148,11 +217,18 @@ public interface ITechStringer {
 
    public static final int MAX_STYLE_LAYERS                     = 4;
 
+   /**
+    * No spaces are ever trimmed
+    */
    public static final int SPACETRIM_0_NONE                     = 0;
 
    /**
     * When breaking strings into lines, remove leading and trailing leading white space
-    * characters so that a line never starts/ends with a whitespace character
+    * characters so that a line never starts/ends with a whitespace character.
+    * 
+    * <p>
+    * What about leading spaces on the first line ? Removed as well.
+    * </p>
     */
    public static final int SPACETRIM_1_NORMAL                   = 1;
 
@@ -190,7 +266,7 @@ public interface ITechStringer {
    /**
     * Does not create newlines at \n and \r. 
     * 
-    * It is removed completely
+    * It is only shown if show hidden character option is enabled
     * <p>
     * {@link IBOStrAuxSpecialCharDirective#AUX_CHARS_OFFSET_02_NEWLINE1}
     * </p>
@@ -223,6 +299,11 @@ public interface ITechStringer {
     * </p>
     */
    public static final int SPECIALS_NEWLINE_3_WORK              = 3;
+
+   /**
+    * 
+    */
+   public static final int SPECIALS_NEWLINE_4_WORK_SHOW         = 4;
 
    public static final int SPECIALS_TAB_0_IGNORED               = 0;
 
@@ -310,7 +391,10 @@ public interface ITechStringer {
     */
    public static final int STATE_08_ACTIVE_STYLE                = 1 << 7;
 
-   public static final int STATE_09_                            = 1 << 8;
+   /**
+    * 
+    */
+   public static final int STATE_09_EDITING                     = 1 << 8;
 
    /**
     * Set when at least one dynamic style is impacting at least one character.
@@ -355,7 +439,14 @@ public interface ITechStringer {
 
    /**
     * Every characters is drawn using the same width. This means same font size
-    * and font type. and no text effect changing the size of the string subset
+    * and font type. and no text effect changing the size of the string subset.
+    * 
+    * <p>
+    * Beware that some characters are zero width.. 
+    * <li> {@link StringUtils#NEW_LINE}
+    * <li> {@link StringUtils#TAB}
+    * <li> {@link StringUtils#NEW_LINE}
+    * </p>
     */
    public static final int STATE_18_FULL_MONOSPACE              = 1 << 17;
 

@@ -208,7 +208,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
          str = boc.getLitteralStringOperator().getLitteralString(raw);
       }
 
-      ByteObject effects = root.getSubFirst(IBOTypesDrawX.TYPE_DRWX_11_TEXT_EFFECTS);
+      ByteObject effects = drc.getStrAuxOperator().getSub(root, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_4_FX);
       ByteObject mask = root.getSubFirst(IBOTypesDrawX.TYPE_DRWX_06_MASK);
       ByteObject scale = root.getSubFirst(IBOTypesDrawX.TYPE_DRWX_05_SCALE);
       if (root.hasFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_2_DEFINED_FX)) {
@@ -1116,23 +1116,23 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
       LayoutOperator layOp = drc.getLAC().getLayoutOperator();
       int squareSizeW = layOp.codedSizeDecodeW(p, IBOFigGrid.FIG_GRID_OFFSET_05_VSIZE4, w, h);
       int squareSizeH = layOp.codedSizeDecodeH(p, IBOFigGrid.FIG_GRID_OFFSET_04_HSIZE4, w, h);
-      
+
       int lineSizeV = layOp.codedSizeDecodeH(p, IBOFigGrid.FIG_GRID_OFFSET_06_HSEPSIZE4, w, h);
       int lineSizeH = layOp.codedSizeDecodeW(p, IBOFigGrid.FIG_GRID_OFFSET_07_VSEPSIZE4, w, h);
 
       int colorv = p.get4(IBOFigGrid.FIG_GRID_OFFSET_03_VCOLOR4);
       int colorh = p.get4(IBOFigGrid.FIG_GRID_OFFSET_02_HCOLOR4);
       int colorm = p.get4(IBOFigGrid.FIG__OFFSET_06_COLOR4);
-      
+
       g.setColor(colorm);
       g.fillRect(x, y, w, h);
-      
+
       g.setColor(colorh);
-      
+
       int vcount = 0;
       int end = y + h;
       int dy = y;
-    
+
       while (dy < end) {
          if (!(isGrill && vcount == 0)) {
             for (int j = 0; j < lineSizeV; j++) {
@@ -1872,6 +1872,18 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
                case ITechGradient.GRADIENT_TYPE_ELLIPSE_44_WATER_DROP_RIGHT:
                   g.fiArc(x + count, y + h / 2 - count, w - count2, h / 2 + count, start, amplitude);
                   break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_45_OBUS_TOP:
+                  g.fiArc(x, y, w, h - count, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_46_OBUS_BOT:
+                  g.fiArc(x, y + count, w, h - count, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_47_OBUS_LEFT:
+                  g.fiArc(x + count, y, w - count, h, start, amplitude);
+                  break;
+               case ITechGradient.GRADIENT_TYPE_ELLIPSE_48_OBUS_RIGHT:
+                  g.fiArc(x, y, w - count, h, start, amplitude);
+                  break;
                default:
                   break;
             }
@@ -2022,6 +2034,7 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
       ColorIterator ci = drc.getColorFunctionFactory().getColorIterator(color, grad, gradSize);
       while ((count = ci.iteratePixelCount(g)) != -1) {
          int countX2 = count * 2;
+         int countD2 = count / 2;
          switch (type) {
             case ITechGradient.GRADIENT_TYPE_RECT_00_SQUARE:
                g.fillRoundRect(x + count, y + count, w - countX2, h - countX2, arcw, arch);
@@ -2058,40 +2071,249 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
             case ITechGradient.GRADIENT_TYPE_RECT_10_L_RIGHT:
                g.fillRoundRect(x + count, y + count, w - count, h - countX2, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_11_TRIG_TOP_LEFT:
-               g.fillRoundRect(x + count, y + count, w - count, h - countX2, arcw, arch);
+            case ITechGradient.GRADIENT_TYPE_RECT_11_L_THIN_TOP:
+               g.fillRoundRect(x + countD2, y, w - count, h - count, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_12_TRIG_BOT_LEFT:
-               g.fillRoundRect(x + count / 2, y + count, w - count, h - countX2, arcw, arch);
+            case ITechGradient.GRADIENT_TYPE_RECT_12_L_THIN_BOT:
+               g.fillRoundRect(x + countD2, y + count, w - count, h - count, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_13_:
-               g.fillRoundRect(x + count / 2, y + count / 2, w - countX2, h - count, arcw, arch);
+            case ITechGradient.GRADIENT_TYPE_RECT_13_L_THIN_LEFT:
+               g.fillRoundRect(x, y + countD2, w - count, h - count, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_14_:
-               g.fillRoundRect(x + count / 2, y + count / 2, w - count, h - countX2, arcw, arch);
+            case ITechGradient.GRADIENT_TYPE_RECT_14_L_THIN_RIGHT:
+               g.fillRoundRect(x + count, y + countD2, w - count, h - count, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_15_:
-               g.fillRoundRect(x + count / 2, y + count / 2, w - count, h - countX2, arcw, arch);
+            case ITechGradient.GRADIENT_TYPE_RECT_15_PIC_TOP_LEFT:
+               g.fillRoundRect(x + countD2, y + countD2, w - countX2, h - countX2, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_16_:
-               g.fillRoundRect(x + count / 2, y + count / 2, w - count, h - countX2, arcw, arch);
+            case ITechGradient.GRADIENT_TYPE_RECT_16_PIC_TOP_MID:
+               g.fillRoundRect(x + count, y + countD2, w - countX2, h - countX2, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_17_:
-               g.fillRoundRect(x + count / 2, y + count / 2, w - count, h - countX2, arcw, arch);
+            case ITechGradient.GRADIENT_TYPE_RECT_17_PIC_TOP_RIGHT:
+               g.fillRoundRect(x + count + countD2, y + countD2, w - countX2, h - countX2, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_18_:
-               g.fillRoundRect(x + count / 2, y + count / 2, w - count, h - countX2, arcw, arch);
+            case ITechGradient.GRADIENT_TYPE_RECT_18_PIC_MID_RIGHT:
+               g.fillRoundRect(x + count + countD2, y + count, w - countX2, h - countX2, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_19_:
-               g.fillRoundRect(x + count / 2, y + count / 2, w - count, h - countX2, arcw, arch);
+            case ITechGradient.GRADIENT_TYPE_RECT_19_PIC_BOT_RIGHT:
+               g.fillRoundRect(x + countD2 + count, y + countD2 + count, w - countX2, h - countX2, arcw, arch);
                break;
-            case ITechGradient.GRADIENT_TYPE_RECT_20_SQUARE_THIN:
-               g.fillRoundRect(x + count / 2, y + count / 2, w - countX2, h - countX2, arcw, arch);
+            case ITechGradient.GRADIENT_TYPE_RECT_20_PIC_BOT_MID:
+               g.fillRoundRect(x + count, y + count + countD2, w - countX2, h - countX2, arcw, arch);
                break;
+            case ITechGradient.GRADIENT_TYPE_RECT_21_PIC_BOT_LEFT:
+               g.fillRoundRect(x + countD2, y + count + countD2, w - countX2, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_22_PIC_MID_LEFT:
+               g.fillRoundRect(x + countD2, y + count, w - countX2, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_23_WIN_TOP:
+               g.fillRoundRect(x + countD2, y + countD2, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_24_WIN_BOT:
+               g.fillRoundRect(x + countD2, y + count + countD2, w - count, h - countX2, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_25_WIN_LEFT:
+               g.fillRoundRect(x + countD2, y + countD2, w - countX2, h - count, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_26_WIN_RIGHT:
+               g.fillRoundRect(x + count + countD2, y + countD2, w - countX2, h - count, arcw, arch);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_27_:
+               int countm = count % 4;
+               int extra = 8;
+               int countd4 = (count / 4) * extra;
+               int countd2x = (count / 2) * extra;
 
+               int baseC = countd4 * extra;
+               int baseCReduced = countd4 + extra;
+               int areaReducer = countd4 * extra;
+               int areaReducerEx = areaReducer + extra;
+               int countReduced2 = areaReducer + extra + extra;
+
+               if (countm == 0) {
+                  g.fillRoundRect(x + baseC, y + baseC, w - areaReducer, h - areaReducer, arcw, arch);
+               } else if (countm == 1) {
+                  g.fillRoundRect(x + baseC, y + baseC, w - areaReducerEx, h - areaReducer, arcw, arch);
+               } else if (countm == 2) {
+                  g.fillRoundRect(x + baseC, y + baseC, w - areaReducerEx, h - areaReducerEx, arcw, arch);
+               } else {
+                  g.fillRoundRect(x + baseCReduced, y + baseC, w - countReduced2, h - areaReducerEx, arcw, arch);
+               }
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_28_:
+               int x1 = x + w / 2;
+               int y1 = y + h / 2;
+
+               int x2 = x + count;
+               int y2 = y;
+               int x3 = x + count + 1;
+               int y3 = y;
+               g.fillTriangle(x1, y1, x2, y2, x3, y3);
+
+               x2 = x + w;
+               x3 = x + w;
+               y2 = y + h - count;
+               y3 = y + h - count - 1;
+               g.fillTriangle(x1, y1, x2, y2, x3, y3);
+
+               y2 = y + h;
+               y3 = y + h;
+               x2 = x + count;
+               x3 = x + count + 1;
+               g.fillTriangle(x1, y1, x2, y2, x3, y3);
+
+               x2 = x;
+               x3 = x;
+               y2 = y + h - count;
+               y3 = y + h - count - 1;
+               g.fillTriangle(x1, y1, x2, y2, x3, y3);
+
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_29_TRIG_:
+               x1 = x;
+               y1 = y;
+               x2 = x + w - count;
+               y2 = y;
+               x3 = x;
+               y3 = y + h - count;
+               g.fillTriangle(x1, y1, x2, y2, x3, y3);
+               x1 = x + w;
+               y1 = y + h;
+               x2 = x + w - count;
+               y2 = y;
+               x3 = x;
+               y3 = y + h - count;
+               g.fillTriangle(x1, y1, x2, y2, x3, y3);
+               break;
+            case ITechGradient.GRADIENT_TYPE_RECT_30_TRIG:
+            case ITechGradient.GRADIENT_TYPE_RECT_31_:
+            case ITechGradient.GRADIENT_TYPE_RECT_32_:
+            case ITechGradient.GRADIENT_TYPE_RECT_33_:
+            case ITechGradient.GRADIENT_TYPE_RECT_34_:
+            case ITechGradient.GRADIENT_TYPE_RECT_35_:
+            case ITechGradient.GRADIENT_TYPE_RECT_36_:
+            case ITechGradient.GRADIENT_TYPE_RECT_37_:
+            case ITechGradient.GRADIENT_TYPE_RECT_38_:
+               drawRectangleGradientTrig(g, x, y, w, h, arcw, arch, color, gradSize, count, type);
+               break;
             default:
                throw new IllegalArgumentException();
          }
+      }
+
+   }
+
+   public void drawRectangleGradientTrig(GraphicsX g, int x, int y, int w, int h, int arcw, int arch, int color, int gradSize, int count, int type) {
+      int x1 = x;
+      int y1 = y;
+      int x2 = 0;
+      int y2 = y;
+      int x3 = x;
+      int y3 = 0;
+
+      switch (type) {
+         case ITechGradient.GRADIENT_TYPE_RECT_30_TRIG:
+            x1 = x + w;
+            y1 = y;
+            x2 = x + w;
+            y2 = y + h;
+            x3 = x + count;
+            y3 = y + count;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+            x1 = x;
+            y1 = y + h;
+            x2 = x + w;
+            y2 = y + h;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+
+            break;
+         case ITechGradient.GRADIENT_TYPE_RECT_31_:
+            x1 = x + count;
+            y1 = y;
+            x2 = x + w;
+            y2 = y;
+            x3 = x + w - count;
+            y3 = y + h - count;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+            break;
+         case ITechGradient.GRADIENT_TYPE_RECT_32_:
+            x1 = x;
+            y1 = y;
+            x2 = x;
+            y2 = y + h;
+            x3 = x + w - count;
+            y3 = y + h - count;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+            x1 = x;
+            y1 = y;
+            x2 = x + w;
+            y2 = y;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+            break;
+         case ITechGradient.GRADIENT_TYPE_RECT_33_:
+            x1 = x + w;
+            y1 = y;
+
+            x2 = x;
+            y2 = y + count;
+
+            x3 = x + w - count;
+            y3 = y + h;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+            break;
+         case ITechGradient.GRADIENT_TYPE_RECT_34_:
+            x1 = x;
+            y1 = y;
+
+            x2 = x + count;
+            y2 = y + h;
+
+            x3 = x + w;
+            y3 = y + count;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+
+            break;
+         case ITechGradient.GRADIENT_TYPE_RECT_35_:
+            x1 = x + w;
+            y1 = y + h;
+
+            x2 = x + w - count;
+            y2 = y;
+
+            x3 = x;
+            y3 = y + h - count;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+            break;
+         case ITechGradient.GRADIENT_TYPE_RECT_36_:
+            x1 = x;
+            y1 = y + h;
+
+            x2 = x + count;
+            y2 = y;
+
+            x3 = x + w;
+            y3 = y + h - count;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+            break;
+         case ITechGradient.GRADIENT_TYPE_RECT_37_:
+            x1 = x;
+            y1 = y;
+            x2 = x + w - count;
+            y2 = y;
+            x3 = x;
+            y3 = y + h - count;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+            x1 = x + w;
+            y1 = y + h;
+            x2 = x + w;
+            y2 = y + count;
+            x3 = x + count;
+            y3 = y + h;
+            g.fillTriangle(x1, y1, x2, y2, x3, y3);
+            break;
+         default:
+            break;
       }
 
    }
@@ -2180,11 +2402,8 @@ public class FigureOperator extends AbstractDrwOperator implements IBOBox, IBOTb
     */
    public void drawRectangleSingleColor(GraphicsX g, int x, int y, int w, int h, int color) {
       int alpha = (color >> 24) & 0xFF;
-      if (alpha == 0) {
-         //fully transparent so we don't draw anything :)
-         return;
-      } else if (alpha == 255) {
-         //fully opaque so use fast primitive drawing
+      if (alpha == 0 || alpha == 255) {
+         //we use the graphics alpha settings.
          g.setColor(color);
          g.fillRect(x, y, w, h);
       } else {

@@ -5,23 +5,22 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.core.src4.logging.Dctx;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.core.src4.utils.RgbUtils;
-import pasa.cbentley.framework.coredraw.src4.ctx.ToStringStaticCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IFontFactory;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
-import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwOperator;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAux;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxFx;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxFxApplicator;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 
 /**
@@ -29,9 +28,9 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
  * @author Charles Bentley
  *
  */
-public class FxStringOperator extends AbstractDrwOperator implements ITechFigure, IBOTypesDrawX, IBOFxStr, IBOStrAuxFxApplicator {
+public class StringAuxOperator extends AbstractDrwOperator implements ITechFigure, IBOTypesDrawX, IBOStrAuxFx, IBOStrAuxFxApplicator {
 
-   public FxStringOperator(DrwCtx drc) {
+   public StringAuxOperator(DrwCtx drc) {
       super(drc);
    }
 
@@ -119,7 +118,6 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
 
    }
 
-
    /**
     * Draws several lines of text using the ByteObject text effects
     * @param txt
@@ -134,9 +132,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
    /**
     * Returns a new string whose width fits the size and the style
     */
-   public String fitString(String s, int width, ByteObject style) {
-      ByteObject txtFx = style.getSubFirst(TYPE_DRWX_11_TEXT_EFFECTS);
-      IMFont dataFont = getStringFont(txtFx);
+   public String fitString(String s, int width, IMFont dataFont) {
       int size = dataFont.stringWidth("..");
       int strWidth = dataFont.stringWidth(s);
       if (width < strWidth) {
@@ -181,6 +177,13 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
 
       }
       return 0;
+   }
+
+   public int getNumStringFx(ByteObject textFigure) {
+      int subtype = IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_4_FX;
+      int subTypeOffset = IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1;
+      int num = textFigure.getSubSubNum(IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX, subTypeOffset, 1, subtype);
+      return num;
    }
 
    /**
@@ -253,8 +256,17 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       return drc.getFontFactory().getDefaultFont().stringWidth(str);
    }
 
+   public ByteObject getSub(ByteObject bo, int auxType) {
+      int typeMain = IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX;
+      int index = IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1;
+      int size = 1;
+      ByteObject aux = bo.getSubSubFirst(typeMain, auxType, index, size);
+
+      return aux;
+   }
+
    public ByteObject getSubCharFx(ByteObject fx) {
-      return getSubFxEffect(fx, ITechStringDrw.FX_SCOPE_1_CHAR, FX_FLAG_8_CHAR);
+      return getSubFxEffect(fx, ITechStringer.FX_SCOPE_1_CHAR, FX_FLAG_8_CHAR);
    }
 
    /**
@@ -286,7 +298,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
     * @return
     */
    public ByteObject getSubLineFx(ByteObject fx) {
-      return getSubFxEffect(fx, ITechStringDrw.FX_SCOPE_2_LINE, FX_FLAG_7_LINE);
+      return getSubFxEffect(fx, ITechStringer.FX_SCOPE_4_LINE, FX_FLAG_7_LINE);
    }
 
    /**
@@ -301,6 +313,49 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
     * @return
     */
    public ByteObject getTxtEffectDrw(ByteObject fx, int flag, int scope) {
+      return null;
+   }
+
+   private ByteObject mergeFormat(ByteObject root, ByteObject merge) {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   private ByteObject mergeFxStruct(ByteObject root, ByteObject merge) {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   private ByteObject mergeSpecials(ByteObject root, ByteObject merge) {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   public ByteObject mergeStrAux(ByteObject root, ByteObject merge) {
+      final int subTypeRoot = root.get1(IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1);
+      final int subTypeMerge = root.get1(IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1);
+      if (subTypeMerge != subTypeRoot) {
+         throw new IllegalArgumentException("aux sub types not equal merge:" + subTypeMerge + " root:" + subTypeRoot);
+      }
+      switch (subTypeRoot) {
+         case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_4_FX:
+            return mergeTxtEffects(root, merge);
+         case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_1_FORMAT:
+            return mergeFormat(root, merge);
+         case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C:
+            return mergeSpecials(root, merge);
+         case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_3_APPLICATOR:
+            return mergeStringApplicator(root, merge);
+         case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_5_FX_STRUCT:
+            return mergeFxStruct(root, merge);
+         default:
+            //subtype is not known by this module
+            return null;
+      }
+   }
+
+   private ByteObject mergeStringApplicator(ByteObject root, ByteObject merge) {
+      // TODO Auto-generated method stub
       return null;
    }
 
@@ -358,7 +413,7 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
       } else {
          ntx.set1(FX_OFFSET_05_SCOPE_FX1, merge.get1(FX_OFFSET_05_SCOPE_FX1));
       }
-      if (merge.hasFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE)) {
+      if (merge.hasFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE_BG)) {
          ByteObject fig = merge.getSubFirst(TYPE_DRWX_00_FIGURE);
          drc.getFxStringFactory().setFxFigure(ntx, fig);
       }
@@ -367,59 +422,12 @@ public class FxStringOperator extends AbstractDrwOperator implements ITechFigure
          ByteObject mask = merge.getSubFirst(TYPE_DRWX_06_MASK);
          drc.getFxStringFactory().setMaskToFx(ntx, mask);
       }
+      if (merge.hasFlag(FX_OFFSET_04_FLAGZ, FX_FLAGZ_8_FUNCTION)) {
+         ByteObject function = merge.getSubFirst(IBOTypesBOC.TYPE_021_FUNCTION);
+         drc.getFxStringFactory().setFunctionToFx(ntx, function);
+      }
       //merged cannot be incomplete
       ntx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_8_INCOMPLETE, isIncomplete);
       return ntx;
-   }
-
-   public void toString1LineFxApplicator(ByteObject bo, Dctx dc) {
-      dc.rootN(bo, "FxApplicator");
-      dc.appendVarWithNewLine("index", bo.get2(FXA_OFFSET_02_INDEX2));
-      dc.appendVarWithSpace("flags", bo.hasFlag(FXA_OFFSET_01_FLAG, FXA_OFFSET_01_FLAG));
-
-   }
-
-   public void toString1LineTxtEffect(ByteObject bo, Dctx dc) {
-      dc.rootN(bo, "TextFX");
-      dc.appendVarWithSpace("scope", ToStringStaticDrawx.toStringFxScope(bo.get1(FX_OFFSET_05_SCOPE_FX1)));
-
-   }
-
-   public void toStringFxApplicator(ByteObject bo, Dctx dc) {
-      dc.rootN(bo, "FxApplicator");
-      dc.appendVarWithNewLine("index", bo.get2(FXA_OFFSET_02_INDEX2));
-      dc.appendVarWithSpace("flags", bo.hasFlag(FXA_OFFSET_01_FLAG, FXA_OFFSET_01_FLAG));
-
-   }
-
-   public void toStringTxtEffect(ByteObject bo, Dctx dc) {
-      dc.rootN(bo, "TextFX");
-      dc.appendVarWithSpace("scope", ToStringStaticDrawx.toStringFxScope(bo.get1(FX_OFFSET_05_SCOPE_FX1)));
-
-      dc.nl();
-      dc.appendColorWithName(bo.get4(FX_OFFSET_09_COLOR4));
-
-      dc.appendVarWithNewLine("face", bo.get1(FX_OFFSET_06_FACE1));
-      dc.append('[');
-      dc.append(ToStringStaticCoreDraw.debugFontFace(bo.get1(FX_OFFSET_06_FACE1)));
-      dc.append(']');
-      dc.appendVarWithNewLine("style", bo.get1(FX_OFFSET_07_STYLE1));
-      dc.append('[');
-      dc.append(ToStringStaticCoreDraw.debugFontStyle(bo.get1(FX_OFFSET_07_STYLE1)));
-      dc.append(']');
-      dc.appendVarWithNewLine("size", bo.get1(FX_OFFSET_08_SIZE1));
-      dc.append('[');
-      dc.append(ToStringStaticCoreDraw.debugFontSize(bo.get1(FX_OFFSET_08_SIZE1)));
-      dc.append(']');
-      dc.appendVarWithSpace("anchor", bo.get1(FX_OFFSET_11_ANCHOR1));
-
-      dc.appendVarWithNewLine("Incomplete", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_8_INCOMPLETE));
-      dc.nl();
-      dc.appendVarWithNewLine("FontFace", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_1_UNDEFINED_FONT_FACE));
-      dc.appendVarWithNewLine("FontStyle", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_2_UNDEFINED_FONT_STYLE));
-      dc.appendVarWithNewLine("FontSize", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_3_UNDEFINED_FONT_SIZE));
-      dc.appendVarWithNewLine("Color", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_4_UNDEFINED_COLOR));
-      dc.appendVarWithNewLine("Scope", bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_5_UNDEFINED_SCOPE));
-
    }
 }

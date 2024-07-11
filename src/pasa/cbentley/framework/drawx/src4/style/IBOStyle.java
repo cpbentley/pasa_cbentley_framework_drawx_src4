@@ -287,6 +287,12 @@ public interface IBOStyle extends IByteObject {
     * <li>01 = at padding
     * <li>10 = at content
     * <li>11 = at margin
+    * 
+    * Also related to
+    * <li>{@link IBOStyle#STYLE_ANC_0_BORDER}
+    * <li>{@link IBOStyle#STYLE_ANC_1_MARGIN}
+    * <li>{@link IBOStyle#STYLE_ANC_2_CONTENT}
+    * <li>{@link IBOStyle#STYLE_ANC_3_PADDING}
     */
    public static final int STYLE_OFFSET_5_BG_POINTS1        = A_OBJECT_BASIC_SIZE + 4;
 

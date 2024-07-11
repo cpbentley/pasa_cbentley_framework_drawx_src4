@@ -124,7 +124,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    public ByteObject getFlagOrderedBO(ByteObject bo, int offset, int flag) {
       int type = bo.getType();
       switch (type) {
-         case TYPE_DRWX_12_STYLE:
+         case TYPE_DRWX_08_STYLE:
             return drc.getStyleOperator().getStyleDrw(bo, offset, flag);
       }
       return null;
@@ -163,12 +163,12 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
             return drc.getBoxFactory().mergeBox(root, merge);
          case TYPE_DRWX_06_MASK:
             return drc.getMaskOperator().mergeMask(root, merge);
+         case TYPE_DRWX_07_STRING_AUX:
+            return drc.getStrAuxOperator().mergeStrAux(root, merge);
          case TYPE_DRWX_10_ANCHOR:
             return drc.getAnchorFactory().mergeAnchor(root, merge);
-         case TYPE_DRWX_12_STYLE:
+         case TYPE_DRWX_08_STYLE:
             return drc.getStyleOperator().mergeStyle(root, merge);
-         case TYPE_DRWX_11_TEXT_EFFECTS:
-            return drc.getFxStringOperator().mergeTxtEffects(root, merge);
       }
       return null;
    }
@@ -188,7 +188,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
             int ftype = def.get2(ITechFunction.FUN_OFFSET_09_EXTENSION_TYPE2);
             switch (ftype) {
                case ITechFunctionDraw.TYPEX_FUN_400_SHADER:
-                  return new ShaderFunction(drc,def);
+                  return new ShaderFunction(drc, def);
                default:
                   return null;
             }
@@ -273,14 +273,8 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IBOTypesDrawX.TYPE_DRWX_10_ANCHOR:
             drc.getAnchorFactory().toStringAnchor(bo, sb);
             break;
-         case IBOTypesDrawX.TYPE_DRWX_12_STYLE:
+         case IBOTypesDrawX.TYPE_DRWX_08_STYLE:
             drc.getStyleOperator().toStringStyle(bo, sb);
-            break;
-         case TYPE_DRWX_11_TEXT_EFFECTS:
-            drc.getFxStringOperator().toStringTxtEffect(bo, sb);
-            break;
-         case TYPE_DRWX_13_FX_APPLICATOR:
-            drc.getFxStringOperator().toStringFxApplicator(bo, sb);
             break;
          default:
             return false;
@@ -317,14 +311,8 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IBOTypesDrawX.TYPE_DRWX_10_ANCHOR:
             drc.getAnchorFactory().toStringAnchor(bo, dc);
             break;
-         case TYPE_DRWX_12_STYLE:
+         case TYPE_DRWX_08_STYLE:
             drc.getStyleOperator().toString1LineStyle(bo, dc);
-            break;
-         case TYPE_DRWX_11_TEXT_EFFECTS:
-            drc.getFxStringOperator().toString1LineTxtEffect(bo, dc);
-            break;
-         case TYPE_DRWX_13_FX_APPLICATOR:
-            drc.getFxStringOperator().toString1LineFxApplicator(bo, dc);
             break;
          default:
             return false;
@@ -342,31 +330,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    }
 
    public String toStringType(int type) {
-      switch (type) {
-         case TYPE_DRWX_00_FIGURE:
-            return "Figure";
-         case TYPE_DRWX_01_BOX:
-            return "Box";
-         case TYPE_DRWX_02_ARTIFACT:
-            return "Artifact";
-         case TYPE_DRWX_03_MOSAIC:
-            return "Mosaic";
-         case IBOTypesBOC.TYPE_038_GRADIENT:
-            return "Gradient";
-         case IBOTypesBOC.TYPE_041_COLOR_RANDOM:
-            return "ColorRandomizer";
-         case IBOTypesBOC.TYPE_039_BLENDER:
-            return "Blender";
-         case TYPE_DRWX_09_PIX_STAR:
-            return "PixStar";
-         case TYPE_DRWX_10_ANCHOR:
-            return "Anchor";
-         case TYPE_DRWX_11_TEXT_EFFECTS:
-            return "TextEffects";
-         case TYPE_DRWX_12_STYLE:
-            return "Style";
-      }
-      return null;
+      return ToStringStaticDrawx.toStringDrwType(type);
    }
    //#enddebug
 }

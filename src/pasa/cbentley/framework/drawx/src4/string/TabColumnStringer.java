@@ -23,10 +23,18 @@ public class TabColumnStringer  extends ObjectDrw {
       this.numCharacters = numCharacters;
    }
 
+   /**
+    * Where does the column starts in the line
+    * @return
+    */
    public int getOffset() {
       return offset;
    }
 
+   /**
+    * 
+    * @param offset
+    */
    public void setOffset(int offset) {
       this.offset = offset;
    }

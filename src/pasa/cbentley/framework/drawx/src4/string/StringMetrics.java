@@ -11,7 +11,6 @@ import pasa.cbentley.core.src4.utils.IntUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IConfigDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
@@ -72,20 +71,16 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
     * <br>
     * Special cases when some characters have zero width size like new lines ?
     */
-   int[]                  charWidths;
+   //int[]                  charWidths;
 
    /**
     * Char x positions relative to first char at 0, computed during breaking
     * <br>
-    * Those values are used for caret positioning. All {@link StringFx} scoped to {@link ITechStringDrw#FX_SCOPE_1_CHAR}  artifacts use it.
+    * Those values are used for caret positioning. All {@link StringFx} scoped to {@link ITechStringer#FX_SCOPE_1_CHAR}  artifacts use it.
     * <br>
-    * Values depends on {@link StringDraw} anchoring {@link Anchor}
+    * Values depends on {@link StringerDraw} anchoring {@link Anchor}
     * <br>
     * For basic {@link Stringer} type, those values are computed on demand.
-    * <br>
-    * For {@link ITechStringDrw#BREAK_1_WIDTH}, values are computed during the breaking process.
-    * <br>
-    * <br>
     * 
     */
    int[]                  charXs    = new int[10];
@@ -121,18 +116,12 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
 
    /**
     * Height of the {@link Stringer}
-    * <br>
-    * <br>
     * Used by {@link StringMetrics#getPrefHeight()}
     */
    private int            ph        = -1;
 
    /**
-    * Width of the {@link Stringer}
-    * <li>When {@link ITechStringDrw#BREAK_1_WIDTH}, this is the value given during the break/format process
-    * <li>otherwise, it will be the computed length
-    * <br>
-    * <br>
+    * Width of the {@link Stringer}.
     * Used by {@link StringMetrics#getPrefWidth()}
     */
    private int            pw        = -1;
@@ -158,33 +147,6 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
       C_TEXTBREAKS = breaks;
    }
 
-   /**
-    * Adds a char in a horizontally displayed String.
-    * <br>
-    * <br>
-    * Update the pw. Redo a break if necessary 
-    * <br>
-    * TODO Flag that breaks are invalid!
-    * <br>
-    * @param indexRelative
-    * @param c
-    */
-   public void addChar(int indexRelative, char c) {
-      charWidths = drc.getMem().ensureCapacity(charWidths, stringer.lengthChars + 1);
-      int cw = getCharWidthCompute(c, indexRelative);
-      for (int i = stringer.lengthChars - 1; i >= indexRelative; i--) {
-         charWidths[i + 1] = charWidths[i];
-      }
-      charWidths[indexRelative] = cw;
-
-      //now update the breaks. update char on a line. if it goes too far, update following lines
-      if (stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
-         for (int i = indexRelative + 1; i < charXs.length; i++) {
-            charXs[i] += cw;
-         }
-      }
-      pw += cw;
-   }
 
    private void checkStateLine() {
       if (lines == null) {
@@ -217,7 +179,7 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
       //align with respect to local
       //TODO anchor locale and opposite 
 
-      int day = AnchorUtils.getYAlign(stringer.anchor, 0, stringer.areaH, stringer.stringMetrics.getPrefHeight());
+      int day = AnchorUtils.getYAlign(stringer.anchor, 0, stringer.areaH, getPrefHeight());
       int dax = AnchorUtils.getXAlign(stringer.anchor, 0, stringer.areaW, getPrefWidth());
       //single line
       for (int i = 0; i < stringer.lengthChars; i++) {
@@ -225,26 +187,7 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
          charYs[i] = day + dy;
          dx = getFXDxOffset(0, dx, i);
       }
-      stringer.setState(ITechStringer.STATE_06_CHAR_POSITIONS, true);
-   }
-
-   /**
-    * When {@link StringFx} have index based Fx, a full break must be done again.
-    * <br>
-    * <br>
-    * @param indexRelative
-    */
-   public void deleteCharAt(int indexRelative) {
-      int cw = charWidths[indexRelative];
-      pw -= cw;
-      boolean doPositions = stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS);
-      for (int i = indexRelative; i < stringer.lengthChars - 1; i++) {
-         charWidths[i] = charWidths[i + 1];
-         if (doPositions) {
-            charYs[i] = charYs[i + 1];
-            charXs[i] -= cw;
-         }
-      }
+      stringer.setFlagState(ITechStringer.STATE_06_CHAR_POSITIONS, true);
    }
 
    public int getCharHeight(int indexRelative) {
@@ -266,23 +209,21 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
     * @return
     */
    public int getCharWidth(int indexRelative) {
-      if (stringer.hasState(ITechStringer.STATE_18_FULL_MONOSPACE)) {
-         return charWidthMono;
-      } else {
-         int cw = 0;
-         //#debug
-         toDLog().pFlow("indexRelative=" + indexRelative + " charWidths.length=" + charWidths.length + " chars.length=" + stringer.chars.length, this, StringMetrics.class, "getCharWidth", LVL_05_FINE, true);
-         //System.out.println("#StringMetrics getCharWidth relativeIndex=" + indexRelative + " charWidths.length=" + charWidths.length + " for " + stringer.offset + ":" + stringer.len);
-         if (stringer.hasState(ITechStringer.STATE_02_CHAR_WIDTHS)) {
-            cw = charWidths[indexRelative];
-         } else {
-            //compute it
-            char c = stringer.chars[stringer.offsetChars + indexRelative];
-            cw = getCharWidthCompute(c, indexRelative);
-            charWidths[indexRelative] = cw;
-         }
-         return cw;
+      //we delegate this job to the line
+      LineStringer line = this.getLineFromCharIndex(indexRelative);
+      int offsetLine = line.getOffsetLineFromStringerOffset(indexRelative);
+      
+      int cw = line.getCharWidth(offsetLine);
+      
+      return cw;
+   }
+   
+   public boolean isAllCharsSameWidth() {
+      if(stringer.getSpaceTrimManager() == ITechStringer.SPACETRIM_2_JUSTIFIED) {
+         return false;
       }
+      //add here any other options that destroy the invariant of same widths for all non zero characters.
+      return stringer.hasFlagState(ITechStringer.STATE_18_FULL_MONOSPACE);
    }
 
    /**
@@ -297,7 +238,7 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
     * <p>
     * Line Based {@link StringFx}:<br>
     * In case of width based string breaking, line based styles cannot be assigned until text is broken
-    * The scope {@link ITechStringDrw#FX_SCOPE_2_LINE} is used
+    * The scope {@link ITechStringer#FX_SCOPE_4_LINE} is used
     * </p>
     * 
     * 
@@ -332,17 +273,6 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
    }
 
    /**
-    * Lazy create array for individual char widths
-    * @return
-    */
-   public int[] getCharWidths() {
-      if (charWidths == null) {
-         charWidths = new int[stringer.lengthChars];
-      }
-      return charWidths;
-   }
-
-   /**
     * X offset for the start of the character at index relative to 0.
     * <br>
     * i.e. not counting the offset in the char array
@@ -352,34 +282,22 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
     * @return integer relative to {@link Stringer#areaX}
     */
    public int getCharX(int indexRelative) {
-      if (!stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
-         //ask to compute all
-         computeCharPositions();
-      }
-      return charXs[indexRelative];
+      
+      LineStringer line = getLineFromCharIndex(indexRelative);
+      int offsetLine  = line.getOffsetLineFromStringerOffset(indexRelative);
+      int x = line.getCharX(offsetLine);
+      return x;
    }
 
-   /**
-    * Array of  integer values relative to {@link Stringer#areaX}.
-    * <br>
-    * <br>
-    * Values are computed when flag {@link ITechStringer#STATE_06_CHAR_POSITIONS} is not set.
-    * @return
-    */
-   public int[] getCharXs() {
-      if (!stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
-         //ask to compute all
-         computeCharPositions();
-      }
-      return charXs;
-   }
+
 
    public int getCharY(int indexRelative) {
-      return charYs[indexRelative];
+      LineStringer line = getLineFromCharIndex(indexRelative);
+      return line.getY();
    }
 
    public int[] getCharYs() {
-      if (!stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
+      if (!stringer.hasFlagState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
          //ask to compute all
          computeCharPositions();
       }
@@ -387,10 +305,6 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
    }
 
    /**
-    * TODO {@link IBOFxStr#FXLINE_OFFSET_02_CHAR_X_OFFSET1} function to modify x coordinates.
-    * <br>
-    * <br>
-    * 
     * @param lineCount
     * @param dx
     * @param startIndex
@@ -467,6 +381,18 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
          }
       }
       return -1;
+   }
+
+   public LineStringer getLineFromCharIndex(int indexRelative) {
+      //#debug
+      checkStateLine();
+      for (int i = 0; i < lines.length; i++) {
+         if (lines[i].isInside(indexRelative)) {
+            lines[i].setLineID(i);
+            return lines[i];
+         }
+      }
+      return null;
    }
 
    public String getLineString(int lineIndex) {
@@ -590,30 +516,12 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
     * @return
     */
    public int getWidthConsumed(int index) {
-      int cx = getCharX(index);
-      return cx + charWidths[index];
-   }
-
-   /**
-    * 
-    * Returns the width consumed by those characters.
-    * <br>
-    * <br>
-    * Method {@link LineStringer#getCharsWidthConsumed(int, int)} should be used
-    * @param indexRelative 0 based index.
-    * @param len
-    * @return
-    */
-   int getWidthConsumed(int indexRelative, int len) {
-      if (charWidths == null || stringer.hasState(STATE_18_FULL_MONOSPACE)) {
-         return len * charWidthMono;
-      } else {
-         int sum = 0;
-         for (int i = 0; i < len; i++) {
-            sum += charWidths[indexRelative + i];
-         }
-         return sum;
+      LineStringer line = getLineFromCharIndex(index);
+      if(line == null) {
+         throw new IllegalArgumentException();
       }
+      int lineIndex = line.getOffsetLineFromStringerOffset(index);
+      return line.getCharWidthConsumedUntil(lineIndex);
    }
 
    /**
@@ -631,8 +539,8 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
    void meterString() {
 
       //check style
-      if (!stringer.hasState(STATE_19_FX_SETUP)) {
-         throw new IllegalStateException();
+      if (!stringer.hasFlagState(STATE_19_FX_SETUP)) {
+         throw new IllegalStateException("FxSetup was not called");
       }
 
       if (stringer.chars == null) {
@@ -648,15 +556,16 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
       for (int i = 0; i < lines.length; i++) {
          lines[i].setIndex(i);
       }
-      lineBiggestH = lineAlgo.getBiggestLineH();
-      lineBiggestW = lineAlgo.getBiggestLineW();
+      TextStats stats = lineAlgo.getStats();
+      lineBiggestH = stats.getBiggestLineH();
+      lineBiggestW = stats.getBiggestLineW();
       pw = lineBiggestW;
-      ph = lineAlgo.getLinesTotalH();
-      charWidthMono = lineAlgo.getSameCharWidthFactValue();
-      charBiggestW = lineAlgo.getCharBiggestWidth();
-      
+      ph = stats.getLinesTotalH();
+      charWidthMono = stats.getSameCharWidthFactValue();
+      charBiggestW = stats.getCharBiggestWidth();
+
       //align y coordinates
-      if(stringer.anchor != null) {
+      if (stringer.anchor != null) {
          int dy = AnchorUtils.getYAlign(stringer.anchor, 0, stringer.areaH, ph);
          for (int i = 0; i < lines.length; i++) {
             LineStringer line = lines[i];
@@ -669,36 +578,16 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
    public void reset() {
       pw = -1;
       ph = -1;
-      charWidths = drc.getMem().ensureCapacity(charWidths, stringer.lengthChars);
       charXs = drc.getMem().ensureCapacity(charXs, stringer.lengthChars);
       charYs = drc.getMem().ensureCapacity(charYs, stringer.lengthChars);
    }
 
-   /**
-    * 
-    * @param index
-    * @param c
-    */
-   public void setCharAt(int index, char c) {
-      int oldw = charWidths[index];
-      int cw = getCharWidthCompute(c, index);
-      charWidths[index] = cw;
-      if (oldw != cw) {
-         int diff = cw - oldw;
-         pw += diff;
-         if (stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS)) {
-            for (int i = index + 1; i < charXs.length; i++) {
-               charXs[i] += diff;
-            }
-         }
-      }
-   }
+
 
    //#mdebug
    public void toString(Dctx dc) {
       dc.root(this, StringMetrics.class, 1161);
       dc.append(" pw=" + pw + " ph=" + ph);
-      dc.appendVarWithNewLine("charWidths", charWidths, ",", true);
       dc.appendVarWithNewLine("charXs", charXs, ",", true);
       dc.appendVarWithNewLine("charYs", charYs, ",", true);
 

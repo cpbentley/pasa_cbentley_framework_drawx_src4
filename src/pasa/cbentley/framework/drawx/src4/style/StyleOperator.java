@@ -26,19 +26,83 @@ import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.engine.LayoutableRect;
-import pasa.cbentley.layouter.src4.engine.TblrFactory;
 import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
-import pasa.cbentley.layouter.src4.interfaces.ISizeCtx;
 import pasa.cbentley.layouter.src4.tech.IBOTblr;
 import pasa.cbentley.layouter.src4.tech.ITechLayout;
 
-public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITechFigure, IBOTypesDrawX, IBOTblr {
+public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITechFigure, IBOTypesDrawX, IBOTblr, ITechStyleCache {
 
    protected final DrwCtx dc;
 
    public StyleOperator(DrwCtx dc) {
       super(dc.getBOC());
       this.dc = dc;
+   }
+
+   /**
+    * Optimize often used style areas.
+    * @param x
+    * @param y
+    * @param w
+    * @param h
+    * @param style
+    * @return
+    * 0-3 = border (see {@link ByteObject#STYLE_ANC_0_BORDER}
+    * 4-7 = border (see {@link ByteObject#STYLE_ANC_1_MARGIN}
+    * 8-11 = border (see {@link ByteObject#STYLE_ANC_2_CONTENT}
+    * 12-15 = border (see {@link ByteObject#STYLE_ANC_3_PADDING}
+    * 
+    */
+   public int[] computeNewStyleAreas(int x, int y, int w, int h, ByteObject style) {
+      LayoutableRect r = new LayoutableRect(dc.getLAC(), w, h);
+      r.set(x, y, w, h);
+      int[] areas = computeNewStyleAreas(x, y, w, h, style, r);
+      return areas;
+   }
+
+   public int[] computeNewStyleAreas(int x, int y, int w, int h, ByteObject style, ILayoutable c) {
+      int[] areas = new int[16];
+      areas[4] = x;
+      areas[5] = y;
+      areas[6] = w;
+      areas[7] = h;
+      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_5_MARGIN)) {
+         int ml = getStyleMargin(style, C.POS_2_LEFT, c);
+         int mt = getStyleMargin(style, C.POS_0_TOP, c);
+         x += ml;
+         y += mt;
+         w = w - ml - getStyleMargin(style, C.POS_3_RIGHT, c);
+         h = h - mt - getStyleMargin(style, C.POS_1_BOT, c);
+      }
+      areas[0] = x;
+      areas[1] = y;
+      areas[2] = w;
+      areas[3] = h;
+      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_4_BORDER)) {
+         int ml = getStyleBorder(style, C.POS_2_LEFT, c);
+         int mt = getStyleBorder(style, C.POS_0_TOP, c);
+         x += ml;
+         y += mt;
+         w = w - ml - getStyleBorder(style, C.POS_3_RIGHT, c);
+         h = h - mt - getStyleBorder(style, C.POS_1_BOT, c);
+      }
+      areas[12] = x;
+      areas[13] = y;
+      areas[14] = w;
+      areas[15] = h;
+      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_3_PADDING)) {
+         int ml = getStylePadding(style, C.POS_2_LEFT, c);
+         int mt = getStylePadding(style, C.POS_0_TOP, c);
+         x += ml;
+         y += mt;
+         w = w - ml - getStylePadding(style, C.POS_3_RIGHT, c);
+         h = h - mt - getStylePadding(style, C.POS_1_BOT, c);
+      }
+      areas[8] = x;
+      areas[9] = y;
+      areas[10] = w;
+      areas[11] = h;
+      return areas;
    }
 
    public void debugFigFlag(Dctx sb, ByteObject p, int offset, int flag, String str) {
@@ -60,42 +124,6 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
          sb.append(")");
 
       }
-   }
-
-   /**
-    * A Drawable with a margin,border or padding and no bg layers is not opaque.
-    * <br>
-    * If Drawable is modified structurally
-    * <br>
-    * Performance wise, it is important to know when caching if an opaque bg layer is drawn over the whole area.
-    * <br>
-    * This color becomes the bgcolor of the {@link IDrawable}.
-    * @param d
-    * @return
-    */
-   public boolean isOpaqueBgLayersStyle(ByteObject style, int[] areas) {
-      boolean bg1 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_1_BG, areas, 1);
-      if (bg1) {
-         return true;
-      }
-      boolean bg2 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_2_BG, areas, 3);
-      if (bg2) {
-         return true;
-      }
-      boolean bg3 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_3_BG, areas, 5);
-      if (bg3) {
-         return true;
-      }
-      boolean bg4 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_4_BG, areas, 7);
-      if (bg4) {
-         return true;
-      }
-      return false;
-   }
-
-   public boolean isOpaqueBgLayersStyle(ByteObject style) {
-      int[] areas = computeNewStyleAreas(0, 0, 10, 10, style);
-      return isOpaqueBgLayersStyle(style, areas);
    }
 
    /**
@@ -137,6 +165,13 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       drawStyleFigure(style, g, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_4_BG, areas, 7);
    }
 
+   public void drawStyleBg(ByteObject style, GraphicsX g, int[] areas, int x, int y) {
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_1_BG, areas, 1);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_2_BG, areas, 3);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_3_BG, areas, 5);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_4_BG, areas, 7);
+   }
+
    public void drawStyleFg(ByteObject style, GraphicsX g, int x, int y, int w, int h, int[] areas) {
       drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_5_FG, areas, 1);
       drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_6_FG, areas, 3);
@@ -145,6 +180,11 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    public void drawStyleFg(ByteObject style, GraphicsX g, int[] areas) {
       drawStyleFigure(style, g, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_5_FG, areas, 1);
       drawStyleFigure(style, g, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_6_FG, areas, 3);
+   }
+
+   public void drawStyleFg(ByteObject style, GraphicsX g, int[] areas, int x, int y) {
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_5_FG, areas, 1);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_6_FG, areas, 3);
    }
 
    /**
@@ -180,6 +220,42 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       }
    }
 
+   public void drawStyleFigure(ByteObject style, GraphicsX g, int x, int y, int pointer, int flag, int[] areas, int anc) {
+      ByteObject bg = getStyleDrw(style, pointer, flag);
+      if (bg != null) {
+         int val = style.get1(STYLE_OFFSET_5_BG_POINTS1);
+         if (flag > 8) {
+            //we have a figure for FG layers
+            val = style.get1(STYLE_OFFSET_6_FG_POINTS1);
+         }
+         int p = (BitUtils.getBit(anc + 1, val) << 1) + BitUtils.getBit(anc, val);
+         //System.out.print(debugStyleAnchor(p));
+         p = p * 4;
+         int dx = x + areas[p];
+         int dy = y + areas[p + 1];
+         int dw = areas[p + 2];
+         int dh = areas[p + 3];
+         FigureOperator figureOperator = dc.getFigureOperator();
+         figureOperator.paintFigure(g, dx, dy, dw, dh, bg);
+      }
+   }
+
+   /**
+    * 
+    * @param style the style object from which to extract the figure
+    * @param g
+    * @param pointer
+    * @param flag
+    * <li> {@link IBOStyle#STYLE_FLAGB_1_BG}
+    * <li> {@link IBOStyle#STYLE_FLAGB_2_BG}
+    * <li> {@link IBOStyle#STYLE_FLAGB_3_BG}
+    * <li> {@link IBOStyle#STYLE_FLAGB_4_BG}
+    * <li> {@link IBOStyle#STYLE_FLAGB_5_FG}
+    * <li> {@link IBOStyle#STYLE_FLAGB_6_FG}
+    * 
+    * @param areas
+    * @param areaOffset position of bit flag in {@link IBOStyle#STYLE_OFFSET_5_BG_POINTS1}
+    */
    public void drawStyleFigure(ByteObject style, GraphicsX g, int pointer, int flag, int[] areas, int areaOffset) {
       ByteObject bg = getStyleDrw(style, pointer, flag);
       if (bg != null) {
@@ -262,6 +338,14 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       return breakText.length * f.getHeight();
    }
 
+   private int getPixelSizeTBLRCoded(int codedsizer, int pos, ILayoutable c) {
+      int ctxType = ITechLayout.CTX_1_WIDTH;
+      if (pos == C.POS_0_TOP || pos == C.POS_1_BOT) {
+         ctxType = ITechLayout.CTX_2_HEIGHT;
+      }
+      return dc.getLAC().getLayoutOperator().codedSizeDecode(codedsizer, c, ctxType);
+   }
+
    /**
     * Gets a Style TBLR pixel size.
     * <br>
@@ -284,77 +368,6 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       return layoutOperator.getPixelSize(sizer, c, ctxType);
    }
 
-   private int getPixelSizeTBLRCoded(int codedsizer, int pos, ILayoutable c) {
-      int ctxType = ITechLayout.CTX_1_WIDTH;
-      if (pos == C.POS_0_TOP || pos == C.POS_1_BOT) {
-         ctxType = ITechLayout.CTX_2_HEIGHT;
-      }
-      return dc.getLAC().getLayoutOperator().codedSizeDecode(codedsizer, c, ctxType);
-   }
-
-   /**
-    * Optimize often used style areas.
-    * Compute x,y,w,h values for the 4 style structures
-    * <br>
-    * Those values will be used by style layers to draw themselves.
-    * <br>
-    * @param x
-    * @param y
-    * @param w
-    * @param h
-    * @param style
-    * @return
-    * 0-3 = at margin rectangle
-    * 4-7 = at border rectangle
-    * 8-11 = at padding rectangle
-    * 12-15 = at content rectangle
-    * 
-    */
-   public int[] getStyleAreas(int x, int y, int w, int h, ByteObject style, ILayoutable c) {
-      int[] areas = new int[16];
-      areas[4] = x;
-      areas[5] = y;
-      areas[6] = w;
-      areas[7] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_5_MARGIN)) {
-         int ml = getStyleMargin(style, C.POS_2_LEFT, c);
-         int mt = getStyleMargin(style, C.POS_0_TOP, c);
-         x += ml;
-         y += mt;
-         w = w - ml - getStyleMargin(style, C.POS_3_RIGHT, c);
-         h = h - mt - getStyleMargin(style, C.POS_1_BOT, c);
-      }
-      areas[0] = x;
-      areas[1] = y;
-      areas[2] = w;
-      areas[3] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_4_BORDER)) {
-         int ml = getStyleBorder(style, C.POS_2_LEFT, c);
-         int mt = getStyleBorder(style, C.POS_0_TOP, c);
-         x += ml;
-         y += mt;
-         w = w - ml - getStyleBorder(style, C.POS_3_RIGHT, c);
-         h = h - mt - getStyleBorder(style, C.POS_1_BOT, c);
-      }
-      areas[12] = x;
-      areas[13] = y;
-      areas[14] = w;
-      areas[15] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_3_PADDING)) {
-         int ml = getStylePadding(style, C.POS_2_LEFT, c);
-         int mt = getStylePadding(style, C.POS_0_TOP, c);
-         x += ml;
-         y += mt;
-         w = w - ml - getStylePadding(style, C.POS_3_RIGHT, c);
-         h = h - mt - getStylePadding(style, C.POS_1_BOT, c);
-      }
-      areas[8] = x;
-      areas[9] = y;
-      areas[10] = w;
-      areas[11] = h;
-      return areas;
-   }
-
    /**
     * String Width
     * @param style
@@ -371,68 +384,481 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    /**
-    * Optimize often used style areas.
-    * @param x
-    * @param y
-    * @param w
-    * @param h
+    * @param x coordinate of the content area
+    * @param y coordinate of the content area
+    * @param w  width of the content area
+    * @param h height of the content area
     * @param style
+    * @param c
     * @return
-    * 0-3 = border (see {@link ByteObject#STYLE_ANC_0_BORDER}
-    * 4-7 = border (see {@link ByteObject#STYLE_ANC_1_MARGIN}
-    * 8-11 = border (see {@link ByteObject#STYLE_ANC_2_CONTENT}
-    * 12-15 = border (see {@link ByteObject#STYLE_ANC_3_PADDING}
-    * 
     */
-   public int[] computeNewStyleAreas(int x, int y, int w, int h, ByteObject style) {
-      LayoutableRect r = new LayoutableRect(dc.getLAC(), w, h);
-      r.set(x, y, w, h);
-      int[] areas = computeNewStyleAreas(x, y, w, h, style, r);
+   public int[] getStyleAreas(int x, int y, int w, int h, ByteObject style, ILayoutable c, StyleCache cache, int typeRelativeW, int typeRelativeH, int typeRelativeX, int typeRelativeY) {
+      LayoutOperator layOp = dc.getLayoutOperator();
+      int mTop = 0;
+      int mBot = 0;
+      int mLeft = 0;
+      int mRite = 0;
+
+      int bTop = 0;
+      int bBot = 0;
+      int bLeft = 0;
+      int bRite = 0;
+
+      int pTop = 0;
+      int pBot = 0;
+      int pLeft = 0;
+      int pRite = 0;
+      ByteObject tblr = null;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+         pTop = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHPaddingTop();
+         pBot = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHPaddingBot();
+         pLeft = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWPaddingLeft();
+         pRite = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWPaddingRite();
+      }
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+         bTop = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHBorderTop();
+         bBot = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHBorderBot();
+         bLeft = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWBorderLeft();
+         bRite = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWBorderRite();
+      }
+
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+         mTop = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHMarginBot();
+         mBot = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHMarginBot();
+         mLeft = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWMarginLeft();
+         mRite = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWMarginRite();
+      }
+      //default caawe of
+      int marginX = 0;
+      int borderX = 0;
+      int paddingX = 0;
+      int contentX = 0;
+      if (typeRelativeX == RELATIVE_TYPE_0_MARGIN) {
+         marginX = x;
+         borderX = x + mLeft;
+         paddingX = x + mLeft + bLeft;
+         contentX = x + mLeft + bLeft + pLeft;
+      } else if (typeRelativeX == RELATIVE_TYPE_1_BORDER) {
+         marginX = x - mLeft;
+         borderX = x;
+         paddingX = x + bLeft;
+         contentX = x + bLeft + pLeft;
+      } else if (typeRelativeX == RELATIVE_TYPE_2_PADDING) {
+         marginX = x - bLeft - mLeft;
+         borderX = x - bLeft;
+         paddingX = x;
+         contentX = x + pLeft;
+      } else if (typeRelativeX == RELATIVE_TYPE_3_CONTENT) {
+         marginX = x - pLeft - bLeft - mLeft;
+         borderX = x - pLeft - bLeft;
+         paddingX = x - pLeft;
+         contentX = x;
+      }
+
+      int marginY = 0;
+      int borderY = 0;
+      int paddingY = 0;
+      int contentY = 0;
+      if (typeRelativeY == RELATIVE_TYPE_0_MARGIN) {
+         marginY = y;
+         borderY = y + mTop;
+         paddingY = y + mTop + bTop;
+         contentY = y + mTop + bTop + pTop;
+      } else if (typeRelativeY == RELATIVE_TYPE_1_BORDER) {
+         marginY = y - mTop;
+         borderY = y;
+         paddingY = y + bTop;
+         contentY = y + bTop + pTop;
+      } else if (typeRelativeY == RELATIVE_TYPE_2_PADDING) {
+         marginY = y - bTop - mTop;
+         borderY = y - bTop;
+         paddingY = y;
+         contentY = y + pTop;
+      } else if (typeRelativeY == RELATIVE_TYPE_3_CONTENT) {
+         marginY = y - pTop - bTop - mTop;
+         borderY = y - pTop - bTop;
+         paddingY = y - pTop;
+         contentY = y;
+      }
+
+      int marginW = 0;
+      int borderW = 0;
+      int paddingW = 0;
+      int contentW = 0;
+      if (typeRelativeW == RELATIVE_TYPE_0_MARGIN) {
+         marginW = w;
+         borderW = w - mLeft - mRite;
+         paddingW = w - mLeft - bLeft - mRite - bRite;
+         contentW = w - mLeft - bLeft - pLeft - mRite - bRite - pRite;
+      } else if (typeRelativeW == RELATIVE_TYPE_1_BORDER) {
+         marginW = w + mLeft + mRite;
+         borderW = w;
+         paddingW = w - bLeft - bRite;
+         contentW = w - bLeft - pLeft - bRite - pRite;
+      } else if (typeRelativeW == RELATIVE_TYPE_2_PADDING) {
+         marginW = w + bLeft + mLeft + bRite + mRite;
+         borderW = w + bLeft + bRite;
+         paddingW = w;
+         contentW = w - pLeft - pRite;
+      } else if (typeRelativeW == RELATIVE_TYPE_3_CONTENT) {
+         marginW = w + pLeft + bLeft + mLeft + pRite + bRite + mRite;
+         borderW = w + pLeft + bLeft + pRite + bRite;
+         paddingW = w + pLeft + pRite;
+         contentW = w;
+      }
+
+      int marginH = 0;
+      int borderH = 0;
+      int paddingH = 0;
+      int contentH = 0;
+      if (typeRelativeH == RELATIVE_TYPE_0_MARGIN) {
+         marginH = h;
+         borderH = h - mTop - mBot;
+         paddingH = h - mTop - bTop - mBot - bBot;
+         contentH = h - mTop - bTop - pTop - mBot - bBot - pBot;
+      } else if (typeRelativeH == RELATIVE_TYPE_1_BORDER) {
+         marginH = h + mTop + mBot;
+         borderH = h;
+         paddingH = h - bTop - bBot;
+         contentH = h - bTop - pTop - bBot - pBot;
+      } else if (typeRelativeH == RELATIVE_TYPE_2_PADDING) {
+         marginH = h + bTop + mTop + bBot + mBot;
+         borderH = h + bTop + bBot;
+         paddingH = h;
+         contentH = h - pTop - pBot;
+      } else if (typeRelativeH == RELATIVE_TYPE_3_CONTENT) {
+         marginH = h + pTop + bTop + mTop + pBot + bBot + mBot;
+         borderH = h + pTop + bTop + pBot + bBot;
+         paddingH = h + pTop + pBot;
+         contentH = h;
+      }
+
+      int[] areas = new int[16];
+      areas[ITechStyleCache.OFFSET_CONTENT_X] = contentX; //content values are located third
+      areas[ITechStyleCache.OFFSET_CONTENT_Y] = contentY;
+      areas[ITechStyleCache.OFFSET_CONTENT_W] = contentW;
+      areas[ITechStyleCache.OFFSET_CONTENT_H] = contentH;
+
+      areas[ITechStyleCache.OFFSET_PADDING_X] = paddingX;
+      areas[ITechStyleCache.OFFSET_PADDING_Y] = paddingY;
+      areas[ITechStyleCache.OFFSET_PADDING_W] = paddingW;
+      areas[ITechStyleCache.OFFSET_PADDING_H] = paddingH;
+
+      areas[ITechStyleCache.OFFSET_BORDER_X_0] = borderX;
+      areas[ITechStyleCache.OFFSET_BORDER_Y_1] = borderY;
+      areas[ITechStyleCache.OFFSET_BORDER_W_2] = borderW;
+      areas[ITechStyleCache.OFFSET_BORDER_H_3] = borderH;
+
+      areas[ITechStyleCache.OFFSET_MARGIN_X] = marginX; //margin values are located second
+      areas[ITechStyleCache.OFFSET_MARGIN_Y] = marginY;
+      areas[ITechStyleCache.OFFSET_MARGIN_W] = marginW;
+      areas[ITechStyleCache.OFFSET_MARGIN_H] = marginH;
       return areas;
    }
 
-   public int[] computeNewStyleAreas(int x, int y, int w, int h, ByteObject style, ILayoutable c) {
+   public int[] getStyleAreasContent(int x, int y, int w, int h, ByteObject style, ILayoutable c) {
+      return getStyleAreasContent(x, y, w, h, style, c, null);
+   }
+
+   /**
+    * @param x coordinate of the content area
+    * @param y coordinate of the content area
+    * @param w  width of the content area
+    * @param h height of the content area
+    * @param style
+    * @param c
+    * @return
+    */
+   public int[] getStyleAreasContent(int x, int y, int w, int h, ByteObject style, ILayoutable c, StyleCache cache) {
+      LayoutOperator layOp = dc.getLayoutOperator();
       int[] areas = new int[16];
-      areas[4] = x;
-      areas[5] = y;
-      areas[6] = w;
-      areas[7] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_5_MARGIN)) {
-         int ml = getStyleMargin(style, C.POS_2_LEFT, c);
-         int mt = getStyleMargin(style, C.POS_0_TOP, c);
-         x += ml;
-         y += mt;
-         w = w - ml - getStyleMargin(style, C.POS_3_RIGHT, c);
-         h = h - mt - getStyleMargin(style, C.POS_1_BOT, c);
-      }
-      areas[0] = x;
-      areas[1] = y;
-      areas[2] = w;
-      areas[3] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_4_BORDER)) {
-         int ml = getStyleBorder(style, C.POS_2_LEFT, c);
-         int mt = getStyleBorder(style, C.POS_0_TOP, c);
-         x += ml;
-         y += mt;
-         w = w - ml - getStyleBorder(style, C.POS_3_RIGHT, c);
-         h = h - mt - getStyleBorder(style, C.POS_1_BOT, c);
-      }
-      areas[12] = x;
-      areas[13] = y;
-      areas[14] = w;
-      areas[15] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_3_PADDING)) {
-         int ml = getStylePadding(style, C.POS_2_LEFT, c);
-         int mt = getStylePadding(style, C.POS_0_TOP, c);
-         x += ml;
-         y += mt;
-         w = w - ml - getStylePadding(style, C.POS_3_RIGHT, c);
-         h = h - mt - getStylePadding(style, C.POS_1_BOT, c);
-      }
-      areas[8] = x;
+      areas[8] = x; //content values are located third
       areas[9] = y;
       areas[10] = w;
       areas[11] = h;
+      ByteObject tblr = null;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHPaddingTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHPaddingBot();
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWPaddingLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWPaddingRite();
+         x -= ml;
+         y -= mt;
+         w = w + ml + mr;
+         h = h + mt + mb;
+      }
+      areas[12] = x; //padding values are located last
+      areas[13] = y;
+      areas[14] = w;
+      areas[15] = h;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHBorderTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHBorderBot();
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWBorderLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWBorderRite();
+         x -= ml;
+         y -= mt;
+         w = w + ml + mr;
+         h = h + mt + mb;
+      }
+      areas[0] = x; //border values are located first
+      areas[1] = y;
+      areas[2] = w;
+      areas[3] = h;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHMarginBot();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHMarginBot();
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWMarginLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWMarginRite();
+         x -= ml;
+         y -= mt;
+         w = w + ml + mr;
+         h = h + mt + mb;
+      }
+      areas[4] = x; //margin values are located second
+      areas[5] = y;
+      areas[6] = w;
+      areas[7] = h;
+      return areas;
+   }
+
+   public void getStyleAreasContentH(int x, int y, int w, int h, ByteObject style, ILayoutable c, int[] areas, StyleCache cache) {
+      LayoutOperator layOp = dc.getLayoutOperator();
+      //content values are located third
+      areas[9] = y;
+      areas[11] = h;
+      ByteObject tblr = null;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHPaddingTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHPaddingBot();
+         y -= mt;
+         h = h + mt + mb;
+      }
+      //padding values are located last
+      areas[13] = y;
+      areas[15] = h;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHBorderTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHBorderBot();
+         y -= mt;
+         h = h + mt + mb;
+      }
+      //border values are located first
+      areas[1] = y;
+      areas[3] = h;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHMarginTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHMarginBot();
+         y -= mt;
+         h = h + mt + mb;
+      }
+      //margin values are located second
+      areas[5] = y;
+      areas[7] = h;
+   }
+
+   public void getStyleAreasContentW(int x, int y, int w, int h, ByteObject style, ILayoutable c, int[] areas, StyleCache cache) {
+      LayoutOperator layOp = dc.getLayoutOperator();
+      areas[8] = x; //content values are located third
+      areas[10] = w;
+      ByteObject tblr = null;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWPaddingLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWPaddingRite();
+         x -= ml;
+         w = w + ml + mr;
+      }
+      areas[12] = x; //padding values are located last
+      areas[14] = w;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWBorderLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWBorderRite();
+         x -= ml;
+         w = w + ml + mr;
+      }
+      areas[0] = x; //border values are located first
+      areas[2] = w;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWMarginLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWMarginRite();
+         x -= ml;
+         w = w + ml + mr;
+      }
+      areas[4] = x; //margin values are located second
+      areas[6] = w;
+   }
+
+   public int[] getStyleAreasContentWFullH(int x, int y, int w, int h, ByteObject style, ILayoutable c, StyleCache cache) {
+      int[] areas = new int[16];
+      getStyleAreasContentW(x, y, w, h, style, c, areas, cache);
+      getStyleAreasFullH(x, y, w, h, style, c, areas, cache);
+      return areas;
+   }
+
+   public int[] getStyleAreasFull(int x, int y, int w, int h, ByteObject style, ILayoutable c) {
+      return getStyleAreasFull(x, y, w, h, style, c, null);
+   }
+
+   /**
+    * Optimize often used style areas.
+    * Compute x,y,w,h values for the 4 style structures
+    * Those values will be used by style layers to draw themselves.
+    * @param x coordinate of the whole area
+    * @param y coordinate of the whole area
+    * @param w width of the whole area
+    * @param h height of the whole area
+    * @param style
+    * @return
+    * 
+    * <li>0-3 = border rectangle -> {@link IBOStyle#STYLE_ANC_0_BORDER}
+    * <li>4-7 = margin rectanble -> {@link IBOStyle#STYLE_ANC_1_MARGIN}
+    * <li>8-11 = content rectangle -> {@link IBOStyle#STYLE_ANC_2_CONTENT}
+    * <li>12-15 = padding rectangle -> {@link IBOStyle#STYLE_ANC_3_PADDING}
+    * 
+    */
+   public int[] getStyleAreasFull(int x, int y, int w, int h, ByteObject style, ILayoutable c, StyleCache cache) {
+      LayoutOperator layOp = dc.getLayoutOperator();
+      int[] areas = new int[16];
+      areas[4] = x; //margin values are located second
+      areas[5] = y;
+      areas[6] = w;
+      areas[7] = h;
+      ByteObject tblr = null;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHMarginTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHMarginBot();
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWMarginLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWMarginRite();
+         x += ml;
+         y += mt;
+         w = w - ml - mr;
+         h = h - mt - mb;
+      }
+      areas[0] = x; //border values are located first
+      areas[1] = y;
+      areas[2] = w;
+      areas[3] = h;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHBorderTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHBorderBot();
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWBorderLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWBorderRite();
+         x += ml;
+         y += mt;
+         w = w - ml - mr;
+         h = h - mt - mb;
+      }
+      areas[12] = x; //padding values are located last
+      areas[13] = y;
+      areas[14] = w;
+      areas[15] = h;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHPaddingTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHPaddingBot();
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWPaddingLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWPaddingRite();
+         x += ml;
+         y += mt;
+         w = w - ml - mr;
+         h = h - mt - mb;
+      }
+      areas[8] = x; //content values are located third
+      areas[9] = y;
+      areas[10] = w;
+      areas[11] = h;
+      return areas;
+   }
+
+   public int[] getStyleAreasFull(int x, int y, int w, int h, StyleCache cache) {
+      if (cache == null) {
+         throw new NullPointerException();
+      }
+      return getStyleAreasFull(x, y, w, h, cache.getStyle(), cache.getLayoutable(), cache);
+   }
+
+   public void getStyleAreasFullH(int x, int y, int w, int h, ByteObject style, ILayoutable c, int[] areas, StyleCache cache) {
+      LayoutOperator layOp = dc.getLayoutOperator();
+      //margin values are located second
+      areas[5] = y;
+      areas[7] = h;
+      ByteObject tblr = null;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHMarginTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHMarginBot();
+         y += mt;
+         h = h - mt - mb;
+      }
+      //border values are located first
+      areas[1] = y;
+      areas[3] = h;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHBorderTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHBorderBot();
+         y += mt;
+         h = h - mt - mb;
+      }
+      //padding values are located last
+      areas[13] = y;
+      areas[15] = h;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+         int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHPaddingTop();
+         int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHPaddingBot();
+         y += mt;
+         h = h - mt - mb;
+      }
+      //content values are located third
+      areas[9] = y;
+      areas[11] = h;
+   }
+
+   /**
+    * @param x coordinate of the whole area
+    * @param y coordinate of the content area
+    * @param w  width of the whole area
+    * @param h height of the content area
+    * @param style
+    * @param c
+    * @return
+    */
+   public void getStyleAreasFullW(int x, int y, int w, int h, ByteObject style, ILayoutable c, int[] areas, StyleCache cache) {
+      LayoutOperator layOp = dc.getLayoutOperator();
+      //margin values are located second
+      areas[4] = x;
+      areas[6] = w;
+      ByteObject tblr = null;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWMarginLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWMarginRite();
+         x += ml;
+         w = w - ml - mr;
+      }
+      //border values are located first
+      areas[0] = x;
+      areas[2] = w;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWBorderLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWBorderRite();
+         x += ml;
+         w = w - ml - mr;
+      }
+      //padding values are located last
+      areas[12] = x;
+      areas[14] = w;
+      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+         int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWPaddingLeft();
+         int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWPaddingRite();
+         x += ml;
+         w = w - ml - mr;
+      }
+      //content values are located third
+      areas[8] = x;
+      areas[10] = w;
+   }
+
+   public int[] getStyleAreasFullWContentH(int x, int y, int w, int h, ByteObject style, ILayoutable c, StyleCache cache) {
+      int[] areas = new int[16];
+      getStyleAreasContentH(x, y, w, h, style, c, areas, cache);
+      getStyleAreasFullW(x, y, w, h, style, c, areas, cache);
       return areas;
    }
 
@@ -477,6 +903,22 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
          return dc.getLayoutOperator().getTBLRValue(tblr, pos, c);
       }
       return 0;
+   }
+
+   public int getStyleBorderBot(ByteObject style, ILayoutable c) {
+      return getStyleBorder(style, C.POS_1_BOT, c);
+   }
+
+   public int getStyleBorderLeft(ByteObject style, ILayoutable c) {
+      return getStyleBorder(style, C.POS_2_LEFT, c);
+   }
+
+   public int getStyleBorderRite(ByteObject style, ILayoutable c) {
+      return getStyleBorder(style, C.POS_3_RIGHT, c);
+   }
+
+   public int getStyleBorderTop(ByteObject style, ILayoutable c) {
+      return getStyleBorder(style, C.POS_0_TOP, c);
    }
 
    public int getStyleBotHConsumed(ByteObject p) {
@@ -613,7 +1055,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       ByteObject txt = getContentStyle(style);
       if (txt != null) {
          //System.out.println("Presentation#getFont " + txt);
-         return dc.getFxStringOperator().getStringFont(txt);
+         return dc.getStrAuxOperator().getStringFont(txt);
       }
       return dc.getCoreDrawCtx().getFontFactory().getDefaultFont();
    }
@@ -621,7 +1063,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    public int getStyleFontColor(ByteObject style) {
       ByteObject txt = getContentStyle(style);
       if (txt != null) {
-         return dc.getFxStringOperator().getStringColor(txt);
+         return dc.getStrAuxOperator().getStringColor(txt);
       }
       return IColors.FULLY_OPAQUE_GREY;
    }
@@ -635,7 +1077,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    /**
-    * 
+    * The anchor of the layer which was set using 
     * @param style
     * @param flag {@link ByteObject#STYLE_FLAGB_1_BG} - {@link ByteObject#STYLE_FLAGB_8_FG} 
     * @param anc value depending on flag
@@ -675,44 +1117,8 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       return 0;
    }
 
-   public int getStylePaddingLeft(ByteObject style, ILayoutable c) {
-      return getStylePadding(style, C.POS_2_LEFT, c);
-   }
-
-   public int getStylePaddingRite(ByteObject style, ILayoutable c) {
-      return getStylePadding(style, C.POS_3_RIGHT, c);
-   }
-
-   public int getStylePaddingTop(ByteObject style, ILayoutable c) {
-      return getStylePadding(style, C.POS_0_TOP, c);
-   }
-
-   public int getStylePaddingBot(ByteObject style, ILayoutable c) {
-      return getStylePadding(style, C.POS_1_BOT, c);
-   }
-
-   public int getStyleBorderTop(ByteObject style, ILayoutable c) {
-      return getStyleBorder(style, C.POS_0_TOP, c);
-   }
-
-   public int getStyleBorderLeft(ByteObject style, ILayoutable c) {
-      return getStyleBorder(style, C.POS_2_LEFT, c);
-   }
-
-   public int getStyleBorderRite(ByteObject style, ILayoutable c) {
-      return getStyleBorder(style, C.POS_3_RIGHT, c);
-   }
-
-   public int getStyleBorderBot(ByteObject style, ILayoutable c) {
-      return getStyleBorder(style, C.POS_1_BOT, c);
-   }
-
    public int getStyleMarginBot(ByteObject style, ILayoutable c) {
       return getStyleMargin(style, C.POS_1_BOT, c);
-   }
-
-   public int getStyleMarginTop(ByteObject style, ILayoutable c) {
-      return getStyleMargin(style, C.POS_0_TOP, c);
    }
 
    public int getStyleMarginLeft(ByteObject style, ILayoutable c) {
@@ -721,6 +1127,10 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
 
    public int getStyleMarginRite(ByteObject style, ILayoutable c) {
       return getStyleMargin(style, C.POS_3_RIGHT, c);
+   }
+
+   public int getStyleMarginTop(ByteObject style, ILayoutable c) {
+      return getStyleMargin(style, C.POS_0_TOP, c);
    }
 
    /**
@@ -757,6 +1167,22 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
          return dc.getLayoutOperator().getTBLRValue(tblr, pos, c);
       }
       return 0;
+   }
+
+   public int getStylePaddingBot(ByteObject style, ILayoutable c) {
+      return getStylePadding(style, C.POS_1_BOT, c);
+   }
+
+   public int getStylePaddingLeft(ByteObject style, ILayoutable c) {
+      return getStylePadding(style, C.POS_2_LEFT, c);
+   }
+
+   public int getStylePaddingRite(ByteObject style, ILayoutable c) {
+      return getStylePadding(style, C.POS_3_RIGHT, c);
+   }
+
+   public int getStylePaddingTop(ByteObject style, ILayoutable c) {
+      return getStylePadding(style, C.POS_0_TOP, c);
    }
 
    /**
@@ -822,6 +1248,42 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       return getStyleLeftWConsumed(style, c) + getStyleRightWConsumed(style, c);
    }
 
+   public boolean isOpaqueBgLayersStyle(ByteObject style) {
+      int[] areas = computeNewStyleAreas(0, 0, 10, 10, style);
+      return isOpaqueBgLayersStyle(style, areas);
+   }
+
+   /**
+    * A Drawable with a margin,border or padding and no bg layers is not opaque.
+    * <br>
+    * If Drawable is modified structurally
+    * <br>
+    * Performance wise, it is important to know when caching if an opaque bg layer is drawn over the whole area.
+    * <br>
+    * This color becomes the bgcolor of the {@link IDrawable}.
+    * @param d
+    * @return
+    */
+   public boolean isOpaqueBgLayersStyle(ByteObject style, int[] areas) {
+      boolean bg1 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_1_BG, areas, 1);
+      if (bg1) {
+         return true;
+      }
+      boolean bg2 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_2_BG, areas, 3);
+      if (bg2) {
+         return true;
+      }
+      boolean bg3 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_3_BG, areas, 5);
+      if (bg3) {
+         return true;
+      }
+      boolean bg4 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_4_BG, areas, 7);
+      if (bg4) {
+         return true;
+      }
+      return false;
+   }
+
    /**
     * Check if Style figure is an opaque rectangle drawn at margin
     * @param style
@@ -884,13 +1346,13 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     */
    public ByteObject mergeStyle(ByteObject root, ByteObject merge) {
       //force the pooling
-      ByteObject styleResult = dc.getBOC().getByteObjectFactory().createByteObject(TYPE_DRWX_12_STYLE, STYLE_BASIC_SIZE);
+      ByteObject styleResult = dc.getBOC().getByteObjectFactory().createByteObject(TYPE_DRWX_08_STYLE, STYLE_BASIC_SIZE);
 
       //#debug
-      root.checkType(TYPE_DRWX_12_STYLE);
+      root.checkType(TYPE_DRWX_08_STYLE);
       //#debug
       if (merge != null) {
-         merge.checkType(TYPE_DRWX_12_STYLE);
+         merge.checkType(TYPE_DRWX_08_STYLE);
       }
 
       //build the merged array of sub byteobjects
@@ -970,6 +1432,56 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
 
    }
 
+   /**
+    * When the {@link ByteObject} is not null, sets the flag in root
+    * 
+    * This method provides a safety check.. {@link ByteObject#getType()} must be the same as Type
+    * otherwise an {@link IllegalArgumentException} is thrown.
+    * <br>
+    * Special case with {@link IBOTypesBOC#TYPE_025_ACTION}
+    * <br>
+    * @param field
+    * @param root
+    * @param flag
+    * @param type
+    * @return
+    */
+   public int setFlagNotNullStyleFieldFlag(ByteObject field, int root, int flag, int type) {
+      if (field != null) {
+         //a style element can always be an ACTION
+         if (field.getType() != IBOTypesBOC.TYPE_025_ACTION) {
+            field.checkType(type);
+         }
+         root |= flag;
+      }
+      return root;
+
+   }
+
+   /**
+    * When the {@link ByteObject} is not null, sets the flag in root
+    * @param field
+    * @param root
+    * @param flag
+    * @return
+    */
+   public int setFlagWhenNotNull(ByteObject field, int root, int flag) {
+      if (field != null) {
+         root |= flag;
+      }
+      return root;
+   }
+
+   /**
+    * flag is
+    * <li> {@link IBOStyle#STYLE_ANC_0_BORDER}
+    * <li> {@link IBOStyle#STYLE_ANC_1_MARGIN}
+    * <li> {@link IBOStyle#STYLE_ANC_2_CONTENT}
+    * <li> {@link IBOStyle#STYLE_ANC_3_PADDING}
+    * @param style
+    * @param flag
+    * @param anc
+    */
    public void setGAnchors(ByteObject style, int flag, int anc) {
       int off = STYLE_OFFSET_5_BG_POINTS1;
       if (flag > 8) {
@@ -988,6 +1500,14 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       val = BitUtils.setBit(val, n, BitUtils.getBit(1, anc));
       val = BitUtils.setBit(val, n + 1, BitUtils.getBit(2, anc));
       style.setValue(off, val, 1);
+   }
+
+   private int setWhenNotNullStyle(ByteObject style, ByteObject field, int count) {
+      if (field != null) {
+         style.setSub(field, count);
+         return count + 1;
+      }
+      return count;
    }
 
    public int styleCreationLastFill(ByteObject sty, ByteObject field, int count) {
@@ -1039,8 +1559,8 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    public ByteObject styleMergeOver(ByteObject root, ByteObject styleO) {
-      root.checkType(TYPE_DRWX_12_STYLE);
-      styleO.checkType(TYPE_DRWX_12_STYLE);
+      root.checkType(TYPE_DRWX_08_STYLE);
+      styleO.checkType(TYPE_DRWX_08_STYLE);
 
       //create a new possible
       ByteObject content = styleMergePartOver(root, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_1_CONTENT, styleO);
@@ -1178,51 +1698,4 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       }
    }
 
-   private int setWhenNotNullStyle(ByteObject style, ByteObject field, int count) {
-      if (field != null) {
-         style.setSub(field, count);
-         return count + 1;
-      }
-      return count;
-   }
-
-   /**
-    * When the {@link ByteObject} is not null, sets the flag in root
-    * @param field
-    * @param root
-    * @param flag
-    * @return
-    */
-   public int setFlagWhenNotNull(ByteObject field, int root, int flag) {
-      if (field != null) {
-         root |= flag;
-      }
-      return root;
-   }
-
-   /**
-    * When the {@link ByteObject} is not null, sets the flag in root
-    * 
-    * This method provides a safety check.. {@link ByteObject#getType()} must be the same as Type
-    * otherwise an {@link IllegalArgumentException} is thrown.
-    * <br>
-    * Special case with {@link IBOTypesBOC#TYPE_025_ACTION}
-    * <br>
-    * @param field
-    * @param root
-    * @param flag
-    * @param type
-    * @return
-    */
-   public int setFlagNotNullStyleFieldFlag(ByteObject field, int root, int flag, int type) {
-      if (field != null) {
-         //a style element can always be an ACTION
-         if (field.getType() != IBOTypesBOC.TYPE_025_ACTION) {
-            field.checkType(type);
-         }
-         root |= flag;
-      }
-      return root;
-
-   }
 }

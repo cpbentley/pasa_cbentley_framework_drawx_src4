@@ -10,7 +10,7 @@ import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
  * 
  * How to arrange characters next to each other.
  * 
- * {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX_0_FX}
+ * {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX_4_FX}
  * 
  * @author Charles-Philip Bentley
  *
@@ -20,37 +20,8 @@ public interface IBOStrAuxFxStruct extends IBOStrAux {
    /**
     * 1 byte for flag
     */
-   public static final int STR_AUX_FX_BASIC_SIZE              = STR_AUX_SIZE + 1;
+   public static final int FX_STRUCT_BASIC_SIZE               = STR_AUX_SIZE + 7;
 
-   /**
-    */
-   public static final int STR_AUX_FX_FLAG_1_SPECIFIC_SWITCH  = 1;
-
-   /**
-    * 
-    */
-   public static final int STR_AUX_FX_FLAG_2_ROOT             = 1 << 1;
-
-   /**
-    * 
-    */
-   public static final int STR_AUX_FX_FLAG_3_                 = 1 << 2;
-
-   /**
-    * 
-    */
-   public static final int STR_AUX_FX_FLAG_4_EXTRA_SPACE_TBLR = 1 << 3;
-
-   public static final int STR_AUX_FX_FLAG_5_                 = 1 << 4;
-
-   public static final int STR_AUX_FX_FLAG_6_                 = 1 << 5;
-
-   public static final int STR_AUX_FX_FLAG_7_                 = 1 << 6;
-
-   public static final int STR_AUX_FX_FLAG_8_                 = 1 << 7;
-
-   public static final int STR_AUX_OFFSET_1_FLAG              = STR_AUX_SIZE;
-   
    /**
     * Is there a figure to draw between chars
     * <br>
@@ -60,7 +31,7 @@ public interface IBOStrAuxFxStruct extends IBOStrAux {
     * <br>
     * POssibly the first one if there are 2, is the bg figure.
     */
-   public static final int FXLINE_FLAG_1_INTERCHAR_FIG     = 1;
+   public static final int FXLINE_FLAG_1_INTERCHAR_FIG        = 1;
 
    /**
     * Simple color gradient over the characters in a line
@@ -69,7 +40,7 @@ public interface IBOStrAuxFxStruct extends IBOStrAux {
     * When this flag is set, a {@link IDrwTypes#TYPE_038_GRADIENT} is in the sub parameters.
     * 
     */
-   public static final int FXLINE_FLAG_2_GRADIENT          = 1 << 1;
+   public static final int FXLINE_FLAG_2_GRADIENT             = 1 << 1;
 
    /**
     * Is there a XF.
@@ -77,12 +48,12 @@ public interface IBOStrAuxFxStruct extends IBOStrAux {
     * <br>
     * A Function is defined to 
     */
-   public static final int FXLINE_FLAG_5_DEFINED_XF        = 1 << 4;
+   public static final int FXLINE_FLAG_5_DEFINED_XF           = 1 << 4;
 
    /**
     * Is a Y shift defined?
     */
-   public static final int FXLINE_FLAG_6_DEFINED_YF        = 1 << 5;
+   public static final int FXLINE_FLAG_6_DEFINED_YF           = 1 << 5;
 
    /**
     * A function decides how to position characters on a line.
@@ -97,7 +68,7 @@ public interface IBOStrAuxFxStruct extends IBOStrAux {
     * <br>
     * 
     */
-   public static final int FXLINE_FLAG_7_FUNCTION_XF       = 1 << 6;
+   public static final int FXLINE_FLAG_7_FUNCTION_XF          = 1 << 6;
 
    /**
     * A second function define the y.
@@ -105,12 +76,12 @@ public interface IBOStrAuxFxStruct extends IBOStrAux {
     * <br>
     * By default input is current y position and returns y.
     */
-   public static final int FXLINE_FLAG_8_FUNCTION_Y        = 1 << 7;
+   public static final int FXLINE_FLAG_8_FUNCTION_Y           = 1 << 7;
 
    /**
     * 
     */
-   public static final int FXLINE_OFFSET_01_FLAG           = 0;
+   public static final int FXLINE_OFFSET_01_FLAG              = STR_AUX_SIZE + 0;
 
    /**
     * Additional x offset between chars in a line of text
@@ -119,20 +90,22 @@ public interface IBOStrAuxFxStruct extends IBOStrAux {
     * <br>
     * 0 -> vertical
     */
-   public static final int FXLINE_OFFSET_02_CHAR_X_OFFSET1 = A_OBJECT_BASIC_SIZE + 2;
+   public static final int FXLINE_OFFSET_02_CHAR_X_OFFSET1    = STR_AUX_SIZE + 1;
+
+   /**
+    * Additional y offset between chars in a line
+    * 0 -> horizontal
+    */
+   public static final int FXLINE_OFFSET_03_CHAR_Y_OFFSET1    = STR_AUX_SIZE + 2;
 
    /**
     * 360 value defining the angle chosen 
     * 
     * 
     */
-   public static final int FXLINE_OFFSET_04_CHAR_ANGLE2    = A_OBJECT_BASIC_SIZE + 2;
+   public static final int FXLINE_OFFSET_04_CHAR_ANGLE2       = STR_AUX_SIZE + 3;
 
-   public static final int FXLINE_OFFSET_05_CHAR_DISTANCE2 = A_OBJECT_BASIC_SIZE + 2;
+   public static final int FXLINE_OFFSET_05_CHAR_DISTANCE2    = STR_AUX_SIZE + 5;
 
-   /**
-    * Additional y offset between chars in a line
-    * 0 -> horizontal
-    */
-   public static final int FXLINE_OFFSET_03_CHAR_Y_OFFSET1 = A_OBJECT_BASIC_SIZE + 3;
+
 }

@@ -2,10 +2,13 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 import java.util.Enumeration;
 
+import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.structs.BufferObject;
 import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.core.src4.structs.IntIntervals;
 import pasa.cbentley.core.src4.utils.StringUtils;
+import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
 
@@ -15,46 +18,35 @@ import pasa.cbentley.framework.drawx.src4.utils.AnchorUtils;
  * @author Charles Bentley
  *
  */
-public class LineAlgo {
-   private boolean      allSameFont;
+public class LineAlgo extends ObjectDrw {
 
-   private boolean      allSameWidth;
+   private CharAlgo            charCurrent;
 
-   private int          biggestLineH;
+   private BufferObject        charsForNextLine;
 
-   private int          biggestLineW;
+   private int                 dy;
 
-   private int          charBiggestWidth       = 0;
+   BufferObject                finalLines;
 
-   private int          dy;
+   private int                 fontHeight;
 
-   BufferObject         finalLines;
+   Enumeration                 intervals;
 
-   private int          fontHeight;
+   private boolean             isShowHiddenChars;
 
-   Enumeration          intervals;
+   private boolean             isStop;
 
-   private boolean      isIgnoreNewLines;
+   private boolean             isTestWidth;
 
-   private boolean      isShowHiddenChars;
-
-   private boolean      isStop;
-
-   private boolean      isTestHeight;
-
-   private boolean      isTestWidth;
-
-   private boolean      isTrimArtifact;
+   private boolean             isTrimArtifact;
 
    private char                lastChar;
 
-   private int                 lastSpaceOffset;
+   private int                 lastTabOffsetEnd;
 
-   private int lastTabOffsetEnd;
+   private LineStringer        lineCurrent;
 
-   private int          lineNumofSpaces;
-
-   private int          linesTotalH;
+   private LineStringer        linePrevious;
 
    private char                markupEndChar   = '〗';
 
@@ -63,316 +55,246 @@ public class LineAlgo {
     */
    private char                markupStartChar = '〖';
 
-   private int          maxHeight;
+   private int                 maxHeight;
 
-   private int          maxLinesNum;
+   private int                 maxLinesNum;
 
-   private int          maxLineWidth;
+   private int                 maxLineWidth;
 
-   private LineStringer newLine;
+   private int                 numTabsInLine;
 
-   /**
-    * Records the offset of the last character that can be used as a line break. Usually the last space
-    */
-   private int          niceBreakOffset;
+   private TextStats           stats;
 
-   private boolean      niceDiffFontHeights;
+   private Stringer            stringer;
 
    /**
-    * Records the line length at the last "nice" position. ie last space character
+    * Style of current interval in algo
     */
-   private int          niceLineLength;
+   StringFx                    style;
 
-   /**
-    * Records the line width at the last "nice" position. ie last space character
-    */
-   private int          niceLineWidth;
-
-   /**
-    * Records the maximum line height at the last "nice" position. ie last space character
-    */
-   private int          niceMaxLineHeight;
-
-   private int numTabsInLine;
-
-   private LineStringer previousLine;
-
-   /**
-    * Flag telling us, that even if we have not a flagged font as monospace and/or different styles
-    * 
-    * all characters have indeed the same width. The {@link LineAlgo} will try to invalidate
-    * this flag.
-    */
-   private boolean      sameCharWidthFact      = true;
-
-   private int          sameCharWidthFactValue = 0;
-
-   /**
-    * Last space width. Everytime the style changes, this value is updated
-    */
-   private int          spaceWidthLastStyle;
-
-   private Stringer     stringer;
-
-   StringFx             style;
-
-   IntInterval          styleInterval;
+   IntInterval                 styleInterval;
 
    private TabColumnStringer[] tabCols;
 
-   private int                 tabCurrentTab   = -1;
-
    private int                 tabLineCounter  = 0;
 
-   private int                 tabMaxNum       = 0;
-
-   private boolean      tempDiffFontHeights;
-
-   private int          tempLineLength;
-
-   private int          tempLineStartOffsetRelative;
-
-   private int          tempLineWidth;
-
-   private int          tempMaxLineHeight;
-
    public LineAlgo(Stringer stringer) {
+      super(stringer.getDRC());
       this.stringer = stringer;
 
    }
 
-   private void createNewLineANiceWord() {
-      //irrespective of the space trimming, we must compute the next line first before
-      //modifying them
-      int newTempLineLength = tempLineLength - niceLineLength;
-      int newTempLineWidth = tempLineWidth - niceLineWidth;
-      //only value that is known to be true right now
-      int lineStartingOffset = newLine.getOffset();
-      //remove leading actual spaces by shifting the line starting offset
-      lineStartingOffset = trimSpacesLeading(lineStartingOffset);
-
-      if (finalLines.getSize() + 1 == maxLinesNum) {
-         //we are on the last line.. add
-         if (isTrimArtifact) {
-            int lineLastCharIndex = lineStartingOffset + niceLineLength - 1;
-            newLine.charMapTo(lineLastCharIndex, '.');
-            newLine.charMapTo(lineLastCharIndex - 1, '.');
-            stringer.setState(ITechStringer.STATE_04_TRIMMED, true);
-         }
-      } else {
-         //do not trim spaces on a trimmed line
-         trimSpacesTrailing(lineStartingOffset);
-      }
-
-      newLine.setLen(niceLineLength);
-      newLine.setPixelsH(niceMaxLineHeight);
-      newLine.setPixelsW(niceLineWidth); //
-      newLine.setHasDifferentFonts(niceDiffFontHeights);
-      newLine.build();
-
-      if (niceMaxLineHeight > biggestLineH) {
-         biggestLineH = tempMaxLineHeight;
-      }
-      if (niceLineWidth > biggestLineW) {
-         biggestLineW = tempLineWidth;
-      }
+   private void buildLineNormal() {
+      int lineMaxH = stats.getLineMaxH();
+      boolean hasDiffFontHeights = stats.hasLineDiffFontHeights();
+      lineCurrent.setPixelsH(lineMaxH);
+      lineCurrent.setHasDifferentFonts(hasDiffFontHeights);
 
       justify();
 
-      int dax = AnchorUtils.getXAlign(stringer.anchor, 0, stringer.areaW, niceLineWidth);
-      newLine.setX(dax);
+      stats.processLine(lineCurrent);
 
-      createNewLineC();
+      //algin on x coordiante
+      int walign = lineCurrent.getPixelsW();
+      ByteObject anchor = stringer.anchor;
+      int dax = AnchorUtils.getXAlign(anchor, 0, stringer.areaW, walign);
+      lineCurrent.setX(dax);
+      //do y coordinate
+      lineCurrent.setY(dy);
+      dy += lineMaxH;
 
-      resetLineStateNiceWord(newTempLineLength, newTempLineWidth);
-
-   }
-
-   private void createNewLineANiceWordLastLine() {
-      if (isMaxLinesReached()) {
-         return;
-      }
-      //do the inverse because this is the last line.. so no wrap
-      niceDiffFontHeights = tempDiffFontHeights;
-      niceLineLength = tempLineLength;
-      niceLineWidth = tempLineWidth;
-      niceMaxLineHeight = tempMaxLineHeight;
-
-      int lineStartingOffset = newLine.getOffset();
-
-      lineStartingOffset = trimSpacesLeading(lineStartingOffset);
-      trimSpacesTrailing(lineStartingOffset);
-
-      newLine.setLen(niceLineLength);
-      newLine.setPixelsH(niceMaxLineHeight);
-      newLine.setPixelsW(niceLineWidth); //
-      newLine.setHasDifferentFonts(niceDiffFontHeights);
-      newLine.build();
-
-      if (niceMaxLineHeight > biggestLineH) {
-         biggestLineH = tempMaxLineHeight;
-      }
-      if (niceLineWidth > biggestLineW) {
-         biggestLineW = tempLineWidth;
-      }
-
-      justify();
-
-      int dax = AnchorUtils.getXAlign(stringer.anchor, 0, stringer.areaW, niceLineWidth);
-      newLine.setX(dax);
-
-      createNewLineC();
-   }
-
-   private void createNewLineB() {
-
-      //start a new line
-      newLine.setLen(tempLineLength);
-      newLine.setPixelsH(tempMaxLineHeight);
-      newLine.setPixelsW(tempLineWidth);
-      newLine.setHasDifferentFonts(tempDiffFontHeights);
-      newLine.build();
-      if (tempMaxLineHeight > biggestLineH) {
-         biggestLineH = tempMaxLineHeight;
-      }
-      if (tempLineWidth > biggestLineW) {
-         biggestLineW = tempLineWidth;
-      }
-      niceLineWidth = tempLineWidth; //in our case
-      justify();
-      int dax = AnchorUtils.getXAlign(stringer.anchor, 0, stringer.areaW, tempLineWidth);
-      newLine.setX(dax);
-   }
-
-   private void createNewLineC() {
-      newLine.setY(dy);
-      dy += tempMaxLineHeight;
-      linesTotalH += tempMaxLineHeight;
-      if (isTestHeight && linesTotalH > maxHeight) {
+      if (stats.isTrimmedH()) {
+         //our line exceed.. so we trim previous line and do not add current to collection.
          isStop = true;
-         if (isTrimArtifact) {
-            //if (!stringer.hasState(ITechStringer.STATE_04_TRIMMED)) {
-            if (previousLine != null) {
-               //take previous and add trim cue
-               int lineLastCharIndex = previousLine.getOffsetLast();
-               previousLine.charMapTo(lineLastCharIndex, '.');
-               previousLine.charMapTo(lineLastCharIndex - 1, '.');
-               //!!! we need to rebuild the line
-               previousLine.build();
-               stringer.setState(ITechStringer.STATE_04_TRIMMED, true);
+         doTrimHPreviousLine();
+      } else {
+         doTrimMaxLine();
+         lineCurrent.setLineID(finalLines.getSize());
+         finalLines.add(lineCurrent);
+
+      }
+
+      lineCurrent.build();
+
+      //
+      linePrevious = lineCurrent;
+
+      LineStringer nextLine = new LineStringer(stringer);
+      if (charsForNextLine != null && !charsForNextLine.isEmpty()) {
+         CharAlgo ca = (CharAlgo) charsForNextLine.removeFirst();
+         boolean isSpace = ca.getC() == StringUtils.ENGLISH_SPACE;
+         if (isSpace && stringer.getFormatWordWrap() == ITechStringer.WORDWRAP_2_NICE_WORD) {
+
+         } else {
+            nextLine.addChar(ca);
+            if (isSpace) {
+               nextLine.incrementNumOfSpaces(1);
             }
-            // }
          }
-      } else {
-         finalLines.add(newLine);
+
+         //nl.setOffset(offset);
+         while ((ca = (CharAlgo) charsForNextLine.removeFirst()) != null) {
+            nextLine.addChar(ca);
+         }
       }
+
+      stats.resetLineStats(style.getFontHeight());
+      charsForNextLine = null;
+      lineCurrent = nextLine;
+      lineLengthAtPrevioustab = 0;
+
    }
 
-   public void createNewLineChar(int tentativeNewLineOffset) {
-      createNewLineB();
-      createNewLineC();
-      resetLineStats(tentativeNewLineOffset);
-   }
-
-   void createNewLineEmptyFictive() {
-      LineStringer line = new LineStringer(stringer);
-      line.setOffset(tempLineStartOffsetRelative);
-      line.setLen(0);
-      line.setFictiveLine(true);
-      int fh = stringer.stringFx.getFontHeight();
-      biggestLineH = fh;
-      linesTotalH = fh;
-      line.setPixelsH(fh);
-      finalLines.add(line);
-   }
-
-   public void createNewLineLast() {
-      if (isMaxLinesReached()) {
-         return;
-      }
-      int wordwrap = stringer.getWordwrap();
-      if (wordwrap == ITechStringer.WORDWRAP_0_NONE) {
-         createNewLineB();
-         createNewLineC();
-      } else if (wordwrap == ITechStringer.WORDWRAP_2_NICE_WORD || wordwrap == ITechStringer.WORDWRAP_3_NICE_HYPHENATION) {
-         createNewLineANiceWordLastLine();
-      } else if (wordwrap == ITechStringer.WORDWRAP_1_ANYWHERE) {
-         createNewLineB();
-         createNewLineC();
-      } else {
-         throw new IllegalArgumentException();
-      }
-   }
-
-   /**
-    * This char overflows
-    * @param tentativeNewLineOffset
-    * @param lineWidthNew
-    */
-   private void createNewLineTooMuchWidth(int tentativeNewLineOffset, int lineWidthNew) {
+   private void buildLineTooMuchWidth() {
 
       int wordwrap = stringer.getWordwrap();
       if (wordwrap == ITechStringer.WORDWRAP_0_NONE) {
          //trim too much width
-         createNewLineTrimmed();
-         //stop on this line
-         createNewLineC();
+         doWrapLineTrim();
 
          if (stringer.getDirectiveNewLine() == ITechStringer.SPECIALS_NEWLINE_0_IGNORED) {
             //this is the end.. finish algo
             isStop = true;
          } else {
-            //continue until maybe we find a newline to actually start the next line 
+            //TODO continue until maybe we find a newline to actually start the next line 
             isStop = true;
          }
-      } else if (wordwrap == ITechStringer.WORDWRAP_2_NICE_WORD || wordwrap == ITechStringer.WORDWRAP_3_NICE_HYPHENATION) {
-         createNewLineANiceWord();
       } else if (wordwrap == ITechStringer.WORDWRAP_1_ANYWHERE) {
-         createNewLineB();
-         createNewLineC();
-         resetLineStats(tentativeNewLineOffset);
+         doWrapLineAnywhere();
+      } else if (wordwrap == ITechStringer.WORDWRAP_2_NICE_WORD) {
+         doWrapLineNiceWord();
+      } else if (wordwrap == ITechStringer.WORDWRAP_3_NICE_HYPHENATION) {
+         doWrapLineHyphen();
       } else {
          throw new IllegalArgumentException();
       }
+
+      buildLineNormal();
    }
 
-   private void createNewLineTrimmed() {
+   /**
+    * 
+    */
+   void createNewLineEmptyFictive() {
+      LineStringer line = new LineStringer(stringer);
+      int offset = 0;
+      if (linePrevious != null) {
+         offset = linePrevious.getOffsetStringerLastChar() + 1;
+      }
+      line.setOffset(offset);
+      line.setFictiveLine(true);
+
+      int fh = stringer.stringFx.getFontHeight();
+      line.setPixelsH(fh);
+
+      stats.processLine(line);
+      finalLines.add(line);
+   }
+
+   private void doSpecialIgnore() {
+      lineCurrent.addCharIgnore();
+   }
+
+   private void doSpecialJava(String str) {
+      //remove current newline and 
+
+      lineCurrent.addCharJavaEscaped(str, style);
+
+   }
+
+   private void doSpecialSpaceFor(char c) {
+      char rc = ' ';
+      if (isShowHiddenChars) {
+         rc = c;
+      }
+      int charWidth = style.getCharWidth(' ');
+      lineCurrent.addCharSpaceSpecial(rc, charWidth);
+      
+      regular(charCurrent);
+   }
+
+   private void doTrimHPreviousLine() {
+      if (isTrimArtifact) {
+         //if (!stringer.hasState(ITechStringer.STATE_04_TRIMMED)) {
+         if (linePrevious != null) {
+            //take previous and add trim cue
+            int lineLastCharIndex = linePrevious.getOffsetStringerLastChar();
+            linePrevious.charMapTo(lineLastCharIndex, '.');
+            linePrevious.charMapTo(lineLastCharIndex - 1, '.');
+            //!!! we need to rebuild the line
+            linePrevious.buildMap();
+            stringer.setFlagState(ITechStringer.STATE_04_TRIMMED, true);
+         }
+         // }
+      }
+   }
+
+   private void doTrimMaxLine() {
+      if (finalLines.getSize() + 1 == maxLinesNum) {
+         //we are on the last line.. add
+         if (isTrimArtifact) {
+            int lineLastCharIndex = lineCurrent.getOffsetStringerLastChar();
+            lineCurrent.charMapTo(lineLastCharIndex, '.');
+            lineCurrent.charMapTo(lineLastCharIndex - 1, '.');
+            stringer.setFlagState(ITechStringer.STATE_04_TRIMMED, true);
+         }
+         isStop = true;
+      }
+   }
+
+   private void doWrapLineAnywhere() {
+      //simply removes last char
+      CharAlgo ca = lineCurrent.removeLastChar();
+      charsForNextLine = new BufferObject(getUC());
+      charsForNextLine.add(ca);
+      if (ca.getC() == StringUtils.ENGLISH_SPACE) {
+         lineCurrent.incrementNumOfSpaces(-1);
+      }
+   }
+
+   private void doWrapLineHyphen() {
+      //remove and add a new char '-'
+      int ol = lineCurrent.getOffsetStringerLastChar();
+      charsForNextLine = lineCurrent.deleteCharsFrom(ol);
+      //add a fictive dash character
+
+      lineCurrent.addCharFictive(ol, '-');
+   }
+
+   private void doWrapLineNiceWord() {
+
+      //in this mode by construction, there is no.. do we want to remove leading spaces on the first line ?
+      BuildLineData builder = lineCurrent.getBuilder();
+
+      int sp = builder.getLastSpaceIndex();
+
+      if (sp > 0) {
+         charsForNextLine = lineCurrent.deleteCharsFrom(sp);
+
+         //we remove one space
+         lineCurrent.incrementNumOfSpaces(-1);
+         lineCurrent.setSpaceOut();
+
+         if (isShowHiddenChars) {
+            //insert a new char that is etheral. it does not impact line breaking
+            CharAlgo ca = (CharAlgo) charsForNextLine.getFirst();
+            lineCurrent.addCharEther(ca);
+         }
+      }
+
+   }
+
+   private void doWrapLineTrim() {
       //start a new line
-      newLine.setLen(tempLineLength);
-      newLine.setPixelsH(tempMaxLineHeight);
-      newLine.setPixelsW(tempLineWidth);
-      newLine.setHasDifferentFonts(tempDiffFontHeights);
 
       if (isTrimArtifact) {
-         int lineStartingOffset = newLine.getOffset();
-         int lineLastCharIndex = lineStartingOffset + tempLineLength - 1;
-         newLine.charMapTo(lineLastCharIndex, '.');
-         newLine.charMapTo(lineLastCharIndex - 1, '.');
-         stringer.setState(ITechStringer.STATE_04_TRIMMED, true);
+         int lineStartingOffset = lineCurrent.getOffset();
+         int lineLastCharIndex = lineStartingOffset + lineCurrent.getLengthInStringer() - 1;
+         lineCurrent.charMapTo(lineLastCharIndex, '.');
+         lineCurrent.charMapTo(lineLastCharIndex - 1, '.');
+         stringer.setFlagState(ITechStringer.STATE_04_TRIMMED, true);
       }
 
-      newLine.build();
-      if (tempMaxLineHeight > biggestLineH) {
-         biggestLineH = tempMaxLineHeight;
-      }
-      if (tempLineWidth > biggestLineW) {
-         biggestLineW = tempLineWidth;
-      }
-      int dax = AnchorUtils.getXAlign(stringer.anchor, 0, stringer.areaW, tempLineWidth);
-      newLine.setX(dax);
-
-   }
-
-   public int getBiggestLineH() {
-      return biggestLineH;
-   }
-
-   public int getBiggestLineW() {
-      return biggestLineW;
-   }
-
-   public int getCharBiggestWidth() {
-      return charBiggestWidth;
    }
 
    public LineStringer[] getLines() {
@@ -381,12 +303,8 @@ public class LineAlgo {
       return lines;
    }
 
-   public int getLinesTotalH() {
-      return linesTotalH;
-   }
-
-   public int getSameCharWidthFactValue() {
-      return sameCharWidthFactValue;
+   public TextStats getStats() {
+      return stats;
    }
 
    /**
@@ -395,6 +313,8 @@ public class LineAlgo {
     * If Stringer is empty or without style
     */
    public void init() {
+
+      stats = new TextStats(drc);
 
       IntIntervals leaves = stringer.getIntervalsOfLeaves();
       this.intervals = leaves.getIntervalEnumeration();
@@ -413,6 +333,8 @@ public class LineAlgo {
             isTestWidth = true;
          }
       }
+
+      boolean isTestHeight = false;
       maxHeight = stringer.getBreakH();
       if (maxHeight <= 0) {
          maxHeight = Integer.MAX_VALUE; //ignore
@@ -425,6 +347,8 @@ public class LineAlgo {
             isTestHeight = true;
          }
       }
+      stats.setTestHeight(isTestHeight);
+      stats.setMaxHeight(maxHeight);
 
       //      isIgnoreNewLines = stringer.getNewLineManager() == ITechStringer.SPECIALS_NEWLINE_0_IGNORE;
       //      if (stringer.getWordwrap() >= ITechStringer.WORDWRAP_2_NICE_WORD) {
@@ -432,52 +356,43 @@ public class LineAlgo {
       //      }
       maxLinesNum = stringer.getBreakMaxLines();
       isTrimArtifact = stringer.isTrimArtifacts();
-      tempMaxLineHeight = -1;
-      tempDiffFontHeights = false;
-      tempLineWidth = 0;
-      allSameWidth = stringer.hasState(ITechStringer.STATE_18_FULL_MONOSPACE);
-      allSameFont = !stringer.hasState(ITechStringer.STATE_11_DIFFERENT_FONTS);
 
       isShowHiddenChars = stringer.isShowHiddenChars();
-      tempLineStartOffsetRelative = 0;
-      tempLineLength = 0;
-      newLine = new LineStringer(stringer);
-
+      lineCurrent = new LineStringer(stringer);
    }
 
    private boolean isJustifiedText() {
       return stringer.getSpaceTrimManager() == ITechStringer.SPACETRIM_2_JUSTIFIED && maxLineWidth != Integer.MAX_VALUE;
    }
 
-   private boolean isMaxLinesReached() {
-      return (maxLinesNum != 0 && finalLines.getSize() >= maxLinesNum);
-   }
-
    private boolean isRemoveSpaceFromLineExtremities() {
       return stringer.getSpaceTrimManager() != ITechStringer.SPACETRIM_0_NONE;
    }
 
+   /**
+    * Do we justify after the build ?
+    */
    private void justify() {
       if (isJustifiedText()) {
          //amount of pixels that have to be redistributed on this lines spaces
-         int widthDifference = maxLineWidth - niceLineWidth;
-         int lineNumOfSpaces = newLine.getNumOfSpaces();
+         int widthDifference = maxLineWidth - lineCurrent.getPixelsW();
+         int lineNumOfSpaces = lineCurrent.getNumOfSpaces();
          if (widthDifference != 0 && lineNumOfSpaces != 0) {
             int pixelsToAdd = widthDifference / lineNumOfSpaces;
             int leftover = widthDifference % lineNumOfSpaces;
-            newLine.enableCharWidths();
-            newLine.setJustified(true);
-            int len = newLine.getLen();
+            lineCurrent.enableCharWidths();
+            lineCurrent.setJustified(true);
+            int len = lineCurrent.getLengthInStringer();
             //careful. we have to work on the visible chars of the lines.. so might use a char mapper
             for (int i = 0; i < len; i++) {
-               char c = newLine.getChar(i);
+               char c = lineCurrent.getCharVisible(i);
                if (c == ' ') {
                   int add = pixelsToAdd;
                   if (leftover != 0) {
                      add++;
                      leftover--;
                   }
-                  newLine.incrementCharWidth(i, add);
+                  lineCurrent.incrementCharWidth(i, add);
                }
             }
             //x must be zero because the line takes all the available space
@@ -491,84 +406,19 @@ public class LineAlgo {
       }
    }
 
-   public void lineCheck() {
-      fontHeight = style.getFontHeight();
-      if (tempMaxLineHeight == -1) {
-         tempMaxLineHeight = fontHeight;
-      } else {
-         if (fontHeight != tempMaxLineHeight) {
-            tempDiffFontHeights = true;
-         }
-         if (tempMaxLineHeight < fontHeight) {
-            tempMaxLineHeight = fontHeight;
-         }
-      }
-   }
-
-   private void loopFast() {
-      int offset = styleInterval.getOffset();
-      int len = styleInterval.getLen();
-      for (int i = offset; i < offset + len; i++) {
-         //are we still in the current line
-         char c = stringer.getCharAtRelative(i);
-         if (isShowHiddenChars) {
-            switch (c) {
-               case StringUtils.NEW_LINE:
-                  c = StringUtils.LINE_BREAK_RETURN;
-                  newLine.charMapTo(i, c);
-                  break;
-               case StringUtils.NEW_LINE_CARRIAGE_RETURN:
-                  c = StringUtils.SYMBOL_RETURN;
-                  newLine.charMapTo(i, c);
-                  break;
-               case StringUtils.TAB:
-                  c = StringUtils.ARROW_RIGHT;
-                  newLine.charMapTo(i, c);
-                  break;
-               case StringUtils.FORM_FEED:
-                  c = StringUtils.GENDER_FEMALE;
-                  newLine.charMapTo(i, c);
-                  break;
-               case StringUtils.ENGLISH_SPACE:
-                  c = StringUtils.INTER_PUNCT;
-                  newLine.charMapTo(i, c);
-                  break;
-               default:
-                  break;
-            }
-         }
-         regular(i, c);
-      }
-   }
-
-   /**
-    * Fast.. does not verify break width
-    * 
-    * <li> {@link ITechStringer#WORDWRAP_0_NONE}
-    * <li> {@link ITechStringer#SPECIALS_NEWLINE_3_WORK}
-    */
-   private void loopFastCheckNewLinesHiddenChars() {
-      int offset = styleInterval.getOffset();
-      int len = styleInterval.getLen();
-      for (int i = offset; i < len; i++) {
-         //are we still in the current line
-         char c = stringer.getCharAtRelative(i);
-         if (c == StringUtils.NEW_LINE) {
-            regularCharNewLine(i);
-         } else if (c == StringUtils.NEW_LINE_CARRIAGE_RETURN) {
-            regularCharCarriage(i);
-         } else if (c == StringUtils.FORM_FEED) {
-            c = regularCharFormFeed(i, c);
-         } else if (c == StringUtils.TAB) {
-            c = regularCharTab(i, c);
-         } else if (c == StringUtils.ENGLISH_SPACE) {
-            c = regularCharSpaceNoW(offset, i, c);
-         } else {
-         }
-         regularNoWidthCheck(i, c);
-      }
-      createNewLineLast();
-   }
+   //   public void lineCheckHeight() {
+   //      fontHeight = style.getFontHeight();
+   //      if (tempMaxLineHeight == -1) {
+   //         tempMaxLineHeight = fontHeight;
+   //      } else {
+   //         if (fontHeight != tempMaxLineHeight) {
+   //            tempDiffFontHeights = true;
+   //         }
+   //         if (tempMaxLineHeight < fontHeight) {
+   //            tempMaxLineHeight = fontHeight;
+   //         }
+   //      }
+   //   }
 
    /**
     * TODO how to deal with hidden characters.. when selecting a visible char.. index visible is not equal to
@@ -582,30 +432,10 @@ public class LineAlgo {
       int len = styleInterval.getLen();
       for (int srcOffsetRelative = offset; srcOffsetRelative < offset + len; srcOffsetRelative++) {
          //are we still in the current line
-         char cc = stringer.getCharAtRelative(srcOffsetRelative);
-         this.lastChar = cc;
-         //check only newline chars if requested.. can be turned off for perf reasons
-         if (cc == markupStartChar) {
-            //check markup
-         } else if (cc == StringUtils.NEW_LINE) {
-            //TODO. is the index included in the newLine?
-            regularCharNewLine(srcOffsetRelative);
-         } else if (cc == StringUtils.NEW_LINE_CARRIAGE_RETURN) {
-            regularCharCarriage(srcOffsetRelative);
-         } else if (cc == StringUtils.FORM_FEED) {
-            cc = regularCharFormFeed(srcOffsetRelative, cc);
-         } else if (cc == StringUtils.TAB) {
-            char visibleChar = regularCharTab(srcOffsetRelative, cc);
-            regular(srcOffsetRelative, visibleChar);
-         } else if (cc == StringUtils.ENGLISH_SPACE) {
-            char visibleChar = regularCharSpace(offset, srcOffsetRelative, cc);
-            regular(srcOffsetRelative, visibleChar);
-         } else {
-            regularNoNewLinesChar(offset, srcOffsetRelative, cc);
-         }
-         if (isMaxLinesReached()) {
-            return;
-         }
+         char cc = stringer.getCharSourceAtRelative(srcOffsetRelative);
+
+         loopWorkOnCharacter(srcOffsetRelative, cc);
+
          if (isStop) {
             return;
          }
@@ -615,138 +445,136 @@ public class LineAlgo {
    /**
     * Iterate over current styling
     */
-   public void loopStart() {
-
-      if (isIgnoreNewLines) {
-         loopFast();
-      } else {
-         loopFull();
-      }
-
+   public void loopStartCurrentInterval() {
+      loopFull();
    }
 
-   private void regular(int i, char c) {
-      //manage the width business
-      int cw = style.getCharWidth(c);
-      if (cw == 0) {
-         stringer.setState(ITechStringer.STATE_21_ZERO_WIDTH_CHARS, true);
-         sameCharWidthFact = false;
-      }
-      if (allSameWidth) {
-         //we know that all characters have the same width. set it as a global variable.. 
-         sameCharWidthFactValue = cw;
-         charBiggestWidth = cw;
-      } else {
-         //each char have different width so use the array
-         stringer.getMetrics().charWidths[i] = cw;
-         //check if they are the same width anyways in case
-         if (cw > getCharBiggestWidth()) {
-            charBiggestWidth = cw;
-         }
-         if (sameCharWidthFact) {
-            if (getSameCharWidthFactValue() == 0) {
-               sameCharWidthFactValue = cw;
-            } else {
-               if (cw != getSameCharWidthFactValue()) {
-                  sameCharWidthFact = false;
-               }
-            }
-         }
-      }
-      int lineWidthNew = tempLineWidth + cw;
+   private void loopWorkOnCharacter(int srcOffsetRelative, char cc) {
+      this.lastChar = cc;
+      charCurrent = new CharAlgo(drc);
+      charCurrent.setC(cc);
 
-      if (isTestWidth && lineWidthNew > maxLineWidth) {
-         //put char on a new line
-         if (c == StringUtils.ENGLISH_SPACE) {
-            newLine.incrementNumOfSpaces(-1);
-         }
+      //in all cases. we need its width
+      int cw = style.getCharWidth(cc);
+      charCurrent.setOffsetStringer(srcOffsetRelative);
+      charCurrent.setWidth(cw);
+      charCurrent.setHeight(fontHeight);
 
-         createNewLineTooMuchWidth(i, lineWidthNew);
+      stats.processChar(charCurrent);
 
-         //transfer
-         if (c == StringUtils.ENGLISH_SPACE) {
-            newLine.incrementNumOfSpaces(1);
-         }
-      }
-      //keep working on the same line
-      tempLineWidth += cw;
-      tempLineLength++;
-   }
+      //invariant. we add the char to the line.
+      //it will be removed if necessary
+      lineCurrent.addChar(charCurrent);
 
-   private void regularCharCarriage(int i) {
-      if (isShowHiddenChars) {
-         newLine.charMapTo(i, StringUtils.SYMBOL_RETURN);
-         newLine.charMapTo(i + 1, StringUtils.SYMBOL_RETURN);
-      }
-      createNewLineChar(i + 2);
-      newLine.setRealModelLine(true);
-      //TODO check if well formed with \n following
-   }
-
-   private char regularCharFormFeed(int i, char c) {
-      if (isShowHiddenChars) {
-         newLine.charMapTo(i, StringUtils.GENDER_FEMALE);
-         c = StringUtils.GENDER_FEMALE;
-      }
-      createNewLineChar(i + 1);
-      //create as many new lines for a page break
-      int numLinesPerPage = stringer.getNumLinesPerPage();
-      int addPages = numLinesPerPage - (finalLines.getSize() % numLinesPerPage);
-      for (int j = 0; j < addPages; j++) {
-         //non existing newline characters.. 
-         //each line has a zero length
-         createNewLineChar(i + 1);
-      }
-      return c;
-   }
-
-   private void regularCharNewLine(int i) {
-      int directiveNewLine = stringer.getDirectiveNewLine();
-      if (directiveNewLine == ITechStringer.SPECIALS_FORMFEED_0_IGNORED) {
-
-      } else if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_1_SPACE_SPECIAL) {
+      if (cc == StringUtils.NEW_LINE) {
+         regularCharNewLine();
+      } else if (cc == StringUtils.NEW_LINE_CARRIAGE_RETURN) {
+         regularCharCarriage();
+      } else if (cc == StringUtils.FORM_FEED) {
+         regularCharFormFeed();
+      } else if (cc == StringUtils.TAB) {
+         regularCharTab();
+      } else if (cc == markupStartChar) {
+         //check markup
+      } else if (cc == StringUtils.ENGLISH_SPACE) {
          if (isShowHiddenChars) {
-            newLine.charMapTo(i, StringUtils.LINE_BREAK_RETURN);
-         } else {
-            newLine.charMapTo(i, ' ');
+            lineCurrent.charMapTo(srcOffsetRelative, StringUtils.INTER_PUNCT);
          }
+         lineCurrent.incrementNumOfSpaces(1);
+         regular(charCurrent);
+      } else {
+         regular(charCurrent);
+      }
+   }
+
+   private void regular(CharAlgo ca) {
+      int lineWidthNew = lineCurrent.getPixelsW();
+      if (isTestWidth && lineWidthNew > maxLineWidth) {
+         buildLineTooMuchWidth();
+      }
+   }
+
+   /**
+    * Uses the same directive as newline
+    * @param i
+    */
+   private void regularCharCarriage() {
+      int directiveNewLine = stringer.getDirectiveNewLine();
+      if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_0_IGNORED) {
+         doSpecialIgnore();
+      } else if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_1_SPACE_SPECIAL) {
+         doSpecialSpaceFor(StringUtils.SYMBOL_RETURN);
       } else if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_2_JAVA_ESCAPED) {
-         newLine.charMapTo(i, "\n");
+         doSpecialJava("\\r");
       } else if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_3_WORK) {
          if (isShowHiddenChars) {
-            newLine.charMapTo(i, StringUtils.LINE_BREAK_RETURN);
-            createNewLineChar(i + 1);
+            charCurrent.setEther();
+            doSpecialSpaceFor(StringUtils.LINE_BREAK_RETURN);
          } else {
-            createNewLineChar(i + 1);
+            //remove
+            lineCurrent.removeLastChar();
          }
+
+         //does nothing.. but check if \n follows
+      } else {
+         throw new IllegalArgumentException();
+      }
+
+   }
+
+   private void regularCharFormFeed() {
+      int directiveNewLine = stringer.getDirectiveFormFeed();
+      if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_0_IGNORED) {
+         doSpecialIgnore();
+      } else if (directiveNewLine == ITechStringer.SPECIALS_FORMFEED_1_SPACE_SPECIAL) {
+         doSpecialSpaceFor(StringUtils.GENDER_FEMALE);
+      } else if (directiveNewLine == ITechStringer.SPECIALS_FORMFEED_2_JAVA_ESCAPED) {
+         doSpecialJava("\\f");
+      } else if (directiveNewLine == ITechStringer.SPECIALS_FORMFEED_3_NEW_PAGE) {
+
+         if (isShowHiddenChars) {
+            charCurrent.setEther();
+            doSpecialSpaceFor(StringUtils.GENDER_FEMALE);
+         } else {
+            //remove
+            lineCurrent.removeLastChar();
+         }
+
+         buildLineNormal();
+         //create as many new lines for a page break
+         int numLinesPerPage = stringer.getNumLinesPerPage();
+         int addPages = numLinesPerPage - (finalLines.getSize() % numLinesPerPage);
+         for (int j = 0; j < addPages; j++) {
+            //non existing newline characters.. 
+            //each line has a zero length
+            buildLineNormal();
+         }
+      }
+   }
+
+   private void regularCharNewLine() {
+      int directiveNewLine = stringer.getDirectiveNewLine();
+      if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_0_IGNORED) {
+         doSpecialIgnore();
+      } else if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_1_SPACE_SPECIAL) {
+         doSpecialSpaceFor(StringUtils.LINE_BREAK_RETURN);
+      } else if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_2_JAVA_ESCAPED) {
+         doSpecialJava("\\n");
+      } else if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_3_WORK) {
+         if (isShowHiddenChars) {
+            charCurrent.setEther();
+            doSpecialSpaceFor(StringUtils.LINE_BREAK_RETURN);
+         } else {
+            //remove
+            lineCurrent.removeLastChar();
+         }
+
+         buildLineNormal();
          //next line is indeed created by a 
-         newLine.setRealModelLine(true);
-      }
-   }
+         lineCurrent.setRealModelLine(true);
+      } else if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_4_WORK_SHOW) {
 
-   private char regularCharSpace(int offsetStartInterval, int srcOffsetRel, char c) {
-      if (isShowHiddenChars) {
-         c = StringUtils.INTER_PUNCT;
-         newLine.charMapTo(srcOffsetRel, StringUtils.INTER_PUNCT);
       }
-      newLine.incrementNumOfSpaces(1);
-      //
-      lastSpaceOffset = srcOffsetRel;
-      niceBreakOffset = srcOffsetRel;
-      niceLineWidth = tempLineWidth;
-      niceLineLength = tempLineLength;
-      niceDiffFontHeights = tempDiffFontHeights;
-      niceMaxLineHeight = tempMaxLineHeight;
-      return c;
-   }
-
-   private char regularCharSpaceNoW(int offsetStartInterval, int srcOffsetRel, char c) {
-      if (isShowHiddenChars) {
-         c = StringUtils.INTER_PUNCT;
-         newLine.charMapTo(srcOffsetRel, StringUtils.INTER_PUNCT);
-      }
-      newLine.incrementNumOfSpaces(1);
-      return c;
    }
 
    /**
@@ -757,113 +585,35 @@ public class LineAlgo {
     * @param c
     * @return
     */
-   private char regularCharTab(int srcOffsetRel, char c) {
+   private void regularCharTab() {
       int tabManager = stringer.getTabManager();
-      if (tabManager == ITechStringer.SPECIALS_TAB_4_ECLIPSE) {
-         tabEclipse(srcOffsetRel);
-      } else if (tabManager == ITechStringer.SPECIALS_TAB_5_COLUMN) {
-         tabColumn(srcOffsetRel);
+      if (tabManager == ITechStringer.SPECIALS_TAB_0_IGNORED) {
+         doSpecialIgnore();
       } else if (tabManager == ITechStringer.SPECIALS_TAB_1_SPACE_SPECIAL) {
-         if (isShowHiddenChars) {
-            c = StringUtils.ARROW_RIGHT;
-         } else {
-            c = ' ';
-         }
-         newLine.charMapTo(srcOffsetRel, c);
+         doSpecialSpaceFor(StringUtils.ARROW_RIGHT);
       } else if (tabManager == ITechStringer.SPECIALS_TAB_2_JAVA_ESCAPED) {
-         newLine.charMapTo(srcOffsetRel, "\t");
+         doSpecialJava("\\t");
+      } else if (tabManager == ITechStringer.SPECIALS_TAB_4_ECLIPSE) {
+         tabEclipse();
+      } else if (tabManager == ITechStringer.SPECIALS_TAB_5_COLUMN) {
+         tabColumn();
       } else {
-         //ignored
-         newLine.charMapTo(srcOffsetRel, StringUtils.NULL_CHAR);
+         throw new IllegalArgumentException();
       }
-      //option 2 replace it with X num of spaces
-      return c;
-   }
-
-   /**
-    * Deal with c knowing it is not a characters generating any new line business
-    * 
-    * PRE: c is not a new line char
-    * @param offsetStartInterval
-    * @param srcOffsetRel
-    * @param c
-    */
-   private void regularNoNewLinesChar(int offsetStartInterval, int srcOffsetRel, char c) {
-      //      if (c == StringUtils.TAB) {
-      //         c = regularCharTab(srcOffsetRel, c);
-      //      }
-      //      if (c == StringUtils.ENGLISH_SPACE) {
-      //         c = regularCharSpace(offsetStartInterval, srcOffsetRel, c);
-      //      }
-
-      regular(srcOffsetRel, c);
-   }
-
-   private void regularNoWidthCheck(int i, char c) {
-      //manage the width business
-      int cw = style.getCharWidth(c);
-      if (cw == 0) {
-         stringer.setState(ITechStringer.STATE_21_ZERO_WIDTH_CHARS, true);
-         sameCharWidthFact = false;
-      }
-      if (allSameWidth) {
-         //we know that all characters have the same width. set it as a global variable.. 
-         sameCharWidthFactValue = cw;
-         charBiggestWidth = cw;
-      } else {
-         //each char have different width so use the array
-         stringer.getMetrics().charWidths[i] = cw;
-         //check if they are the same width anyways in case
-         if (cw > getCharBiggestWidth()) {
-            charBiggestWidth = cw;
-         }
-         if (sameCharWidthFact) {
-            if (getSameCharWidthFactValue() == 0) {
-               sameCharWidthFactValue = cw;
-            } else {
-               if (cw != getSameCharWidthFactValue()) {
-                  sameCharWidthFact = false;
-               }
-            }
-         }
-      }
-      //keep working on the same line
-      tempLineWidth += cw;
-      tempLineLength++;
-   }
-
-   private void resetLineStateNiceWord(int newTempLineLength, int newTempLineWidth) {
-      numTabsInLine = 0;
-      lastTabOffsetEnd = 0;
-      tempLineStartOffsetRelative = niceBreakOffset;
-      tempLineLength = newTempLineLength;
-      tempLineWidth = newTempLineWidth;
-      tempDiffFontHeights = false;
-      previousLine = newLine;
-      newLine = new LineStringer(stringer);
-      newLine.setOffset(tempLineStartOffsetRelative);
-   }
-
-   private void resetLineStats(int index) {
-      numTabsInLine = 0;
-      lastTabOffsetEnd = 0;
-      tempLineStartOffsetRelative = index;
-      tempLineLength = 0;
-      tempDiffFontHeights = false;
-      tempLineWidth = 0;
-      previousLine = newLine;
-      newLine = new LineStringer(stringer);
-      newLine.setOffset(tempLineStartOffsetRelative);
    }
 
    public void start() {
 
       if (stringer.lengthChars == 0) {
+         //do nothing
       } else {
          while (intervals.hasMoreElements()) {
-            stepNext();
-            lineCheck();
-            loopStart();
+            styleInterval = (IntInterval) intervals.nextElement();
+            style = ((StringFxLeaf) styleInterval.getPayload()).getFx();
+
+            int fontH = style.getFontHeight();
+            stats.lineCheckHeight(fontH);
+            loopStartCurrentInterval();
          }
       }
 
@@ -874,127 +624,139 @@ public class LineAlgo {
       if (stringer.lengthChars == 0 || lastChar == StringUtils.NEW_LINE) {
          createNewLineEmptyFictive();
       } else {
-         //finish algo by making sure at least 1 line is created
-         createNewLineLast();
+         if (!isStop) {
+            //finish algo by making sure at least 1 line is created
+            buildLineNormal();
+         }
       }
 
    }
 
-   public void stepNext() {
-      styleInterval = (IntInterval) intervals.nextElement();
-      style = ((StringFxLeaf) styleInterval.getPayload()).getFx();
-   }
+   private LineStringer lineFirstWithTabs;
+
+   private int          lastTabOffsetStringer;
+
+   private int          lineLengthAtPrevioustab;
 
    /**
     * First line with tabs decides the table.
     * table is invalidated with a line without a single tab
     * @param srcOffsetRel
     */
-   private void tabColumn(int srcOffsetRel) {
+   private void tabColumn() {
+      int srcOffsetRel = charCurrent.getOffsetStringer();
+      int tabID = stats.getTabLineCountAndIncrement();
       if (tabCols == null) {
          tabCols = new TabColumnStringer[5];
-         tabCols[0] = new TabColumnStringer(stringer);
-         tabLineCounter++;
       }
-      if (tabCols[tabLineCounter] == null) {
-         tabCols[tabLineCounter] = new TabColumnStringer(stringer);
+      boolean isFirstLineWithTabs = false;
+      if (lineFirstWithTabs == null) {
+         isFirstLineWithTabs = true;
+         lineFirstWithTabs = lineCurrent;
+      } else {
+         if (lineFirstWithTabs == lineCurrent) {
+            isFirstLineWithTabs = true;
+         }
       }
-      //first line. we create the objects
-      boolean isFirstLine = previousLine == null;
-      if (isFirstLine) {
+
+      if (isFirstLineWithTabs) {
          TabColumnStringer tabCol = new TabColumnStringer(stringer);
          int offsetOfTabColumn = lastTabOffsetEnd;
-         int sizeOfTabColumn = tempLineLength;
+         int sizeOfTabColumn = lineCurrent.getLengthInStringer() - offsetOfTabColumn;
 
          tabCol.setOffset(offsetOfTabColumn);
          tabCol.setNumCharacters(sizeOfTabColumn);
 
          lastTabOffsetEnd = lastTabOffsetEnd + sizeOfTabColumn;
-         tabCols[tabLineCounter] = tabCol;
-         tabLineCounter++;
+         tabCols[tabID] = tabCol;
+
+         //we replace tab with a space or an arrow
+         doSpecialSpaceFor(StringUtils.ARROW_RIGHT);
+
       } else {
          //count the number of tabs in the line
-         TabColumnStringer tabCol = tabCols[numTabsInLine];
-         int sizeOfTabColumn = tabCol.getNumCharacters();
-         int v = tempLineLength;
-         int diff = tabCol.getOffset() + sizeOfTabColumn - v;
 
-         if (diff == 0) {
-            newLine.charMapRemove(srcOffsetRel); //do not show anything
-         } else if (diff > 0) {
-            String str = stringer.getUC().getStrU().getString(" ", diff);
-            newLine.charMapTo(srcOffsetRel, str);
+         TabColumnStringer tabCol = tabCols[tabID];
+         int sizeOfTabColumn = tabCol.getNumCharacters(); //num of chars
+
+         int lineLength = lineCurrent.getLengthInStringer();
+         int numCharsSinceLastTab = lineLength - lineLengthAtPrevioustab;
+         //reset to 0 on a new line
+         lineLengthAtPrevioustab = lineLength;
+         //when positive, we need to add characters to reach the tab column size
+         int diffChars = sizeOfTabColumn - numCharsSinceLastTab;
+
+         //we will replace the tab char with a certain number of spaces/special chars
+         char c = StringUtils.ARROW_RIGHT;
+         char rc = ' ';
+         if (isShowHiddenChars) {
+            rc = c;
+         }
+         String str = String.valueOf(rc);
+         if (diffChars == 0) {
+            lineCurrent.charMapTo(srcOffsetRel, rc); //do not show anything
+         } else if (diffChars > 0) {
+            int numOfChars = diffChars + 1; // +1 because tabchar is already counted in line length
+            //and it is replaced
+            String strTab = stringer.getUC().getStrU().getString(str, numOfChars);
+            lineCurrent.charMapTo(srcOffsetRel, strTab);
          } else {
-            newLine.charMapRemove(srcOffsetRel); //do not show anything
+            lineCurrent.charMapTo(srcOffsetRel, rc); //do not show anything
+            //but remove
+            int v = Math.abs(diffChars);
             //when too big, hides the characters 
-            for (int i = 0; i < diff; i++) {
+            for (int i = 0; i < v; i++) {
                int offset = srcOffsetRel - i - 1;
-               newLine.charMapRemove(offset);
+               lineCurrent.charRemove(offset);
             }
          }
 
       }
    }
 
-   private void tabEclipse(int srcOffsetRel) {
+   private void tabEclipse() {
+
       int tabSize = stringer.getDirectiveTabAux();
-      int numSpacesForTab = tempLineWidth % tabSize;
-      String spaces = stringer.getUC().getStrU().getString(" ", numSpacesForTab);
-      newLine.charMapTo(srcOffsetRel, spaces);
+      int lineSize = lineCurrent.getNumCharVisible();
+      //\t was already added. so we need to remove one
+      lineSize--;
+      int base = (lineSize % tabSize);
+      int numSpacesForTab = tabSize - base;
+      char cs = isShowHiddenChars ? StringUtils.ARROW_RIGHT : StringUtils.ENGLISH_SPACE;
+      String str = String.valueOf(cs);
+
+      //lineCurrent.incrementNumOfSpaces(numSpacesForTab);
+
+      String spaces = stringer.getUC().getStrU().getString(str, numSpacesForTab);
+      lineCurrent.addCharJavaEscaped(spaces, style);
+
    }
 
-   private int trimSpacesLeading(int lineStartingOffset) {
-      if (isRemoveSpaceFromLineExtremities()) {
-         int lineFirstCharIndex = lineStartingOffset;
-         char first = stringer.getCharAtRelative(lineFirstCharIndex);
-         int count = 0;
-         while (first == ' ' && count < tempLineLength) {
-            count++;
-            first = stringer.getCharAtRelative(lineFirstCharIndex + count);
-            niceLineWidth -= stringer.getMetrics().getCharWidth(lineFirstCharIndex + count);
-         }
-         lineStartingOffset = lineFirstCharIndex + count;
-         newLine.setOffset(lineStartingOffset);
-         niceLineLength -= count;
-         lineNumofSpaces -= count;
-      }
-      return lineStartingOffset;
+   //#mdebug
+   public void toString(Dctx dc) {
+      dc.root(this, LineAlgo.class, 1009);
+      toStringPrivate(dc);
+      super.toString(dc.sup());
+
+      dc.appendVarWithSpace("isShowHiddenChars", isShowHiddenChars);
+
+      dc.appendVarWithNewLine("lastChar", lastChar);
+      dc.appendVarWithSpace("maxLinesNum", maxLinesNum);
+      dc.appendVarWithSpace("maxLineWidth", maxLineWidth);
+
+      dc.nlLvl(lineCurrent, "newLine");
+      dc.nlLvl(linePrevious, "previousLine");
    }
 
-   private void trimSpacesTrailing(int lineStartingOffset) {
-      //now that we know the line width and length remove trailing spaces
-      if (isRemoveSpaceFromLineExtremities()) {
-         if (niceLineLength != 0) {
-            int lineLastCharIndex = lineStartingOffset + niceLineLength - 1;
-            char last = stringer.getCharAtRelative(lineLastCharIndex);
-            int count = 0;
-            while (last == ' ' && count < tempLineLength) {
-               count++;
-               int offsetRelative = lineLastCharIndex - count;
-               niceLineWidth -= stringer.getMetrics().getCharWidth(offsetRelative);
-               last = stringer.getCharAtRelative(offsetRelative);
-            }
-            //simply reducing the length is enough for the trailing line spaces
-            niceLineLength -= count;
-            lineNumofSpaces -= count;
-         }
-      }
+   public void toString1Line(Dctx dc) {
+      dc.root1Line(this, LineAlgo.class);
+      toStringPrivate(dc);
+      super.toString1Line(dc.sup1Line());
    }
 
-   /**
-    * Called when a characters is removed from current line because of formatting.
-    * 
-    * Uncount the character so that when the Line is created, any statistics
-    * reflect that this character has been removed.
-    * @param index
-    * @param c
-    */
-   public void unCount(int index, char c) {
-      if (c == StringUtils.TAB) {
-         numTabsInLine--;
-      }
-      if (c == StringUtils.ENGLISH_SPACE) {
-         newLine.incrementNumOfSpaces(-1);
-      }
+   private void toStringPrivate(Dctx dc) {
+
    }
+   //#enddebug
+
 }

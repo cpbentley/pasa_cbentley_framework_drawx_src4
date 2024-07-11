@@ -89,129 +89,63 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
     */
    public StyleCache(DrwCtx dc, ILayoutable ctx, ByteObject style) {
       super(dc);
-      if(ctx == null) {
+      if (ctx == null) {
          throw new NullPointerException();
       }
       this.ctx = ctx;
-      if(style == null) {
+      if (style == null) {
          throw new NullPointerException();
       }
       this.style = style;
       this.styleOp = dc.getStyleOperator();
    }
 
-   public ByteObject getStyle() {
-      return style;
-   }
    private void appendCache(Dctx dc, String name, int val, int flag) {
       dc.appendVarWithSpace(name, val);
       dc.appendBracketedWithSpace(isValueValid(flag));
    }
 
    public void computeStyleDimensions(int w, int h) {
-      areas = createStyleArea(0, 0, w, h);
+      int r = ITechStyleCache.RELATIVE_TYPE_0_MARGIN;
+      this.computeStyleDimensions(w, h, r, r, r, r);
    }
 
+   public void computeStyleDimensions(int w, int h, int typeRelativeW, int typeRelativeH, int typeRelativeX, int typeRelativeY) {
+      int x = 0;
+      int y = 0;
+      areas = styleOp.getStyleAreas(x, y, w, h, style, ctx, this, typeRelativeW, typeRelativeH, typeRelativeX, typeRelativeY);
+   }
 
-   /**
-    * Compute x,y,w,h values for the 4 style structures.
-    * 
-    * <p>
-    * Optimize often used style areas. Those values will be used by style layers to draw themselves.
-    * </p>
-    * 
-    * <p>
-    * The returned array has the following data :
-    * <li>0-3 = at margin rectangle
-    * <li>4-7 = at border rectangle
-    * <li>8-11 = at padding rectangle
-    * <li>12-15 = at content rectangle
-    * 
-    * </p>
-    * @param x
-    * @param y
-    * @param w
-    * @param h
-    * @param style
-    * @return
-    * 
-    */
-   public int[] createStyleArea(int x, int y, int w, int h) {
-      int[] areas = new int[16];
-      areas[4] = x;
-      areas[5] = y;
-      areas[6] = w;
-      areas[7] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_5_MARGIN)) {
-         int marginLeft = getStyleWMarginLeft();
-         int marginTop = getStyleHMarginTop();
-         x += marginLeft;
-         y += marginTop;
-         w = w - marginLeft - getStyleWMarginRite();
-         h = h - marginTop - getStyleHMarginBot();
-      }
-      areas[0] = x;
-      areas[1] = y;
-      areas[2] = w;
-      areas[3] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_4_BORDER)) {
-         int borderLeft = getStyleWBorderLeft();
-         int borderTop = getStyleHBorderTop();
-         x += borderLeft;
-         y += borderTop;
-         w = w - borderLeft - getStyleWBorderRite();
-         h = h - borderTop - getStyleHBorderBot();
-      }
-      areas[12] = x;
-      areas[13] = y;
-      areas[14] = w;
-      areas[15] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_3_PADDING)) {
-         int paddingLeft = getStyleWPaddingLeft();
-         int paddingTop = getStyleHPaddingTop();
-         x += paddingLeft;
-         y += paddingTop;
-         w = w - paddingLeft - getStyleWPaddingRite();
-         h = h - paddingTop - getStyleHPaddingBot();
-      }
-      areas[8] = x;
-      areas[9] = y;
-      areas[10] = w;
-      areas[11] = h;
-      return areas;
+   public ILayoutable getLayoutable() {
+      return ctx;
+   }
+
+   public ByteObject getStyle() {
+      return style;
    }
 
    /**
-    * Direct reference.
-    * Cannot be null. Must be called after compute.
+    * Returns a direct reference to the array of {@link StyleCache}.
+    * Must be called after compute.
     * 
     * provides x y diff values and w,h for margin,border,pad content areas
     * 
+    * Directly related to {@link IBOStyle#STYLE_OFFSET_5_BG_POINTS1}
+    * 
     * That 4*4 values = 16
-    * @return
+    * 
+    * <li>0-3 = border rectangle -> {@link IBOStyle#STYLE_ANC_0_BORDER}
+    * <li>4-7 = margin rectanble -> {@link IBOStyle#STYLE_ANC_1_MARGIN}
+    * <li>8-11 = content rectangle -> {@link IBOStyle#STYLE_ANC_2_CONTENT}
+    * <li>12-15 = padding rectangle -> {@link IBOStyle#STYLE_ANC_3_PADDING}
+    * 
+    * @return cannot be null.
     */
    public int[] getStyleAreas() {
       if (areas == null) {
-         areas = getStyleAreas(ctx.getPozeX(), ctx.getPozeY(), ctx.getSizeDrawnWidth(), ctx.getSizeDrawnHeight());
-      }
-      return areas;
-   }
-
-   public int[] getStyleAreas(int x, int y, int w, int h) {
-      //#debug
-      toDLog().pFlow("x=" + x + " y=" + y + " w=" + w + " h=" + h, this, StyleCache.class, "getStyleAreas", LVL_05_FINE, true);
-      
-      if (areas == null || isValueInvalid(SC_FLAG_30_AREAS)) {
-         areas = styleOp.getStyleAreas(x, y, w, h, style, ctx);
-         
-         int[] areas = createStyleArea(x, y, w, h);
-         this.areas = areas;
-      }
-      if (areas == null) {
-
          //#debug
-         toDLog().pNull("x=" + x + " y=" + y + " w=" + w + " h=" + h, this, StyleCache.class, "getStyleAreas");
-         throw new IllegalStateException("Areas must not be null");
+         toDLog().pNull("", this, StyleCache.class, "getStyleAreas@142", LVL_05_FINE, false);
+         throw new NullPointerException("computeStyleDimensions has not been called");
       }
       return areas;
    }
@@ -466,7 +400,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
    }
 
    private void setValueValid(int flag) {
-      BitUtils.setFlag(flagsValidity, flag, true);
+      flagsValidity = BitUtils.setFlag(flagsValidity, flag, true);
    }
 
    //#mdebug
@@ -475,11 +409,7 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
       toStringPrivate(dc);
       super.toString(dc.sup());
 
-      dc.nlLvl("styleAreas", areas, 4);
-
-      dc.nlLvl(style, "Style");
-      dc.nlLvl(ctx, ILayoutable.class);
-
+      dc.nl();
       appendCache(dc, "styleHAll", styleHAll, SC_FLAG_02_HEIGHT_ALL);
       appendCache(dc, "styleHAllTop", styleHAllTop, SC_FLAG_05_HEIGHT_TOP);
       appendCache(dc, "styleHAllBot", styleHAllBot, SC_FLAG_06_HEIGHT_BOT);
@@ -519,12 +449,20 @@ public class StyleCache extends ObjectDrw implements IBOStyle, IBOTblr, IBOTypes
       appendCache(dc, "styleWMarginLeft", styleWMarginLeft, SC_FLAG_20_MARGIN_LEFT);
       appendCache(dc, "styleWMarginRite", styleWMarginRite, SC_FLAG_21_MARGIN_RITE);
 
+      dc.nlLvl("styleAreas", areas, 4);
+      
+      dc.nlLvl(style, "Style");
+      dc.nlLvl(ctx, ILayoutable.class);
    }
 
    public void toString1Line(Dctx dc) {
       dc.root1Line(this, StyleCache.class);
       toStringPrivate(dc);
       super.toString1Line(dc.sup1Line());
+   }
+
+   public int[] toStringGetAreas() {
+      return areas;
    }
 
    private void toStringPrivate(Dctx dc) {

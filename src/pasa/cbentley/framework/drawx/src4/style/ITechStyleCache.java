@@ -8,6 +8,58 @@ import pasa.cbentley.core.src4.interfaces.ITech;
 
 public interface ITechStyleCache extends ITech {
 
+   public static final int OFFSET_BORDER_H_3         = 3;
+
+   public static final int OFFSET_BORDER_W_2         = 2;
+
+   public static final int OFFSET_BORDER_X_0         = 0;
+
+   public static final int OFFSET_BORDER_Y_1         = 1;
+
+   public static final int OFFSET_CONTENT_H          = 11;
+
+   public static final int OFFSET_CONTENT_W          = 10;
+
+   public static final int OFFSET_CONTENT_X          = 8;
+
+   public static final int OFFSET_CONTENT_Y          = 9;
+
+   public static final int OFFSET_MARGIN_H           = 7;
+
+   public static final int OFFSET_MARGIN_W           = 6;
+
+   public static final int OFFSET_MARGIN_X           = 4;
+
+   public static final int OFFSET_MARGIN_Y           = 5;
+
+   public static final int OFFSET_PADDING_H          = 15;
+
+   public static final int OFFSET_PADDING_W          = 14;
+
+   public static final int OFFSET_PADDING_X          = 12;
+
+   public static final int OFFSET_PADDING_Y          = 13;
+
+   /**
+    * The value given for the x or y or width or height relative to the marging
+    */
+   public static final int RELATIVE_TYPE_0_MARGIN    = 0;
+
+   /**
+    * 
+    */
+   public static final int RELATIVE_TYPE_1_BORDER    = 1;
+
+   /**
+    * 
+    */
+   public static final int RELATIVE_TYPE_2_PADDING   = 2;
+
+   /**
+    * 
+    */
+   public static final int RELATIVE_TYPE_3_CONTENT   = 3;
+
    public static final int SC_FLAG_01_WIDTH_ALL      = 1 << 0;
 
    public static final int SC_FLAG_02_HEIGHT_ALL     = 1 << 1;

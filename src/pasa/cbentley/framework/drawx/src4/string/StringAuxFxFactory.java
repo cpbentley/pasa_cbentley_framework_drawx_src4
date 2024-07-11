@@ -5,28 +5,34 @@
 package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
+import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwFactory;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFigString;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxFx;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxFxApplicator;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 
 /**
- * Creator of {@link IBOFxStr} templates.
- * <br>
- * <br>
  * 
  * @author Charles-Philip Bentley
  *
  */
-public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBOTypesDrawX, IBOStrAuxFxApplicator {
+public class StringAuxFxFactory extends AbstractDrwFactory implements IBOStrAuxFx, IBOTypesDrawX, IBOStrAuxFxApplicator {
 
-   public FxStringFactory(DrwCtx drc) {
+   public StringAuxFxFactory(DrwCtx drc) {
       super(drc);
+   }
+
+   public void addFxApplicator(ByteObject p, ByteObject app) {
+      //#debug
+      app.checkType(TYPE_DRWX_07_STRING_AUX);
+
+      p.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_8_APPLICATOR, true);
+      p.addByteObject(app);
    }
 
    /**
@@ -39,15 +45,7 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
       fig.checkType(TYPE_DRWX_00_FIGURE);
 
       fx.addByteObject(fig);
-      fx.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE, true);
-   }
-
-   public void addFxApp(ByteObject p, ByteObject app) {
-      //#debug
-      app.checkType(TYPE_010_POINTER);
-
-      p.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_8_APPLICATOR, true);
-      p.addByteObject(app);
+      fx.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE_BG, true);
    }
 
    public void addFxMask(ByteObject p, ByteObject mask) {
@@ -64,8 +62,8 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
     * @return
     */
    public ByteObject createFxFromFigure(ByteObject textFigure) {
-      ByteObject fx = getBOFactory().createByteObject(TYPE_DRWX_11_TEXT_EFFECTS, FX_BASIC_SIZE_TEXT);
-      fx.setValue(FX_OFFSET_05_SCOPE_FX1, ITechStringDrw.FX_SCOPE_0_TEXT, 1);
+      ByteObject fx = createStrAuxFx();
+      fx.setValue(FX_OFFSET_05_SCOPE_FX1, ITechStringer.FX_SCOPE_0_TEXT, 1);
 
       this.setColor(fx, textFigure.get4(IBOFigure.FIG__OFFSET_06_COLOR4));
       this.setFace(fx, textFigure.get1(IBOFigString.FIG_STRING_OFFSET_03_FACE1));
@@ -73,7 +71,7 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
       this.setFontSize(fx, textFigure.get1(IBOFigString.FIG_STRING_OFFSET_05_SIZE1));
 
       if (textFigure.hasFlag(IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_2_DEFINED_FX)) {
-         ByteObject fxFigStr = textFigure.getSubFirst(TYPE_DRWX_11_TEXT_EFFECTS);
+         ByteObject fxFigStr = drc.getStrAuxOperator().getSub(textFigure, TYPE_DRWX_07_STRING_AUX_4_FX);
          if (fxFigStr != null) {
             int scope = fxFigStr.get1(FX_OFFSET_05_SCOPE_FX1);
             fx.set1(FX_OFFSET_05_SCOPE_FX1, scope);
@@ -86,9 +84,13 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
       return fx;
    }
 
-   public ByteObject getFxApplicator(int index) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_13_FX_APPLICATOR, FXA_BASIC_SIZE);
+   public ByteObject createStrAuxFx() {
+      ByteObject p = drc.getStringAuxFactory().createStrAuxFx();
+      return p;
+   }
 
+   public ByteObject getFxApplicator(int index) {
+      ByteObject p = drc.getStringAuxFactory().createStrAuxApplicator();
       p.set2(FXA_OFFSET_02_INDEX2, index);
       return p;
    }
@@ -100,12 +102,11 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
     * @return
     */
    public ByteObject getFxChar(ByteObject mask, int charIndex) {
-      ByteObject fx = getFxEffect(ITechStringDrw.FX_SCOPE_1_CHAR);
-      ByteObject pointer = getFxApplicator(charIndex);
-      addFxApp(fx, pointer);
+      ByteObject fx = getFxEffect(ITechStringer.FX_SCOPE_1_CHAR);
+      ByteObject fxApplicator = getFxApplicator(charIndex);
+      addFxApplicator(fx, fxApplicator);
       return fx;
    }
-
 
    /**
     * A character effect that applies to the first character of the parent scope.
@@ -120,51 +121,76 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
     * @return
     */
    public ByteObject getFxCharFirst(ByteObject mask) {
-      ByteObject p = getFxEffect(ITechStringDrw.FX_SCOPE_1_CHAR);
+      ByteObject p = getFxEffect(ITechStringer.FX_SCOPE_1_CHAR);
       addFxMask(p, mask);
       int indexApplicator = 0; //first
       ByteObject fxa = getFxApplicator(indexApplicator);
-      addFxApp(p, fxa);
-      return p;
-   }
-
-   public ByteObject getFxFont(int face, int style, int size, int color) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_11_TEXT_EFFECTS, FX_BASIC_SIZE);
-      p.set1(FX_OFFSET_06_FACE1, face);
-      p.set1(FX_OFFSET_07_STYLE1, style);
-      p.set1(FX_OFFSET_08_SIZE1, size);
-      p.set4(FX_OFFSET_09_COLOR4, color);
+      addFxApplicator(p, fxa);
       return p;
    }
 
    /**
     * Returns {@link ByteObject} of type {@link IBOTypesDrawX#TYPE_DRWX_11_TEXT_EFFECTS} with scope
-    * <li> {@link ITechStringDrw#FX_SCOPE_1_CHAR}
-    * <li> {@link ITechStringDrw#FX_SCOPE_2_WORD}
-    * <li> {@link ITechStringDrw#FX_SCOPE_2_LINE}
-    * <li> {@link ITechStringDrw#FX_SCOPE_3_PARA}
-    * <li> {@link ITechStringDrw#FX_SCOPE_0_TEXT}
-    * <li> {@link ITechStringDrw#FX_SCOPE_5_FRAZ}
-    * <li> {@link ITechStringDrw#FX_SCOPE_6_SEPARATORS}
+    * <li> {@link ITechStringer#FX_SCOPE_1_CHAR}
+    * <li> {@link ITechStringer#FX_SCOPE_2_WORD}
+    * <li> {@link ITechStringer#FX_SCOPE_4_LINE}
+    * <li> {@link ITechStringer#FX_SCOPE_3_PARA}
+    * <li> {@link ITechStringer#FX_SCOPE_0_TEXT}
+    * <li> {@link ITechStringer#FX_SCOPE_5_FRAZ}
+    * <li> {@link ITechStringer#FX_SCOPE_6_SEPARATORS}
     * @param scope
     * @return
     */
    public ByteObject getFxEffect(int scope) {
-      int size = FX_BASIC_SIZE;
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_11_TEXT_EFFECTS, size);
+      ByteObject p = createStrAuxFx();
       p.set1(FX_OFFSET_05_SCOPE_FX1, scope);
       return p;
    }
 
+   public ByteObject getFxColorFunction(int scope, ByteObject cf) {
+      ByteObject p = createStrAuxFx();
+      p.set1(FX_OFFSET_05_SCOPE_FX1, scope);
+      p.addByteObject(cf);
+      p.setFlag(FX_OFFSET_04_FLAGZ, FX_FLAGZ_8_FUNCTION, true);
+      this.setFontAllTransparent(p);
+      return p;
+   }
+
+   public ByteObject getFxColor(int scope, int color) {
+      ByteObject p = createStrAuxFx();
+      p.set1(FX_OFFSET_05_SCOPE_FX1, scope);
+      p.set4(FX_OFFSET_09_COLOR4, color);
+      this.setFontTransparent(p);
+      return p;
+   }
+
    /**
-    * Returns a Fx with just the color defined, even scope is transparent
+    * Returns an {@link IBOStrAuxFx} with just the color defined, even scope is transparent.
+    * 
     * @param scope
     * @return
     */
    public ByteObject getFxEffectColor(int color) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_11_TEXT_EFFECTS, FX_BASIC_SIZE);
+      ByteObject p = createStrAuxFx();
       p.set4(FX_OFFSET_09_COLOR4, color);
       setFontTransparent(p);
+      p.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_5_UNDEFINED_SCOPE, true);
+      return p;
+   }
+
+   public ByteObject getFxEffectFontFace(int face) {
+      ByteObject p = createStrAuxFx();
+      p.set1(FX_OFFSET_06_FACE1, face);
+      setFontTransparent(p, false, true, true, true);
+      p.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_5_UNDEFINED_SCOPE, true);
+      return p;
+   }
+
+   public ByteObject getFxEffectFontFaceStyle(int face, int style) {
+      ByteObject p = createStrAuxFx();
+      p.set1(FX_OFFSET_06_FACE1, face);
+      p.set1(FX_OFFSET_07_STYLE1, style);
+      setFontTransparent(p, false, false, true, true);
       p.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_5_UNDEFINED_SCOPE, true);
       return p;
    }
@@ -175,12 +201,7 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
     * @return
     */
    public ByteObject getFxFigureBg(ByteObject figure) {
-      //#debug
-      figure.checkType(TYPE_DRWX_00_FIGURE);
-      ByteObject fx = getFxEffect(ITechStringDrw.FX_SCOPE_0_TEXT);
-
-      setFxFigure(fx, figure);
-      return fx;
+      return this.getFxFigureBg(ITechStringer.FX_SCOPE_0_TEXT, figure);
    }
 
    /**
@@ -193,10 +214,32 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
    public ByteObject getFxFigureBg(ByteObject figure, int textColor) {
       //#debug
       figure.checkType(TYPE_DRWX_00_FIGURE);
-      ByteObject fx = getFxEffect(ITechStringDrw.FX_SCOPE_0_TEXT);
+      ByteObject fx = getFxEffect(ITechStringer.FX_SCOPE_0_TEXT);
       setColor(fx, textColor);
       setFxFigure(fx, figure);
       return fx;
+   }
+
+   /**
+    * Font color are transparent
+    */
+   public ByteObject getFxFigureBg(int scope, ByteObject figure) {
+      //#debug
+      figure.checkType(TYPE_DRWX_00_FIGURE);
+      ByteObject fx = getFxEffect(scope);
+
+      setFxFigure(fx, figure);
+      this.setFontAllTransparent(fx);
+      return fx;
+   }
+
+   public ByteObject getFxFont(int face, int style, int size, int color) {
+      ByteObject p = createStrAuxFx();
+      p.set1(FX_OFFSET_06_FACE1, face);
+      p.set1(FX_OFFSET_07_STYLE1, style);
+      p.set1(FX_OFFSET_08_SIZE1, size);
+      p.set4(FX_OFFSET_09_COLOR4, color);
+      return p;
    }
 
    /**
@@ -218,7 +261,7 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
     * @return
     */
    public ByteObject getFxWord(ByteObject mask) {
-      ByteObject fx = getFxEffect(ITechStringDrw.FX_SCOPE_2_WORD);
+      ByteObject fx = getFxEffect(ITechStringer.FX_SCOPE_2_WORD);
       setFxMask(fx, mask);
       return fx;
    }
@@ -230,9 +273,9 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
     * @return
     */
    public ByteObject getFxWord(ByteObject mask, int charIndex) {
-      ByteObject fx = getFxEffect(ITechStringDrw.FX_SCOPE_2_WORD);
+      ByteObject fx = getFxEffect(ITechStringer.FX_SCOPE_2_WORD);
       ByteObject pointer = getFxApplicator(charIndex);
-      addFxApp(fx, pointer);
+      addFxApplicator(fx, pointer);
       return fx;
    }
 
@@ -245,11 +288,12 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
     * @return
     */
    public ByteObject getTextEffectChar(int index, ByteObject style) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_11_TEXT_EFFECTS, FX_BASIC_SIZE);
-      p.setValue(FX_OFFSET_05_SCOPE_FX1, ITechStringDrw.FX_SCOPE_1_CHAR, 1);
+      ByteObject p = createStrAuxFx();
+
+      p.setValue(FX_OFFSET_05_SCOPE_FX1, ITechStringer.FX_SCOPE_1_CHAR, 1);
 
       ByteObject app = getFxApplicator(index);
-      addFxApp(p, app);
+      addFxApplicator(p, app);
 
       p.addByteObject(style);
       return p;
@@ -268,7 +312,11 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
 
    public void setFigureToFx(ByteObject fx, ByteObject fig) {
       fx.addByteObjectUniqueType(fig);
-      fx.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE, true);
+      fx.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE_BG, true);
+   }
+
+   public void setFontAllTransparent(ByteObject fx) {
+      setFontTransparent(fx, true, true, true, true);
    }
 
    /**
@@ -304,22 +352,22 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
       fx.setFlag(FX_OFFSET_02_FLAGX, FX_FLAGX_8_INCOMPLETE, isIncomplete);
    }
 
-   public void setFxFigure(ByteObject fx, ByteObject figure) {
-      //#debug
-      figure.checkType(TYPE_DRWX_00_FIGURE);
-      fx.addByteObjectUniqueType(figure);
-      fx.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE, true);
-   }
-
-   public void setFxMask(ByteObject fx, ByteObject mask) {
-      addFxMask(fx, mask);
-   }
-
    public void setFxApplicator(ByteObject fx, ByteObject app) {
       //#debug
       app.checkType(TYPE_010_POINTER);
       fx.addByteObject(app);
       fx.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_8_APPLICATOR, true);
+   }
+
+   public void setFxFigure(ByteObject fx, ByteObject figure) {
+      //#debug
+      figure.checkType(TYPE_DRWX_00_FIGURE);
+      fx.addByteObjectUniqueType(figure);
+      fx.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_2_FIGURE_BG, true);
+   }
+
+   public void setFxMask(ByteObject fx, ByteObject mask) {
+      addFxMask(fx, mask);
    }
 
    /**
@@ -333,5 +381,10 @@ public class FxStringFactory extends AbstractDrwFactory implements IBOFxStr, IBO
       fx.addByteObjectUniqueType(mask);
       fx.setFlag(FX_OFFSET_03_FLAGY, FX_FLAGY_3_MASK, true);
    }
-
+   public void setFunctionToFx(ByteObject fx, ByteObject function) {
+      //#debug
+      function.checkType(IBOTypesBOC.TYPE_021_FUNCTION);
+      fx.addByteObjectUniqueType(function);
+      fx.setFlag(FX_OFFSET_04_FLAGZ, FX_FLAGZ_8_FUNCTION, true);
+   }
 }

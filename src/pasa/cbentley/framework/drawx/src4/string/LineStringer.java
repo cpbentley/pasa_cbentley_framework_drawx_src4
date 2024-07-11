@@ -4,6 +4,7 @@ import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.strings.CharMapper;
+import pasa.cbentley.core.src4.structs.BufferObject;
 import pasa.cbentley.core.src4.structs.IntIntervals;
 import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
@@ -36,55 +37,212 @@ import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 public class LineStringer extends ObjectDrw {
 
    /**
-    * Mapping of the char Width
+    * Null when all chars have the same height
     */
-   int[]              charsWidth;
+   int[]                 charsHeight;
 
-   private boolean    hasDifferentFonts;
+   /**
+    * When null, all chars have the same width on this line which is
+    * 
+    * {@link LineStringer#widthMono}
+    * 
+    * When isJustified 
+    * 
+    */
+   int[]                 charsWidth;
 
-   private int        index;
+   private boolean       hasDifferentFonts;
+
+   private int           index;
 
    /**
     * True when empty line for form feed page break
     */
-   private boolean    isFictiveLine;
+   private boolean       isFictiveLine;
 
-   private boolean    isJustified;
+   private boolean       isJustified;
 
-   private boolean    isMonospaced;
+   private boolean       isMonospaced;
 
    /**
-    * True when this line was created because of \n
+    * True when this line was created because of \n.
+    * 
+    * <li>{@link LineStringer#isRealModelLine()} 
+    * <li>{@link LineStringer#setRealModelLine(boolean)} 
     */
-   private boolean    isRealModelLine;
+   private boolean       isRealModelLine;
 
-   private int        len;
+   private boolean       isSpaceOut;
 
-   private LineFx     lineFx;
+   private int           len;
 
-   private CharMapper map;
+   private LineFx        lineFx;
 
-   private int        offset;
+   /**
+    * Unknown by default
+    */
+   private int           lineID = -1;
 
-   private int        pixelsH;
+   private CharMapper    map;
 
-   private int        numOfSpaces;
+   /**
+    * Kept if word breaks are required.
+    * CharAlgo buffer
+    * 
+    * When null.. line is built
+    * when not null line is being built
+    */
+   private BuildLineData model;
 
-   private int        pixelsW;
+   private int           numOfSpaces;
 
-   private Stringer   stringer;
+   private int           offset;
 
-   private int        widthMono;
+   private int           pixelsH;
 
-   private int[]      wordBreaks;
+   private int           pixelsW;
 
-   private int        x;
+   /**
+    * building
+    * built
+    */
+   private int           state;
 
-   private int        y;
+   private Stringer      stringer;
+
+   private int           widthMono;
+
+   private int[]         wordBreaks;
+
+   private int           x;
+
+   private int           y;
 
    public LineStringer(Stringer stringer) {
       super(stringer.getDRC());
       this.stringer = stringer;
+      model = new BuildLineData(drc);
+   }
+
+   public void addChar(CharAlgo c) {
+      BuildLineData builder = getBuilder();
+      builder.addChar(c);
+
+      c.setOffsetLine(len);
+      int width = c.getWidth();
+
+      if (len == 0) {
+         widthMono = width;
+         this.offset = c.getOffsetStringer();
+      } else {
+         if (widthMono != -1 && width != widthMono) {
+            widthMono = -1;
+         }
+      }
+
+      pixelsW += width;
+      int h = c.getHeight();
+      if (h > pixelsH) {
+         pixelsH = h;
+      }
+      len++;
+   }
+
+   public void addCharEther(CharAlgo ca) {
+      ca.setEther();
+      this.addChar(ca);
+   }
+
+   public void addCharFictive(int offset, char c) {
+      getCharMapper().opAddChar(offset, c);
+   }
+
+   /**
+    * Called when having to show invisible chars
+    * @param c
+    */
+   public void addCharHiddenSpace(CharAlgo c) {
+      this.charRemove(c.getOffsetStringer());
+      this.incrementLen();
+   }
+
+   public void addCharIgnore() {
+      CharAlgo lastc = model.removeLastChar();
+      int wlast = lastc.getWidth();
+      this.pixelsW -= wlast;
+      this.charRemove(lastc.getOffsetStringer());
+   }
+
+   public CharAlgo addCharJavaEscaped(String str, StringFx style) {
+      CharAlgo lastc = model.getLastChar();
+      this.charMapTo(lastc.getOffsetStringer(), str);
+
+      int wlast = lastc.getWidth();
+      this.pixelsW -= wlast;
+
+      int w = 0;
+      for (int i = 0; i < str.length(); i++) {
+         char c = str.charAt(i);
+         int cw = style.getCharWidth(c);
+         w += cw;
+      }
+      lastc.setWidth(w);
+      this.pixelsW += w;
+      return lastc;
+   }
+
+   public void addCharReplace(CharAlgo ca) {
+      this.charMapTo(ca.getOffsetStringer(), StringUtils.LINE_BREAK_RETURN);
+      this.incrementLen();
+   }
+
+   /**
+    * Replace
+    * @param c
+    * @param isShowHiddenChars
+    */
+   public void addCharSpaceSpecial(char newC, int newCharWidth) {
+      CharAlgo lastc = model.getLastChar();
+      int wlast = lastc.getWidth();
+      this.pixelsW -= wlast;
+      this.pixelsW += newCharWidth;
+      lastc.setWidth(newCharWidth);
+      lastc.setC(newC);
+      lastc.setMapReplaceChar(newC);
+      //this.charMapTo(offsetStringer, newC);
+   }
+
+   /**
+    * Append Visible Text
+    * @param sb
+    * @param offsetStart line relative offset.. so first char is 0
+    * @param offsetEnd line relative offset
+    */
+   public void appendCharFromOffsets(StringBBuilder sb, int offsetStart, int offsetEnd) {
+      int diff = offsetEnd - offsetStart;
+      int count = 0;
+      char[] array = getCharArrayRef();
+      int arraOffset = getCharArrayRefOffset();
+      while (count < diff) {
+         char c = array[arraOffset + count];
+         sb.append(c);
+         count++;
+      }
+   }
+
+   /**
+    * Append the model text
+    * @param sb
+    * @param offsetStart
+    * @param offsetEnd
+    */
+   public void appendCharFromOffsetsModel(StringBBuilder sb, int offsetStart, int offsetEnd) {
+      if (map == null) {
+         //model equals visible
+         appendCharFromOffsets(sb, offsetStart, offsetEnd);
+      } else {
+         map.appendStringSrc(sb, offsetStart, offsetEnd);
+      }
    }
 
    /**
@@ -93,10 +251,46 @@ public class LineStringer extends ObjectDrw {
     * This method builds the charmap if any
     */
    public void build() {
+      if (model == null) {
+         throw new IllegalStateException("Cannot build a line with nothing in it");
+      }
+
+      BufferObject chars = model.getChars();
+      int size = chars.getSize();
+      for (int i = 0; i < size; i++) {
+         CharAlgo ca = (CharAlgo) chars.get(i);
+         map = ca.addToMap(map);
+      }
+
+      buildMap();
+
+      //fill up charWidths for the visible chars
+      if (charsWidth == null) {
+         int num = getNumCharVisible();
+         charsWidth = new int[num];
+      }
+
+      //chars that were from model
+      chars = model.getChars();
+      CharAlgo ca = null;
+      int count = 0;
+      while ((ca = (CharAlgo) chars.removeFirst()) != null) {
+         charsWidth[count] += ca.getWidth();
+         count++;
+      }
+      model = null;
+
+   }
+
+   public void buildMap() {
       if (map != null) {
-         int offset = stringer.offsetChars + this.offset;
-         map.setSource(stringer.chars, offset, this.len);
+         int lineOffset = getOffset();
+         int srcLength = this.getLengthInStringer();
+         int srcOffset = stringer.offsetChars + lineOffset;
+         map.setOffsetExtra(lineOffset);
+         map.setSource(stringer.chars, srcOffset, srcLength);
          map.build();
+
       }
    }
 
@@ -105,37 +299,67 @@ public class LineStringer extends ObjectDrw {
     * @param offset stringer srcChar relative
     * @param c char to replace one at offset
     */
-   public void charMapTo(int offset, char c) {
-      int lineMappedOffset = stringer.offsetChars + offset;
-      getCharMapper().opReplaceChar(lineMappedOffset, c);
+   public void charMapTo(int offsetStringer, char c) {
+      debugOffsetStringerIsInside(offsetStringer);
+      //offset is srcChar relative.. but it has to be lineOffset relative
+      CharMapper charMapper = getCharMapper();
+      charMapper.opReplaceChar(offsetStringer, c);
    }
 
-   public void charMapTo(int offset, String str) {
-      int lineMappedOffset = stringer.offsetChars + offset;
-      getCharMapper().opReplaceWith(lineMappedOffset, str);
+   public void charMapTo(int offsetStringer, String str) {
+      debugOffsetStringerIsInside(offsetStringer);
+      CharMapper charMapper = getCharMapper();
+      charMapper.opReplaceWith(offsetStringer, str);
    }
 
-   public void charMapRemove(int offset) {
-      int lineMappedOffset = stringer.offsetChars + offset;
-      getCharMapper().opRemove(lineMappedOffset);
+   public void charRemove(int offsetStringer) {
+      //offset is srcChar relative.. but it has to be lineOffset relative
+      CharMapper charMapper = getCharMapper();
+      charMapper.opRemove(offsetStringer);
    }
 
    /**
     * 
-    * @param index
+    * @param offsetLine
     * @param len
     */
-   public void debugExIsInside(int index, int len) {
-      boolean isOffsetOk = 0 <= index && index < this.len;
-      boolean isLenOk = len > 0 && (index + len) <= this.offset + this.len;
+   public void debugOffsetLineIsInside(int offsetLine, int len) {
+      boolean isOffsetOk = 0 <= offsetLine && offsetLine < this.len;
+      boolean isLenOk = len > 0 && (offsetLine + len) <= this.offset + this.len;
       if (!isOffsetOk) {
          //#debug
          toDLog().pAlways("msg", this, LineStringer.class, "debugExIsInside", LVL_05_FINE, false);
-         throw new IllegalArgumentException("offset " + index + " is not inside Line");
+         throw new IllegalArgumentException("offsetLine " + offsetLine + " is not inside Line");
       }
       if (!isLenOk) {
-         throw new IllegalArgumentException("length " + len + " is not inside Line (offset=" + index + ")");
+         throw new IllegalArgumentException("length " + len + " is not inside Line (offset=" + offsetLine + ")");
       }
+   }
+
+   public void debugOffsetStringerIsInside(int offsetStringer) {
+      if (!this.isInside(offsetStringer)) {
+         //#debug
+         toDLog().pAlways("msg", this, LineStringer.class, "debugExIsInside", LVL_05_FINE, false);
+         throw new IllegalArgumentException("offsetStringer " + offsetStringer + " is not inside Line");
+      }
+   }
+
+   public BufferObject deleteCharsFrom(int offsetLine) {
+      BufferObject removedChars = model.removeChars(offsetLine);
+      int size = removedChars.getSize();
+      len -= size;
+      for (int i = 0; i < size; i++) {
+         CharAlgo ca = (CharAlgo) removedChars.get(i);
+         this.pixelsW -= ca.getWidth();
+      }
+      return removedChars;
+   }
+
+   public void editorCharReplace(int offsetStringer, char c) {
+      char[] ar = stringer.chars;
+      int offsetline = this.getOffsetLineFromStringerOffset(offsetStringer);
+      int offset = stringer.offsetChars + offsetStringer;
+      ar[offset] = c;
    }
 
    public void enableCharWidths() {
@@ -144,17 +368,11 @@ public class LineStringer extends ObjectDrw {
       }
    }
 
-   /**
-    * 
-    * @param offsetLine relative to line offset
-    * @return
-    */
-   public char getChar(int offsetLine) {
-      if (map == null) {
-         return stringer.getCharAtRelative(this.offset + offsetLine);
-      } else {
-         return map.getCharsMapped()[offsetLine];
+   public BuildLineData getBuilder() {
+      if (model == null) {
+         throw new IllegalStateException("cannot call once build method set model to null");
       }
+      return model;
    }
 
    /**
@@ -202,14 +420,6 @@ public class LineStringer extends ObjectDrw {
       throw new RuntimeException();
    }
 
-   public int getCharsWidth(int indexRelative, int len) {
-      int sum = 0;
-      for (int i = 0; i < len; i++) {
-         sum += charsWidth[indexRelative + i];
-      }
-      return sum;
-   }
-
    /**
     * 
     * Returns the width consumed by those characters.
@@ -222,33 +432,67 @@ public class LineStringer extends ObjectDrw {
     * @throws IllegalArgumentException when values are out of bounds
     */
    public int getCharsWidthConsumed(int indexRelative, int len) {
-      debugExIsInside(indexRelative, len);
-      if (map == null) {
-         return stringer.getMetrics().getWidthConsumed(indexRelative, len);
+      debugOffsetLineIsInside(indexRelative, len);
+      if (charsWidth == null) {
+         return len * widthMono;
       } else {
-         if (isMonospaced) {
-            return len * widthMono;
-         } else {
-            if (charsWidth == null) {
-               return stringer.getMetrics().getWidthConsumed(indexRelative, len);
-            } else {
-               return getCharsWidth(indexRelative, len);
-            }
+         int sum = 0;
+         for (int i = 0; i < len; i++) {
+            sum += charsWidth[indexRelative + i];
          }
+         return sum;
       }
    }
 
    /**
-    * Offset relative to line offset
-    * @param offsetRel
+    * 
+    * @param offsetLineVisible relative to line offset
     * @return
     */
-   public int getCharWidth(int offsetRel) {
-      if (charsWidth == null) {
-         return stringer.getMetrics().getCharWidth(offset + offsetRel);
+   public char getCharVisible(int offsetLineVisible) {
+      if (map == null) {
+         return stringer.getCharSourceAtRelative(this.offset + offsetLineVisible);
       } else {
-         return charsWidth[offsetRel];
+         char[] charsMapped = map.getCharsMapped();
+         return charsMapped[offsetLineVisible];
       }
+   }
+
+   public int getCharWidth(int indexLine) {
+      if (charsWidth == null) {
+         return widthMono;
+      } else {
+         return charsWidth[indexLine];
+      }
+   }
+
+   /**
+    * Returns the number of pixels consumed by all letters until index not included.
+    * 
+    * Therefore,
+    * <li> when index is 0, returns 0
+    * <li> when index is 1, returns the width of the first characters
+    * @param indexLine
+    * @return
+    */
+   public int getCharWidthConsumedUntil(int indexLine) {
+      int len = indexLine;
+      int startIndex = 0;
+      int sum = getCharsWidthConsumed(startIndex, len);
+      return sum;
+   }
+
+   public int getCharX(int offsetLine) {
+      int m = 0;
+      if (charsWidth == null) {
+         m = offsetLine * widthMono;
+      } else {
+         for (int i = 0; i < offsetLine; i++) {
+            int w = charsWidth[i];
+            m += w;
+         }
+      }
+      return x + m;
    }
 
    public ByteObject getFigureBG() {
@@ -262,8 +506,21 @@ public class LineStringer extends ObjectDrw {
       return index;
    }
 
-   public int getLen() {
+   /**
+    * The length the line runs for into the Stringer buffer, this value included
+    * hidden characters and does not include mapped strings that are bigger than 1.
+    * 
+    * <p>
+    * It is the length in the source array
+    * </p>
+    * @return
+    */
+   public int getLengthInStringer() {
       return len;
+   }
+
+   public int getLineID() {
+      return lineID;
    }
 
    /**
@@ -280,6 +537,23 @@ public class LineStringer extends ObjectDrw {
    }
 
    /**
+    * Returns the number of char
+    * 
+    * @return
+    */
+   public int getNumCharVisible() {
+      if (map == null) {
+         return len;
+      } else {
+         return len + map.getSizeDiff();
+      }
+   }
+
+   public int getNumOfSpaces() {
+      return numOfSpaces;
+   }
+
+   /**
     * Offset relative to Stringer.
     * 
     * The first offset relative to Line is always zero because there are no
@@ -290,7 +564,30 @@ public class LineStringer extends ObjectDrw {
       return offset;
    }
 
-   public int getOffsetLast() {
+   /**
+    * Returns the offset relative to line.
+    * 
+    * 
+    * @param offsetStringer
+    * @return
+    */
+   public int getOffsetLineFromStringerOffset(int offsetStringer) {
+      return offsetStringer - this.offset;
+   }
+
+   /**
+    * 
+    * @return
+    */
+   public int getOffsetLineLastChar() {
+      return len - 1;
+   }
+
+   /**
+    * 
+    * @return
+    */
+   public int getOffsetStringerLastChar() {
       return offset + len - 1;
    }
 
@@ -304,6 +601,10 @@ public class LineStringer extends ObjectDrw {
 
    public Stringer getStringer() {
       return stringer;
+   }
+
+   public int getWidthMono() {
+      return widthMono;
    }
 
    /**
@@ -342,6 +643,7 @@ public class LineStringer extends ObjectDrw {
 
    /**
     * Specifically increase the size of chars
+    * 
     * <p>
     * charsWidth are enabled
     * </p>
@@ -350,6 +652,14 @@ public class LineStringer extends ObjectDrw {
    public void incrementCharWidth(int offsetRel, int val) {
       charsWidth[offsetRel] += val;
       pixelsW += val;
+   }
+
+   public void incrementLen() {
+      len++;
+   }
+
+   public void incrementLen(int incr) {
+      len += incr;
    }
 
    public void incrementNumOfSpaces(int incr) {
@@ -364,8 +674,13 @@ public class LineStringer extends ObjectDrw {
       return hasDifferentFonts;
    }
 
-   public boolean isInside(int index) {
-      return offset <= index && (offset + len) > index;
+   /**
+    * True if index relative to the {@link Stringer#getOffsetChar()} is inside this line.
+    * @param indexStringer
+    * @return
+    */
+   public boolean isInside(int indexStringer) {
+      return offset <= indexStringer && (offset + len) > indexStringer;
    }
 
    public boolean isJustified() {
@@ -387,6 +702,22 @@ public class LineStringer extends ObjectDrw {
       return isRealModelLine;
    }
 
+   public boolean isSpaceOut() {
+      return isSpaceOut;
+   }
+
+   /**
+    * What if this char was mapped ?
+    * @return
+    */
+   public CharAlgo removeLastChar() {
+      CharAlgo lastc = model.removeLastChar();
+      int wlast = lastc.getWidth();
+      this.pixelsW -= wlast;
+      len -= 1;
+      return lastc;
+   }
+
    public void setFictiveLine(boolean isFictiveLine) {
       this.isFictiveLine = isFictiveLine;
    }
@@ -403,8 +734,12 @@ public class LineStringer extends ObjectDrw {
       isJustified = b;
    }
 
-   public void setLen(int len) {
-      this.len = len;
+   public void setLineID(int id) {
+      this.lineID = id;
+   }
+
+   public void setNumOfSpaces(int numOfSpaces) {
+      this.numOfSpaces = numOfSpaces;
    }
 
    public void setOffset(int offset) {
@@ -423,6 +758,10 @@ public class LineStringer extends ObjectDrw {
       this.isRealModelLine = isRealModelLine;
    }
 
+   public void setSpaceOut() {
+      isSpaceOut = true;
+   }
+
    public void setX(int x) {
       this.x = x;
    }
@@ -437,14 +776,15 @@ public class LineStringer extends ObjectDrw {
       toStringPrivate(dc);
       super.toString(dc.sup());
 
-      dc.nl();
-      dc.appendVar("x", x);
+      dc.appendVarWithNewLine("x", x);
       dc.appendVarWithSpace("y", y);
       dc.appendVarWithSpace("pixelsW", pixelsW);
       dc.appendVarWithSpace("pixelsH", pixelsH);
       dc.appendVarWithSpace("widthMono", widthMono);
+      dc.appendVarWithSpace("numOfSpaces", numOfSpaces);
 
-      dc.appendVarWithNewLine("isFictiveLine", isMonospaced);
+      dc.appendVarWithNewLine("isMonospaced", isMonospaced);
+      dc.appendVarWithSpace("isJustified", isJustified);
       dc.appendVarWithSpace("hasDifferentFonts", hasDifferentFonts);
       dc.appendVarWithSpace("isFictiveLine", isFictiveLine);
       dc.appendVarWithSpace("isRealModelLine", isRealModelLine);
@@ -452,6 +792,8 @@ public class LineStringer extends ObjectDrw {
       String val = new String(stringer.chars, stringer.offsetChars + offset, len);
       dc.appendVarWithNewLine("String", val);
 
+      dc.nlLvl(model, "model");
+      dc.nlLvl("charsWidth", charsWidth, 20);
       dc.nlLvl("wordBreaks", wordBreaks, 2);
       dc.nlLvl(map, "CharMapper");
    }
@@ -469,51 +811,11 @@ public class LineStringer extends ObjectDrw {
       dc.append('[');
       dc.append(getOffset());
       dc.append(',');
-      dc.append(getOffsetLast());
+      dc.append(getOffsetStringerLastChar());
       dc.append(']');
-   }
 
-   /**
-    * Append Visible Text
-    * @param sb
-    * @param offsetStart line relative offset.. so first char is 0
-    * @param offsetEnd line relative offset
-    */
-   public void appendCharFromOffsets(StringBBuilder sb, int offsetStart, int offsetEnd) {
-      int diff = offsetEnd - offsetStart;
-      int count = 0;
-      char[] array = getCharArrayRef();
-      int arraOffset = getCharArrayRefOffset();
-      while (count < diff) {
-         char c = array[arraOffset + count];
-         sb.append(c);
-         count++;
-      }
-   }
+      dc.appendVarWithSpace("lineID", lineID);
 
-   /**
-    * Append the model text
-    * @param sb
-    * @param offsetStart
-    * @param offsetEnd
-    */
-   public void appendCharFromOffsetsModel(StringBBuilder sb, int offsetStart, int offsetEnd) {
-      if (map == null) {
-         //model equals visible
-         appendCharFromOffsets(sb, offsetStart, offsetEnd);
-      } else {
-         map.appendStringSrc(sb, offsetStart, offsetEnd);
-      }
    }
-
-   public int getNumOfSpaces() {
-      return numOfSpaces;
-   }
-
-   public void setNumOfSpaces(int numOfSpaces) {
-      this.numOfSpaces = numOfSpaces;
-   }
-
-   //#enddebug
 
 }

@@ -31,12 +31,12 @@ public class FxCache extends ObjectDrw {
       for (int i = 0; i < cacheTop.length; i++) {
          if (cacheTop[i] == boFxTop && cacheBot[i] == boFxBelow) {
             if (cacheMerge[i] == null) {
-               cacheMerge[i] = drc.getFxStringOperator().mergeTxtEffects(boFxBelow, boFxTop);
+               cacheMerge[i] = drc.getStrAuxOperator().mergeTxtEffects(boFxBelow, boFxTop);
             }
             return cacheMerge[i];
          }
       }
-      ByteObject boFxMerged = drc.getFxStringOperator().mergeTxtEffects(boFxBelow, boFxTop);
+      ByteObject boFxMerged = drc.getStrAuxOperator().mergeTxtEffects(boFxBelow, boFxTop);
       //not in cache add it
       if (cacheSize + 1 >= cacheTop.length) {
          ByteObjectUtilz bou = drc.getBOC().getBOU();

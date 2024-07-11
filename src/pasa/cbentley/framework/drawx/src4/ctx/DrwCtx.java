@@ -47,8 +47,8 @@ import pasa.cbentley.framework.drawx.src4.factories.ScalerOperatorTests;
 import pasa.cbentley.framework.drawx.src4.image.PngEncoder;
 import pasa.cbentley.framework.drawx.src4.interfaces.IToStringsDIDsDraw;
 import pasa.cbentley.framework.drawx.src4.string.FxCache;
-import pasa.cbentley.framework.drawx.src4.string.FxStringFactory;
-import pasa.cbentley.framework.drawx.src4.string.FxStringOperator;
+import pasa.cbentley.framework.drawx.src4.string.StringAuxFxFactory;
+import pasa.cbentley.framework.drawx.src4.string.StringAuxOperator;
 import pasa.cbentley.framework.drawx.src4.string.StringAuxFactory;
 import pasa.cbentley.framework.drawx.src4.string.Stringer;
 import pasa.cbentley.framework.drawx.src4.style.StyleFactory;
@@ -108,9 +108,9 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
 
    private FxCache             fxCache;
 
-   private FxStringFactory     fxStringFactory;
+   private StringAuxFxFactory     fxStringFactory;
 
-   private FxStringOperator    fxStringOperator;
+   private StringAuxOperator    strAuxOperator;
 
    private LayouterCtx         lac;
 
@@ -289,18 +289,18 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
       return fxCache;
    }
 
-   public FxStringFactory getFxStringFactory() {
+   public StringAuxFxFactory getFxStringFactory() {
       if (fxStringFactory == null) {
-         fxStringFactory = new FxStringFactory(this);
+         fxStringFactory = new StringAuxFxFactory(this);
       }
       return fxStringFactory;
    }
 
-   public FxStringOperator getFxStringOperator() {
-      if (fxStringOperator == null) {
-         fxStringOperator = new FxStringOperator(this);
+   public StringAuxOperator getStrAuxOperator() {
+      if (strAuxOperator == null) {
+         strAuxOperator = new StringAuxOperator(this);
       }
-      return fxStringOperator;
+      return strAuxOperator;
    }
 
    public GradientFactory getGradientFactory() {

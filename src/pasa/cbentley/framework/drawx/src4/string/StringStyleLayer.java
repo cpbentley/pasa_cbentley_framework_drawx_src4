@@ -10,7 +10,7 @@ import pasa.cbentley.core.src4.text.StringInterval;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
-import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOFxStr;
+import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAux;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
 
 /**
@@ -41,18 +41,15 @@ public class StringStyleLayer extends ObjectDrw {
    private int              id;
 
    /**
-    * Tracks the intervals for the Dynamic Styles.  {@link IBOFxStr#FX_FLAGZ_2_DYNAMIC}
-    * <br>
-    * {@link IDrwTypes#TYPE_DRWX_11_TEXT_EFFECTS} already affecting an index will merge with the dynamic style.
-    * <br>
-    * <br>
+    * 
+    * {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX_4_FX} already affecting an index will merge with the dynamic style.
+    * 
     * By Default Dynamic text effect merges over, which means it replaces static style definitions
-    * <br>
     * Created on demand. So by default extra fxs are not loaded since most String items will use only the default
     * styling until the user makes an action to modify.
-    * <br>
     * 
     * Sorted by construction
+    * 
     */
 
    private IntIntervals     intervals;
@@ -93,7 +90,7 @@ public class StringStyleLayer extends ObjectDrw {
    }
 
    /**
-    * Returns the {@link IBOTypesDrawX#TYPE_DRWX_11_TEXT_EFFECTS} for the given interval at offset
+    * Returns the {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX_4_FX} for the given interval at offset
     * @param offset
     * @return null if interval defined at index
     */
@@ -125,13 +122,13 @@ public class StringStyleLayer extends ObjectDrw {
     */
    public IntInterval addInterval(int offset, int len, ByteObject fx) {
       //#debug
-      fx.checkType(IBOTypesDrawX.TYPE_DRWX_11_TEXT_EFFECTS);
+      fx.checkTypeSubType(IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX, IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_4_FX);
 
       IntInterval interval =  new IntInterval(getUC(), offset, len, fx);
       //merge listener .. merge only when same style
       intervals.addInterval(interval);
       //two possibilities. either everything is computed and we invalidates
-      st.setState(ITechStringer.STATE_17_COMPUTED_FX, false);
+      st.setFlagState(ITechStringer.STATE_17_COMPUTED_FX, false);
       return interval;
    }
 

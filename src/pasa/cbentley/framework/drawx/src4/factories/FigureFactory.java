@@ -85,7 +85,15 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
       }
    }
 
+   /**
+    * 
+    * @param strFix
+    * @param fx
+    */
    public void addTxtFXToStringFig(ByteObject strFix, ByteObject fx) {
+      fx.checkTypeSubType(IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX, IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_4_FX);
+      strFix.checkType(IBOTypesDrawX.TYPE_DRWX_00_FIGURE);
+
       strFix.addByteObject(fx);
       strFix.setFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_2_DEFINED_FX, true);
    }
@@ -959,6 +967,10 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
     */
    public ByteObject getFigString(String str, int face, int style, int size, int color) {
       return getFigString(str, face, style, size, color, null, null, null, null);
+   }
+
+   public ByteObject getFigString(int face, int style, int size, int color, ByteObject effects, ByteObject mask, ByteObject scale, ByteObject anchor) {
+      return this.getFigString(null, face, style, size, color, effects, mask, scale, anchor);
    }
 
    /**
@@ -1888,7 +1900,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
     * @param dc
     */
    private void toStringFigureString(ByteObject bo, Dctx dc) {
-      dc.rootN(bo, "IBOFigString", FigureFactory.class, 1844);
+      dc.rootN(bo, "IBOFigString", FigureFactory.class, 1892);
 
       if (bo.hasFlag(FIG_STRING_OFFSET_01_FLAG, FIG_STRING_FLAG_1_EXPLICIT)) {
          if (bo.hasFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_6_DEFINED_CHAR)) {
@@ -1911,7 +1923,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
       int size = 1;
       if (bo.hasFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_3_DEFINED_FORMAT)) {
          int index = IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1;
-         ByteObject format = bo.getSubFirst(baseStrAuxType, index, size, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_1_FORMAT);
+         ByteObject format = bo.getSubSubFirst(baseStrAuxType, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_1_FORMAT, index, size);
 
          if (format == null) {
             dc.append("IBOStrAuxFormat is null. Miscontruction");
@@ -1924,7 +1936,7 @@ public class FigureFactory extends AbstractDrwFactory implements IBOFigure, IBOF
 
       if (bo.hasFlag(FIG_STRING_OFFSET_02_FLAGX, FIG_STRING_FLAGX_4_DEFINED_SPECIALS)) {
          int index = IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1;
-         ByteObject specials = bo.getSubFirst(baseStrAuxType, index, size, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C);
+         ByteObject specials = bo.getSubSubFirst(baseStrAuxType, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C, index, size);
          if (specials == null) {
             dc.append("IBOStrAuxFormat is null. Miscontruction");
          } else {

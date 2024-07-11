@@ -2,6 +2,7 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.helpers.StringBBuilder;
+import pasa.cbentley.core.src4.structs.IntInterval;
 import pasa.cbentley.core.src4.utils.CharUtils;
 import pasa.cbentley.core.src4.utils.StringUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
@@ -25,22 +26,6 @@ public class StringerEditor extends ObjectDrw {
    public StringerEditor(Stringer stringer) {
       super(stringer.getDRC());
       this.stringer = stringer;
-   }
-
-   /**
-    * Called by client when he wants to modify the string
-    * <br>
-    * 
-    * TODO depending on style applicators.. update fx intervals
-    * 
-    * @param cs update char array
-    * @param index
-    * @param c
-    */
-   public void addChar(char[] cs, int index, char c) {
-      stringer.chars = cs;
-      stringer.stringMetrics.addChar(index, c);
-      stringer.lengthChars++;
    }
 
    public void insertAreaChar(AreaChar ac, int index) {
@@ -69,17 +54,17 @@ public class StringerEditor extends ObjectDrw {
       } else if (lines.length == 1) {
          lines[0].appendCharFromOffsets(sb, offsetStart, offsetEnd);
       } else if (lines.length == 2) {
-         int lineEndOffset = lines[0].getOffsetLast();
+         int lineEndOffset = lines[0].getOffsetStringerLastChar();
          lines[0].appendCharFromOffsets(sb, offsetStart, lineEndOffset);
          //copy the model stuff between current line and next line
          //if fictive line etc ?
          lines[1].appendCharFromOffsets(sb, 0, offsetEnd);
       } else {
-         lines[0].appendCharFromOffsets(sb, offsetStart, lines[0].getOffsetLast());
+         lines[0].appendCharFromOffsets(sb, offsetStart, lines[0].getOffsetStringerLastChar());
          for (int i = 1; i < lines.length - 1; i++) {
-            lines[i].appendCharFromOffsets(sb, 0, lines[i].getOffsetLast());
+            lines[i].appendCharFromOffsets(sb, 0, lines[i].getOffsetStringerLastChar());
          }
-         lines[lines.length-1].appendCharFromOffsets(sb, 0, offsetEnd);
+         lines[lines.length - 1].appendCharFromOffsets(sb, 0, offsetEnd);
       }
 
    }
@@ -91,14 +76,17 @@ public class StringerEditor extends ObjectDrw {
     * @param str
     * @param fx
     */
-   public void append(String str, ByteObject fx) {
+   public void appendStringWithFx(String str, ByteObject fx) {
+      this.appendStringWithFx(str, fx, 0);
+   }
+
+   public void appendStringWithFx(String str, ByteObject fx, int layerID) {
       int len = str.length();
       editionStartChecks(len);
       int offset = stringer.offsetChars + stringer.lengthChars;
       char[] charArray = str.toCharArray();
       System.arraycopy(charArray, 0, stringer.chars, offset, len);
       stringer.lengthChars += len;
-      int layerID = 0;
       if (fx != null) {
          stringer.addInterval(offset, len, layerID, fx);
       }
@@ -113,13 +101,18 @@ public class StringerEditor extends ObjectDrw {
     */
    public void appendChar(char c) {
       editionStartChecks(1);
+
+      //gets the style at the last offset.. use the same style
+      //get last line and see if a rebuild is necessary
       int index = stringer.offsetChars + stringer.lengthChars;
       stringer.chars[index] = c;
       stringer.lengthChars++;
    }
 
    /**
-    * Creates a new line
+    * Creates a new line using {@link StringUtils}.
+    * 
+    * So use directive {@link ITechStringer#SPECIALS_NEWLINE_3_WORK} to actually use it.
     * @param data
     * @param fx
     */
@@ -127,7 +120,7 @@ public class StringerEditor extends ObjectDrw {
       int len = data.length();
       editionStartChecks(len + 1); //+2 if windows new lines
       int offset = stringer.offsetChars;
-      int destOffset = stringer.offsetChars + stringer.lengthChars;
+      int destOffset = offset + stringer.lengthChars;
       int offsetNewLine = destOffset;
       stringer.chars[offsetNewLine] = StringUtils.NEW_LINE;
       char[] charArray = data.toCharArray();
@@ -144,6 +137,94 @@ public class StringerEditor extends ObjectDrw {
       }
    }
 
+   /**
+    * 
+    * When deleting chars
+    * @param indexRelative
+    */
+   public void deleteCharAt(int indexRelative) {
+      deleteCharsAt(indexRelative, 1);
+   }
+
+   /**
+    * When deleting chars, is the len value model based or visual based ?
+    * 
+    * @param indexRelative
+    * @param len
+    */
+   public void deleteCharsAt(int indexRelative, int len) {
+
+      //dumb non optimize way is to delete char and rebuild everything
+
+      //TODO what if we delete inside a style interval ?
+      int offsetStart = stringer.offsetChars + indexRelative + len;
+      int offsetEnd = stringer.offsetChars + stringer.lengthChars - 1;
+      CharUtils.shiftCharDown(stringer.chars, len, offsetStart, offsetEnd);
+      stringer.lengthChars -= len;
+
+      //TODO get the interval in which we are and reduce its size
+      //if interval was
+      
+      IntInterval intervalForIndex = stringer.getIntervalForStringerIndex(indexRelative);
+      
+      int distanceToEnd = intervalForIndex.getDistanceToEnd(indexRelative);
+      
+      int indexRelativeEnd = indexRelative + len;
+      boolean isEndInside = intervalForIndex.isInside(indexRelativeEnd);
+      
+      if(isEndInside) {
+         intervalForIndex.incrLen(-len);
+      } else {
+         //remove until the end and check end + 1 
+         IntInterval deletion = new IntInterval(getUC(), indexRelative, len);
+         IntInterval[] intersection = stringer.getIntervalsOfLeaves().getIntersection(deletion);
+         
+         throw new RuntimeException();
+      }
+      
+      rebuildAll();
+      //      //deleting a char may require a full computation.. the line decides
+      //      LineStringer line = stringer.getMetrics().getLineFromCharIndex(indexRelative);
+      //      
+      //      int numberOfChars
+      //      //line algo starts from current line and if next line ending does not change stops 
+      //      //aglo works until linecreated end at the same position as existing line
+      //
+      //      int cw = charWidths[indexRelative];
+      //      pw -= cw;
+      //      boolean doPositions = stringer.hasState(ITechStringer.STATE_06_CHAR_POSITIONS);
+      //      for (int i = indexRelative; i < stringer.lengthChars - 1; i++) {
+      //         charWidths[i] = charWidths[i + 1];
+      //         if (doPositions) {
+      //            charYs[i] = charYs[i + 1];
+      //            charXs[i] -= cw;
+      //         }
+      //      }
+
+   }
+
+   private void rebuildAll() {
+      StringMetrics metrics = stringer.getMetrics();
+      metrics.meterString();
+   }
+
+   /**
+    * 
+    * @param indexRel
+    * @param c
+    */
+   public void setCharAt(int indexRel, char c) {
+
+      LineStringer line = stringer.getMetrics().getLineFromCharIndex(indexRel);
+      line.editorCharReplace(indexRel, c);
+
+      //TODO invalidate 
+   }
+
+   /**
+    * 
+    * @param index
+    */
    public void deleteChar(int index) {
       editionStartChecks(1);
       CharUtils.shiftCharDown(stringer.chars, 1, index, stringer.lengthChars);
@@ -171,6 +252,7 @@ public class StringerEditor extends ObjectDrw {
          int lenIncrease = sizeIncrease + bufferExpansion;
          stringer.chars = getUC().getMem().increaseCapacity(stringer.chars, lenIncrease);
       }
+      stringer.setEditingTrue();
       stringer.resetFigure();
    }
 
@@ -209,7 +291,7 @@ public class StringerEditor extends ObjectDrw {
    public void replaceChar(char c, int index) {
       editionStartChecks(1);
       stringer.chars[index] = c;
-      if (stringer.hasState(ITechStringer.STATE_18_FULL_MONOSPACE)) {
+      if (stringer.hasFlagState(ITechStringer.STATE_18_FULL_MONOSPACE)) {
          //no need to reset if mono
 
          //TODO justified text is not mono
