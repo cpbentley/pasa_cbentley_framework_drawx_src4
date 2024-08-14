@@ -59,7 +59,7 @@ public class DrawerTriangle extends ObjectDrw implements ITechFigure, IBOFigTria
             double alpha = MathUtils.aTan((double) h, (double) w);
             double cosbeta = Math.cos(beta);
             double cosalpha = Math.cos(alpha);
-            int typeGrad = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
+            int typeGrad = grad.get1(IBOGradient.GRADIENT_OFFSET_07_TYPE1);
             int gradSize = getLosangeGradSize(grad, typeGrad, w, h);
             int val = 0;
             ColorIterator ci = drc.getColorFunctionFactory().getColorIterator(color, grad, gradSize);
@@ -428,13 +428,15 @@ public class DrawerTriangle extends ObjectDrw implements ITechFigure, IBOFigTria
    private void drawTriangleGradient_0_3(GraphicsX g, int x, int y, int w, int h, ByteObject fig) {
       int color = fig.getValue(IBOFigure.FIG__OFFSET_06_COLOR4, 4);
       ByteObject grad = fig.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
-      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
+      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_07_TYPE1);
       int trigType = fig.get2(IBOFigTriangle.FIG_TRIANGLE_OFFSET_03_ANGLE2);
-      boolean isWire = grad.hasFlag(IBOGradient.GRADIENT_OFFSET_09_FLAGX1, IBOGradient.GRADIENT_FLAGX_5_WIRE);
+      boolean isWire = grad.hasFlag(IBOGradient.GRADIENT_OFFSET_04_FLAGX1, IBOGradient.GRADIENT_FLAGX_5_WIRE);
       int gradSize = getTrigGradSize(grad, type, w, h, trigType);
       double alpha = MathUtils.aTan((double) w / 2, (double) h / 2);
       int count = 0;
       ColorIterator ci = drc.getColorFunctionFactory().getColorIterator(color, grad, gradSize);
+      drc.getFigureOperator().fillArea(g, x, y, w, h, grad, ci);
+      
       int previousC = 0;
       int dx = x;
       int dy = y;
@@ -655,12 +657,14 @@ public class DrawerTriangle extends ObjectDrw implements ITechFigure, IBOFigTria
    private void drawTriangleGradient_4_7(GraphicsX g, int x, int y, int w, int h, ByteObject fig) {
       int color = fig.getValue(IBOFigure.FIG__OFFSET_06_COLOR4, 4);
       ByteObject grad = fig.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
-      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
+      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_07_TYPE1);
       int trigType = fig.get2(IBOFigTriangle.FIG_TRIANGLE_OFFSET_03_ANGLE2);
       int gradSize = getTrigGradSize_4_7(grad, type, w, h, trigType);
       double alpha = MathUtils.aTan((double) w / 2, (double) h / 2);
       int count = 0;
       ColorIterator ci = drc.getColorFunctionFactory().getColorIterator(color, grad, gradSize);
+      drc.getFigureOperator().fillArea(g, x, y, w, h, grad, ci);
+      
       while ((count = ci.iteratePixelCount(g)) != -1) {
          //SystemLog.printDraw(i + " dir="+dir + " type="+type + " color="+debugColor(g.getColor()));
          int count2 = count * 2;
@@ -763,12 +767,14 @@ public class DrawerTriangle extends ObjectDrw implements ITechFigure, IBOFigTria
    private void drawTriangleGradient_8_11(GraphicsX g, int x, int y, int w, int h, ByteObject fig) {
       int color = fig.getValue(IBOFigure.FIG__OFFSET_06_COLOR4, 4);
       ByteObject grad = fig.getSubFirst(IBOTypesBOC.TYPE_038_GRADIENT);
-      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_06_TYPE1);
+      int type = grad.get1(IBOGradient.GRADIENT_OFFSET_07_TYPE1);
       int trigType = fig.get2(IBOFigTriangle.FIG_TRIANGLE_OFFSET_03_ANGLE2);
       int gradSize = getTrigGradSize(grad, type, w, h, trigType);
       double alpha = MathUtils.aTan((double) w / 2, (double) h / 2);
       int count = 0;
       ColorIterator ci = drc.getColorFunctionFactory().getColorIterator(color, grad, gradSize);
+      drc.getFigureOperator().fillArea(g, x, y, w, h, grad, ci);
+      
       while ((count = ci.iteratePixelCount(g)) != -1) {
          //SystemLog.printDraw(i + " dir="+dir + " type="+type + " color="+debugColor(g.getColor()));
          int count2 = count * 2;

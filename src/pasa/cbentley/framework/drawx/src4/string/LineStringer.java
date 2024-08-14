@@ -118,6 +118,8 @@ public class LineStringer extends ObjectDrw {
 
    private int           y;
 
+   private boolean isAbsoluteXY;
+
    public LineStringer(Stringer stringer) {
       super(stringer.getDRC());
       this.stringer = stringer;
@@ -626,15 +628,21 @@ public class LineStringer extends ObjectDrw {
    }
 
    /**
-    * Offset to X
+    * Usually Offset to X relative to zero.. not to the {@link Stringer#getAreaX()}
+    * 
+    * But during animations, the value can be absolute
     * @return
     */
    public int getX() {
       return x;
    }
+   
+   public boolean isAbsoluteXY() {
+      return this.isAbsoluteXY;
+   }
 
    /**
-    * Offset to y
+    * Offset to y relative to zero. not to the {@link Stringer#getAreaY()}
     * @return
     */
    public int getY() {
@@ -772,7 +780,7 @@ public class LineStringer extends ObjectDrw {
 
    //#mdebug
    public void toString(Dctx dc) {
-      dc.root(this, LineStringer.class, "@line5");
+      dc.root(this, LineStringer.class, 783);
       toStringPrivate(dc);
       super.toString(dc.sup());
 
@@ -818,4 +826,5 @@ public class LineStringer extends ObjectDrw {
 
    }
 
+   //#enddebug
 }

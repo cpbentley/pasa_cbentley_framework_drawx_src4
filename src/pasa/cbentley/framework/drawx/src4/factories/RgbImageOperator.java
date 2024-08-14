@@ -74,10 +74,19 @@ public class RgbImageOperator extends AbstractDrwOperator {
     * POST: Output mode of Image is Rgb.
     */
    public void applyColorFilter(ByteObject filter, RgbImage img) {
-      if (filter == null)
+      if (filter == null) {
          return;
+      }
       int[] ar = img.getRgbData();
-      drc.getFilterOperator().applyColorFilter(filter, ar, img.getOffset(), img.getScanLength(), img.getM(), img.getN(), img.getWidth(), img.getHeight());
+      FilterOperator filterOperator = drc.getFilterOperator();
+
+      int offset = img.getOffset();
+      int scanLength = img.getScanLength();
+      int m = img.getM();
+      int n = img.getN();
+      int width = img.getWidth();
+      int height = img.getHeight();
+      filterOperator.applyColorFilter(filter, ar, offset, scanLength, m, n, width, height);
 
       //     SystemLog.printDraw(RgbImage.debugAlphas(ar, img.getWidth(), img.getHeight()));
       //     if(ar != img.getRgbData()) {
@@ -87,6 +96,25 @@ public class RgbImageOperator extends AbstractDrwOperator {
       //     SystemLog.printDraw(RgbImage.debugAlphas(img.getRgbData(), img.getWidth(), img.getHeight()));
       //        
       //SystemLog.printDraw(img.debugAlpha());
+
+   }
+   
+   public void applyColorFilter(ByteObject filter, RgbImage img, RgbImage imgExtra) {
+      if (filter == null) {
+         return;
+      }
+      int[] ar = img.getRgbData();
+      FilterOperator filterOperator = drc.getFilterOperator();
+
+      int offset = img.getOffset();
+      int scanLength = img.getScanLength();
+      int m = img.getM();
+      int n = img.getN();
+      int width = img.getWidth();
+      int height = img.getHeight();
+      
+      int[] extra = imgExtra.getRgbData();
+      filterOperator.applyColorFilter(filter, ar, offset, scanLength, m, n, width, height,extra);
 
    }
 

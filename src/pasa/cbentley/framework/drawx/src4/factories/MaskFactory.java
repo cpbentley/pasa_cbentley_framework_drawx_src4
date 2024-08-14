@@ -121,6 +121,7 @@ public class MaskFactory extends AbstractDrwFactory implements IBOMask {
       return getMask(colorBg, 0, colorShape, alphaBg, alphaShape, 0, 0, 0, maskFilter, bgFigure);
    }
 
+   //#mdebug
    public void toStringMask(ByteObject bo, Dctx dc) {
       dc.rootN(bo, "Mask", MaskFactory.class, 110);
       dc.nl();
@@ -142,4 +143,5 @@ public class MaskFactory extends AbstractDrwFactory implements IBOMask {
       dc.append(" alphaBg=" + bo.get1(MASK_OFFSET_8_ALPHA_BG1));
       dc.append(" alphaShape=" + bo.get1(MASK_OFFSET_9_ALPHA_SHAPE1));
    }
+   //#enddebug
 }

@@ -39,6 +39,7 @@ public class ShaderFunction extends ColorFunction {
       int resCount = 0;
       int index = offset + m + (scanlength * n);
       ByteObject pixStar = p.getSubFirst(IBOTypesDrawX.TYPE_DRWX_09_PIX_STAR);
+      
       int lenT = pixStar.get1(IBOPixelStar.PIXSTAR_OFFSET_03_TOP_SIZE1);
       int lenB = pixStar.get1(IBOPixelStar.PIXSTAR_OFFSET_04_BOT_SIZE1);
       int lenL = pixStar.get1(IBOPixelStar.PIXSTAR_OFFSET_05_LEFT_SIZE1);

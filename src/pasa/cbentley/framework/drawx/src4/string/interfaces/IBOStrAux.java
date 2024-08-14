@@ -1,8 +1,11 @@
 package pasa.cbentley.framework.drawx.src4.string.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 
 /**
+ * 
+ * Type is {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX}
  * 
  * @author Charles Bentley
  *

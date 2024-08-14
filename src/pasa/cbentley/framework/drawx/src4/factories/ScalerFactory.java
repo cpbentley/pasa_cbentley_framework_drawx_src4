@@ -9,10 +9,10 @@ import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMosaic;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPassMosaic;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPass;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOScaler;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOSkewer;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPassSkewer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechScaler;
 
 public class ScalerFactory extends AbstractDrwFactory {
@@ -38,9 +38,9 @@ public class ScalerFactory extends AbstractDrwFactory {
    }
    
    public ByteObject getSkewer(int interpolationID, int edgeType) {
-      ByteObject skewer = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_04_SKEWER, IBOSkewer.SKEWER_BASIC_SIZE);
-      skewer.set1(IBOSkewer.SKEWER_OFFSET_02_EDGE_TYPE1, edgeType);
-      skewer.set1(IBOSkewer.SKEWER_OFFSET_03_INTERPOLATION_TYPE1, interpolationID);
+      ByteObject skewer = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_12_SKEWER, IBOPassSkewer.SKEWER_BASIC_SIZE);
+      skewer.set1(IBOPassSkewer.SKEWER_OFFSET_02_EDGE_TYPE1, edgeType);
+      skewer.set1(IBOPassSkewer.SKEWER_OFFSET_03_INTERPOLATION_TYPE1, interpolationID);
       return skewer;
    }
 
@@ -58,9 +58,9 @@ public class ScalerFactory extends AbstractDrwFactory {
    }
    
    public ByteObject getMosaic(int type, boolean trans) {
-      ByteObject mosaic = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_03_MOSAIC, IBOMosaic.PMOSAIC_BASIC_SIZE);
-      mosaic.set1(IBOMosaic.PMOSAIC_OFFSET_02_TYPE1, type);
-      mosaic.setFlag(IBOMosaic.PMOSAIC_OFFSET_01_FLAG1, IBOMosaic.PMOSAIC_FLAG_1_TRANSFORMATION, trans);
+      ByteObject mosaic = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_11_MOSAIC, IBOPassMosaic.PMOSAIC_BASIC_SIZE);
+      mosaic.set1(IBOPassMosaic.PMOSAIC_OFFSET_02_TYPE1, type);
+      mosaic.setFlag(IBOPassMosaic.PMOSAIC_OFFSET_01_FLAG1, IBOPassMosaic.PMOSAIC_FLAG_1_TRANSFORMATION, trans);
       return mosaic;
    }
 
@@ -91,6 +91,7 @@ public class ScalerFactory extends AbstractDrwFactory {
       return p;
    }
    
+   //#mdebug
    public void toStringScaler(ByteObject bo, Dctx sb) {
       sb.append("#Scaler ");
       if (bo.hasFlag(IBOPass.PASS_OFFSET_01_FLAG1, IBOPass.PASS_FLAG_1_PRE_FILTER)) {
@@ -104,5 +105,5 @@ public class ScalerFactory extends AbstractDrwFactory {
       int id = bo.get1(IBOScaler.SCALE_OFFSET_03_ID1);
       sb.append(" ID:" + ToStringStaticDrawx.toStringScaleID(id));
    }
-
+//#enddebug
 }

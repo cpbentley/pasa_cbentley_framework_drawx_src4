@@ -4,6 +4,7 @@
  */
 package pasa.cbentley.framework.drawx.src4.string;
 
+import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IStringable;
 import pasa.cbentley.core.src4.utils.CharUtils;
@@ -147,7 +148,6 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
       C_TEXTBREAKS = breaks;
    }
 
-
    private void checkStateLine() {
       if (lines == null) {
          meterString();
@@ -212,14 +212,14 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
       //we delegate this job to the line
       LineStringer line = this.getLineFromCharIndex(indexRelative);
       int offsetLine = line.getOffsetLineFromStringerOffset(indexRelative);
-      
+
       int cw = line.getCharWidth(offsetLine);
-      
+
       return cw;
    }
-   
+
    public boolean isAllCharsSameWidth() {
-      if(stringer.getSpaceTrimManager() == ITechStringer.SPACETRIM_2_JUSTIFIED) {
+      if (stringer.getSpaceTrimManager() == ITechStringer.SPACETRIM_2_JUSTIFIED) {
          return false;
       }
       //add here any other options that destroy the invariant of same widths for all non zero characters.
@@ -282,14 +282,12 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
     * @return integer relative to {@link Stringer#areaX}
     */
    public int getCharX(int indexRelative) {
-      
+
       LineStringer line = getLineFromCharIndex(indexRelative);
-      int offsetLine  = line.getOffsetLineFromStringerOffset(indexRelative);
+      int offsetLine = line.getOffsetLineFromStringerOffset(indexRelative);
       int x = line.getCharX(offsetLine);
       return x;
    }
-
-
 
    public int getCharY(int indexRelative) {
       LineStringer line = getLineFromCharIndex(indexRelative);
@@ -517,7 +515,7 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
     */
    public int getWidthConsumed(int index) {
       LineStringer line = getLineFromCharIndex(index);
-      if(line == null) {
+      if (line == null) {
          throw new IllegalArgumentException();
       }
       int lineIndex = line.getOffsetLineFromStringerOffset(index);
@@ -537,6 +535,11 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
     * what 
     */
    void meterString() {
+      computeSize();
+      positionString(stringer.areaW, stringer.areaH);
+   }
+
+   void computeSize() {
 
       //check style
       if (!stringer.hasFlagState(STATE_19_FX_SETUP)) {
@@ -564,14 +567,32 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
       charWidthMono = stats.getSameCharWidthFactValue();
       charBiggestW = stats.getCharBiggestWidth();
 
-      //align y coordinates
-      if (stringer.anchor != null) {
-         int dy = AnchorUtils.getYAlign(stringer.anchor, 0, stringer.areaH, ph);
-         for (int i = 0; i < lines.length; i++) {
-            LineStringer line = lines[i];
-            int ny = line.getY() + dy;
-            line.setY(ny);
+   }
+
+   public void positionString(int width, int height) {
+      int dy = 0;
+      ByteObject anchor = stringer.anchor;
+      if (anchor != null) {
+         if (ph < height) {
+            //only when smaller. we don't want aligns
+            // we would get negative values
+            dy = AnchorUtils.getYAlign(stringer.anchor, 0, height, ph);
          }
+      }
+      for (int i = 0; i < lines.length; i++) {
+         LineStringer lineCurrent = lines[i];
+         lineCurrent.setY(dy);
+
+         int lineH = lineCurrent.getPixelsH();
+         dy += lineH;
+         int dx = 0; //we computing relative to zero i.e. itself
+         if (anchor != null) {
+            int walign = lineCurrent.getPixelsW();
+            if (walign < width) {
+               dx = AnchorUtils.getXAlign(anchor, 0, width, walign);
+            }
+         }
+         lineCurrent.setX(dx);
       }
    }
 
@@ -581,8 +602,6 @@ public class StringMetrics extends ObjectDrw implements IStringable, ITechString
       charXs = drc.getMem().ensureCapacity(charXs, stringer.lengthChars);
       charYs = drc.getMem().ensureCapacity(charYs, stringer.lengthChars);
    }
-
-
 
    //#mdebug
    public void toString(Dctx dc) {

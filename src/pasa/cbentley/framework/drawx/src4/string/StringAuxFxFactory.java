@@ -6,7 +6,7 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
+import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMerge;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.factories.AbstractDrwFactory;
@@ -56,7 +56,7 @@ public class StringAuxFxFactory extends AbstractDrwFactory implements IBOStrAuxF
    /**
     * Scope is whole text
     * 
-    * Ignores the {@link IBOMergeMask}
+    * Ignores the {@link IBOMerge}
     * 
     * @param textFigure
     * @return

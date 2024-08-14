@@ -17,9 +17,8 @@ public interface IBOFigEllipse extends IBOFigure {
    public static final int FIG_ELLIPSE_FLAG_3_FIL_DE_FER      = 1 << 2;
 
    /**
-    * Fill the rectangle with the primary color
     */
-   public static final int FIG_ELLIPSE_FLAG_4_RECTANGLE_FILL  = 1 << 3;
+   public static final int FIG_ELLIPSE_FLAG_4_                = 1 << 3;
 
    public static final int FIG_ELLIPSE_FLAG_5_SLIP_FUNCTION   = 1 << 4;
 

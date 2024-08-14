@@ -7,9 +7,14 @@ package pasa.cbentley.framework.drawx.src4.ctx;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
 import pasa.cbentley.framework.coredraw.src4.ctx.IBOTypesCoreDraw;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOAnchor;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOArtifact;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOMosaic;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOSkewer;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPassMosaic;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPixelStar;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPassSkewer;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOStructFigSub;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAux;
 import pasa.cbentley.framework.drawx.src4.style.IBOStyle;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
@@ -41,6 +46,22 @@ public interface IBOTypesDrawX extends IBOTypesBOC {
    public static final int TYPE_DRWX_00_FIGURE                  = A_SID_DRWTYPE_A + 0;
 
    /**
+    * {@link IBOStructFigSub}
+    * 
+    * Struct that hosts a reference to a {@link IBOFigure} and a {@link IBOBox}
+    * and ids of the numbers of sub.
+    * 
+    * There is only 1 {@link IBOTypesDrawX#TYPE_DRWX_01_FIG_SUB_STRUCT} per figure maximum
+    */
+   public static final int TYPE_DRWX_01_FIG_SUB_STRUCT          = A_SID_DRWTYPE_A + 1;
+
+   /**
+    * Micro figure used as dirt/salt to micro change appearance of a gradient
+    * {@link IBOArtifact}
+    */
+   public static final int TYPE_DRWX_02_FIG_ARTIFACT            = A_SID_DRWTYPE_A + 2;
+
+   /**
     * Defines a Rectangle Box and its position  a figure in a 2D rectangular area. <br>
     * <br>
     * Used to define a box in which to draw a {@link IBOTypesDrawX#TYPE_DRWX_00_FIGURE}.
@@ -56,25 +77,13 @@ public interface IBOTypesDrawX extends IBOTypesBOC {
     * Most complete is<br>
     * x offset relative to origin of coordinate<br>
     * y offset relative to origin of coordinate<br>
-    * <br><br>
+    * <br>
+    * 
     * Several Types of Anchor encoding exists.<br>
     */
-   public static final int TYPE_DRWX_01_BOX                     = A_SID_DRWTYPE_A + 1;
+   public static final int TYPE_DRWX_03_BOX                     = A_SID_DRWTYPE_A + 3;
 
-   /**
-    * {@link IBOArtifact}
-    */
-   public static final int TYPE_DRWX_02_ARTIFACT                = A_SID_DRWTYPE_A + 2;
-
-   /**
-    * {@link IBOMosaic}
-    */
-   public static final int TYPE_DRWX_03_MOSAIC                  = A_SID_DRWTYPE_A + 3;
-
-   /**
-    * {@link IBOSkewer}
-    */
-   public static final int TYPE_DRWX_04_SKEWER                  = A_SID_DRWTYPE_A + 4;
+   public static final int TYPE_DRWX_04                         = A_SID_DRWTYPE_A + 4;
 
    /**
     * Parameters for scaling an image, including a post scaling RGB filter to smooth the scaling result
@@ -129,7 +138,7 @@ public interface IBOTypesDrawX extends IBOTypesBOC {
 
    public static final int TYPE_DRWX_07_STRING_AUX_5_FX_STRUCT  = 5;
 
-   public static final int TYPE_DRWX_07_STRING_AUX_XXX          = 5;
+   public static final int TYPE_DRWX_07_STRING_AUX_XXX          = 6;
 
    /**
     * {@link IBOStyle}
@@ -137,13 +146,25 @@ public interface IBOTypesDrawX extends IBOTypesBOC {
    public static final int TYPE_DRWX_08_STYLE                   = A_SID_DRWTYPE_A + 8;
 
    /**
-    * What's this?
+    * Defines an area around a pixel on which to apply a filter.
+    * 
+    * {@link IBOPixelStar}
     */
    public static final int TYPE_DRWX_09_PIX_STAR                = A_SID_DRWTYPE_A + 9;
 
    /**
-    * {@link ITechAnchor}
+    * {@link IBOAnchor}
     */
    public static final int TYPE_DRWX_10_ANCHOR                  = A_SID_DRWTYPE_A + 10;
+
+   /**
+    * {@link IBOPassMosaic}
+    */
+   public static final int TYPE_DRWX_11_MOSAIC                  = A_SID_DRWTYPE_A + 11;
+
+   /**
+    * {@link IBOPassSkewer}
+    */
+   public static final int TYPE_DRWX_12_SKEWER                  = A_SID_DRWTYPE_A + 12;
 
 }

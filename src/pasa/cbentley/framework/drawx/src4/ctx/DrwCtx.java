@@ -19,7 +19,7 @@ import pasa.cbentley.byteobjects.src4.objects.color.FilterOperator;
 import pasa.cbentley.byteobjects.src4.objects.color.GradientFactory;
 import pasa.cbentley.byteobjects.src4.objects.color.GradientOperator;
 import pasa.cbentley.byteobjects.src4.objects.color.IBOBlend;
-import pasa.cbentley.byteobjects.src4.objects.pointer.MergeMaskFactory;
+import pasa.cbentley.byteobjects.src4.objects.pointer.MergeFactory;
 import pasa.cbentley.core.src4.ctx.CtxManager;
 import pasa.cbentley.core.src4.ctx.IStaticIDs;
 import pasa.cbentley.core.src4.logging.Dctx;
@@ -28,7 +28,7 @@ import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.coredraw.src4.ctx.CoreDrawCtx;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IFontFactory;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImageFactory;
-import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFeaturesDraw;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechHostFeatureDraw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbCache;
 import pasa.cbentley.framework.drawx.src4.factories.AnchorFactory;
@@ -47,9 +47,9 @@ import pasa.cbentley.framework.drawx.src4.factories.ScalerOperatorTests;
 import pasa.cbentley.framework.drawx.src4.image.PngEncoder;
 import pasa.cbentley.framework.drawx.src4.interfaces.IToStringsDIDsDraw;
 import pasa.cbentley.framework.drawx.src4.string.FxCache;
+import pasa.cbentley.framework.drawx.src4.string.StringAuxFactory;
 import pasa.cbentley.framework.drawx.src4.string.StringAuxFxFactory;
 import pasa.cbentley.framework.drawx.src4.string.StringAuxOperator;
-import pasa.cbentley.framework.drawx.src4.string.StringAuxFactory;
 import pasa.cbentley.framework.drawx.src4.string.Stringer;
 import pasa.cbentley.framework.drawx.src4.style.StyleFactory;
 import pasa.cbentley.framework.drawx.src4.style.StyleOperator;
@@ -108,9 +108,9 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
 
    private FxCache             fxCache;
 
-   private StringAuxFxFactory     fxStringFactory;
+   private StringAuxFxFactory  fxStringFactory;
 
-   private StringAuxOperator    strAuxOperator;
+   private StringAuxOperator   strAuxOperator;
 
    private LayouterCtx         lac;
 
@@ -179,6 +179,10 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
       if (this.getClass() == DrwCtx.class) {
          a_Init();
       }
+   }
+
+   public BOModuleDrawx getModuleDrawx() {
+      return module;
    }
 
    public void a_Init() {
@@ -258,7 +262,6 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
       return CTX_ID;
    }
 
-   
    public FigureFactory getFigureFactory() {
       return facFig;
    }
@@ -341,8 +344,8 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
       return uc.getMem();
    }
 
-   public MergeMaskFactory getMergeMaskFactory() {
-      return boc.getMergeMaskFactory();
+   public MergeFactory getMergeMaskFactory() {
+      return boc.getMergeFactory();
    }
 
    public PassDrawOperator getPassDrawOperator() {
@@ -361,6 +364,10 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
 
    public Random getRandom() {
       return uc.getRandom();
+   }
+
+   public Random getRandom(long seed) {
+      return uc.getRandom(seed);
    }
 
    public RgbCache getRgbCache() {
@@ -443,9 +450,9 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
    /**
     * Tells whether {@link CoreDrawCtx} has feature support.
     * 
-    * {@link ITechFeaturesDraw#SUP_ID_03_OPEN_GL}
-    * {@link ITechFeaturesDraw#SUP_ID_04_ALIAS}
-    * {@link ITechFeaturesDraw#SUP_ID_10_TRANSPARENT_BACKGROUND}
+    * {@link ITechHostFeatureDraw#SUP_ID_03_OPEN_GL}
+    * {@link ITechHostFeatureDraw#SUP_ID_04_ALIAS}
+    * {@link ITechHostFeatureDraw#SUP_ID_10_TRANSPARENT_BACKGROUND}
     * 
     * @param featureID
     * @return

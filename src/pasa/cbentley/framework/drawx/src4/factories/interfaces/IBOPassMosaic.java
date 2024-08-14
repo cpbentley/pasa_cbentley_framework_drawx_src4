@@ -4,7 +4,7 @@
  */
 package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
-public interface IBOMosaic extends IBOPass {
+public interface IBOPassMosaic extends IBOPass {
 
    public static final int PMOSAIC_BASE_OFFSET               = IBOPass.PASS_BASIC_SIZE;
 

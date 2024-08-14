@@ -7,6 +7,7 @@ package pasa.cbentley.framework.drawx.src4.factories;
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
+import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPass;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOScaler;
@@ -23,6 +24,19 @@ public class ScaleOperator extends AbstractDrwOperator implements ITechScaler {
 
    public ScaleOperator(DrwCtx drc) {
       super(drc);
+   }
+
+   public ByteObject mergeScale(ByteObject root, ByteObject merge) {
+      if (root == null) {
+         return merge;
+      }
+      if (merge == null) {
+         return root;
+      }
+      if (merge.getType() != IBOTypesDrawX.TYPE_DRWX_05_SCALE) {
+         throw new IllegalArgumentException();
+      }
+      return merge;
    }
 
    /**

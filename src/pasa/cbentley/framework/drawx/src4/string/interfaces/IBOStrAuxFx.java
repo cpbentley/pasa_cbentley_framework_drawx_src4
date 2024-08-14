@@ -5,7 +5,7 @@
 package pasa.cbentley.framework.drawx.src4.string.interfaces;
 
 import pasa.cbentley.byteobjects.src4.objects.function.Function;
-import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
+import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMerge;
 import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.core.src4.utils.interfaces.IColorsStatic;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFont;
@@ -146,7 +146,7 @@ public interface IBOStrAuxFx extends IBOStrAux {
    /**
     * Flag telling this object is semi transparent for the purpose of merges.
     * <p>
-    * This avoid the use of {@link IBOMergeMask}s which are cumbersome. StringFx uses
+    * This avoid the use of {@link IBOMerge}s which are cumbersome. StringFx uses
     * a lot of transparent font/color combos.
     * </p>
     * 

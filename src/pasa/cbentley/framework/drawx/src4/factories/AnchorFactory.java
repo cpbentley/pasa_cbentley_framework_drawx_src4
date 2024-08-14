@@ -36,20 +36,52 @@ public class AnchorFactory extends AbstractDrwFactory implements ITechAnchor {
       return getAnchor(ALIGN_6_CENTER, ALIGN_6_CENTER);
    }
 
+   public ByteObject getBottomCenter() {
+      return getAnchor(ALIGN_6_CENTER, ALIGN_2_BOTTOM);
+   }
+
+   public ByteObject getCenterLeft() {
+      return getAnchor(ALIGN_3_LEFT, ALIGN_6_CENTER);
+   }
+
    public ByteObject getLeftCenter() {
       return getAnchor(ALIGN_3_LEFT, ALIGN_6_CENTER);
+   }
+
+   public ByteObject getCenterRight() {
+      return getAnchor(ALIGN_4_RIGHT, ALIGN_6_CENTER);
    }
 
    public ByteObject getRightCenter() {
       return getAnchor(ALIGN_4_RIGHT, ALIGN_6_CENTER);
    }
 
+   public ByteObject getBottomLeft() {
+      return getAnchor(ALIGN_3_LEFT, ALIGN_2_BOTTOM);
+   }
+
    public ByteObject getLeftBottom() {
       return getAnchor(ALIGN_3_LEFT, ALIGN_2_BOTTOM);
    }
 
+   public ByteObject getTopCenter() {
+      return getAnchor(ALIGN_6_CENTER, ALIGN_1_TOP);
+   }
+
+   public ByteObject getTopRight() {
+      return getAnchor(ALIGN_4_RIGHT, ALIGN_1_TOP);
+   }
+
+   public ByteObject getTopLeft() {
+      return getAnchor(ALIGN_3_LEFT, ALIGN_1_TOP);
+   }
+
    public ByteObject getLeftTop() {
       return getAnchor(ALIGN_3_LEFT, ALIGN_1_TOP);
+   }
+
+   public ByteObject getBottomRight() {
+      return getAnchor(ALIGN_4_RIGHT, ALIGN_2_BOTTOM);
    }
 
    public ByteObject getRightBottom() {
@@ -101,7 +133,7 @@ public class AnchorFactory extends AbstractDrwFactory implements ITechAnchor {
     * 
     * {@link IBOBox}
     * 
-    * Type : {@link IBOTypesDrawX#TYPE_DRWX_01_BOX}
+    * Type : {@link IBOTypesDrawX#TYPE_DRWX_03_BOX}
     * <br>
     * <br>
     * 
@@ -133,6 +165,7 @@ public class AnchorFactory extends AbstractDrwFactory implements ITechAnchor {
       return p;
    }
 
+   //#mdebug
    public void toStringAnchor(ByteObject bo, Dctx sb) {
       sb.append("#Anchor ");
       sb.append("[H V]=[");
@@ -151,4 +184,5 @@ public class AnchorFactory extends AbstractDrwFactory implements ITechAnchor {
       }
       sb.append(']');
    }
+   //#enddebug
 }

@@ -261,8 +261,15 @@ public class StringAuxOperator extends AbstractDrwOperator implements ITechFigur
       int index = IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1;
       int size = 1;
       ByteObject aux = bo.getSubSubFirst(typeMain, auxType, index, size);
-
       return aux;
+   }
+
+   public ByteObject getSubSpecial(ByteObject bo) {
+      return getSub(bo, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C);
+   }
+
+   public ByteObject getSubFormat(ByteObject bo) {
+      return getSub(bo, IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_1_FORMAT);
    }
 
    public ByteObject getSubCharFx(ByteObject fx) {

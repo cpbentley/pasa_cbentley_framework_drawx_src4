@@ -1,7 +1,7 @@
 package pasa.cbentley.framework.drawx.src4.string.interfaces;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
+import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMerge;
 import pasa.cbentley.framework.coredraw.src4.ctx.IConfigCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFont;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
@@ -81,7 +81,7 @@ public interface IBOFigString extends IBOFigure {
     * <li>scale type id -> (linear,bilinear {@link IBOScaler#SCALE_OFFSET_03_ID1}
     * 
     * <p>
-    * {@link IBOFigure#FIG_FLAG_1_ANCHOR} is ignored if scaled.. otherwise anchor.
+    * {@link IBOFigure#FIG_FLAG_1_BOX} is ignored if scaled.. otherwise anchor.
     * when no anchor, centered by default
     * 
     * </p>
@@ -148,7 +148,7 @@ public interface IBOFigString extends IBOFigure {
     * <li>{@link ITechFont#STYLE_PLAIN}
     * 
     * <p>
-    * MM: flag 2 of offset 6. {@link IBOMergeMask#MERGE_MASK_FLAG6_2}
+    * MM: flag 2 of offset 6. {@link IBOMerge#MERGE_MASK_FLAG6_2}
     * </p>
     */
    public static final int FIG_STRING_OFFSET_04_STYLE1         = IBOFigure.FIG__BASIC_SIZE + 3;

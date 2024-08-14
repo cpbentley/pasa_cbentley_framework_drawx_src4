@@ -23,6 +23,7 @@ import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigure;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
+import pasa.cbentley.framework.drawx.src4.tech.ITechStyle;
 import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.engine.LayoutableRect;
@@ -37,6 +38,20 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    public StyleOperator(DrwCtx dc) {
       super(dc.getBOC());
       this.dc = dc;
+   }
+
+   /**
+    * Can be null, then ignores.
+    * @param style
+    */
+   public void checkStyleIncomplete(ByteObject style) {
+      if (style != null) {
+
+         boolean isIncomplete = style.hasFlag(STYLE_OFFSET_5_FLAG_X, STYLE_FLAG_X_1_INCOMPLETE);
+         if (!isIncomplete) {
+            throw new IllegalArgumentException();
+         }
+      }
    }
 
    /**
@@ -66,7 +81,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[5] = y;
       areas[6] = w;
       areas[7] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_5_MARGIN)) {
+      if (style.hasFlag(STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_5_MARGIN)) {
          int ml = getStyleMargin(style, C.POS_2_LEFT, c);
          int mt = getStyleMargin(style, C.POS_0_TOP, c);
          x += ml;
@@ -78,7 +93,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[1] = y;
       areas[2] = w;
       areas[3] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_4_BORDER)) {
+      if (style.hasFlag(STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_4_BORDER)) {
          int ml = getStyleBorder(style, C.POS_2_LEFT, c);
          int mt = getStyleBorder(style, C.POS_0_TOP, c);
          x += ml;
@@ -90,7 +105,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[13] = y;
       areas[14] = w;
       areas[15] = h;
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_3_PADDING)) {
+      if (style.hasFlag(STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_3_PADDING)) {
          int ml = getStylePadding(style, C.POS_2_LEFT, c);
          int mt = getStylePadding(style, C.POS_0_TOP, c);
          x += ml;
@@ -103,27 +118,6 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[10] = w;
       areas[11] = h;
       return areas;
-   }
-
-   public void debugFigFlag(Dctx sb, ByteObject p, int offset, int flag, String str) {
-      if (p.hasFlag(offset, flag)) {
-         sb.append(str);
-      }
-   }
-
-   public void debugStyleGLayer(Dctx sb, String str, ByteObject style, int flag, int anc) {
-      if (style.hasFlag(STYLE_OFFSET_2_FLAGB, flag)) {
-         sb.append(str);
-         int val = style.get1(STYLE_OFFSET_5_BG_POINTS1);
-         if (flag > 8) {
-            val = style.get1(STYLE_OFFSET_6_FG_POINTS1);
-         }
-         int p = (BitUtils.getBit(anc + 1, val) << 1) + BitUtils.getBit(anc, val);
-         sb.append("(");
-         sb.append(ToStringStaticDrawx.toStringStyleAnchor(p));
-         sb.append(")");
-
-      }
    }
 
    /**
@@ -152,39 +146,45 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     * @param h
     */
    public void drawStyleBg(ByteObject style, GraphicsX g, int x, int y, int w, int h, int[] areas) {
-      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_1_BG, areas, 1);
-      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_2_BG, areas, 3);
-      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_3_BG, areas, 5);
-      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_4_BG, areas, 7);
+      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_1_BG, areas, 1);
+      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_2_BG, areas, 3);
+      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_3_BG, areas, 5);
+      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_4_BG, areas, 7);
    }
 
    public void drawStyleBg(ByteObject style, GraphicsX g, int[] areas) {
-      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_1_BG, areas, 1);
-      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_2_BG, areas, 3);
-      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_3_BG, areas, 5);
-      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_4_BG, areas, 7);
+      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_1_BG, areas, 1);
+      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_2_BG, areas, 3);
+      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_3_BG, areas, 5);
+      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_4_BG, areas, 7);
    }
 
    public void drawStyleBg(ByteObject style, GraphicsX g, int[] areas, int x, int y) {
-      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_1_BG, areas, 1);
-      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_2_BG, areas, 3);
-      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_3_BG, areas, 5);
-      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_4_BG, areas, 7);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_1_BG, areas, 1);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_2_BG, areas, 3);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_3_BG, areas, 5);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_4_BG, areas, 7);
    }
 
    public void drawStyleFg(ByteObject style, GraphicsX g, int x, int y, int w, int h, int[] areas) {
-      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_5_FG, areas, 1);
-      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_6_FG, areas, 3);
+      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_5_FG, areas, 1);
+      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_6_FG, areas, 3);
+      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_7_FG, areas, 5);
+      drawStyleFigure(style, g, x, y, w, h, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_8_FG, areas, 7);
    }
 
    public void drawStyleFg(ByteObject style, GraphicsX g, int[] areas) {
-      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_5_FG, areas, 1);
-      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_6_FG, areas, 3);
+      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_5_FG, areas, 1);
+      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_6_FG, areas, 3);
+      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_7_FG, areas, 5);
+      drawStyleFigure(style, g, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_8_FG, areas, 7);
    }
 
    public void drawStyleFg(ByteObject style, GraphicsX g, int[] areas, int x, int y) {
-      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_5_FG, areas, 1);
-      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_6_FG, areas, 3);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_5_FG, areas, 1);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_6_FG, areas, 3);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_7_FG, areas, 5);
+      drawStyleFigure(style, g, x, y, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_8_FG, areas, 7);
    }
 
    /**
@@ -203,13 +203,16 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    public void drawStyleFigure(ByteObject style, GraphicsX g, int x, int y, int w, int h, int pointer, int flag, int[] areas, int anc) {
       ByteObject bg = getStyleDrw(style, pointer, flag);
       if (bg != null) {
-         int val = style.get1(STYLE_OFFSET_5_BG_POINTS1);
+         int val = style.get1(STYLE_OFFSET_7_BG_POINTS1);
          if (flag > 8) {
             //we have a figure for FG layers
-            val = style.get1(STYLE_OFFSET_6_FG_POINTS1);
+            val = style.get1(STYLE_OFFSET_8_FG_POINTS1);
          }
          int p = (BitUtils.getBit(anc + 1, val) << 1) + BitUtils.getBit(anc, val);
          //System.out.print(debugStyleAnchor(p));
+         //when p is 0, it is border, when p is 1 it is margin
+         //#debug
+         toDLog().pNull("StyleGAnchor=+" + ToStringStaticDrawx.toStringStyleAnchor(p) + " anc=" + anc, null, StyleOperator.class, "drawStyleFigure", LVL_05_FINE, true);
          p = p * 4;
          int dx = areas[p];
          int dy = areas[p + 1];
@@ -223,10 +226,10 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    public void drawStyleFigure(ByteObject style, GraphicsX g, int x, int y, int pointer, int flag, int[] areas, int anc) {
       ByteObject bg = getStyleDrw(style, pointer, flag);
       if (bg != null) {
-         int val = style.get1(STYLE_OFFSET_5_BG_POINTS1);
+         int val = style.get1(STYLE_OFFSET_7_BG_POINTS1);
          if (flag > 8) {
             //we have a figure for FG layers
-            val = style.get1(STYLE_OFFSET_6_FG_POINTS1);
+            val = style.get1(STYLE_OFFSET_8_FG_POINTS1);
          }
          int p = (BitUtils.getBit(anc + 1, val) << 1) + BitUtils.getBit(anc, val);
          //System.out.print(debugStyleAnchor(p));
@@ -246,23 +249,23 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     * @param g
     * @param pointer
     * @param flag
-    * <li> {@link IBOStyle#STYLE_FLAGB_1_BG}
-    * <li> {@link IBOStyle#STYLE_FLAGB_2_BG}
-    * <li> {@link IBOStyle#STYLE_FLAGB_3_BG}
-    * <li> {@link IBOStyle#STYLE_FLAGB_4_BG}
-    * <li> {@link IBOStyle#STYLE_FLAGB_5_FG}
-    * <li> {@link IBOStyle#STYLE_FLAGB_6_FG}
+    * <li> {@link IBOStyle#STYLE_FLAG_B_1_BG}
+    * <li> {@link IBOStyle#STYLE_FLAG_B_2_BG}
+    * <li> {@link IBOStyle#STYLE_FLAG_B_3_BG}
+    * <li> {@link IBOStyle#STYLE_FLAG_B_4_BG}
+    * <li> {@link IBOStyle#STYLE_FLAG_B_5_FG}
+    * <li> {@link IBOStyle#STYLE_FLAG_B_6_FG}
     * 
     * @param areas
-    * @param areaOffset position of bit flag in {@link IBOStyle#STYLE_OFFSET_5_BG_POINTS1}
+    * @param areaOffset position of bit flag in {@link IBOStyle#STYLE_OFFSET_7_BG_POINTS1}
     */
    public void drawStyleFigure(ByteObject style, GraphicsX g, int pointer, int flag, int[] areas, int areaOffset) {
       ByteObject bg = getStyleDrw(style, pointer, flag);
       if (bg != null) {
-         int val = style.get1(STYLE_OFFSET_5_BG_POINTS1);
+         int val = style.get1(STYLE_OFFSET_7_BG_POINTS1);
          if (flag > 8) {
             //we have a figure for FG layers
-            val = style.get1(STYLE_OFFSET_6_FG_POINTS1);
+            val = style.get1(STYLE_OFFSET_8_FG_POINTS1);
          }
          int p = (BitUtils.getBit(areaOffset + 1, val) << 1) + BitUtils.getBit(areaOffset, val);
          //System.out.print(debugStyleAnchor(p));
@@ -277,7 +280,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    /**
-    * Return the style element linked to {@link IBOStyle#STYLE_FLAGA_1_CONTENT}
+    * Return the style element linked to {@link IBOStyle#STYLE_FLAG_A_1_CONTENT}
     * <br>
     * When not load, returns default
     * <br>
@@ -286,7 +289,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     * @return non null {@link ByteObject}
     */
    public ByteObject getContentStyle(ByteObject style) {
-      return getStyleElement(style, IBOStyle.STYLE_FLAGA_1_CONTENT);
+      return getStyleElement(style, STYLE_FLAG_A_1_CONTENT);
    }
 
    public int getMargin(ByteObject style, int pos) {
@@ -380,7 +383,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    public ByteObject getStyleAnchor(ByteObject style) {
-      return style.getSubFirst(IBOTypesDrawX.TYPE_DRWX_01_BOX);
+      return style.getSubFirst(IBOTypesDrawX.TYPE_DRWX_03_BOX);
    }
 
    /**
@@ -409,20 +412,20 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       int pLeft = 0;
       int pRite = 0;
       ByteObject tblr = null;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_3_PADDING)) != null) {
          pTop = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHPaddingTop();
          pBot = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHPaddingBot();
          pLeft = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWPaddingLeft();
          pRite = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWPaddingRite();
       }
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_4_BORDER)) != null) {
          bTop = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHBorderTop();
          bBot = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHBorderBot();
          bLeft = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWBorderLeft();
          bRite = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWBorderRite();
       }
 
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_5_MARGIN)) != null) {
          mTop = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHMarginBot();
          mBot = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHMarginBot();
          mLeft = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWMarginLeft();
@@ -577,7 +580,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[10] = w;
       areas[11] = h;
       ByteObject tblr = null;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_3_PADDING)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHPaddingTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHPaddingBot();
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWPaddingLeft();
@@ -591,7 +594,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[13] = y;
       areas[14] = w;
       areas[15] = h;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_4_BORDER)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHBorderTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHBorderBot();
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWBorderLeft();
@@ -605,7 +608,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[1] = y;
       areas[2] = w;
       areas[3] = h;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_5_MARGIN)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHMarginBot();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHMarginBot();
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWMarginLeft();
@@ -628,7 +631,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[9] = y;
       areas[11] = h;
       ByteObject tblr = null;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_3_PADDING)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHPaddingTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHPaddingBot();
          y -= mt;
@@ -637,7 +640,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       //padding values are located last
       areas[13] = y;
       areas[15] = h;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_4_BORDER)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHBorderTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHBorderBot();
          y -= mt;
@@ -646,7 +649,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       //border values are located first
       areas[1] = y;
       areas[3] = h;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_5_MARGIN)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHMarginTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHMarginBot();
          y -= mt;
@@ -662,7 +665,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[8] = x; //content values are located third
       areas[10] = w;
       ByteObject tblr = null;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_3_PADDING)) != null) {
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWPaddingLeft();
          int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWPaddingRite();
          x -= ml;
@@ -670,7 +673,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       }
       areas[12] = x; //padding values are located last
       areas[14] = w;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_4_BORDER)) != null) {
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWBorderLeft();
          int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWBorderRite();
          x -= ml;
@@ -678,7 +681,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       }
       areas[0] = x; //border values are located first
       areas[2] = w;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_5_MARGIN)) != null) {
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWMarginLeft();
          int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWMarginRite();
          x -= ml;
@@ -710,10 +713,10 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     * @param style
     * @return
     * 
-    * <li>0-3 = border rectangle -> {@link IBOStyle#STYLE_ANC_0_BORDER}
-    * <li>4-7 = margin rectanble -> {@link IBOStyle#STYLE_ANC_1_MARGIN}
-    * <li>8-11 = content rectangle -> {@link IBOStyle#STYLE_ANC_2_CONTENT}
-    * <li>12-15 = padding rectangle -> {@link IBOStyle#STYLE_ANC_3_PADDING}
+    * <li>0-3 = border rectangle -> {@link ITechStyle#STYLE_ANC_0_BORDER}
+    * <li>4-7 = margin rectanble -> {@link ITechStyle#STYLE_ANC_1_MARGIN}
+    * <li>8-11 = content rectangle -> {@link ITechStyle#STYLE_ANC_2_CONTENT}
+    * <li>12-15 = padding rectangle -> {@link ITechStyle#STYLE_ANC_3_PADDING}
     * 
     */
    public int[] getStyleAreasFull(int x, int y, int w, int h, ByteObject style, ILayoutable c, StyleCache cache) {
@@ -724,7 +727,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[6] = w;
       areas[7] = h;
       ByteObject tblr = null;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_5_MARGIN)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHMarginTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHMarginBot();
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWMarginLeft();
@@ -738,7 +741,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[1] = y;
       areas[2] = w;
       areas[3] = h;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_4_BORDER)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHBorderTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHBorderBot();
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWBorderLeft();
@@ -752,7 +755,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[13] = y;
       areas[14] = w;
       areas[15] = h;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_3_PADDING)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHPaddingTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHPaddingBot();
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWPaddingLeft();
@@ -782,7 +785,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[5] = y;
       areas[7] = h;
       ByteObject tblr = null;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_5_MARGIN)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHMarginTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHMarginBot();
          y += mt;
@@ -791,7 +794,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       //border values are located first
       areas[1] = y;
       areas[3] = h;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_4_BORDER)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHBorderTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHBorderBot();
          y += mt;
@@ -800,7 +803,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       //padding values are located last
       areas[13] = y;
       areas[15] = h;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_3_PADDING)) != null) {
          int mt = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_0_TOP, c) : cache.getStyleHPaddingTop();
          int mb = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_1_BOT, c) : cache.getStyleHPaddingBot();
          y += mt;
@@ -826,7 +829,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       areas[4] = x;
       areas[6] = w;
       ByteObject tblr = null;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_5_MARGIN)) != null) {
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWMarginLeft();
          int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWMarginRite();
          x += ml;
@@ -835,7 +838,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       //border values are located first
       areas[0] = x;
       areas[2] = w;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_4_BORDER)) != null) {
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWBorderLeft();
          int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWBorderRite();
          x += ml;
@@ -844,7 +847,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       //padding values are located last
       areas[12] = x;
       areas[14] = w;
-      if ((tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING)) != null) {
+      if ((tblr = getStyleElement(style, STYLE_FLAG_A_3_PADDING)) != null) {
          int ml = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_2_LEFT, c) : cache.getStyleWPaddingLeft();
          int mr = (cache == null) ? layOp.getTBLRValue(tblr, C.POS_3_RIGHT, c) : cache.getStyleWPaddingRite();
          x += ml;
@@ -868,22 +871,22 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     * @return 4 sized array or null if none
     */
    public ByteObject[] getStyleBgs(ByteObject style) {
-      int flag = style.get1(STYLE_OFFSET_2_FLAGB);
+      int flag = style.get1(STYLE_OFFSET_2_FLAG_B);
       if ((flag & 0x00001111b) == 0) {
          return null;
       } else {
          int bgIndex = 0;
          ByteObject[] bgs = new ByteObject[4];
-         bgIndex = styleLayerPut(style, bgs, 0, flag, STYLE_FLAGB_1_BG, bgIndex);
-         bgIndex = styleLayerPut(style, bgs, 1, flag, STYLE_FLAGB_2_BG, bgIndex);
-         bgIndex = styleLayerPut(style, bgs, 2, flag, STYLE_FLAGB_3_BG, bgIndex);
-         bgIndex = styleLayerPut(style, bgs, 3, flag, STYLE_FLAGB_4_BG, bgIndex);
+         bgIndex = styleLayerPut(style, bgs, 0, flag, STYLE_FLAG_B_1_BG, bgIndex);
+         bgIndex = styleLayerPut(style, bgs, 1, flag, STYLE_FLAG_B_2_BG, bgIndex);
+         bgIndex = styleLayerPut(style, bgs, 2, flag, STYLE_FLAG_B_3_BG, bgIndex);
+         bgIndex = styleLayerPut(style, bgs, 3, flag, STYLE_FLAG_B_4_BG, bgIndex);
          return bgs;
       }
    }
 
    public int getStyleBorder(ByteObject p, int pos) {
-      ByteObject tblr = getStyleElement(p, STYLE_FLAGA_4_BORDER);
+      ByteObject tblr = getStyleElement(p, STYLE_FLAG_A_4_BORDER);
       if (tblr != null) {
          return dc.getLayoutOperator().getTBLRValue(tblr, pos);
       }
@@ -898,7 +901,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     * @return
     */
    public int getStyleBorder(ByteObject style, int pos, ILayoutable c) {
-      ByteObject tblr = getStyleElement(style, STYLE_FLAGA_4_BORDER);
+      ByteObject tblr = getStyleElement(style, STYLE_FLAG_A_4_BORDER);
       if (tblr != null) {
          return dc.getLayoutOperator().getTBLRValue(tblr, pos, c);
       }
@@ -941,24 +944,24 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     */
    public int getStyleDLayerPosition(ByteObject style, ByteObject figure) {
       int val = -1;
-      if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_1_FLAGA, IBOStyle.STYLE_FLAGA_1_CONTENT) == figure) {
+      if (getStyleDrw(style, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_1_CONTENT) == figure) {
          val = 0;
       } else {
-         if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_1_BG) == figure) {
+         if (getStyleDrw(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_1_BG) == figure) {
             val = 1;
-         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_2_BG) == figure) {
+         } else if (getStyleDrw(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_2_BG) == figure) {
             val = 2;
-         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_3_BG) == figure) {
+         } else if (getStyleDrw(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_3_BG) == figure) {
             val = 3;
-         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_4_BG) == figure) {
+         } else if (getStyleDrw(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_4_BG) == figure) {
             val = 4;
-         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_5_FG) == figure) {
+         } else if (getStyleDrw(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_5_FG) == figure) {
             val = 5;
-         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_6_FG) == figure) {
+         } else if (getStyleDrw(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_6_FG) == figure) {
             val = 6;
-         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_7_FG) == figure) {
+         } else if (getStyleDrw(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_7_FG) == figure) {
             val = 7;
-         } else if (getStyleDrw(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_8_FG) == figure) {
+         } else if (getStyleDrw(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_8_FG) == figure) {
             val = 8;
          }
       }
@@ -989,7 +992,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    /**
-    * Get the member position at flag for elements at {@link IBOStyle#STYLE_OFFSET_1_FLAGA}
+    * Get the member position at flag for elements at {@link IBOStyle#STYLE_OFFSET_1_FLAG_A}
     * <br>
     * <br>
     * @param style
@@ -997,13 +1000,13 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     * @return
     */
    public ByteObject getStyleElement(ByteObject style, int flag) {
-      if (style.hasFlag(STYLE_OFFSET_1_FLAGA, flag)) {
-         int sx = style.getFlagCount(STYLE_OFFSET_1_FLAGA, flag);
+      if (style.hasFlag(STYLE_OFFSET_1_FLAG_A, flag)) {
+         int sx = style.getFlagCount(STYLE_OFFSET_1_FLAG_A, flag);
          if (sx != -1) {
             try {
                return style.getSubAtIndex(sx);
             } catch (ArrayIndexOutOfBoundsException e) {
-               //#debug
+               //#mdebug
                String msg = "Index sx " + sx + " invalid for STYLE_OFFSET_1_FLAGV " + flag;
                //we want to debug byteObject raw only
                Dctx dc = new Dctx(boc.getUC());
@@ -1014,6 +1017,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
                style.toString(dc);
                //#debug
                toDLog().pNull(dc.toString(), null, StyleOperator.class, "getStyleElement", LVL_05_FINE, true);
+               //#enddebug
                throw e;
             }
          } else {
@@ -1032,15 +1036,22 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     */
    public int getStyleElementPosition(ByteObject style, int pointer, int flag) {
       int val = style.getFlagCount(pointer, flag);
-      if (pointer == STYLE_OFFSET_1_FLAGA) {
+      if (pointer == STYLE_OFFSET_1_FLAG_A) {
          return style.getFlagCount(pointer, flag);
-      } else if (pointer == STYLE_OFFSET_2_FLAGB) {
-         int flags = style.get1(STYLE_OFFSET_1_FLAGA);
+      } else if (pointer == STYLE_OFFSET_2_FLAG_B) {
+         int flags = style.get1(STYLE_OFFSET_1_FLAG_A);
          val += BitUtils.countBits(flags);
-      } else if (pointer == STYLE_OFFSET_3_FLAGC) {
-         int flags = style.get1(STYLE_OFFSET_1_FLAGA);
+      } else if (pointer == STYLE_OFFSET_3_FLAG_C) {
+         int flags = style.get1(STYLE_OFFSET_1_FLAG_A);
          val += BitUtils.countBits(flags);
-         flags = style.get1(STYLE_OFFSET_2_FLAGB);
+         flags = style.get1(STYLE_OFFSET_2_FLAG_B);
+         val += BitUtils.countBits(flags);
+      } else if (pointer == STYLE_OFFSET_4_FLAG_F) {
+         int flags = style.get1(STYLE_OFFSET_1_FLAG_A);
+         val += BitUtils.countBits(flags);
+         flags = style.get1(STYLE_OFFSET_2_FLAG_B);
+         val += BitUtils.countBits(flags);
+         flags = style.get1(STYLE_OFFSET_3_FLAG_C);
          val += BitUtils.countBits(flags);
       }
       return val;
@@ -1079,15 +1090,15 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    /**
     * The anchor of the layer which was set using 
     * @param style
-    * @param flag {@link ByteObject#STYLE_FLAGB_1_BG} - {@link ByteObject#STYLE_FLAGB_8_FG} 
+    * @param flag {@link ByteObject#STYLE_FLAG_B_1_BG} - {@link ByteObject#STYLE_FLAG_B_8_FG} 
     * @param anc value depending on flag
     * 1 3 4 7
     * @return
     */
    public int getStyleLayerAnchor(ByteObject style, int flag, int anc) {
-      int val = style.get1(STYLE_OFFSET_5_BG_POINTS1);
+      int val = style.get1(STYLE_OFFSET_7_BG_POINTS1);
       if (flag > 8) {
-         val = style.get1(STYLE_OFFSET_6_FG_POINTS1);
+         val = style.get1(STYLE_OFFSET_8_FG_POINTS1);
       }
       int p = (BitUtils.getBit(anc + 1, val) << 1) + BitUtils.getBit(anc, val);
       return p;
@@ -1102,7 +1113,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    public int getStyleMargin(ByteObject p, int pos) {
-      ByteObject tblr = getStyleElement(p, STYLE_FLAGA_5_MARGIN);
+      ByteObject tblr = getStyleElement(p, STYLE_FLAG_A_5_MARGIN);
       if (tblr != null) {
          return dc.getLayoutOperator().getTBLRValue(tblr, pos);
       }
@@ -1110,7 +1121,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    public int getStyleMargin(ByteObject style, int pos, ILayoutable c) {
-      ByteObject tblr = getStyleElement(style, STYLE_FLAGA_5_MARGIN);
+      ByteObject tblr = getStyleElement(style, STYLE_FLAG_A_5_MARGIN);
       if (tblr != null) {
          return dc.getLayoutOperator().getTBLRValue(tblr, pos, c);
       }
@@ -1144,7 +1155,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     */
    public int getStylePadding(ByteObject style, int pos) {
       //fetch the padding param of this layer and draws it
-      ByteObject tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING);
+      ByteObject tblr = getStyleElement(style, STYLE_FLAG_A_3_PADDING);
       if (tblr != null) {
          return getStyleValue(tblr, pos);
       }
@@ -1162,7 +1173,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     */
    public int getStylePadding(ByteObject style, int pos, ILayoutable c) {
       //fetch the border param of this layer and draws it
-      ByteObject tblr = getStyleElement(style, STYLE_FLAGA_3_PADDING);
+      ByteObject tblr = getStyleElement(style, STYLE_FLAG_A_3_PADDING);
       if (tblr != null) {
          return dc.getLayoutOperator().getTBLRValue(tblr, pos, c);
       }
@@ -1265,19 +1276,19 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     * @return
     */
    public boolean isOpaqueBgLayersStyle(ByteObject style, int[] areas) {
-      boolean bg1 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_1_BG, areas, 1);
+      boolean bg1 = isStyleFigureOpaque(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_1_BG, areas, 1);
       if (bg1) {
          return true;
       }
-      boolean bg2 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_2_BG, areas, 3);
+      boolean bg2 = isStyleFigureOpaque(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_2_BG, areas, 3);
       if (bg2) {
          return true;
       }
-      boolean bg3 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_3_BG, areas, 5);
+      boolean bg3 = isStyleFigureOpaque(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_3_BG, areas, 5);
       if (bg3) {
          return true;
       }
-      boolean bg4 = isStyleFigureOpaque(style, IBOStyle.STYLE_OFFSET_2_FLAGB, IBOStyle.STYLE_FLAGB_4_BG, areas, 7);
+      boolean bg4 = isStyleFigureOpaque(style, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_4_BG, areas, 7);
       if (bg4) {
          return true;
       }
@@ -1311,9 +1322,68 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       return false;
    }
 
+   private void mergeAnchorPoints(ByteObject root, ByteObject merge, ByteObject styleResult) {
+      int anchorRoot = root.get1(STYLE_OFFSET_7_BG_POINTS1);
+      //merges layer anchoring
+      int a1 = 0;
+      if (merge.hasFlag(STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_1_BG)) {
+         a1 = getStyleLayerAnchor(merge, STYLE_FLAG_B_1_BG, 1);
+         if (a1 != 0) {
+            anchorRoot = (anchorRoot & 0x03) + a1 << 0;
+         }
+      }
+      if (merge.hasFlag(STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_2_BG)) {
+         a1 = getStyleLayerAnchor(merge, STYLE_FLAG_B_2_BG, 3);
+         if (a1 != 0) {
+            anchorRoot = (anchorRoot & 0x0C) + a1 << 2;
+         }
+      }
+      if (merge.hasFlag(STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_3_BG)) {
+         a1 = getStyleLayerAnchor(merge, STYLE_FLAG_B_3_BG, 5);
+         if (a1 != 0) {
+            anchorRoot = (anchorRoot & 0x30) + a1 << 4;
+         }
+      }
+      if (merge.hasFlag(STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_4_BG)) {
+         a1 = getStyleLayerAnchor(merge, STYLE_FLAG_B_4_BG, 7);
+         if (a1 != 0) {
+            anchorRoot = (anchorRoot & 0xC0) + a1 << 6;
+         }
+      }
+      styleResult.setValue(STYLE_OFFSET_7_BG_POINTS1, anchorRoot, 1);
+      a1 = 0;
+
+      anchorRoot = root.get1(STYLE_OFFSET_8_FG_POINTS1);
+      if (merge.hasFlag(STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_5_FG)) {
+         a1 = getStyleLayerAnchor(merge, STYLE_FLAG_B_5_FG, 1);
+         if (a1 != 0) {
+            anchorRoot = (anchorRoot & 0x03) + a1 << 0;
+         }
+      }
+      if (merge.hasFlag(STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_6_FG)) {
+         a1 = getStyleLayerAnchor(merge, STYLE_FLAG_B_6_FG, 3);
+         if (a1 != 0) {
+            anchorRoot = (anchorRoot & 0x0C) + a1 << 2;
+         }
+      }
+      if (merge.hasFlag(STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_7_FG)) {
+         a1 = getStyleLayerAnchor(merge, STYLE_FLAG_B_7_FG, 5);
+         if (a1 != 0) {
+            anchorRoot = (anchorRoot & 0x30) + a1 << 4;
+         }
+      }
+      if (merge.hasFlag(STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_8_FG)) {
+         a1 = getStyleLayerAnchor(merge, STYLE_FLAG_B_8_FG, 7);
+         if (a1 != 0) {
+            anchorRoot = (anchorRoot & 0xC0) + a1 << 6;
+         }
+      }
+      styleResult.set1(STYLE_OFFSET_8_FG_POINTS1, anchorRoot);
+   }
+
    /**
     * Helper method of mergeStyle procedure
-    * @param style
+    * @param style result of the merge
     * @param root
     * @param merge
     * @param pointer
@@ -1322,23 +1392,25 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     * @param count
     * @return
     */
-   private int mergeSet(ByteObject style, ByteObject root, ByteObject merge, int pointer, int flag, ByteObject[] ar, int count) {
+   private void mergeSet(ByteObject style, ByteObject root, ByteObject merge, int pointer, int flag, ByteObject[] ar, int[] count) {
       ByteObject rootElement = getStyleDrw(root, pointer, flag);
       ByteObject mergeElement = getStyleDrw(merge, pointer, flag);
-      //nothing to merge
+      if (mergeElement != null) {
+         count[1]++;
+      }
       BOModulesManager boModuleManager = dc.getBOC().getBOModuleManager();
       ByteObject me = boModuleManager.mergeByteObject(rootElement, mergeElement);
       if (me != null) {
-         ar[count] = me;
+         int index = count[0]++;
+         ar[index] = me;
          style.setFlag(pointer, flag, true);
-         return count + 1;
       }
-      return count;
    }
 
    /**
-    * Return a new style
-    * <p> Merges Layer Anchors 
+    * Return a new style with flag {@link IBOStyle#STYLE_FLAG_X_2_MERGED}
+    * <p> 
+    * Merges Layer Anchors 
     * </p>
     * @param root bottom style whose members will be erased/merged
     * @param merge top style that is merging over the bottom style
@@ -1346,87 +1418,64 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
     */
    public ByteObject mergeStyle(ByteObject root, ByteObject merge) {
       //force the pooling
-      ByteObject styleResult = dc.getBOC().getByteObjectFactory().createByteObject(TYPE_DRWX_08_STYLE, STYLE_BASIC_SIZE);
+      ByteObject styleResult = dc.getStyleFactory().createStyle();
+
+      styleResult.setFlag(STYLE_OFFSET_5_FLAG_X, STYLE_FLAG_X_2_MERGED, true);
 
       //#debug
       root.checkType(TYPE_DRWX_08_STYLE);
-      //#debug
+
+      //#mdebug
       if (merge != null) {
          merge.checkType(TYPE_DRWX_08_STYLE);
       }
+      //#enddebug
 
       //build the merged array of sub byteobjects
       ByteObject[] ar = new ByteObject[24];
+
       //this enables the debugger to print the object while debugging
+      //#debug
       styleResult.setByteObjects(ar);
 
-      int count = 0;
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_1_CONTENT, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_2_ANCHOR, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_3_PADDING, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_4_BORDER, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_5_MARGIN, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_6_ANIMATIONS, ar, count);
+      int[] counters = new int[2];
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_1_CONTENT, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_2_ANCHOR, ar, counters);
 
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_1_BG, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_2_BG, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_3_BG, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_4_BG, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_5_FG, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_6_FG, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_7_FG, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_8_FG, ar, count);
+      int z = counters[1];
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_3_PADDING, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_4_BORDER, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_5_MARGIN, ar, counters);
+      if (z != counters[1]) {
+         styleResult.setFlag(STYLE_OFFSET_5_FLAG_X, STYLE_FLAG_X_3_MERGED_STRUCT, true);
+      }
 
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_1_FILTER_BG, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_2_FILTER_CONTENT, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_3_FILTER_FG, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_4_FILTER_BG_CONTENT, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_5_FILTER_ALL, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_6_ANIM_ENTRY, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_7_ANIM_MAIN, ar, count);
-      count = mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_8_ANIM_EXIT, ar, count);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_1_BG, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_2_BG, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_3_BG, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_4_BG, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_5_FG, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_6_FG, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_7_FG, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_8_FG, ar, counters);
 
-      //TODO clean this
-      int anc1 = root.get1(STYLE_OFFSET_5_BG_POINTS1);
-      //merges layer anchoring
-      int a1 = 0;
-      if (merge.hasFlag(STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_1_BG)) {
-         a1 = getStyleLayerAnchor(merge, STYLE_FLAGB_1_BG, 1);
-         if (a1 != 0) {
-            anc1 = (anc1 & 0x03) + a1 << 0;
-         }
+      z = counters[1];
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAG_C, STYLE_FLAG_C_6_ANIM_ENTRY, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAG_C, STYLE_FLAG_C_7_ANIM_MAIN, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_3_FLAG_C, STYLE_FLAG_C_8_ANIM_EXIT, ar, counters);
+      if (z != counters[1]) {
+         styleResult.setFlag(STYLE_OFFSET_5_FLAG_X, STYLE_FLAG_X_4_MERGED_ANIM, true);
       }
-      if (merge.hasFlag(STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_2_BG)) {
-         a1 = getStyleLayerAnchor(merge, STYLE_FLAGB_2_BG, 3);
-         if (a1 != 0) {
-            anc1 = (anc1 & 0x0C) + a1 << 2;
-         }
-      }
-      if (merge.hasFlag(STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_3_BG)) {
-         a1 = getStyleLayerAnchor(merge, STYLE_FLAGB_3_BG, 5);
-         if (a1 != 0) {
-            anc1 = (anc1 & 0x30) + a1 << 4;
-         }
-      }
-      if (merge.hasFlag(STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_4_BG)) {
-         a1 = getStyleLayerAnchor(merge, STYLE_FLAGB_4_BG, 7);
-         if (a1 != 0) {
-            anc1 = (anc1 & 0xC0) + a1 << 6;
-         }
-      }
-      styleResult.setValue(STYLE_OFFSET_5_BG_POINTS1, anc1, 1);
-      a1 = 0;
 
-      if (merge.hasFlag(STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_5_FG)) {
-         a1 = getStyleLayerAnchor(merge, STYLE_FLAGB_5_FG, 1);
-         if (a1 != 0) {
-            anc1 = (anc1 & 0x03) + a1 << 0;
-         }
-      }
-      styleResult.setValue(STYLE_OFFSET_6_FG_POINTS1, anc1, 1);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_1_FILTER_BG, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_2_FILTER_CONTENT, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_3_FILTER_FG, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_4_FILTER_BG_CONTENT, ar, counters);
+      mergeSet(styleResult, root, merge, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_5_FILTER_ALL, ar, counters);
 
-      ByteObject[] trimmedAr = dc.getBOC().getBOU().getTrim(ar);
-      styleResult.setByteObjects(trimmedAr);
+      mergeAnchorPoints(root, merge, styleResult);
+
+      styleResult.setByteObjectsTrimmed(ar);
       //first do text for both bot and up
       return styleResult;
 
@@ -1473,33 +1522,76 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
    }
 
    /**
+    * <p>
     * flag is
-    * <li> {@link IBOStyle#STYLE_ANC_0_BORDER}
-    * <li> {@link IBOStyle#STYLE_ANC_1_MARGIN}
-    * <li> {@link IBOStyle#STYLE_ANC_2_CONTENT}
-    * <li> {@link IBOStyle#STYLE_ANC_3_PADDING}
+    * <li> {@link IBOStyle#STYLE_FLAG_B_1_BG}
+    * <li> {@link IBOStyle#STYLE_FLAG_B_2_BG}
+    * <li> {@link IBOStyle#STYLE_FLAG_B_3_BG}
+    * <li> {@link IBOStyle#STYLE_FLAG_B_4_BG}
+    * </p>
+    * 
+    * anc is
+    * <li> {@link ITechStyle#STYLE_ANC_0_BORDER}
+    * <li> {@link ITechStyle#STYLE_ANC_1_MARGIN}
+    * <li> {@link ITechStyle#STYLE_ANC_2_CONTENT}
+    * <li> {@link ITechStyle#STYLE_ANC_3_PADDING}
     * @param style
     * @param flag
     * @param anc
     */
    public void setGAnchors(ByteObject style, int flag, int anc) {
-      int off = STYLE_OFFSET_5_BG_POINTS1;
-      if (flag > 8) {
-         off = STYLE_OFFSET_6_FG_POINTS1;
-         flag = flag >> 4;
-      }
-      //1 = 1, 2 = 3, 4 = 5, 8 = 7
+      int off = STYLE_OFFSET_7_BG_POINTS1;
       int n = 1;
-      if (flag == 2)
-         n = 3;
-      if (flag == 4)
-         n = 5;
-      if (flag == 8)
-         n = 7;
+      if (flag > 8) {
+         off = STYLE_OFFSET_8_FG_POINTS1;
+         if (flag == STYLE_FLAG_B_6_FG)
+            n = 3;
+         if (flag == STYLE_FLAG_B_7_FG)
+            n = 5;
+         if (flag == STYLE_FLAG_B_8_FG)
+            n = 7;
+      } else {
+         //1 = 1, 2 = 3, 4 = 5, 8 = 7
+         if (flag == STYLE_FLAG_B_2_BG)
+            n = 3;
+         if (flag == STYLE_FLAG_B_3_BG)
+            n = 5;
+         if (flag == STYLE_FLAG_B_4_BG)
+            n = 7;
+      }
+
       int val = style.get1(off);
       val = BitUtils.setBit(val, n, BitUtils.getBit(1, anc));
       val = BitUtils.setBit(val, n + 1, BitUtils.getBit(2, anc));
       style.setValue(off, val, 1);
+   }
+
+   public void setGAnchors2Content(ByteObject style) {
+      this.setGAnchors(style, STYLE_FLAG_B_2_BG, ITechStyle.STYLE_ANC_2_CONTENT);
+   }
+
+   public void setGAnchorsBG1_Margin(ByteObject style) {
+      this.setGAnchors(style, STYLE_FLAG_B_1_BG, ITechStyle.STYLE_ANC_1_MARGIN);
+   }
+
+   public void setGAnchorsBG2_Margin(ByteObject style) {
+      this.setGAnchors(style, STYLE_FLAG_B_2_BG, ITechStyle.STYLE_ANC_1_MARGIN);
+   }
+
+   public void setGAnchorsBG3_Margin(ByteObject style) {
+      this.setGAnchors(style, STYLE_FLAG_B_3_BG, ITechStyle.STYLE_ANC_1_MARGIN);
+   }
+
+   public void setGAnchorsFG1_Content(ByteObject style) {
+      this.setGAnchors(style, STYLE_FLAG_B_5_FG, ITechStyle.STYLE_ANC_2_CONTENT);
+   }
+
+   public void setGAnchorsFG1_Margin(ByteObject style) {
+      this.setGAnchors(style, STYLE_FLAG_B_5_FG, ITechStyle.STYLE_ANC_1_MARGIN);
+   }
+
+   public void setStyleIncomplete(ByteObject style) {
+      style.setFlag(STYLE_OFFSET_5_FLAG_X, STYLE_FLAG_X_1_INCOMPLETE, true);
    }
 
    private int setWhenNotNullStyle(ByteObject style, ByteObject field, int count) {
@@ -1563,43 +1655,43 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       styleO.checkType(TYPE_DRWX_08_STYLE);
 
       //create a new possible
-      ByteObject content = styleMergePartOver(root, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_1_CONTENT, styleO);
-      ByteObject anchor = styleMergePartOver(root, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_2_ANCHOR, styleO);
-      ByteObject pad = styleMergePartOver(root, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_3_PADDING, styleO);
-      ByteObject border = styleMergePartOver(root, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_4_BORDER, styleO);
-      ByteObject margin = styleMergePartOver(root, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_5_MARGIN, styleO);
+      ByteObject content = styleMergePartOver(root, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_1_CONTENT, styleO);
+      ByteObject anchor = styleMergePartOver(root, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_2_ANCHOR, styleO);
+      ByteObject pad = styleMergePartOver(root, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_3_PADDING, styleO);
+      ByteObject border = styleMergePartOver(root, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_4_BORDER, styleO);
+      ByteObject margin = styleMergePartOver(root, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_5_MARGIN, styleO);
 
       ByteObject[] bg = null;
-      if (root.hasFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_1_BG)) {
+      if (root.hasFlag(STYLE_OFFSET_6_FLAG_PERF, STYLE_FLAG_PERF_1_BG)) {
          bg = new ByteObject[4];
-         bg[0] = styleMergePartOver(root, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_1_BG, styleO);
-         bg[1] = styleMergePartOver(root, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_2_BG, styleO);
-         bg[2] = styleMergePartOver(root, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_3_BG, styleO);
-         bg[3] = styleMergePartOver(root, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_4_BG, styleO);
+         bg[0] = styleMergePartOver(root, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_1_BG, styleO);
+         bg[1] = styleMergePartOver(root, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_2_BG, styleO);
+         bg[2] = styleMergePartOver(root, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_3_BG, styleO);
+         bg[3] = styleMergePartOver(root, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_4_BG, styleO);
       }
       ByteObject[] fg = null;
-      if (root.hasFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_2_FG)) {
+      if (root.hasFlag(STYLE_OFFSET_6_FLAG_PERF, STYLE_FLAG_PERF_2_FG)) {
          fg = new ByteObject[4];
-         fg[0] = styleMergePartOver(root, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_5_FG, styleO);
-         fg[1] = styleMergePartOver(root, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_6_FG, styleO);
-         fg[2] = styleMergePartOver(root, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_7_FG, styleO);
-         fg[3] = styleMergePartOver(root, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_8_FG, styleO);
+         fg[0] = styleMergePartOver(root, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_5_FG, styleO);
+         fg[1] = styleMergePartOver(root, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_6_FG, styleO);
+         fg[2] = styleMergePartOver(root, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_7_FG, styleO);
+         fg[3] = styleMergePartOver(root, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_8_FG, styleO);
       }
       ByteObject[] filters = null;
-      if (root.hasFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_3_FILTERS)) {
+      if (root.hasFlag(STYLE_OFFSET_6_FLAG_PERF, STYLE_FLAG_PERF_3_FILTERS)) {
          filters = new ByteObject[5];
-         filters[0] = styleMergePartOver(root, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_1_FILTER_BG, styleO);
-         filters[1] = styleMergePartOver(root, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_2_FILTER_CONTENT, styleO);
-         filters[2] = styleMergePartOver(root, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_3_FILTER_FG, styleO);
-         filters[3] = styleMergePartOver(root, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_4_FILTER_BG_CONTENT, styleO);
-         filters[4] = styleMergePartOver(root, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_5_FILTER_ALL, styleO);
+         filters[0] = styleMergePartOver(root, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_1_FILTER_BG, styleO);
+         filters[1] = styleMergePartOver(root, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_2_FILTER_CONTENT, styleO);
+         filters[2] = styleMergePartOver(root, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_3_FILTER_FG, styleO);
+         filters[3] = styleMergePartOver(root, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_4_FILTER_BG_CONTENT, styleO);
+         filters[4] = styleMergePartOver(root, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_5_FILTER_ALL, styleO);
       }
       ByteObject[] anims = null;
-      if (root.hasFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_4_ANIMS)) {
+      if (root.hasFlag(STYLE_OFFSET_6_FLAG_PERF, STYLE_FLAG_PERF_4_ANIMS)) {
          anims = new ByteObject[3];
-         anims[0] = styleMergePartOver(root, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_6_ANIM_ENTRY, styleO);
-         anims[1] = styleMergePartOver(root, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_7_ANIM_MAIN, styleO);
-         anims[2] = styleMergePartOver(root, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_8_ANIM_EXIT, styleO);
+         anims[0] = styleMergePartOver(root, STYLE_OFFSET_3_FLAG_C, STYLE_FLAG_C_6_ANIM_ENTRY, styleO);
+         anims[1] = styleMergePartOver(root, STYLE_OFFSET_3_FLAG_C, STYLE_FLAG_C_7_ANIM_MAIN, styleO);
+         anims[2] = styleMergePartOver(root, STYLE_OFFSET_3_FLAG_C, STYLE_FLAG_C_8_ANIM_EXIT, styleO);
       }
 
       ByteObject newStyle = dc.getStyleFactory().getStyle(bg, content, anchor, pad, border, margin, fg, filters, anims);
@@ -1636,6 +1728,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       }
    }
 
+   //#mdebug
    public void toString1LineStyle(ByteObject bo, Dctx sb) {
       sb.append("#Style " + bo.getMyHashCode());
       sb.append("\t");
@@ -1651,51 +1744,84 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
 
    }
 
-   public void toStringStyle(ByteObject bo, Dctx sb) {
-      sb.append("#Style " + bo.getMyHashCode());
-      sb.append("\t");
-      sb.append("ConsumeTBLR[");
-      sb.append(getStyleTopHConsumed(bo));
-      sb.append('-');
-      sb.append(getStyleBotHConsumed(bo));
-      sb.append(' ');
-      sb.append(getStyleLeftWConsumed(bo));
-      sb.append('-');
-      sb.append(getStyleRightWConsumed(bo));
-      sb.append(']');
-      if (sb.hasFlagData(dc, IFlagsToStringDrw.D_FLAG_01_STYLE)) {
-         if (bo.get1(STYLE_OFFSET_1_FLAGA) != 0) {
-            sb.nl();
-            sb.append("FlagV:");
-            debugFigFlag(sb, bo, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_1_CONTENT, " Content");
-            debugFigFlag(sb, bo, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_2_ANCHOR, " Anchor");
-            debugFigFlag(sb, bo, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_3_PADDING, " Padding");
-            debugFigFlag(sb, bo, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_4_BORDER, " Border");
-            debugFigFlag(sb, bo, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_5_MARGIN, " Margin");
-         }
-         if (bo.get1(STYLE_OFFSET_2_FLAGB) != 0) {
-            sb.nl();
-            sb.append("FlagG:");
-            debugStyleGLayer(sb, " Bg1", bo, STYLE_FLAGB_1_BG, 1);
-            debugStyleGLayer(sb, " Bg2", bo, STYLE_FLAGB_2_BG, 3);
-            debugStyleGLayer(sb, " Bg3", bo, STYLE_FLAGB_3_BG, 5);
-            debugStyleGLayer(sb, " Bg4", bo, STYLE_FLAGB_4_BG, 7);
-            debugStyleGLayer(sb, " Fg1", bo, STYLE_FLAGB_5_FG, 1);
-            debugStyleGLayer(sb, " Fg2", bo, STYLE_FLAGB_6_FG, 3);
-         }
-         if (bo.get1(STYLE_OFFSET_3_FLAGC) != 0) {
-            sb.nl();
-            sb.append("FlagF:");
-            debugFigFlag(sb, bo, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_1_FILTER_BG, " FilterBg");
-            debugFigFlag(sb, bo, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_2_FILTER_CONTENT, " FilterContent");
-            debugFigFlag(sb, bo, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_3_FILTER_FG, " FilterFg");
-            debugFigFlag(sb, bo, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_4_FILTER_BG_CONTENT, " FilterBgContent");
-            debugFigFlag(sb, bo, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_5_FILTER_ALL, " FilterAll");
-            debugFigFlag(sb, bo, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_6_ANIM_ENTRY, " AnimEntry");
-            debugFigFlag(sb, bo, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_7_ANIM_MAIN, " AnimMain");
-            debugFigFlag(sb, bo, STYLE_OFFSET_3_FLAGC, STYLE_FLAGC_8_ANIM_EXIT, " AnimExit");
-         }
+   public void toStringFigFlag(Dctx sb, ByteObject p, int offset, int flag, String str) {
+      if (p.hasFlag(offset, flag)) {
+         sb.append(str);
       }
    }
 
+   public void toStringStyle(ByteObject bo, Dctx db) {
+      db.append("#Style " + bo.getMyHashCode());
+      db.append("\t");
+      db.append("ConsumeTBLR[");
+      db.append(getStyleTopHConsumed(bo));
+      db.append('-');
+      db.append(getStyleBotHConsumed(bo));
+      db.append(' ');
+      db.append(getStyleLeftWConsumed(bo));
+      db.append('-');
+      db.append(getStyleRightWConsumed(bo));
+      db.append(']');
+      //TODO how to decide what to show here. by default we may not want to overload with too much data
+      //so that when you select an object in debugger, you gets more data
+      if (db.hasFlagData(dc, IFlagsToStringDrw.D_FLAG_01_STYLE)) {
+         db.appendWithNewLine("IFlagsToStringDrw.D_FLAG_01_STYLE is true. StyleData is Shown below.");
+         if (bo.get1(STYLE_OFFSET_1_FLAG_A) != 0) {
+            db.nl();
+            db.append("FlagV:");
+            toStringFigFlag(db, bo, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_1_CONTENT, " Content");
+            toStringFigFlag(db, bo, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_2_ANCHOR, " Anchor");
+            toStringFigFlag(db, bo, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_3_PADDING, " Padding");
+            toStringFigFlag(db, bo, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_4_BORDER, " Border");
+            toStringFigFlag(db, bo, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_5_MARGIN, " Margin");
+         }
+         if (bo.get1(STYLE_OFFSET_2_FLAG_B) != 0) {
+            db.nl();
+            db.append("FlagG:");
+            toStringStyleGLayer(db, " Bg1", bo, STYLE_FLAG_B_1_BG, 1);
+            toStringStyleGLayer(db, " Bg2", bo, STYLE_FLAG_B_2_BG, 3);
+            toStringStyleGLayer(db, " Bg3", bo, STYLE_FLAG_B_3_BG, 5);
+            toStringStyleGLayer(db, " Bg4", bo, STYLE_FLAG_B_4_BG, 7);
+            toStringStyleGLayer(db, " Fg1", bo, STYLE_FLAG_B_5_FG, 1);
+            toStringStyleGLayer(db, " Fg2", bo, STYLE_FLAG_B_6_FG, 3);
+            toStringStyleGLayer(db, " Fg3", bo, STYLE_FLAG_B_7_FG, 5);
+            toStringStyleGLayer(db, " Fg4", bo, STYLE_FLAG_B_8_FG, 7);
+         }
+         if (bo.get1(STYLE_OFFSET_3_FLAG_C) != 0) {
+            db.nl();
+            db.append("FlagC:");
+
+            toStringFigFlag(db, bo, STYLE_OFFSET_3_FLAG_C, STYLE_FLAG_C_6_ANIM_ENTRY, " AnimEntry");
+            toStringFigFlag(db, bo, STYLE_OFFSET_3_FLAG_C, STYLE_FLAG_C_7_ANIM_MAIN, " AnimMain");
+            toStringFigFlag(db, bo, STYLE_OFFSET_3_FLAG_C, STYLE_FLAG_C_8_ANIM_EXIT, " AnimExit");
+         }
+         if (bo.get1(STYLE_OFFSET_4_FLAG_F) != 0) {
+            db.nl();
+            db.append("FlagF:");
+            toStringFigFlag(db, bo, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_1_FILTER_BG, " FilterBg");
+            toStringFigFlag(db, bo, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_2_FILTER_CONTENT, " FilterContent");
+            toStringFigFlag(db, bo, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_3_FILTER_FG, " FilterFg");
+            toStringFigFlag(db, bo, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_4_FILTER_BG_CONTENT, " FilterBgContent");
+            toStringFigFlag(db, bo, STYLE_OFFSET_4_FLAG_F, STYLE_FLAG_F_5_FILTER_ALL, " FilterAll");
+         }
+      } else {
+         db.appendWithNewLine("IFlagsToStringDrw.D_FLAG_01_STYLE is false. StyleData is Hidden.");
+      }
+   }
+
+   public void toStringStyleGLayer(Dctx sb, String str, ByteObject style, int flag, int anc) {
+      if (style.hasFlag(STYLE_OFFSET_2_FLAG_B, flag)) {
+         sb.append(str);
+         int val = style.get1(STYLE_OFFSET_7_BG_POINTS1);
+         if (flag > 8) {
+            val = style.get1(STYLE_OFFSET_8_FG_POINTS1);
+         }
+         int p = (BitUtils.getBit(anc + 1, val) << 1) + BitUtils.getBit(anc, val);
+         sb.append("(");
+         sb.append(ToStringStaticDrawx.toStringStyleAnchor(p));
+         sb.append(")");
+
+      }
+   }
+   //#enddebug
 }

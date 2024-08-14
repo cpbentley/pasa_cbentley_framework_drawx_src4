@@ -6,15 +6,15 @@ import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
 import pasa.cbentley.byteobjects.src4.objects.color.IBOBlend;
 import pasa.cbentley.byteobjects.src4.objects.color.IBOFilter;
 import pasa.cbentley.byteobjects.src4.objects.color.ITechGradient;
-import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
+import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMerge;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
-import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFeaturesDraw;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechHostFeatureDraw;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
+import pasa.cbentley.framework.drawx.src4.tech.ITechMergeFigure;
 
 public interface IBOFigure extends IByteObject {
 
@@ -47,7 +47,7 @@ public interface IBOFigure extends IByteObject {
 
    /**
     * Flag shared by all figures. Existence Flag for 
-    * <li>  {@link IBOFigure#FIG_FLAG_1_ANCHOR}
+    * <li>  {@link IBOFigure#FIG_FLAG_1_BOX}
     * <li>  {@link IBOFigure#FIG_FLAG_2_GRADIENT}
     * <li>  {@link IBOFigure#FIG_FLAG_3_COLOR_ARRAY}
     * <li>  {@link IBOFigure#FIG_FLAG_4_MASK}
@@ -55,11 +55,16 @@ public interface IBOFigure extends IByteObject {
     * <li>  {@link IBOFigure#FIG_FLAG_6_ANIMATED}
     * <li>  {@link IBOFigure#FIG_FLAG_7_SUB_FIGURE}
     * <li>  {@link IBOFigure#FIG_FLAGZ_8_DIRECTION}
+    * 
+    * <p>
+    * Merge control with {@link IBOMerge#MERGE_MASK_OFFSET_01_FLAG1}
+    * </p>
     */
    public static final int FIG__OFFSET_02_FLAG         = A_OBJECT_BASIC_SIZE + 1;
 
    /**
-    * Perf flag for internal use
+    * Perf flag for internal use.
+    * 
     */
    public static final int FIG__OFFSET_03_FLAGP        = A_OBJECT_BASIC_SIZE + 2;
 
@@ -120,7 +125,7 @@ public interface IBOFigure extends IByteObject {
     * offset of figure's main color or pointer to color serie.
     * 
     * <p>
-    * MM: {@link IBOMergeMask#MERGE_MASK_OFFSET_5VALUES1} with {@link ITechMergeMaskFigure#MM_VALUES5_FLAG_2_COLOR}
+    * MM: {@link IBOMerge#MERGE_MASK_OFFSET_05_VALUES1} with {@link ITechMergeFigure#MM_VALUES5_FLAG_2_COLOR}
     * </p>
     * 
     */
@@ -132,6 +137,9 @@ public interface IBOFigure extends IByteObject {
    public static final int FIG__OFFSET_07_FLAGZ1       = A_OBJECT_BASIC_SIZE + 9;
 
    /**
+    * 
+    * {@link IBOBox}
+    * 
     * Set for 32bits anchor definition
     * Anchor defines position of figure relative position FILL,CENTER,BOTTOM,LEFT etc))
     * In addition to the intuitive semantics of "Anchor",
@@ -139,11 +147,16 @@ public interface IBOFigure extends IByteObject {
     * Default anchor of a figure is an implicit FILL. That is the Figure definition will only be drawn with
     * an absolute xywh area. The Box Model will provide those values. So a Figure with a 32Bits anchor only has meaning
     * within a Box.
+    * 
     * The Box may ask the figure for its preferred dimension. 0 is returned unless anchor has a W or H definition
     * When the Box
     */
-   public static final int FIG_FLAG_1_ANCHOR           = 1 << 0;
+   public static final int FIG_FLAG_1_BOX              = 1 << 0;
 
+   /**
+    * 
+    * {@link IBOMerge#MERGE_MASK_OFFSET_01_FLAG1}
+    */
    public static final int FIG_FLAG_2_GRADIENT         = 1 << 1;
 
    /**
@@ -163,7 +176,7 @@ public interface IBOFigure extends IByteObject {
    public static final int FIG_FLAG_5_FILTER           = 1 << 4;
 
    /**
-    * Flag reserved to be used by another module that defines animations.
+    * When true, a {@link IBOTypesBOC#TYPE_030_ANIM} is defined. 
     * <p>
     * 
     * </p>
@@ -171,7 +184,7 @@ public interface IBOFigure extends IByteObject {
    public static final int FIG_FLAG_6_ANIMATED         = 1 << 5;
 
    /**
-    * Flag telling sub figures parameters are defined after the optional anchor definition. <br>
+    * When true, a {@link IBOTypesDrawX#TYPE_DRWX_01_FIG_SUB_STRUCT} is defined. 
     * 
     * <p>
     * Sub figures are defined and will be drawn along specified anchors.     * 
@@ -179,7 +192,13 @@ public interface IBOFigure extends IByteObject {
     */
    public static final int FIG_FLAG_7_SUB_FIGURE       = 1 << 6;
 
-   public static final int FIG_FLAG_8_                 = 1 << 7;
+   /**
+    * When true, a {@link IBOTypesDrawX#TYPE_DRWX_02_FIG_ARTIFACT} is defined. 
+    * <p>
+    * 
+    * </p>
+    */
+   public static final int FIG_FLAG_8_ARTIFACT         = 1 << 7;
 
    /**
     * If set, the figure creates blank int[] array and build itself on it with no primitives.
@@ -225,7 +244,7 @@ public interface IBOFigure extends IByteObject {
    /**
     * When this flag is set, figure does not have any alpha channel data. <br>
     * Concerning colors, figure is opaque.is ignored from figure color.
-    * <br>
+    * 
     * From gradient?
     * Opaqueness depends on color and shape.
     */
@@ -298,7 +317,7 @@ public interface IBOFigure extends IByteObject {
     * 
     * For the Host
     * <li>{@link GraphicsX#getGraphics()}
-    * <li> {@link IGraphics#featureEnable(int, boolean)} with feature {@link ITechFeaturesDraw#SUP_ID_04_ALIAS}
+    * <li> {@link IGraphics#featureEnable(int, boolean)} with feature {@link ITechHostFeatureDraw#SUP_ID_04_ALIAS}
     * </p>
     */
    public static final int FIG_FLAGX_7_ALIAS_ON        = 1 << 6;
@@ -313,11 +332,17 @@ public interface IBOFigure extends IByteObject {
     */
    public static final int FIG_FLAGZ_1_DEFINED_BLENDER = 1 << 0;
 
-   public static final int FIG_FLAGZ_2_                = 1 << 1;
+   /**
+    * It is {@link IBOMerge}
+    */
+   public static final int FIG_FLAGZ_2_MERGE_TRANS     = 1 << 1;
 
    public static final int FIG_FLAGZ_3_                = 1 << 2;
 
-   public static final int FIG_FLAGZ_4_                = 1 << 3;
+   /**
+    * The figure is a {@link IBOFigLayout}
+    */
+   public static final int FIG_FLAGZ_4_LAYOUT          = 1 << 3;
 
    public static final int FIG_FLAGZ_5_                = 1 << 4;
 

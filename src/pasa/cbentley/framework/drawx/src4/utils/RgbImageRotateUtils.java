@@ -67,6 +67,16 @@ public class RgbImageRotateUtils {
       return (int) (maxY - minY);
    }
 
+   public static RgbImage[] ensureCapacity(RgbImage[] ar, int index) {
+      if (index < ar.length)
+         return ar;
+      RgbImage[] nar = new RgbImage[index + 1];
+      for (int i = 0; i < ar.length; i++) {
+         nar[i] = ar[i];
+      }
+      return nar;
+   }
+
    /**
     * 
     * @param degree

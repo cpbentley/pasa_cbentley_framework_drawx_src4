@@ -6,7 +6,7 @@ package pasa.cbentley.framework.drawx.src4.string;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.objects.color.ColorFunction;
-import pasa.cbentley.byteobjects.src4.objects.function.ITechFunction;
+import pasa.cbentley.byteobjects.src4.objects.function.IBOFunction;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.text.StringInterval;
@@ -136,6 +136,8 @@ public class StringFx extends ObjectDrw implements IBOStrAuxFx, ITechStringer, I
 
    int                fxLineOffsetY;
 
+   private ByteObject mask;
+
    /**
     * <li> {@link ITechStringer#FX_SCOPE_1_CHAR}
     * <li> {@link ITechStringer#FX_SCOPE_2_WORD}
@@ -151,16 +153,14 @@ public class StringFx extends ObjectDrw implements IBOStrAuxFx, ITechStringer, I
     */
    ByteObject         srcFx;
 
+   private Stringer   stringer;
+
    /**
     * 
     */
    ByteObject         tblr;
 
-   private Stringer   stringer;
-
    private int        typeStruct;
-
-   private ByteObject mask;
 
    public StringFx(DrwCtx drc, Stringer st, ByteObject src) {
       super(drc);
@@ -169,17 +169,6 @@ public class StringFx extends ObjectDrw implements IBOStrAuxFx, ITechStringer, I
          throw new NullPointerException();
       }
       this.initFx(src);
-   }
-
-   /**
-    * The scope of this {@link StringFx}
-    * <li> {@link ITechStringer#FX_SCOPE_0_TEXT}
-    * <li> {@link ITechStringer#FX_SCOPE_1_CHAR}
-    * <li> {@link ITechStringer#FX_SCOPE_2_WORD}
-    * @return
-    */
-   public int getScope() {
-      return srcFx.get1(FX_OFFSET_05_SCOPE_FX1);
    }
 
    /**
@@ -192,19 +181,27 @@ public class StringFx extends ObjectDrw implements IBOStrAuxFx, ITechStringer, I
    }
 
    /**
-    * The definition of this effect
-    * @return
-    */
-   public ByteObject getSrcFx() {
-      return srcFx;
-   }
-
-   /**
     * The base color of this effect
     * @return
     */
    public int getColor() {
       return color;
+   }
+
+   public int getExtraCharHBot() {
+      if (tblr == null) {
+         return 0;
+      } else {
+         return stringer.getTBLRValueStringerArea(tblr, C.POS_1_BOT);
+      }
+   }
+
+   public int getExtraCharHTop() {
+      if (tblr == null) {
+         return 0;
+      } else {
+         return stringer.getTBLRValueStringerArea(tblr, C.POS_0_TOP);
+      }
    }
 
    /**
@@ -227,20 +224,12 @@ public class StringFx extends ObjectDrw implements IBOStrAuxFx, ITechStringer, I
       }
    }
 
-   public int getExtraCharHBot() {
-      if (tblr == null) {
-         return 0;
-      } else {
-         return stringer.getTBLRValueStringerArea(tblr, C.POS_1_BOT);
-      }
-   }
-
-   public int getExtraCharHTop() {
-      if (tblr == null) {
-         return 0;
-      } else {
-         return stringer.getTBLRValueStringerArea(tblr, C.POS_0_TOP);
-      }
+   /**
+    * The figure to drawn as bg over the whole interval. Specifically scoped to it.
+    * @return
+    */
+   public ByteObject getFigureBG() {
+      return bgFigure;
    }
 
    /**
@@ -260,6 +249,37 @@ public class StringFx extends ObjectDrw implements IBOStrAuxFx, ITechStringer, I
          return -1;
       }
       return font.getHeight();
+   }
+
+   public ByteObject getMask() {
+      return mask;
+   }
+
+   /**
+    * The scope of this {@link StringFx}
+    * <li> {@link ITechStringer#FX_SCOPE_0_TEXT}
+    * <li> {@link ITechStringer#FX_SCOPE_1_CHAR}
+    * <li> {@link ITechStringer#FX_SCOPE_2_WORD}
+    * @return
+    */
+   public int getScope() {
+      return srcFx.get1(FX_OFFSET_05_SCOPE_FX1);
+   }
+
+   /**
+    * The definition of this effect
+    * @return
+    */
+   public ByteObject getSrcFx() {
+      return srcFx;
+   }
+
+   /**
+    * Not null when  {@link IBOStrAuxFx#FX_FLAG_4_EXTRA_SPACE_TBLR} is true
+    * @return
+    */
+   public ByteObject getTBLR() {
+      return tblr;
    }
 
    /**
@@ -304,8 +324,8 @@ public class StringFx extends ObjectDrw implements IBOStrAuxFx, ITechStringer, I
       mask = srcFx.getSubFirst(TYPE_DRWX_06_MASK);
       bgFigure = srcFx.getSubFirst(TYPE_DRWX_00_FIGURE);
       color = srcFx.get4(IBOStrAuxFx.FX_OFFSET_09_COLOR4);
-      
-      int offsetSubType = ITechFunction.FUN_OFFSET_09_EXTENSION_TYPE2;
+
+      int offsetSubType = IBOFunction.FUN_OFFSET_09_EXTENSION_TYPE2;
       ByteObject colorFunctionDef = srcFx.getSubFirst(TYPE_021_FUNCTION);
       if (colorFunctionDef != null) {
          cf = drc.getColorFunctionFactory().createColorFunction(colorFunctionDef);
@@ -324,16 +344,6 @@ public class StringFx extends ObjectDrw implements IBOStrAuxFx, ITechStringer, I
    }
 
    /**
-    * Not null when  {@link IBOStrAuxFx#FX_FLAG_4_EXTRA_SPACE_TBLR} is true
-    * @return
-    */
-   public ByteObject getTBLR() {
-      return tblr;
-   }
-
-   //#enddebug
-
-   /**
     * True when the color of this {@link StringFx} is the same for all characters
     * {@link ITechStringer}
     * @return
@@ -342,12 +352,20 @@ public class StringFx extends ObjectDrw implements IBOStrAuxFx, ITechStringer, I
       return !hasState(ITechStringer.FX_FLAG_05_UNSTABLE_COLOR);
    }
 
-   public boolean isStableFont() {
-      return !hasState(ITechStringer.FX_FLAG_05_UNSTABLE_COLOR);
-   }
-
    public boolean isFontMonospace() {
       return font.isMonospace();
+   }
+
+   /**
+    * True is there is some masking done
+    * @return
+    */
+   public boolean isMasked() {
+      return mask != null;
+   }
+
+   public boolean isStableFont() {
+      return !hasState(ITechStringer.FX_FLAG_05_UNSTABLE_COLOR);
    }
 
    /**
@@ -399,25 +417,5 @@ public class StringFx extends ObjectDrw implements IBOStrAuxFx, ITechStringer, I
    public void toString1Line(Dctx dc) {
       dc.root1Line(this, "StringFx");
    }
-
-   /**
-    * True is there is some masking done
-    * @return
-    */
-   public boolean isMasked() {
-      return mask != null;
-   }
-
-   public ByteObject getMask() {
-      return mask;
-   }
-
-   /**
-    * The figure to drawn as bg over the whole interval. Specifically scoped to it.
-    * @return
-    */
-   public ByteObject getFigureBG() {
-      return bgFigure;
-   }
-
+   //#enddebug
 }

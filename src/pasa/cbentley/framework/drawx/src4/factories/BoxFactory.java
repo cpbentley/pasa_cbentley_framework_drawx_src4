@@ -5,7 +5,6 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
-import pasa.cbentley.byteobjects.src4.core.interfaces.IByteObject;
 import pasa.cbentley.core.src4.interfaces.C;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
@@ -14,9 +13,9 @@ import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOBox;
 import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
-import pasa.cbentley.layouter.src4.tech.ITechLayout;
 import pasa.cbentley.layouter.src4.tech.IBOPozer;
 import pasa.cbentley.layouter.src4.tech.IBOSizer;
+import pasa.cbentley.layouter.src4.tech.ITechLayout;
 
 /**
  * FactoryEngine for {@link IBOBox}
@@ -28,7 +27,7 @@ import pasa.cbentley.layouter.src4.tech.IBOSizer;
  * @author Charles Bentley
  *
  */
-public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBox {
+public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBox, ITechAnchor {
 
    private LayoutOperator sizable;
 
@@ -53,31 +52,8 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
       return sizable.getPosAlign(BOX_OFFSET_03_VERTICAL_ALIGN4, anchor, y, h, fh, w, h, CTX_2_HEIGHT);
    }
 
-   /**
-    * 
-    * @param root
-    * @param merge
-    * @return
-    */
-   public ByteObject mergeBox(ByteObject root, ByteObject merge) {
-      int rootHa = root.get4(BOX_OFFSET_02_HORIZ_ALIGN4);
-      int rootVa = root.get4(BOX_OFFSET_03_VERTICAL_ALIGN4);
-      int rootW = root.get4(BOX_OFFSET_04_WIDTH4);
-      int rootH = root.get4(BOX_OFFSET_05_HEIGHT4);
-      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_7_DEF_HORIZ_ALIGN)) {
-         rootHa = merge.get4(BOX_OFFSET_02_HORIZ_ALIGN4);
-      }
-      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_8_DEF_VERT_ALIGN)) {
-         rootVa = merge.get4(BOX_OFFSET_03_VERTICAL_ALIGN4);
-      }
-      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_5_DEF_WIDTH)) {
-         rootW = merge.get4(BOX_OFFSET_04_WIDTH4);
-      }
-      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_6_DEF_HEIGHT)) {
-         rootH = merge.get4(BOX_OFFSET_05_HEIGHT4);
-      }
-      ByteObject newAnchor = drc.getBoxFactory().getAnchor(rootHa, rootVa, rootW, rootH);
-      return newAnchor;
+   private ByteObject createBox() {
+      return getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_03_BOX, BOX_BASIC_SIZE);
    }
 
    /**
@@ -94,7 +70,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
     * 
     * {@link IBOBox}
     * 
-    * Type : {@link IBOTypesDrawX#TYPE_DRWX_01_BOX}
+    * Type : {@link IBOTypesDrawX#TYPE_DRWX_03_BOX}
     * <br>
     * <br>
     * 
@@ -106,7 +82,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
     * @return
     */
    public ByteObject createBox(int ha, int va, int w, int h, boolean perc) {
-      ByteObject p = getBOFactory().createByteObject(IBOTypesDrawX.TYPE_DRWX_01_BOX, BOX_BASIC_SIZE);
+      ByteObject p = createBox();
       boolean incomplete = false;
       if (ha != BOX_UNDEFINED) {
          p.setFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_7_DEF_HORIZ_ALIGN, true);
@@ -144,6 +120,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
       p.set4(BOX_OFFSET_02_HORIZ_ALIGN4, ha);
       p.set4(BOX_OFFSET_04_WIDTH4, w);
       p.set4(BOX_OFFSET_05_HEIGHT4, h);
+
       p.setFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_1_INCOMPLETE, incomplete);
       return p;
    }
@@ -156,7 +133,7 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
     * @param va
     * @return
     */
-   public ByteObject getAnchor(int ha, int va) {
+   public ByteObject getBox(int ha, int va) {
       return createBox(ha, va, BOX_UNDEFINED, BOX_UNDEFINED, false);
    }
 
@@ -168,11 +145,35 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
     * @param sizeH
     * @return
     */
-   public ByteObject getAnchor(int ha, int va, int sizeW, int sizeH) {
+   public ByteObject getBox(int ha, int va, int sizeW, int sizeH) {
       return createBox(ha, va, sizeW, sizeH, false);
    }
 
-  /**
+   public ByteObject getBoxCenterBotT_WH() {
+      return createBox(ALIGN_6_CENTER, ALIGN_2_BOTTOM, BOX_UNDEFINED, BOX_UNDEFINED, false);
+   }
+
+   public ByteObject getBoxCenterCenter(int w, int h) {
+      return createBox(ALIGN_6_CENTER, ALIGN_6_CENTER, w, h, false);
+   }
+
+   public ByteObject getBoxCenterCenterT_WH() {
+      return createBox(ALIGN_6_CENTER, ALIGN_6_CENTER, BOX_UNDEFINED, BOX_UNDEFINED, false);
+   }
+
+   public ByteObject getBoxCenterLeft(int w, int h) {
+      return createBox(ALIGN_3_LEFT, ALIGN_6_CENTER, w, h, false);
+   }
+
+   public ByteObject getBoxCenterRight(int w, int h) {
+      return createBox(ALIGN_4_RIGHT, ALIGN_6_CENTER, w, h, false);
+   }
+
+   public ByteObject getBoxCenterTop() {
+      return createBox(ALIGN_6_CENTER, ALIGN_1_TOP, BOX_UNDEFINED, BOX_UNDEFINED, false);
+   }
+
+   /**
    * Incomplete box with just H defined
    * Fill Anchor with an explicit pixel Height given. <br>
    * Width is unknown and set to zero. 
@@ -180,62 +181,80 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
    * <br>
    * <br>
    * @param h
-   * @return {@link ByteObject} of type {@link IBOTypesDrawX#TYPE_DRWX_01_BOX}.
+   * @return {@link ByteObject} of type {@link IBOTypesDrawX#TYPE_DRWX_03_BOX}.
    */
-   public ByteObject getAnchorH(int h) {
+   public ByteObject getBoxH(int h) {
       return createBox(BOX_UNDEFINED, BOX_UNDEFINED, BOX_UNDEFINED, h, false);
    }
 
-   public ByteObject getAnchorW(int w) {
-      return createBox(BOX_UNDEFINED, BOX_UNDEFINED, w, BOX_UNDEFINED, false);
-   }
-
-   public ByteObject getBoxCenter() {
-      return createBox(C.LOGIC_2_CENTER, C.LOGIC_2_CENTER, BOX_UNDEFINED, BOX_UNDEFINED, false);
+   public ByteObject getBoxLeftBot(int w, int h) {
+      return createBox(ALIGN_3_LEFT, ALIGN_2_BOTTOM, w, h, false);
    }
 
    public ByteObject getBoxLeftCenter() {
-      return createBox(C.LOGIC_1_TOP_LEFT, C.LOGIC_2_CENTER, BOX_UNDEFINED, BOX_UNDEFINED, false);
+      return createBox(ALIGN_3_LEFT, ALIGN_6_CENTER, BOX_UNDEFINED, BOX_UNDEFINED, false);
+   }
+
+   public ByteObject getBoxLeftCenter(int w, int h) {
+      return createBox(ALIGN_3_LEFT, ALIGN_6_CENTER, w, h, false);
+   }
+
+   public ByteObject getBoxLeftTop(int w, int h) {
+      return createBox(ALIGN_3_LEFT, ALIGN_1_TOP, w, h, false);
+   }
+
+   public ByteObject getBoxRightBot(int w, int h) {
+      return createBox(ALIGN_4_RIGHT, ALIGN_2_BOTTOM, w, h, false);
    }
 
    public ByteObject getBoxRightCenter() {
-      return createBox(C.LOGIC_3_BOTTOM_RIGHT, C.LOGIC_2_CENTER, BOX_UNDEFINED, BOX_UNDEFINED, false);
+      return createBox(ALIGN_4_RIGHT, ALIGN_6_CENTER, BOX_UNDEFINED, BOX_UNDEFINED, false);
    }
 
-   public ByteObject getCenter(int w, int h) {
-      return createBox(C.LOGIC_2_CENTER, C.LOGIC_2_CENTER, w, h, false);
+   public ByteObject getBoxRightCenter(int w, int h) {
+      return createBox(ALIGN_4_RIGHT, ALIGN_6_CENTER, w, h, false);
    }
 
-   public ByteObject getCenterBot() {
-      return createBox(C.LOGIC_2_CENTER, C.LOGIC_3_BOTTOM_RIGHT, BOX_UNDEFINED, BOX_UNDEFINED, false);
+   public ByteObject getBoxRightTop(int w, int h) {
+      return createBox(ALIGN_4_RIGHT,ALIGN_1_TOP, w, h, false);
    }
 
-   public ByteObject getCenterTop() {
-      return createBox(C.LOGIC_2_CENTER, C.LOGIC_1_TOP_LEFT, BOX_UNDEFINED, BOX_UNDEFINED, false);
+   public ByteObject getBoxTopCenter(int w, int h) {
+      return createBox(ALIGN_6_CENTER, ALIGN_1_TOP, w, h, false);
    }
 
-   public ByteObject getLeftBot(int w, int h) {
-      return createBox(C.LOGIC_1_TOP_LEFT, C.LOGIC_3_BOTTOM_RIGHT, w, h, false);
-   }
-
-   public ByteObject getLeftTop(int w, int h) {
-      return createBox(C.LOGIC_1_TOP_LEFT, C.LOGIC_1_TOP_LEFT, w, h, false);
-   }
-
-   public ByteObject getRightBot(int w, int h) {
-      return createBox(C.LOGIC_3_BOTTOM_RIGHT, C.LOGIC_3_BOTTOM_RIGHT, w, h, false);
-   }
-
-   public ByteObject getRightTop(int w, int h) {
-      return createBox(C.LOGIC_3_BOTTOM_RIGHT, C.LOGIC_1_TOP_LEFT, w, h, false);
+   public ByteObject getBoxW(int w) {
+      return createBox(BOX_UNDEFINED, BOX_UNDEFINED, w, BOX_UNDEFINED, false);
    }
 
    /**
     * 
-    * @param bo
-    * @param sb
-    * @param nl
+    * @param root
+    * @param merge
+    * @return
     */
+   public ByteObject mergeBox(ByteObject root, ByteObject merge) {
+      int rootHa = root.get4(BOX_OFFSET_02_HORIZ_ALIGN4);
+      int rootVa = root.get4(BOX_OFFSET_03_VERTICAL_ALIGN4);
+      int rootW = root.get4(BOX_OFFSET_04_WIDTH4);
+      int rootH = root.get4(BOX_OFFSET_05_HEIGHT4);
+      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_7_DEF_HORIZ_ALIGN)) {
+         rootHa = merge.get4(BOX_OFFSET_02_HORIZ_ALIGN4);
+      }
+      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_8_DEF_VERT_ALIGN)) {
+         rootVa = merge.get4(BOX_OFFSET_03_VERTICAL_ALIGN4);
+      }
+      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_5_DEF_WIDTH)) {
+         rootW = merge.get4(BOX_OFFSET_04_WIDTH4);
+      }
+      if (merge.hasFlag(BOX_OFFSET_01_FLAG, BOX_FLAG_6_DEF_HEIGHT)) {
+         rootH = merge.get4(BOX_OFFSET_05_HEIGHT4);
+      }
+      ByteObject newAnchor = drc.getBoxFactory().getBox(rootHa, rootVa, rootW, rootH);
+      return newAnchor;
+   }
+
+   //#mdebug
    public void toStringBox(ByteObject bo, Dctx sb) {
       sb.append("#Box ");
       sb.append("[H V]=[");
@@ -269,6 +288,6 @@ public class BoxFactory extends AbstractDrwFactory implements ITechLayout, IBOBo
       } else {
          sb.append(" undef");
       }
-
    }
+   //#enddebug
 }

@@ -62,7 +62,7 @@ public class StyleCachePerf extends ObjectDrw implements IBOStyle, IBOTblr, IBOT
       int borderLeft = 0;
       int borderRite = 0;
       int max = 0;
-      ByteObject tblr = styleOp.getStyleElement(style, STYLE_FLAGA_4_BORDER);
+      ByteObject tblr = styleOp.getStyleElement(style, STYLE_FLAG_A_4_BORDER);
       if (tblr != null) {
          borderTop = layOp.getTBLRValue(tblr, C.POS_0_TOP, ctx);
          borderBot = layOp.getTBLRValue(tblr, C.POS_1_BOT, ctx);
@@ -76,7 +76,7 @@ public class StyleCachePerf extends ObjectDrw implements IBOStyle, IBOTblr, IBOT
       int marginBot = 0;
       int marginLeft = 0;
       int marginRite = 0;
-       tblr = styleOp.getStyleElement(style, STYLE_FLAGA_5_MARGIN);
+       tblr = styleOp.getStyleElement(style, STYLE_FLAG_A_5_MARGIN);
       if (tblr != null) {
          marginTop = layOp.getTBLRValue(tblr, C.POS_0_TOP, ctx);
          marginBot = layOp.getTBLRValue(tblr, C.POS_1_BOT, ctx);
@@ -88,7 +88,7 @@ public class StyleCachePerf extends ObjectDrw implements IBOStyle, IBOTblr, IBOT
       int paddingBot = 0;
       int paddingLeft = 0;
       int paddingRite = 0;
-       tblr = styleOp.getStyleElement(style, STYLE_FLAGA_5_MARGIN);
+       tblr = styleOp.getStyleElement(style, STYLE_FLAG_A_5_MARGIN);
       if (tblr != null) {
          paddingTop = layOp.getTBLRValue(tblr, C.POS_0_TOP, ctx);
          paddingBot = layOp.getTBLRValue(tblr, C.POS_1_BOT, ctx);

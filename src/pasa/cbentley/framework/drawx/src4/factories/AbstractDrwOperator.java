@@ -8,7 +8,7 @@ import pasa.cbentley.byteobjects.src4.core.BOAbstractOperator;
 import pasa.cbentley.byteobjects.src4.core.ByteObjectFactory;
 import pasa.cbentley.byteobjects.src4.ctx.BOCtx;
 import pasa.cbentley.byteobjects.src4.objects.color.FilterFactory;
-import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMergeMask;
+import pasa.cbentley.byteobjects.src4.objects.pointer.IBOMerge;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IDLog;
@@ -17,7 +17,7 @@ import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.engine.TblrFactory;
 
-public abstract class AbstractDrwOperator extends BOAbstractOperator implements IStringable, IBOMergeMask {
+public abstract class AbstractDrwOperator extends BOAbstractOperator implements IStringable, IBOMerge {
 
    protected final DrwCtx drc;
 

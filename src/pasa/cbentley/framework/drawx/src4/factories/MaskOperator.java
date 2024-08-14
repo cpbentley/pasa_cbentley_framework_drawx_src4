@@ -102,28 +102,28 @@ public class MaskOperator extends AbstractDrwOperator implements IBOMask, IColor
 
       ByteObject mm = merge.getSubFirst(IBOTypesBOC.TYPE_011_MERGE_MASK);
 
-      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_2)) {
+      if (mm.hasFlag(MERGE_MASK_OFFSET_05_VALUES1, MERGE_MASK_FLAG5_2)) {
          maskBgColor = merge.get4(MASK_OFFSET_2_COLOR_BG4);
       }
-      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_3)) {
+      if (mm.hasFlag(MERGE_MASK_OFFSET_05_VALUES1, MERGE_MASK_FLAG5_3)) {
          maskMidColor = merge.get4(MASK_OFFSET_3_COLOR_MID4);
       }
-      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_4)) {
+      if (mm.hasFlag(MERGE_MASK_OFFSET_05_VALUES1, MERGE_MASK_FLAG5_4)) {
          maskShapeColor = merge.get4(MASK_OFFSET_4_COLOR_SHAPE4);
       }
-      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_5)) {
+      if (mm.hasFlag(MERGE_MASK_OFFSET_05_VALUES1, MERGE_MASK_FLAG5_5)) {
          blendBg = merge.get4(MASK_OFFSET_5_BLEND_BG1);
       }
-      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_6)) {
+      if (mm.hasFlag(MERGE_MASK_OFFSET_05_VALUES1, MERGE_MASK_FLAG5_6)) {
          blendMid = merge.get4(MASK_OFFSET_6_BLEND_MID1);
       }
-      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_7)) {
+      if (mm.hasFlag(MERGE_MASK_OFFSET_05_VALUES1, MERGE_MASK_FLAG5_7)) {
          blendShape = merge.get4(MASK_OFFSET_7_BLEND_SHAPE1);
       }
-      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_8)) {
+      if (mm.hasFlag(MERGE_MASK_OFFSET_05_VALUES1, MERGE_MASK_FLAG5_8)) {
          bgAlpha = merge.get4(MASK_OFFSET_8_ALPHA_BG1);
       }
-      if (mm.hasFlag(MERGE_MASK_OFFSET_5VALUES1, MERGE_MASK_FLAG5_1)) {
+      if (mm.hasFlag(MERGE_MASK_OFFSET_05_VALUES1, MERGE_MASK_FLAG5_1)) {
          shapeAlpha = merge.get4(MASK_OFFSET_9_ALPHA_SHAPE1);
       }
       ByteObject maskFilter = root.getSubFirst(IBOTypesBOC.TYPE_040_COLOR_FILTER);
@@ -390,5 +390,7 @@ public class MaskOperator extends AbstractDrwOperator implements IBOMask, IColor
          figure.setFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK, true);
       }
    }
+
+
 
 }

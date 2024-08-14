@@ -12,6 +12,22 @@ import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOFigTriangle;
 
 public interface ITechFigure extends IByteObject {
 
+   public static final int EXTRA_0_CENTER                  = 0;
+
+   public static final int EXTRA_1_TOP_LEFT                = 1;
+
+   public static final int EXTRA_2_BOT_RITE                = 2;
+
+   public static final int DIM_MASTER_0_NONE               = 0;
+
+   public static final int DIM_MASTER_1_HORI               = 1;
+
+   public static final int DIM_MASTER_2_VERT               = 2;
+
+   public static final int DIM_MASTER_3_CLOCKWISE          = 3;
+
+   public static final int DIM_MASTER_4_SPIRAL             = 4;
+
    public static final int FIG_LOSANGE_TYPE_0_COLOR        = 0;
 
    public static final int FIG_LOSANGE_TYPE_1_TRIANGLE     = 1;

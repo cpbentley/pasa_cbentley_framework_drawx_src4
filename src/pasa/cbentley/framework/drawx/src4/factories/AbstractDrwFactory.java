@@ -5,7 +5,7 @@
 package pasa.cbentley.framework.drawx.src4.factories;
 
 import pasa.cbentley.byteobjects.src4.core.BOAbstractFactory;
-import pasa.cbentley.core.src4.logging.IDLog;
+import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.layouter.src4.engine.TblrFactory;
 
@@ -18,13 +18,28 @@ public class AbstractDrwFactory extends BOAbstractFactory {
       this.drc = drc;
    }
 
-   public IDLog toDLog() {
-      return drc.toDLog();
-   }
-
    public TblrFactory getTblrFactory() {
       return drc.getTblrFactory();
    }
+   
+   //#mdebug
+   public void toString(Dctx dc) {
+      dc.root(this, AbstractDrwFactory.class, 27);
+      toStringPrivate(dc);
+      super.toString(dc.sup());
+   }
 
-  
+   public void toString1Line(Dctx dc) {
+      dc.root1Line(this, AbstractDrwFactory.class, 27);
+      toStringPrivate(dc);
+      super.toString1Line(dc.sup1Line());
+   }
+
+   private void toStringPrivate(Dctx dc) {
+      
+   }
+   //#enddebug
+   
+
+
 }

@@ -11,7 +11,7 @@ import pasa.cbentley.byteobjects.src4.ctx.ToStringStaticBO;
 import pasa.cbentley.byteobjects.src4.objects.color.ColorFunction;
 import pasa.cbentley.byteobjects.src4.objects.color.GradientFunction;
 import pasa.cbentley.byteobjects.src4.objects.color.IBOFilter;
-import pasa.cbentley.byteobjects.src4.objects.function.ITechFunction;
+import pasa.cbentley.byteobjects.src4.objects.function.IBOFunction;
 import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IDebugStringable;
@@ -154,21 +154,51 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    }
    //#enddebug
 
+   /**
+    * Called by merge method inside this module because it is likely that merges types
+    * are from this module {@link BOModuleDrawx}.
+    * 
+    * @param root
+    * @param merge
+    * @return
+    */
+   public ByteObject mergeCheck(ByteObject root, ByteObject merge) {
+      ByteObject res = this.merge(root, merge);
+      if (res == null) {
+         res = boc.getBOModuleManager().mergeByteObject(root, merge);
+      }
+      return res;
+   }
+
    public ByteObject merge(ByteObject root, ByteObject merge) {
+      if (root == null) {
+         return merge;
+      }
+      if (merge == null) {
+         return root;
+      }
       int type = merge.getType();
       switch (type) {
          case TYPE_DRWX_00_FIGURE:
-            return drc.getFigureOperator().mergeFigure(root, merge);
-         case TYPE_DRWX_01_BOX:
+            return drc.getFigureOperator().merge_Figure(root, merge);
+         case TYPE_DRWX_01_FIG_SUB_STRUCT:
+            return drc.getFigureOperator().merge_Figure_Struct(root, merge);
+         case TYPE_DRWX_02_FIG_ARTIFACT:
+            return drc.getArtifactFactory().mergeArtifact(root, merge);
+         case TYPE_DRWX_03_BOX:
             return drc.getBoxFactory().mergeBox(root, merge);
+         case TYPE_DRWX_04:
+            return null;
+         case TYPE_DRWX_05_SCALE:
+            return drc.getScaleOperator().mergeScale(root, merge);
          case TYPE_DRWX_06_MASK:
             return drc.getMaskOperator().mergeMask(root, merge);
          case TYPE_DRWX_07_STRING_AUX:
             return drc.getStrAuxOperator().mergeStrAux(root, merge);
-         case TYPE_DRWX_10_ANCHOR:
-            return drc.getAnchorFactory().mergeAnchor(root, merge);
          case TYPE_DRWX_08_STYLE:
             return drc.getStyleOperator().mergeStyle(root, merge);
+         case TYPE_DRWX_10_ANCHOR:
+            return drc.getAnchorFactory().mergeAnchor(root, merge);
       }
       return null;
    }
@@ -185,7 +215,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
       switch (type) {
          case IBOTypesBOC.TYPE_021_FUNCTION:
             //check the def if gradient create
-            int ftype = def.get2(ITechFunction.FUN_OFFSET_09_EXTENSION_TYPE2);
+            int ftype = def.get2(IBOFunction.FUN_OFFSET_09_EXTENSION_TYPE2);
             switch (ftype) {
                case ITechFunctionDraw.TYPEX_FUN_400_SHADER:
                   return new ShaderFunction(drc, def);
@@ -211,6 +241,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
       return null;
    }
 
+   //#mdebug
    /**
     * Displays a name of the offset field. Reflection on the field.
     * <br>
@@ -238,16 +269,15 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    }
 
    public void toString(Dctx dc) {
-      dc.root(this, "BOModuleDrawx");
+      dc.root(this, BOModuleDrawx.class,272);
       toStringPrivate(dc);
       super.toString(dc.sup());
 
       dc.appendVarWithNewLine(toStringType(TYPE_DRWX_00_FIGURE), TYPE_DRWX_00_FIGURE);
-      dc.appendVarWithNewLine(toStringType(TYPE_DRWX_01_BOX), TYPE_DRWX_01_BOX);
+      dc.appendVarWithNewLine(toStringType(TYPE_DRWX_03_BOX), TYPE_DRWX_03_BOX);
 
    }
 
-   //#mdebug
 
    public boolean toString(Dctx sb, ByteObject bo) {
       final int type = bo.getType();
@@ -255,11 +285,11 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IBOTypesDrawX.TYPE_DRWX_00_FIGURE:
             drc.getFigureFactory().toStringFigure(bo, sb);
             break;
-         case IBOTypesDrawX.TYPE_DRWX_01_BOX:
+         case IBOTypesDrawX.TYPE_DRWX_03_BOX:
             //we need to give the context
             drc.getBoxFactory().toStringBox(bo, sb);
             break;
-         case IBOTypesDrawX.TYPE_DRWX_02_ARTIFACT:
+         case IBOTypesDrawX.TYPE_DRWX_02_FIG_ARTIFACT:
             drc.getArtifactFactory().toStringArtifact(bo, sb);
             break;
          case IBOTypesDrawX.TYPE_DRWX_05_SCALE:
@@ -283,7 +313,7 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
    }
 
    public void toString1Line(Dctx dc) {
-      dc.root1Line(this, "BOModuleDrawx");
+      dc.root1Line(this, BOModuleDrawx.class,316);
       toStringPrivate(dc);
       super.toString1Line(dc.sup1Line());
    }
@@ -294,10 +324,10 @@ public class BOModuleDrawx extends BOModuleAbstract implements ITechFigure, IBOT
          case IBOTypesDrawX.TYPE_DRWX_00_FIGURE:
             drc.getFigureFactory().toStringFigure1Line(bo, dc);
             break;
-         case IBOTypesDrawX.TYPE_DRWX_01_BOX:
+         case IBOTypesDrawX.TYPE_DRWX_03_BOX:
             drc.getBoxFactory().toStringBox(bo, dc);
             break;
-         case IBOTypesDrawX.TYPE_DRWX_02_ARTIFACT:
+         case IBOTypesDrawX.TYPE_DRWX_02_FIG_ARTIFACT:
             drc.getArtifactFactory().toStringArtifact(bo, dc);
             break;
          case IBOTypesDrawX.TYPE_DRWX_05_SCALE:

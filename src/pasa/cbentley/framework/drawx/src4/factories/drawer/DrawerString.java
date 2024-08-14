@@ -180,7 +180,7 @@ public class DrawerString implements IStringable, IBOTypesDrawX, ITechFigure {
     */
    public void drawString(GraphicsX g, int x, int y, String[] s, ByteObject strFigure) {
       ByteObject sc = strFigure.getSubFirst(IBOTypesDrawX.TYPE_DRWX_05_SCALE);
-      ByteObject anchor = strFigure.getSubFirst(IBOTypesDrawX.TYPE_DRWX_01_BOX);
+      ByteObject anchor = strFigure.getSubFirst(IBOTypesDrawX.TYPE_DRWX_03_BOX);
       IMFont f = getStringFont(strFigure);
       int color = getStringColor(strFigure);
       g.setColor(color);

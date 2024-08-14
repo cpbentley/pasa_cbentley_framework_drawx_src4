@@ -63,19 +63,6 @@ public class StringAuxFactory extends AbstractDrwFactory implements IBOTypesDraw
    /**
     * Creates a {@link ByteObject} with 
     * <li> {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX} as type 
-    * <li> {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C} as subtype 
-    * 
-    * @return never null {@link ByteObject}
-    */
-   public ByteObject createStrAuxSpecialCharsDirective() {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_07_STRING_AUX, IBOStrAuxSpecialCharDirective.AUX_CHARS_BASIC_SIZE);
-      p.set1(STR_AUX_OFFSET_1_EXT_TYPE1, TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C);
-      return p;
-   }
-
-   /**
-    * Creates a {@link ByteObject} with 
-    * <li> {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX} as type 
     * <li> {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX_1_FORMAT} as subtype 
     * 
     * @return never null {@link ByteObject}
@@ -86,15 +73,28 @@ public class StringAuxFactory extends AbstractDrwFactory implements IBOTypesDraw
       return p;
    }
 
-   public ByteObject getFigStringMonoPlain(int size, int color, ByteObject auxFormat, ByteObject auxSpecials) {
-      ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_MONOSPACE, ITechFont.STYLE_PLAIN, size, color);
-      bo.addByteObjectNotNullFlagged(auxFormat, IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_3_DEFINED_FORMAT);
-      bo.addByteObjectNotNullFlagged(auxSpecials, IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_4_DEFINED_SPECIALS);
-      return bo;
+   /**
+    * Creates a {@link ByteObject} with 
+    * <li> {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX} as type 
+    * <li> {@link IBOTypesDrawX#TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C} as subtype 
+    * 
+    * @return never null {@link ByteObject}
+    */
+   public ByteObject createStrAuxSpecialCharsDirective() {
+      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_07_STRING_AUX, IBOStrAuxSpecialCharDirective.AUX_CHARS_BASIC_SIZE);
+      p.set1(STR_AUX_OFFSET_1_EXT_TYPE1, TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C);
+      return p;
    }
 
    public ByteObject getFigStringMonoPlain(int size, int color) {
       ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_MONOSPACE, ITechFont.STYLE_PLAIN, size, color);
+      return bo;
+   }
+
+   public ByteObject getFigStringMonoPlain(int size, int color, ByteObject auxFormat, ByteObject auxSpecials) {
+      ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_MONOSPACE, ITechFont.STYLE_PLAIN, size, color);
+      bo.addByteObjectNotNullFlagged(auxFormat, IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_3_DEFINED_FORMAT);
+      bo.addByteObjectNotNullFlagged(auxSpecials, IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_4_DEFINED_SPECIALS);
       return bo;
    }
 
@@ -320,12 +320,13 @@ public class StringAuxFactory extends AbstractDrwFactory implements IBOTypesDraw
       bo.set1(IBOStrAuxSpecialCharDirective.AUX_CHARS_OFFSET_04_MANAGER_TAB1, ITechStringer.SPECIALS_TAB_1_SPACE_SPECIAL);
       return bo;
    }
-
+   
+//#mdebug
    public boolean toStringStrAux(ByteObject bo, Dctx dc) {
       dc.rootN(bo, "IBOStrAux", FigureFactory.class, 1672);
       final int subType = bo.get1(IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1);
       dc.appendVarWithSpace("subType", toStringTypeSub(subType));
-      
+
       dc.nl(); //new line for the start of the sub type
       switch (subType) {
          case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_4_FX:
@@ -402,13 +403,6 @@ public class StringAuxFactory extends AbstractDrwFactory implements IBOTypesDraw
 
    }
 
-   public void toStringStrAuxFx1Line(ByteObject bo, Dctx dc) {
-      dc.rootN1Line(bo, "IBOStrAuxFx", StringAuxFactory.class, 317);
-
-      dc.appendVarWithSpace("scope", ToStringStaticDrawx.toStringFxScope(bo.get1(FX_OFFSET_05_SCOPE_FX1)));
-
-   }
-
    /**
     * {@link IBOStrAuxFx}
     * @param bo
@@ -424,15 +418,15 @@ public class StringAuxFactory extends AbstractDrwFactory implements IBOTypesDraw
 
       dc.appendVarWithNewLine("face", bo.get1(FX_OFFSET_06_FACE1));
       dc.append('[');
-      dc.append(ToStringStaticCoreDraw.debugFontFace(bo.get1(FX_OFFSET_06_FACE1)));
+      dc.append(ToStringStaticCoreDraw.toStringFontFace(bo.get1(FX_OFFSET_06_FACE1)));
       dc.append(']');
       dc.appendVarWithNewLine("style", bo.get1(FX_OFFSET_07_STYLE1));
       dc.append('[');
-      dc.append(ToStringStaticCoreDraw.debugFontStyle(bo.get1(FX_OFFSET_07_STYLE1)));
+      dc.append(ToStringStaticCoreDraw.toStringFontStyle(bo.get1(FX_OFFSET_07_STYLE1)));
       dc.append(']');
       dc.appendVarWithNewLine("size", bo.get1(FX_OFFSET_08_SIZE1));
       dc.append('[');
-      dc.append(ToStringStaticCoreDraw.debugFontSize(bo.get1(FX_OFFSET_08_SIZE1)));
+      dc.append(ToStringStaticCoreDraw.toStringFontSize(bo.get1(FX_OFFSET_08_SIZE1)));
       dc.append(']');
       dc.appendVarWithSpace("anchor", bo.get1(FX_OFFSET_10_ANCHOR1));
 
@@ -445,16 +439,23 @@ public class StringAuxFactory extends AbstractDrwFactory implements IBOTypesDraw
       dc.appendVarWithNewLine("Scope is defined", !bo.hasFlag(FX_OFFSET_01_FLAG, FX_FLAGX_5_UNDEFINED_SCOPE));
    }
 
-   private void toStringStrAuxFxApplicator1Line(ByteObject bo, Dctx dc) {
-      dc.rootN1Line(bo, "IBOStrAuxFxApplicator", StringAuxFactory.class, 317);
+   public void toStringStrAuxFx1Line(ByteObject bo, Dctx dc) {
+      dc.rootN1Line(bo, "IBOStrAuxFx", StringAuxFactory.class, 317);
+
+      dc.appendVarWithSpace("scope", ToStringStaticDrawx.toStringFxScope(bo.get1(FX_OFFSET_05_SCOPE_FX1)));
+
+   }
+
+   private void toStringStrAuxFxApplicator(ByteObject bo, Dctx dc) {
+      dc.rootN(bo, "IBOStrAuxFxApplicator", StringAuxFactory.class, 317);
 
       dc.appendVarWithNewLine("index", bo.get2(IBOStrAuxFxApplicator.FXA_OFFSET_02_INDEX2));
       dc.appendVarWithSpace("flags", bo.hasFlag(FXA_OFFSET_01_FLAG, FXA_OFFSET_01_FLAG));
 
    }
 
-   private void toStringStrAuxFxApplicator(ByteObject bo, Dctx dc) {
-      dc.rootN(bo, "IBOStrAuxFxApplicator", StringAuxFactory.class, 317);
+   private void toStringStrAuxFxApplicator1Line(ByteObject bo, Dctx dc) {
+      dc.rootN1Line(bo, "IBOStrAuxFxApplicator", StringAuxFactory.class, 317);
 
       dc.appendVarWithNewLine("index", bo.get2(IBOStrAuxFxApplicator.FXA_OFFSET_02_INDEX2));
       dc.appendVarWithSpace("flags", bo.hasFlag(FXA_OFFSET_01_FLAG, FXA_OFFSET_01_FLAG));
@@ -486,7 +487,7 @@ public class StringAuxFactory extends AbstractDrwFactory implements IBOTypesDraw
    public String toStringTypeSub(int typeSub) {
       switch (typeSub) {
          case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_4_FX:
-           return "StringFx";
+            return "StringFx";
          case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_1_FORMAT:
             return "StringFormat";
          case IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_2_SPECIALS_C:
@@ -499,5 +500,6 @@ public class StringAuxFactory extends AbstractDrwFactory implements IBOTypesDraw
             return null;
       }
    }
+   //#enddebug
 
 }

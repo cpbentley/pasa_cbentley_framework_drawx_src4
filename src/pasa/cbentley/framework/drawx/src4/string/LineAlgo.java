@@ -94,14 +94,6 @@ public class LineAlgo extends ObjectDrw {
 
       stats.processLine(lineCurrent);
 
-      //algin on x coordiante
-      int walign = lineCurrent.getPixelsW();
-      ByteObject anchor = stringer.anchor;
-      int dax = AnchorUtils.getXAlign(anchor, 0, stringer.areaW, walign);
-      lineCurrent.setX(dax);
-      //do y coordinate
-      lineCurrent.setY(dy);
-      dy += lineMaxH;
 
       if (stats.isTrimmedH()) {
          //our line exceed.. so we trim previous line and do not add current to collection.
@@ -209,7 +201,13 @@ public class LineAlgo extends ObjectDrw {
       }
       int charWidth = style.getCharWidth(' ');
       lineCurrent.addCharSpaceSpecial(rc, charWidth);
-      
+
+      regular(charCurrent);
+   }
+
+   private void doSpecialWork(char c) {
+      int charWidth = style.getCharWidth(c);
+      lineCurrent.addCharSpaceSpecial(c, charWidth);
       regular(charCurrent);
    }
 
@@ -234,9 +232,12 @@ public class LineAlgo extends ObjectDrw {
          //we are on the last line.. add
          if (isTrimArtifact) {
             int lineLastCharIndex = lineCurrent.getOffsetStringerLastChar();
-            lineCurrent.charMapTo(lineLastCharIndex, '.');
-            lineCurrent.charMapTo(lineLastCharIndex - 1, '.');
-            stringer.setFlagState(ITechStringer.STATE_04_TRIMMED, true);
+            //only trim if we haven't reach the end of the char array
+            if (lineLastCharIndex != stringer.offsetChars + stringer.lengthChars - 1) {
+               lineCurrent.charMapTo(lineLastCharIndex, '.');
+               lineCurrent.charMapTo(lineLastCharIndex - 1, '.');
+               stringer.setFlagState(ITechStringer.STATE_04_TRIMMED, true);
+            }
          }
          isStop = true;
       }
@@ -360,7 +361,7 @@ public class LineAlgo extends ObjectDrw {
       isShowHiddenChars = stringer.isShowHiddenChars();
       lineCurrent = new LineStringer(stringer);
    }
-
+   
    private boolean isJustifiedText() {
       return stringer.getSpaceTrimManager() == ITechStringer.SPACETRIM_2_JUSTIFIED && maxLineWidth != Integer.MAX_VALUE;
    }
@@ -573,7 +574,11 @@ public class LineAlgo extends ObjectDrw {
          //next line is indeed created by a 
          lineCurrent.setRealModelLine(true);
       } else if (directiveNewLine == ITechStringer.SPECIALS_NEWLINE_4_WORK_SHOW) {
-
+         charCurrent.setEther();
+         doSpecialWork(StringUtils.LINE_BREAK_RETURN);
+         buildLineNormal();
+         //next line is indeed created by a 
+         lineCurrent.setRealModelLine(true);
       }
    }
 

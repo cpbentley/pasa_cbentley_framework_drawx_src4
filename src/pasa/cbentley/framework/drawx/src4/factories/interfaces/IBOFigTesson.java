@@ -1,7 +1,5 @@
 package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
-import pasa.cbentley.byteobjects.src4.ctx.IBOTypesBOC;
-
 /**
  * Draws a multitude of triangles with varying colors
  * @author Charles Bentley

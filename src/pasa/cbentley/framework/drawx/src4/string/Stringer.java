@@ -38,7 +38,6 @@ import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxFormat;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.IBOStrAuxSpecialCharDirective;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringDrw;
 import pasa.cbentley.framework.drawx.src4.string.interfaces.ITechStringer;
-import pasa.cbentley.framework.drawx.src4.tech.ITechAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechFigure;
 import pasa.cbentley.layouter.src4.engine.LayoutOperator;
 import pasa.cbentley.layouter.src4.interfaces.ILayoutable;
@@ -333,6 +332,8 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    private boolean                   toStringDebugBreakLines;
 
+   private boolean                   isBreakOnArea;
+
    /**
     * 
     * @param drc
@@ -611,12 +612,12 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
          //create a Fx object from textFigure parameters
          ByteObject[] fxs = new ByteObject[num + 1];
          fxs[0] = fxRoot;
-         
+
          int type = IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX;
          int subtype = IBOTypesDrawX.TYPE_DRWX_07_STRING_AUX_4_FX;
          int subTypeOffset = IBOStrAux.STR_AUX_OFFSET_1_EXT_TYPE1;
          int offsetStartAppend = 1;
-         
+
          //append all the fx of text figure
          textFigure.getSubSubAppend(fxs, offsetStartAppend, type, subtype, subTypeOffset, 1);
 
@@ -689,12 +690,13 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       if (scale != null) {
          drawScaled(g);
       } else {
-         StringerDraw stringDraw = getDraw();
-         stringDraw.initTrackerXY(areaX, areaY);
-         stringDraw.initRequestChars(0, lengthChars);
-         stringDraw.initRequestLines(0, stringMetrics.getNumOfLines());
-         stringDraw.initRequestArea(breakW, breakH);
-         stringDraw.drawOffsetsLines(g);
+         int x = areaX;
+         int y = areaY;
+         int wOffset = 0;
+         int wNum = lengthChars;
+         int hOffset = 0;
+         int hNum = stringMetrics.getNumOfLines();
+         drawOffsets(g, x, y, wOffset, wNum, hOffset, hNum);
       }
    }
 
@@ -762,9 +764,9 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       stringDraw.initRequestChars(wOffset, wNum);
       stringDraw.initRequestLines(hOffset, hNum);
       stringDraw.initRequestArea(breakW, breakH);
-      stringDraw.setAbsoluteXY(false);
       stringDraw.drawOffsetsLines(g);
    }
+   
 
    /**
     * 
@@ -976,10 +978,15 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * @return
     */
    public String getDisplayedString() {
-      if (chars == null) {
-         return "";
-      }
-      return new String(chars, offsetChars, lengthChars);
+      int numLine = this.stringMetrics.getNumOfLines();
+      LineStringer lineFirst = this.stringMetrics.getLine(0);
+      LineStringer lineLast = this.stringMetrics.getLine(numLine - 1);
+      int lineID1 = lineFirst.getLineID();
+      int line1Start = 0;
+      int lineID2 = lineLast.getLineID();
+      int line2End = lineLast.getOffsetLineLastChar() + 1;
+      String str = this.getStringCopyVisible(lineID1, line1Start, lineID2, line2End);
+      return str;
    }
 
    public StringerDraw getDraw() {
@@ -1015,11 +1022,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return stringFx;
    }
 
-   public IntInterval getIntervalForStringerIndex(int indexStringer) {
-      IntInterval interval = intervalOfStringLeaves.getIntervalIntersect(indexStringer);
-      return interval;
-   }
-
    /**
     * 
     * @param index
@@ -1027,6 +1029,11 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    public IntInterval getIntervalAtIndex(int index) {
       IntInterval interval = intervalOfStringLeaves.getInterval(index);
+      return interval;
+   }
+
+   public IntInterval getIntervalForStringerIndex(int indexStringer) {
+      IntInterval interval = intervalOfStringLeaves.getIntervalIntersect(indexStringer);
       return interval;
    }
 
@@ -1134,8 +1141,10 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * It deals with virutal line breaks by adding a space.
     * 
     * does not copy 
-    * @param offsetLine included
-    * @param offsetVisibleEnd not included
+    * @param lineID1 id of the first line
+    * @param offsetLine1 first line offset to include in the copy
+    * @param lineID1 id of the last line
+    * @param offsetLine2 lastoffset offsetVisibleEnd not included
     * @return
     */
    public String getStringCopyVisible(int lineID1, int offsetLine1, int lineID2, int offsetLine2) {
@@ -1378,7 +1387,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       return strU.getBreaksWord(this.chars, offsetStartLine, len);
    }
 
-   //#mdebug
 
    public int[] getWordBreaks(IntInterval interval) {
       return getWordBreaks(interval.getOffset(), interval.getLen());
@@ -1392,12 +1400,26 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * <li> {@link ITechStringer#STATE_01_CHAR_EFFECTS}
     * <li> {@link ITechStringer#STATE_02_CHAR_WIDTHS}
     * <li> {@link ITechStringer#STATE_03_CHECK_CLIP}
-    * <li> {@link ITechStringer#STATE_04_TRIMMED}
+    * <li> {@link ITechStringer#STATE_06_CHAR_POSITIONS}
+    * <li> {@link ITechStringer#STATE_07_BROKEN}
+    * <li> {@link ITechStringer#STATE_08_ACTIVE_STYLE}
+    * <li> {@link ITechStringer#STATE_09_EDITING}
+    * <li> {@link ITechStringer#STATE_19_FX_SETUP}
+    * <li> {@link ITechStringer#STATE_20_METERED_FULL}
     * @param state
     * @return
     */
    public boolean hasFlagState(int state) {
       return BitUtils.hasFlag(states, state);
+   }
+
+   /**
+    * True when {@link ITechStringer#STATE_19_FX_SETUP} is set.
+    * @param state
+    * @return
+    */
+   public boolean hasFlagStateFxSetup() {
+      return hasFlagState(STATE_19_FX_SETUP);
    }
 
    /**
@@ -1514,10 +1536,8 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * @param contentH
     */
    public void setAreaXYWH(int x, int y, int contentW, int contentH) {
-      areaX = x;
-      areaY = y;
-      areaW = contentW;
-      areaH = contentH;
+      setAreaXY(x, y);
+      setAreaWH(contentW, contentH);
    }
 
    public void setBreakHeight(int breakH) {
@@ -1534,10 +1554,25 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     * <p>
     * Will work only if {@link ITechStringer#WORDWRAP_0_NONE} is not active
     * </p>
+    * TODO:DELETE!
     */
    public void setBreakOnArea() {
       breakW = areaW - areaX;
       breakH = areaH - areaY;
+      isBreakOnArea = true;
+   }
+
+   /**
+    * Sets break width and height on the area.
+    * 
+    * <p>
+    * Will work only if {@link ITechStringer#WORDWRAP_0_NONE} is not active
+    * </p>
+    * TODO:DELETE!
+    */
+   public void setBreakOnArea2() {
+      breakW = areaW ;
+      breakH = areaH;
    }
 
    /**
@@ -1572,6 +1607,11 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
     */
    public void setCharAtRelative(int indexRel, char c) {
       chars[offsetChars + indexRel] = c;
+   }
+
+   public void setCharMode() {
+      throw new RuntimeException();
+
    }
 
    void setChars(char[] chars, int offset, int len) {
@@ -1653,7 +1693,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       this.text = figChar;
       this.scale = text.getSubFirst(TYPE_DRWX_05_SCALE);
 
-      if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_ANCHOR)) {
+      if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_BOX)) {
          anchor = text.getSubFirst(TYPE_DRWX_10_ANCHOR);
       }
       if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK)) {
@@ -1685,11 +1725,6 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    public void setNumLinesPerPage(int numLinesPerPage) {
       this.numLinesPerPage = numLinesPerPage;
-   }
-
-   public void setPosition(int contentX, int contentY) {
-      areaX = contentX;
-      areaY = contentY;
    }
 
    public void setProtected(boolean v) {
@@ -1768,7 +1803,7 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
       this.isShowHiddenChars = text.hasFlag(IBOFigString.FIG_STRING_OFFSET_01_FLAG, IBOFigString.FIG_STRING_FLAG_2_SHOW_HIDDEN_CHARS);
 
-      if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_ANCHOR)) {
+      if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_1_BOX)) {
          anchor = text.getSubFirst(TYPE_DRWX_10_ANCHOR);
       }
       if (text.hasFlag(IBOFigure.FIG__OFFSET_02_FLAG, IBOFigure.FIG_FLAG_4_MASK)) {
@@ -1838,11 +1873,15 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
    //#mdebug
    public void toString(Dctx dc) {
-      dc.root(this, Stringer.class, "1750");
+      dc.root(this, Stringer.class, "1850");
       toStringPrivate(dc);
       super.toString(dc.sup());
 
       dc.appendWithNewLine("Area = [" + areaX + "," + areaY + " - " + areaW + "," + areaH + "]");
+
+      dc.appendVarWithNewLine("breakW", breakW);
+      dc.appendVarWithSpace("breakH", breakH);
+      dc.appendVarWithSpace("isBreakOnArea", isBreakOnArea);
 
       IntToStrings stateFlags = ToStringStaticDrawx.stringerStateFlagMap(toStringGetUCtx());
       dc.nl();
@@ -1887,10 +1926,14 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
       if (chars == null) {
          dc.appendWithSpace("chars is null");
       }
-      String strDis = getDisplayedString();
-      dc.append(" DisplayedString=\"");
-      dc.append(strDis);
-      dc.append("\"");
+      if (hasFlagStateFxSetup()) {
+         String strDis = getDisplayedString();
+         dc.append(" DisplayedString=\"");
+         dc.append(strDis);
+         dc.append("\"");
+      } else {
+         dc.append(" DisplayedString=Unavailable NoFxSetup");
+      }
    }
 
    public void ToStringSetDebugArea(boolean toStringDebugArea) {

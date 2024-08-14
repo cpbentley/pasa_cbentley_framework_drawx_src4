@@ -6,7 +6,7 @@ package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
 import pasa.cbentley.framework.drawx.src4.tech.ITechSkew;
 
-public interface IBOSkewer extends IBOPass {
+public interface IBOPassSkewer extends IBOPass {
 
    public static final int SKEWER_BASE_OFFSET                   = IBOPass.PASS_BASIC_SIZE;
 

@@ -1,5 +1,7 @@
 package pasa.cbentley.framework.drawx.src4.factories.interfaces;
 
+import pasa.cbentley.layouter.src4.tech.IBOSizer;
+
 /**
  * 
  * @author Charles Bentley
@@ -16,6 +18,9 @@ public interface IBOFigRectangle extends IBOFigure {
     */
    public static final int FIG_RECTANGLE_BASIC_SIZE          = FIG__BASIC_SIZE + 5;
 
+   /**
+    * 
+    */
    public static final int FIG_RECTANGLE_FLAG_1_ROUND        = 1 << 0;
 
    /**
@@ -35,34 +40,69 @@ public interface IBOFigRectangle extends IBOFigure {
    /**
     * 
     */
-   public static final int FIG_RECTANGLE_FLAG_5_ARCW1        = 1 << 4;
+   public static final int FIG_RECTANGLE_FLAG_3_             = 1 << 2;
 
-   public static final int FIG_RECTANGLE_FLAG_6_ARCH1        = 1 << 5;
+   /**
+    * 
+    */
+   public static final int FIG_RECTANGLE_FLAG_4_             = 1 << 3;
 
-   public static final int FIG_RECTANGLE_FLAG_7_ARCW1        = 1 << 6;
+   /**
+    * {@link IBOFigRectangle#FIG_RECTANGLE_OFFSET_2_SIZE_ARCW1} is a pointer towards an {@link IBOSizer}
+    */
+   public static final int FIG_RECTANGLE_FLAG_5_ARCW_SIZER   = 1 << 4;
 
-   public static final int FIG_RECTANGLE_FLAG_8_ARCH1        = 1 << 7;
+   /**
+    * {@link IBOFigRectangle#FIG_RECTANGLE_OFFSET_3_SIZE_ARCH1} is a pointer towards an {@link IBOSizer}
+    */
+   public static final int FIG_RECTANGLE_FLAG_6_ARCH_SIZER   = 1 << 5;
+
+   /**
+    * {@link IBOFigRectangle#FIG_RECTANGLE_OFFSET_4_SIZE_FILL1} is a pointer towards an {@link IBOSizer}
+    */
+   public static final int FIG_RECTANGLE_FLAG_7_FILL_SIZER   = 1 << 6;
+
+   /**
+    * {@link IBOFigRectangle#FIG_RECTANGLE_OFFSET_5_SIZE_GRAD1} is a pointer towards an {@link IBOSizer}
+    */
+   public static final int FIG_RECTANGLE_FLAG_8_GRAD_SIZER   = 1 << 7;
 
    public static final int FIG_RECTANGLE_OFFSET_1_FLAG       = FIG__BASIC_SIZE;
 
    /**
     * Contains the arc width of the rectangle.
     * 
+    * <p>
+    * Controlled by {@link IBOFigRectangle#FIG_RECTANGLE_FLAG_5_ARCW_SIZER} for sizer definition
+    * </p>
     */
-   public static final int FIG_RECTANGLE_OFFSET_2_ARCW1      = FIG__BASIC_SIZE + 1;
+   public static final int FIG_RECTANGLE_OFFSET_2_SIZE_ARCW1 = FIG__BASIC_SIZE + 1;
 
    /**
+    * Contains the arc height of the rectangle.
+    * 
+    * <p>
+    * Controlled by {@link IBOFigRectangle#FIG_RECTANGLE_FLAG_6_ARCH_SIZER} for sizer definition
+    * </p>
     */
-   public static final int FIG_RECTANGLE_OFFSET_3_ARCH1      = FIG__BASIC_SIZE + 2;
+   public static final int FIG_RECTANGLE_OFFSET_3_SIZE_ARCH1 = FIG__BASIC_SIZE + 2;
 
    /**
     * When different from 0, draws "Border" rectangle.
+    * 
+    * <p>
+    * Controlled by {@link IBOFigRectangle#FIG_RECTANGLE_FLAG_7_FILL_SIZER} for sizer definition
+    * </p>
     */
    public static final int FIG_RECTANGLE_OFFSET_4_SIZE_FILL1 = FIG__BASIC_SIZE + 3;
 
    /**
-    * Another size influencer for smaller gradients
+    * When different than 0, overrides the Gradient size
+    * 
+    * <p>
+    * Controlled by {@link IBOFigRectangle#FIG_RECTANGLE_FLAG_8_GRAD_SIZER} for sizer definition
+    * </p>
     */
-   public static final int FIG_RECTANGLE_OFFSET_5_SIZE_G1    = FIG__BASIC_SIZE + 4;
+   public static final int FIG_RECTANGLE_OFFSET_5_SIZE_GRAD1 = FIG__BASIC_SIZE + 4;
 
 }

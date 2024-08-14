@@ -11,8 +11,9 @@ import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigure;
-import pasa.cbentley.framework.drawx.src4.tech.ITechMergeMaskFigureString;
+import pasa.cbentley.framework.drawx.src4.factories.FigureFactory;
+import pasa.cbentley.framework.drawx.src4.tech.ITechMergeFigure;
+import pasa.cbentley.framework.drawx.src4.tech.ITechMergeFigureString;
 import pasa.cbentley.layouter.src4.ctx.IBOTypesLayout;
 import pasa.cbentley.layouter.src4.engine.TblrFactory;
 
@@ -25,6 +26,11 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
       this.gc = gc;
    }
 
+   /**
+    * A Style with a single figure
+    * @param fig
+    * @return
+    */
    public ByteObject getStyle(ByteObject fig) {
       return getStyle(new ByteObject[] { fig });
    }
@@ -36,6 +42,7 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
    public ByteObject getStyle(ByteObject bg, ByteObject content, ByteObject anchor, ByteObject pad, ByteObject br, ByteObject margin, ByteObject fg) {
       return getStyle(new ByteObject[] { bg }, content, anchor, pad, br, margin, new ByteObject[] { fg });
    }
+
    /**
     * Create style mask for font string and color
     * <br>
@@ -58,17 +65,14 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
       int fontID = gc.getFontFactory().getFontFaceID(string);
       //in the case of figString, we need a 
 
-      ByteObject text = gc.getFigureFactory().getFigString(fontID, 0, 0, fontColor);
-      
-      ByteObject mergeMaskFigure = gc.getFigureFactory().getMergeMaskFigure();
-      
-      mergeMaskFigure.setFlag(ITechMergeMaskFigureString.FIG_STR_MM_02_FACE_INDEX, ITechMergeMaskFigureString.FIG_STR_MM_02_FACE_FLAG, true);
-      mergeMaskFigure.setFlag(ITechMergeMaskFigure.MM_INDEX_VALUES5_FLAG_2_COLOR, ITechMergeMaskFigure.MM_VALUES5_FLAG_2_COLOR, true);
-      gc.getMergeMaskFactory().setMergeMask(text, mergeMaskFigure);
+      FigureFactory figureFactory = gc.getFigureFactory();
+
+      ByteObject text = figureFactory.getFigStringT_FaceColor(fontID, fontColor);
 
       ByteObject content = text;
-      return gc.getStyleFactory().getStyle(content, STYLE_OFFSET_1_FLAGA, STYLE_FLAGA_1_CONTENT);
+      return gc.getStyleFactory().getStyle(content, STYLE_OFFSET_1_FLAG_A, STYLE_FLAG_A_1_CONTENT);
    }
+
    /**
     * Transparent style defining only anchors
     * <br>
@@ -85,11 +89,10 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
    public ByteObject getStyleContentAnchor(int ha, int va) {
       ByteObject anchor = gc.getAnchorFactory().getAnchor(ha, va);
       ByteObject style = getStyle(null, null, anchor);
-      style.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_7_INCOMPLETE, true);
+      style.setFlag(STYLE_OFFSET_5_FLAG_X, STYLE_FLAG_X_1_INCOMPLETE, true);
       return style;
    }
-   
-   
+
    /**
     * A Style with just one component identified by its flag and flag pointer.
     * <br>
@@ -105,10 +108,10 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
     * @return
     */
    public ByteObject getStyle(ByteObject c, int pointer, int flag) {
-      ByteObject style = getBOFactory().createByteObject(TYPE_DRWX_08_STYLE, STYLE_BASIC_SIZE);
+      ByteObject style = createStyle();
       style.setFlag(pointer, flag, true);
       style.addByteObject(c);
-      style.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_7_INCOMPLETE, true);
+      style.setFlag(STYLE_OFFSET_5_FLAG_X, STYLE_FLAG_X_1_INCOMPLETE, true);
       return style;
    }
 
@@ -134,6 +137,22 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
       return getStyle(bg, content, anchor, pad, border, margin, null, null, null);
    }
 
+   /**
+    * All non nulls are opaque, 
+    * 
+    * Return style is T
+    * @param bg
+    * @param content
+    * @param anchor
+    * @param pad
+    * @param border
+    * @param margin
+    * @return
+    */
+   public ByteObject getStyleT(ByteObject[] bg, ByteObject content, ByteObject anchor, ByteObject pad, ByteObject border, ByteObject margin) {
+      return getStyle(bg, content, anchor, pad, border, margin, null, null, null, false);
+   }
+
    public ByteObject getStyle(ByteObject[] bg, ByteObject content, ByteObject anchor, ByteObject pad, ByteObject border, ByteObject margin, ByteObject fg) {
       return getStyle(bg, content, anchor, pad, border, margin, new ByteObject[] { fg }, null, null);
    }
@@ -149,6 +168,9 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
    /**
     * Style is flagged as complete
     * 
+    * First anim in array is used for 
+    * <li> {@link IBOStyle#STYLE_FLAG_C_6_ANIM_ENTRY}
+    * 
     * @param bg up to 4 figures
     * @param content figure for the content. usually an implicit text effect
     * @param anchor box model's anchoring
@@ -157,72 +179,78 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
     * @param margin box model's margin TBLR
     * @param fg up to 4 figures
     * @param filters up to 5 filters
-    * @param anims up to 3 animations
+    * @param anims array of size up to 3 animations
     * @return
     */
    public ByteObject getStyle(ByteObject[] bg, ByteObject content, ByteObject anchor, ByteObject pad, ByteObject border, ByteObject margin, ByteObject[] fg, ByteObject[] filters, ByteObject[] anims) {
-      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_08_STYLE, STYLE_BASIC_SIZE);
-      int flagv = 0;
+      return getStyle(bg, content, anchor, pad, border, margin, fg, filters, anims, true);
+   }
+
+   public ByteObject getStyle(ByteObject[] bg, ByteObject content, ByteObject anchor, ByteObject pad, ByteObject border, ByteObject margin, ByteObject[] fg, ByteObject[] filters, ByteObject[] anims, boolean isComplete) {
+      ByteObject p = createStyle();
+      int flagA = 0;
       StyleOperator styleOperator = gc.getStyleOperator();
-      flagv = styleOperator.setFlagNotNullStyleFieldFlag(content, flagv, STYLE_FLAGA_1_CONTENT, TYPE_DRWX_00_FIGURE);
-      flagv = styleOperator.setFlagNotNullStyleFieldFlag(anchor, flagv, STYLE_FLAGA_2_ANCHOR, TYPE_DRWX_10_ANCHOR);
-      flagv = styleOperator.setFlagNotNullStyleFieldFlag(pad, flagv, STYLE_FLAGA_3_PADDING, IBOTypesLayout.FTYPE_2_TBLR);
-      flagv = styleOperator.setFlagNotNullStyleFieldFlag(border, flagv, STYLE_FLAGA_4_BORDER, IBOTypesLayout.FTYPE_2_TBLR);
-      flagv = styleOperator.setFlagNotNullStyleFieldFlag(margin, flagv, STYLE_FLAGA_5_MARGIN, IBOTypesLayout.FTYPE_2_TBLR);
-      int flagg = 0;
+      flagA = styleOperator.setFlagNotNullStyleFieldFlag(content, flagA, STYLE_FLAG_A_1_CONTENT, TYPE_DRWX_00_FIGURE);
+      flagA = styleOperator.setFlagNotNullStyleFieldFlag(anchor, flagA, STYLE_FLAG_A_2_ANCHOR, TYPE_DRWX_10_ANCHOR);
+      flagA = styleOperator.setFlagNotNullStyleFieldFlag(pad, flagA, STYLE_FLAG_A_3_PADDING, IBOTypesLayout.FTYPE_2_TBLR);
+      flagA = styleOperator.setFlagNotNullStyleFieldFlag(border, flagA, STYLE_FLAG_A_4_BORDER, IBOTypesLayout.FTYPE_2_TBLR);
+      flagA = styleOperator.setFlagNotNullStyleFieldFlag(margin, flagA, STYLE_FLAG_A_5_MARGIN, IBOTypesLayout.FTYPE_2_TBLR);
+      int flagB = 0;
       if (bg != null && bg.length != 0) {
          if (bg.length > 4) {
             throw new IllegalArgumentException("Max 4 backgrounds");
          }
-         int start = STYLE_FLAGB_1_BG;
+         int start = STYLE_FLAG_B_1_BG;
          for (int i = 0; i < bg.length; i++) {
-            flagg = styleOperator.setFlagNotNullStyleFieldFlag(bg[i], flagg, start, TYPE_DRWX_00_FIGURE);
+            flagB = styleOperator.setFlagNotNullStyleFieldFlag(bg[i], flagB, start, TYPE_DRWX_00_FIGURE);
             start = start << 1;
          }
-         p.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_1_BG, true);
+         p.setFlag(STYLE_OFFSET_6_FLAG_PERF, STYLE_FLAG_PERF_1_BG, true);
       }
       if (fg != null && fg.length != 0) {
          if (fg.length > 4) {
             throw new IllegalArgumentException();
          }
-         int start = STYLE_FLAGB_5_FG;
+         int start = STYLE_FLAG_B_5_FG;
          for (int i = 0; i < fg.length; i++) {
-            flagg = styleOperator.setFlagNotNullStyleFieldFlag(fg[i], flagg, start, TYPE_DRWX_00_FIGURE);
+            flagB = styleOperator.setFlagNotNullStyleFieldFlag(fg[i], flagB, start, TYPE_DRWX_00_FIGURE);
             start = start << 1;
          }
-         p.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_2_FG, true);
+         p.setFlag(STYLE_OFFSET_6_FLAG_PERF, STYLE_FLAG_PERF_2_FG, true);
       }
-      int fflag = 0;
+      int flagF = 0;
       if (filters != null && filters.length != 0) {
          if (filters.length > 5) {
             throw new IllegalArgumentException();
          }
-         int start = STYLE_FLAGC_1_FILTER_BG;
+         int start = STYLE_FLAG_F_1_FILTER_BG;
          for (int i = 0; i < filters.length; i++) {
-            fflag = styleOperator.setFlagNotNullStyleFieldFlag(filters[i], fflag, start, IBOTypesBOC.TYPE_040_COLOR_FILTER);
+            flagF = styleOperator.setFlagNotNullStyleFieldFlag(filters[i], flagF, start, IBOTypesBOC.TYPE_040_COLOR_FILTER);
             start = start << 1;
          }
-         p.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_3_FILTERS, true);
+         p.setFlag(STYLE_OFFSET_6_FLAG_PERF, STYLE_FLAG_PERF_3_FILTERS, true);
       }
+      int flagC = 0;
       if (anims != null && anims.length != 0) {
          if (anims.length > 3) {
             throw new IllegalArgumentException();
          }
-         int start = STYLE_FLAGC_6_ANIM_ENTRY;
+         int start = STYLE_FLAG_C_6_ANIM_ENTRY;
          for (int i = 0; i < anims.length; i++) {
-            fflag = styleOperator.setFlagWhenNotNull(anims[i], fflag, start);
+            flagC = styleOperator.setFlagWhenNotNull(anims[i], flagC, start);
             start = start << 1;
          }
-         p.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_4_ANIMS, true);
+         p.setFlag(STYLE_OFFSET_6_FLAG_PERF, STYLE_FLAG_PERF_4_ANIMS, true);
       }
 
-      int total = BitUtils.countBits(flagv) + BitUtils.countBits(flagg) + BitUtils.countBits(fflag);
+      int total = BitUtils.countBits(flagA) + BitUtils.countBits(flagB) + BitUtils.countBits(flagC);
 
       p.setByteObjects(new ByteObject[total]);
 
-      p.setValue(STYLE_OFFSET_1_FLAGA, flagv, 1);
-      p.setValue(STYLE_OFFSET_2_FLAGB, flagg, 1);
-      p.setValue(STYLE_OFFSET_3_FLAGC, fflag, 1);
+      p.set1(STYLE_OFFSET_1_FLAG_A, flagA);
+      p.set1(STYLE_OFFSET_2_FLAG_B, flagB);
+      p.set1(STYLE_OFFSET_3_FLAG_C, flagC);
+      p.set1(STYLE_OFFSET_4_FLAG_F, flagF);
 
       int c = 0;
       c = styleOperator.styleCreationLastFill(p, content, c);
@@ -235,6 +263,13 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
       c = styleOperator.styleCreationLastFill(p, filters, c);
       c = styleOperator.styleCreationLastFill(p, anims, c);
 
+      p.setFlag(IBOStyle.STYLE_OFFSET_5_FLAG_X, IBOStyle.STYLE_FLAG_X_1_INCOMPLETE, !isComplete);
+
+      return p;
+   }
+
+   public ByteObject createStyle() {
+      ByteObject p = getBOFactory().createByteObject(TYPE_DRWX_08_STYLE, STYLE_BASIC_SIZE);
       return p;
    }
 
@@ -279,7 +314,13 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
     * @return
     */
    public ByteObject getStyleFig(ByteObject fig) {
-      return getStyle(fig, STYLE_OFFSET_2_FLAGB, STYLE_FLAGB_1_BG);
+      return getStyle(fig, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_1_BG);
+   }
+
+   public ByteObject getStyleFigT(ByteObject fig) {
+      ByteObject bo = getStyle(fig, STYLE_OFFSET_2_FLAG_B, STYLE_FLAG_B_1_BG);
+      gc.getStyleOperator().setStyleIncomplete(bo);
+      return bo;
    }
 
    /**
@@ -305,8 +346,8 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
    }
 
    public ByteObject getStyleNull() {
-      ByteObject style = getBOFactory().createByteObject(TYPE_DRWX_08_STYLE, STYLE_BASIC_SIZE);
-      style.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_7_INCOMPLETE, true);
+      ByteObject style = createStyle();
+      style.setFlag(STYLE_OFFSET_5_FLAG_X, STYLE_FLAG_X_1_INCOMPLETE, true);
       return style;
    }
 
@@ -325,14 +366,14 @@ public class StyleFactory extends BOAbstractFactory implements IBOStyle, IBOType
    }
 
    public ByteObject getTStyleContentColor(int color) {
-      ByteObject content = gc.getFigureFactory().getFigStringTColor(color);
+      ByteObject content = gc.getFigureFactory().getFigStringT_Color(color);
       ByteObject style = getStyle(null, content, null);
-      style.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_7_INCOMPLETE, true);
+      style.setFlag(STYLE_OFFSET_5_FLAG_X, STYLE_FLAG_X_1_INCOMPLETE, true);
       return style;
    }
 
    public void setTransparent(ByteObject style) {
-      style.setFlag(STYLE_OFFSET_4_FLAG_PERF, STYLE_FLAG_PERF_7_INCOMPLETE, true);
+      style.setFlag(STYLE_OFFSET_5_FLAG_X, STYLE_FLAG_X_1_INCOMPLETE, true);
    }
 
 }

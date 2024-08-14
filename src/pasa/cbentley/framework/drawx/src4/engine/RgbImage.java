@@ -838,10 +838,12 @@ public class RgbImage implements IStringable, ITechRgbImage {
       if (this == cache.NULL_IMAGE) {
          //special graphics that doesn't draw anything
          graphicsX = new GraphicsX(drc, cache, this, true);
+         //#debug
          graphicsX.toStringSetName("NullImage");
          return graphicsX;
       }
       graphicsX = new GraphicsX(drc, cache, this, paintingMode, x, y, w, h);
+      //#debug
       graphicsX.toStringSetName("RgbImage_" + w + "_" + h);
       return graphicsX;
    }

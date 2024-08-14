@@ -25,8 +25,8 @@ import pasa.cbentley.framework.coredraw.src4.ctx.CoreDrawCtx;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
-import pasa.cbentley.framework.coredraw.src4.interfaces.ITechFeaturesDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
+import pasa.cbentley.framework.coredraw.src4.interfaces.ITechHostFeatureDraw;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
@@ -35,7 +35,7 @@ import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
 import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOAnchor;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGraphicsX;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
-import pasa.cbentley.framework.drawx.src4.tech.ITechStyles;
+import pasa.cbentley.framework.drawx.src4.tech.ITechStyle;
 
 /**
  * Custom MIDP 3.0 Graphical Layer over the MIDP 2.0 Graphics class. <br>
@@ -668,7 +668,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
     */
    private IImage createImageLayer(int w, int h) {
       IImage img = null;
-      if (drc.hasFeatureSupport(ITechFeaturesDraw.SUP_ID_10_TRANSPARENT_BACKGROUND)) {
+      if (drc.hasFeatureSupport(ITechHostFeatureDraw.SUP_ID_10_TRANSPARENT_BACKGROUND)) {
          //alpha suppport which means the background is transparent by default
          img = cache.createPrimitiveColor(w, h, 0);
       } else {
@@ -1023,7 +1023,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
                BlendOp op = blendOpImages;
                if (!processAlpha) {
                   //without alpha, all pixels go to destination.
-                  op = new BlendOp(drc.getBOC(), blendOpImages.getMode(), ITechBlend.ALPHA_2_255);
+                  op = new BlendOp(drc.getBOC(), blendOpImages.getMode(), ITechBlend.ALPHA_1_255);
                }
                sec = getGeo2dUtils().getIntersection(clipX, clipY, clipW, clipH, x, y, width, height);
 
@@ -1707,7 +1707,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
    public boolean hasGradient() {
       if (hasSwitchOff(SWITCHOFF_1_GRADIENT)) {
          return false;
-      } else if (drc.hasStyleFlag(ITechStyles.STYLES_1_GRADIENT_DISABLED)) {
+      } else if (drc.hasStyleFlag(ITechStyle.STYLES_1_GRADIENT_DISABLED)) {
          return false;
       }
       return true;
@@ -1992,7 +1992,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
     * When set to False, overrides painting Mode.
     * <br>
     * When true, the blending uses
-    * When false, {@link ITechBlend#ALPHA_2_255} is set
+    * When false, {@link ITechBlend#ALPHA_1_255} is set
     * @param v
     */
    public void setAlphaBlending(boolean v) {
@@ -2000,7 +2000,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       if (v) {
 
       } else {
-         blendOpImages.setAlphaMode(ITechBlend.ALPHA_2_255);
+         blendOpImages.setAlphaMode(ITechBlend.ALPHA_1_255);
       }
    }
 
@@ -2182,8 +2182,12 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
 
       if (g != null) {
          g.setClip(x, y, width, height);
-         //         SystemLog.pDraw("#Graphics " + debugName + " clip is " + ((isReset) ? "reset" : "set  ") + " to \t[" + g.getClipX() + "," + g.getClipY() + " " + g.getClipWidth() + "," + g.getClipHeight()
-         //             + "] cached=" + toStringClip());
+         
+         //#debug
+         String str = " clip is " + ((isReset) ? "reset" : "set  ") + " to \t[" + g.getClipX() + "," + g.getClipY() + " " + g.getClipWidth() + "," + g.getClipHeight() + "] cached=" + toStringClip();
+         //#debug
+         toDLog().pDraw(str, this, GraphicsX.class, "setMyClip", LVL_05_FINE, true);
+  
       }
    }
 
@@ -2384,6 +2388,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       return v;
    }
 
+   //#mdebug
    public void toString(Dctx dc) {
       dc.root(this, GraphicsX.class, 2390);
       toStringPrivate(dc);

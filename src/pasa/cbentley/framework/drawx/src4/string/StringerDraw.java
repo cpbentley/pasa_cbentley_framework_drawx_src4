@@ -42,12 +42,12 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
    /**
     * Tracks current char x coordinate
     */
-   int                    cxTracker;
+   int                    stringerTrackerX;
 
    /**
     * Tracks current char y coordinate
     */
-   int                    cyTracker;
+   int                    stringerTrackerY;
 
    private int            firstCharOffsetRelLine;
 
@@ -67,7 +67,7 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
 
    private int            intervalIndex;
 
-   private boolean        isAbsoluteXY = true;
+   private boolean        isAbsoluteXY;
 
    private boolean        isCheckWidth;
 
@@ -103,9 +103,9 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
 
    private final Stringer st;
 
-   private int            xLineTracker;
+   private int            lineTrackerX;
 
-   private int            yLineTracker;
+   private int            lineTrackerY;
 
    private ByteObject     maskChar;
 
@@ -132,12 +132,13 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
       //line background figure
       int dx = line.getX();
       int dy = line.getY(); //line Y have been computed 
-      if (isAbsoluteXY) {
-         xLineTracker = cxTracker + dx;
-         yLineTracker = cyTracker + dy;
+      boolean isLineAbsoluteXY = line.isAbsoluteXY(); //the line position is animated
+      if (isLineAbsoluteXY) {
+         lineTrackerX = dx;
+         lineTrackerY = dy;
       } else {
-         xLineTracker = cxTracker;
-         yLineTracker = cyTracker;
+         lineTrackerX = stringerTrackerX + dx;
+         lineTrackerY = stringerTrackerY + dy;
       }
       //TODO.. anchoring inside a line. when font have different size. biggest
       // H alignement of fonts smaller than the line Height ?
@@ -151,7 +152,7 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
          if (pixelsWidthRequest > 0) {
             w = Math.min(pixelsWidthRequest, w);
          }
-         drc.getFigureOperator().paintFigure(g, xLineTracker, yLineTracker, w, h, line.getFigureBG());
+         drc.getFigureOperator().paintFigure(g, lineTrackerX, lineTrackerY, w, h, line.getFigureBG());
       }
       //////////////////////////////////////
 
@@ -185,7 +186,7 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
          fx = fxLeaf.getFx();
 
          //we know the distance already
-         drawBgFigureText(g, xLineTracker, yLineTracker);
+         drawBgFigureText(g, lineTrackerX, lineTrackerY);
          drawChoice(g);
 
          numCharsUndrawnLeftInTheLine -= lastNumDrawnChars;
@@ -207,8 +208,8 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
       //now only deals with color variance
       IMFont font = fx.getFont();
       g.setFont(font);
-      int x = xLineTracker;
-      int y = yLineTracker;
+      int x = lineTrackerX;
+      int y = lineTrackerY;
       char[] data = line.getCharArrayRef();
       int offsetData = line.getCharArrayRefOffset() + lineOffsetRelTracker;
       int lengthInData = numCharsToBeDrawnNext;
@@ -258,7 +259,7 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
       lastNumDrawnChars = lengthInData;
       int widthDrawn = line.getCharsWidthConsumed(lineOffsetRelTracker, lengthInData);
       this.pixelsWidthDrawnOnCurrentLine += widthDrawn;
-      this.xLineTracker += widthDrawn;
+      this.lineTrackerX += widthDrawn;
    }
 
    private void drawBasicCharsFx(GraphicsX g, ByteObject mask, StringFxLeaf fxLeaf, StringFx fx, IntInterval interval, LineStringer line, int firstCharOffset, ByteObject bg) {
@@ -271,8 +272,8 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
 
       int ch = line.getPixelsH();
 
-      int cx = xLineTracker;
-      int cy = yLineTracker;
+      int cx = lineTrackerX;
+      int cy = lineTrackerY;
       IMFont font = fx.getFont();
       g.setColor(fx.getColor());
       g.setFont(font);
@@ -311,11 +312,11 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
       int h = line.getPixelsH();
 
       IMFont f = fx.getFont();
-      drc.getMaskOperator().drawMask(g, xLineTracker, yLineTracker, mask, chars, offset, len, f, w, h);
+      drc.getMaskOperator().drawMask(g, lineTrackerX, lineTrackerY, mask, chars, offset, len, f, w, h);
 
       lastNumDrawnChars = len;
       this.pixelsWidthDrawnOnCurrentLine += widthDrawn;
-      this.xLineTracker += widthDrawn;
+      this.lineTrackerX += widthDrawn;
    }
 
    private void drawBgFigureText(GraphicsX g, int x, int y) {
@@ -435,10 +436,10 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
             drawALine(g);
          }
          pixelsHeightDrawn += line.getPixelsH();
-         if (!isAbsoluteXY) {
-            //we do not use line getY. so we must increment for next line
-            cyTracker += line.getPixelsH();
-         }
+//         if (!isAbsoluteXY) {
+//            //we do not use line getY. so we must increment for next line
+//            stringerTrackerY += line.getPixelsH();
+//         }
       } while (isContinueH());
    }
 
@@ -449,8 +450,8 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
    public void drawUniqueCharBasic(GraphicsX g, char c, int indexRelative) {
       StringFx fx = st.getCharFx(indexRelative);
       StringMetrics sm = st.getMetrics();
-      int cx = cxTracker + sm.getCharX(indexRelative);
-      int cy = cyTracker + sm.getCharY(indexRelative);
+      int cx = stringerTrackerX + sm.getCharX(indexRelative);
+      int cy = stringerTrackerY + sm.getCharY(indexRelative);
       g.setFont(fx.font);
       g.setColor(fx.color);
 
@@ -475,8 +476,8 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
    void drawUniqueCharFx(GraphicsX g, char c, int indexRelative) {
       StringFx fx = st.getCharFx(indexRelative);
       StringMetrics sm = st.getMetrics();
-      int cx = cxTracker + sm.getCharX(indexRelative);
-      int cy = cyTracker + sm.getCharY(indexRelative);
+      int cx = stringerTrackerX + sm.getCharX(indexRelative);
+      int cy = stringerTrackerY + sm.getCharY(indexRelative);
       int lineIndex = st.getLineIndexFromCharIndex(indexRelative);
       if (fx.bgFigure != null) {
          int cw = sm.getCharWidth(indexRelative);
@@ -549,8 +550,8 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
    }
 
    public void initTrackerXY(int x, int y) {
-      cxTracker = x;
-      cyTracker = y;
+      stringerTrackerX = x;
+      stringerTrackerY = y;
    }
 
    public boolean isAbsoluteXY() {
@@ -623,6 +624,10 @@ public class StringerDraw extends ObjectDrw implements IStringable, ITechFigure,
 
    }
 
+   /**
+    * 
+    * @param isAbsoluteXY
+    */
    public void setAbsoluteXY(boolean isAbsoluteXY) {
       this.isAbsoluteXY = isAbsoluteXY;
    }

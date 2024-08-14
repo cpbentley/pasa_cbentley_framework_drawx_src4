@@ -11,10 +11,10 @@ import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
-import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOSkewer;
+import pasa.cbentley.framework.drawx.src4.factories.interfaces.IBOPassSkewer;
 import pasa.cbentley.framework.drawx.src4.tech.ITechSkew;
 
-public class SkewImplementationJava extends ObjectDrw implements IBOSkewer {
+public class SkewImplementationJava extends ObjectDrw implements IBOPassSkewer {
 
    public int       edgeAction    = ITechSkew.SKEW_EDGE_0_ZERO;
 
@@ -30,7 +30,7 @@ public class SkewImplementationJava extends ObjectDrw implements IBOSkewer {
    protected int[]  originalSpace;
 
    /**
-    * Read from {@link IBOSkewer#SKEWER_OFFSET_08_COLOR_MOD4}
+    * Read from {@link IBOPassSkewer#SKEWER_OFFSET_08_COLOR_MOD4}
     */
    public int       colorPixel;
 
