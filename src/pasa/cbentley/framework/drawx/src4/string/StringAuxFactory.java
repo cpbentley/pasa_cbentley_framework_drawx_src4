@@ -87,24 +87,24 @@ public class StringAuxFactory extends AbstractDrwFactory implements IBOTypesDraw
    }
 
    public ByteObject getFigStringMonoPlain(int size, int color) {
-      ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_MONOSPACE, ITechFont.STYLE_PLAIN, size, color);
+      ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_01_MONOSPACE, ITechFont.STYLE_0_PLAIN, size, color);
       return bo;
    }
 
    public ByteObject getFigStringMonoPlain(int size, int color, ByteObject auxFormat, ByteObject auxSpecials) {
-      ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_MONOSPACE, ITechFont.STYLE_PLAIN, size, color);
+      ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_01_MONOSPACE, ITechFont.STYLE_0_PLAIN, size, color);
       bo.addByteObjectNotNullFlagged(auxFormat, IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_3_DEFINED_FORMAT);
       bo.addByteObjectNotNullFlagged(auxSpecials, IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_4_DEFINED_SPECIALS);
       return bo;
    }
 
    public ByteObject getFigStringSystemPlain(int size, int color) {
-      ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_SYSTEM, ITechFont.STYLE_PLAIN, size, color);
+      ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_00_SYSTEM, ITechFont.STYLE_0_PLAIN, size, color);
       return bo;
    }
 
    public ByteObject getFigStringSystemPlain(int size, int color, ByteObject auxFormat, ByteObject auxSpecials) {
-      ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_SYSTEM, ITechFont.STYLE_PLAIN, size, color);
+      ByteObject bo = drc.getFigureFactory().getFigString(ITechFont.FACE_00_SYSTEM, ITechFont.STYLE_0_PLAIN, size, color);
       bo.addByteObjectNotNullFlagged(auxFormat, IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_3_DEFINED_FORMAT);
       bo.addByteObjectNotNullFlagged(auxSpecials, IBOFigString.FIG_STRING_OFFSET_02_FLAGX, IBOFigString.FIG_STRING_FLAGX_4_DEFINED_SPECIALS);
       return bo;

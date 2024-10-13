@@ -133,9 +133,9 @@ public interface IBOFigString extends IBOFigure {
 
    /**
     * MM: flag 1 of offset 6.
-    * <li>{@link ITechFont#FACE_MONOSPACE} 
-    * <li>{@link ITechFont#FACE_PROPORTIONAL}
-    * <li>{@link ITechFont#FACE_SYSTEM}
+    * <li>{@link ITechFont#FACE_01_MONOSPACE} 
+    * <li>{@link ITechFont#FACE_02_PROPORTIONAL}
+    * <li>{@link ITechFont#FACE_00_SYSTEM}
     * <br>
     * Bigger values means a custom font
     */
@@ -143,9 +143,9 @@ public interface IBOFigString extends IBOFigure {
 
    /**
     * 
-    * <li>{@link ITechFont#STYLE_BOLD} 
-    * <li>{@link ITechFont#STYLE_ITALIC}
-    * <li>{@link ITechFont#STYLE_PLAIN}
+    * <li>{@link ITechFont#STYLE_1_BOLD} 
+    * <li>{@link ITechFont#STYLE_2_ITALIC}
+    * <li>{@link ITechFont#STYLE_0_PLAIN}
     * 
     * <p>
     * MM: flag 2 of offset 6. {@link IBOMerge#MERGE_MASK_FLAG6_2}

@@ -1314,9 +1314,9 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeFigur
     * Create a String figure definition
     * 
     * Face. One can use the framework fonts with logic sizes
-    * <li> {@link IMFont#FACE_MONOSPACE}
-    * <li> {@link IMFont#FACE_PROPORTIONAL}
-    * <li> {@link IMFont#FACE_SYSTEM}
+    * <li> {@link IMFont#FACE_01_MONOSPACE}
+    * <li> {@link IMFont#FACE_02_PROPORTIONAL}
+    * <li> {@link IMFont#FACE_00_SYSTEM}
     * 
     * Size is
     * <li> {@link IMFont#SIZE_4_LARGE}
@@ -1328,8 +1328,8 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeFigur
     * 
     * @param pooled
     * @param str
-    * @param face {@link ITechFont#FACE_MONOSPACE}
-    * @param style {@link ITechFont#STYLE_BOLD}
+    * @param face {@link ITechFont#FACE_01_MONOSPACE}
+    * @param style {@link ITechFont#STYLE_1_BOLD}
     * @param size {@link ITechFont#SIZE_3_MEDIUM}
     * @param color
     * @param c
@@ -1414,11 +1414,11 @@ public class FigureFactory extends AbstractDrwFactory implements ITechMergeFigur
    }
 
    public ByteObject getFigStringMonoPlain(int size, int color) {
-      return getFigString(null, ITechFont.FACE_MONOSPACE, ITechFont.STYLE_PLAIN, size, color, null, null, null);
+      return getFigString(null, ITechFont.FACE_01_MONOSPACE, ITechFont.STYLE_0_PLAIN, size, color, null, null, null);
    }
 
    public ByteObject getFigStringSystemPlain(int size, int color) {
-      return getFigString(null, ITechFont.FACE_SYSTEM, ITechFont.STYLE_PLAIN, size, color, null, null, null);
+      return getFigString(null, ITechFont.FACE_00_SYSTEM, ITechFont.STYLE_0_PLAIN, size, color, null, null, null);
    }
 
    /**
