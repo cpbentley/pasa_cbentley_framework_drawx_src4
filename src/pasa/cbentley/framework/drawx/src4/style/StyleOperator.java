@@ -17,7 +17,7 @@ import pasa.cbentley.core.src4.utils.interfaces.IColors;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
-import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.IToStringFlagsDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
@@ -1011,7 +1011,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
                //we want to debug byteObject raw only
                Dctx dc = new Dctx(boc.getUC());
                //override any configured flags on boc
-               dc.setFlagData(boc, IToStringFlagsBO.TOSTRING_FLAG_3_IGNORE_CONTENT, true);
+               dc.setFlagToString(boc, IToStringFlagsBO.TOSTRING_FLAG_3_IGNORE_CONTENT, true);
                dc.append(msg);
                dc.nl();
                style.toString(dc);
@@ -1764,7 +1764,7 @@ public class StyleOperator extends BOAbstractOperator implements IBOStyle, ITech
       db.append(']');
       //TODO how to decide what to show here. by default we may not want to overload with too much data
       //so that when you select an object in debugger, you gets more data
-      if (db.hasFlagData(dc, IFlagsToStringDrw.D_FLAG_01_STYLE)) {
+      if (db.hasFlagToString(dc, IToStringFlagsDrw.D_FLAG_01_STYLE)) {
          db.appendWithNewLine("IFlagsToStringDrw.D_FLAG_01_STYLE is true. StyleData is Shown below.");
          if (bo.get1(STYLE_OFFSET_1_FLAG_A) != 0) {
             db.nl();

@@ -15,18 +15,18 @@ import pasa.cbentley.byteobjects.src4.ctx.IConfigBO;
 public interface IConfigDrawX extends IConfigBO {
 
    /**
-    * {@link IFlagsToStringDrw}
+    * {@link IToStringFlagsDrw}
     * @return
     */
    public int getFlagsDrw();
 
    /**
-    * {@link IFlagsToStringDrw#D_FLAG_01_STYLE}
-    * {@link IFlagsToStringDrw#D_FLAG_01_STYLE}
-    * {@link IFlagsToStringDrw#D_FLAG_25_IGNORE_IGRAPHICS}
-    * {@link IFlagsToStringDrw#D_FLAG_26_GRAPHCISX}
-    * {@link IFlagsToStringDrw#D_FLAG_27_CACHE}
-    * {@link IFlagsToStringDrw#D_FLAG_28_IGNORE_FONT}
+    * {@link IToStringFlagsDrw#D_FLAG_01_STYLE}
+    * {@link IToStringFlagsDrw#D_FLAG_01_STYLE}
+    * {@link IToStringFlagsDrw#D_FLAG_25_IGNORE_IGRAPHICS}
+    * {@link IToStringFlagsDrw#D_FLAG_26_GRAPHCISX}
+    * {@link IToStringFlagsDrw#D_FLAG_27_CACHE}
+    * {@link IToStringFlagsDrw#D_FLAG_28_IGNORE_FONT}
     * @return
     */
    public int getFlagsStringDrw();

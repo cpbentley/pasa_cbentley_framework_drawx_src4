@@ -6,7 +6,7 @@ package pasa.cbentley.framework.drawx.src4.engine;
 
 import pasa.cbentley.byteobjects.src4.core.ByteObject;
 import pasa.cbentley.byteobjects.src4.objects.color.BlendOp;
-import pasa.cbentley.core.src4.ctx.IToStringFlags;
+import pasa.cbentley.core.src4.ctx.IToStringFlagsUC;
 import pasa.cbentley.core.src4.ctx.ToStringStaticUc;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
@@ -22,7 +22,7 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImage;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.IToStringFlagsDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.interfaces.IRgbLoader;
 import pasa.cbentley.framework.drawx.src4.tech.ITechGraphicsX;
@@ -1610,7 +1610,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       } else {
          dc.append("Primitive");
       }
-      if (dc.hasFlagData(drc, IToStringFlags.FLAG_DATA_06_SHOW_NULLS)) {
+      if (dc.hasFlagToStringUC(IToStringFlagsUC.FLAG_UC_06_SHOW_NULLS)) {
          if (img == null) {
             dc.append(" Img=null");
          }
@@ -1647,14 +1647,14 @@ public class RgbImage implements IStringable, ITechRgbImage {
 
       dc.nlLvlO(sourceLocator, "Locator");
 
-      if (dc.hasFlagData(drc, IFlagsToStringDrw.DATA_FLAG_20_HIDE_CACHE)) {
+      if (dc.hasFlagToString(drc, IToStringFlagsDrw.DATA_FLAG_20_HIDE_CACHE)) {
          dc.append(" Cache Ignored ");
       } else {
          dc.nl();
          dc.appendVar("cacheIntID", cacheIntID);
          dc.appendVar("cacheRgbIndex", cacheRgbIndex);
       }
-      if (dc.hasFlagData(drc, IFlagsToStringDrw.DATA_FLAG_22_HIDE_GRAPHICS)) {
+      if (dc.hasFlagToString(drc, IToStringFlagsDrw.DATA_FLAG_22_HIDE_GRAPHICS)) {
          dc.append(" GraphicsX Ignored ");
       } else {
          dc.nlLvl(graphicsX, "graphicsX");

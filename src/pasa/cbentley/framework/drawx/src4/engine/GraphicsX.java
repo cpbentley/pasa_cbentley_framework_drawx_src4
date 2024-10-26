@@ -28,7 +28,7 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechGraphics;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechHostFeatureDraw;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
-import pasa.cbentley.framework.drawx.src4.ctx.IFlagsToStringDrw;
+import pasa.cbentley.framework.drawx.src4.ctx.IToStringFlagsDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ObjectDrw;
 import pasa.cbentley.framework.drawx.src4.ctx.ToStringStaticDrawx;
 import pasa.cbentley.framework.drawx.src4.factories.FigureOperator;
@@ -2247,7 +2247,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
          imageRgbData = null;
       }
       g = imageLayer.getGraphics();
-      g.translate(translateX, translateY);
+      g.setTranslate(translateX, translateY);
       isAlphaMode = false;
       isPseudoColorMode = false;
    }
@@ -2274,7 +2274,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
          imageLayer = createImageLayer(w, h);
       }
       g = imageLayer.getGraphics();
-      g.translate(translateX, translateY);
+      g.setTranslate(translateX, translateY);
       isAlphaMode = true;
    }
 
@@ -2289,7 +2289,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       }
       imageLayer = null;
       //update the translation
-      g.translate(translateX, translateY);
+      g.setTranslate(translateX, translateY);
       isAlphaMode = false;
       isPseudoColorMode = false;
    }
@@ -2328,7 +2328,7 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
     */
    public void setTranslationShift(int x, int y) {
       //#debug
-      toDLog().pFlow("Before trX=" + translateX + "(" + x + ") trY=" + translateY + " (" + y + ")" + ToStringStaticDrawx.toStringPaintMode(paintMode), this, GraphicsX.class, "setTranslationShift", LVL_05_FINE, true);
+      toDLog().pFlow("[translateX=" + translateX + " + (x=" + x + ")] translateY=" + translateY + " (y=" + y + ")] Mode=" + ToStringStaticDrawx.toStringPaintMode(paintMode), this, GraphicsX.class, "setTranslationShift@2331", LVL_04_FINER, true);
       translateX += x;
       translateY += y;
       //modify the clip roots ? why?
@@ -2423,8 +2423,8 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       dc.nlLvl(imageRgbData, "imageRgbData");
 
       //we don't want font stuff here
-      dc.setFlagData(drc, IFlagsToStringDrw.D_FLAG_28_IGNORE_FONT, true);
-      if (dc.hasFlagData(drc, IFlagsToStringDrw.D_FLAG_25_IGNORE_IGRAPHICS)) {
+      dc.setFlagToString(drc, IToStringFlagsDrw.D_FLAG_28_IGNORE_FONT, true);
+      if (dc.hasFlagToString(drc, IToStringFlagsDrw.D_FLAG_25_IGNORE_IGRAPHICS)) {
          dc.line();
          dc.append(" [IGraphics Ignored]");
       } else {

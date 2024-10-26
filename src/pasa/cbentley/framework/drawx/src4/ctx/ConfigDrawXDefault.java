@@ -8,7 +8,7 @@ import pasa.cbentley.byteobjects.src4.ctx.ConfigAbstractBO;
 import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 
-public class ConfigDrawXDefault extends ConfigAbstractBO implements IConfigDrawX, IFlagsToStringDrw, ITechCtxSettingsDrwx {
+public class ConfigDrawXDefault extends ConfigAbstractBO implements IConfigDrawX, IToStringFlagsDrw, ITechCtxSettingsDrwx {
 
    private char[] lineBreaks;
 
@@ -17,10 +17,10 @@ public class ConfigDrawXDefault extends ConfigAbstractBO implements IConfigDrawX
    }
 
    /**
-    * <li> {@link IFlagsToStringDrw#D_FLAG_01_STYLE}
-    * <li> {@link IFlagsToStringDrw#D_FLAG_03_STRINGER}
-    * <li> {@link IFlagsToStringDrw#D_FLAG_25_IGNORE_IGRAPHICS}
-    * <li> {@link IFlagsToStringDrw#D_FLAG_26_GRAPHCISX}
+    * <li> {@link IToStringFlagsDrw#D_FLAG_01_STYLE}
+    * <li> {@link IToStringFlagsDrw#D_FLAG_03_STRINGER}
+    * <li> {@link IToStringFlagsDrw#D_FLAG_25_IGNORE_IGRAPHICS}
+    * <li> {@link IToStringFlagsDrw#D_FLAG_26_GRAPHCISX}
     */
    public int getFlagsStringDrw() {
       return D_FLAG_01_STYLE | D_FLAG_03_STRINGER;

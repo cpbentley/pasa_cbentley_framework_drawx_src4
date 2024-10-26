@@ -21,7 +21,7 @@ import pasa.cbentley.core.src4.text.TextModel;
 import pasa.cbentley.core.src4.utils.BitUtils;
 import pasa.cbentley.core.src4.utils.ColorUtils;
 import pasa.cbentley.core.src4.utils.StringUtils;
-import pasa.cbentley.framework.coredraw.src4.ctx.IFlagToStringCoreDraw;
+import pasa.cbentley.framework.coredraw.src4.ctx.IToStringFlagsCoreDraw;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IMFont;
 import pasa.cbentley.framework.drawx.src4.ctx.DrwCtx;
 import pasa.cbentley.framework.drawx.src4.ctx.IBOTypesDrawX;
@@ -1893,8 +1893,8 @@ public class Stringer extends ObjectDrw implements IStringable, ITechFigure, IBO
 
       IMFont stringFont = this.drc.getStrAuxOperator().getStringFont(text);
 
-      dc.setFlagData(drc.getCoreDrawCtx(), IFlagToStringCoreDraw.TOSTRING_FLAG_3_IGNORE_FONT_ATTRIBUTES, true);
-      dc.setFlagData(drc.getCoreDrawCtx(), IFlagToStringCoreDraw.TOSTRING_FLAG_4_SHOW_FONT_ENVIRONEMT, false);
+      dc.setFlagToString(drc.getCoreDrawCtx(), IToStringFlagsCoreDraw.TOSTRING_FLAG_3_IGNORE_FONT_ATTRIBUTES, true);
+      dc.setFlagToString(drc.getCoreDrawCtx(), IToStringFlagsCoreDraw.TOSTRING_FLAG_4_SHOW_FONT_ENVIRONEMT, false);
 
       dc.nlLvl(stringFont, "stringFont");
 

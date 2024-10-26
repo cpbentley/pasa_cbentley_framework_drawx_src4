@@ -5,7 +5,8 @@
 package pasa.cbentley.framework.drawx.src4.ctx;
 
 import pasa.cbentley.core.src4.ctx.ICtx;
-import pasa.cbentley.core.src4.ctx.IToStringFlags;
+import pasa.cbentley.core.src4.ctx.IToStringFlagsUC;
+import pasa.cbentley.core.src4.interfaces.IToStringFlags;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
 import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
@@ -16,7 +17,7 @@ import pasa.cbentley.framework.drawx.src4.engine.RgbImage;
  * @author Charles Bentley
  *
  */
-public interface IFlagsToStringDrw extends IToStringFlags {
+public interface IToStringFlagsDrw extends IToStringFlags {
 
    /**
     * Shows all the style data
@@ -37,7 +38,7 @@ public interface IFlagsToStringDrw extends IToStringFlags {
    public static final int D_FLAG_27_CACHE            = 1 << 26;
 
    /**
-    * {@link Dctx#setFlagData(ICtx, int, boolean)}
+    * {@link Dctx#setFlagToString(ICtx, int, boolean)}
     */
    public static final int DATA_FLAG_20_HIDE_CACHE    = 19 << 1;
 
