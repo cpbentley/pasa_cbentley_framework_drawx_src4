@@ -30,6 +30,7 @@ import pasa.cbentley.framework.coredraw.src4.interfaces.IFontFactory;
 import pasa.cbentley.framework.coredraw.src4.interfaces.IImageFactory;
 import pasa.cbentley.framework.coredraw.src4.interfaces.ITechHostFeatureDraw;
 import pasa.cbentley.framework.drawx.src4.engine.GraphicsX;
+import pasa.cbentley.framework.drawx.src4.engine.GraphicsXFactory;
 import pasa.cbentley.framework.drawx.src4.engine.RgbCache;
 import pasa.cbentley.framework.drawx.src4.factories.AnchorFactory;
 import pasa.cbentley.framework.drawx.src4.factories.ArtifactFactory;
@@ -195,6 +196,8 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
 
    private StringAuxFactory stringAuxFactory;
 
+   private GraphicsXFactory graphicsXFactory;
+
    public StringAuxFactory getStringAuxFactory() {
       if (stringAuxFactory == null) {
          stringAuxFactory = new StringAuxFactory(this);
@@ -260,6 +263,14 @@ public class DrwCtx extends ABOCtx implements ITechCtxSettingsDrwx {
 
    public int getCtxID() {
       return CTX_ID;
+   }
+   
+   public GraphicsXFactory getGraphicsXFactory() {
+      return this.graphicsXFactory;
+   }
+   
+   public void setGraphicsXFactory(GraphicsXFactory fac) {
+      this.graphicsXFactory = fac;
    }
 
    public FigureFactory getFigureFactory() {

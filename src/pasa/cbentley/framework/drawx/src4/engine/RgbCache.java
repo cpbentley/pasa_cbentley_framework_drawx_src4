@@ -26,8 +26,9 @@ import pasa.cbentley.framework.drawx.src4.interfaces.IRgbLoader;
 import pasa.cbentley.framework.drawx.src4.tech.ITechRgbImage;
 
 /**
- * Background class used for creating {@link RgbImage}s. Programmer does not use
- * it directly. <br>
+ * Background class used for creating {@link RgbImage}s. 
+ * 
+ * The Programmer does not use it directly. <br>
  * The goal is for the programmer to tag an Image as cachable, because he knows
  * the exact same image dimension is reused constantly in a short period of
  * time. The overhead is that the programmer must manually dispose of the image.

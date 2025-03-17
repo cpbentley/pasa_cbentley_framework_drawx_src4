@@ -297,16 +297,6 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
    private int       pseudoSwapCount;
 
    /**
-    * Flags from .
-    * Enable flagging of 
-    * <li>Painting for screen
-    * <li>Painting on a cache
-    * <li>Painting for Image
-    * <li>Repaint type
-    */
-   private int       repaintFlags;
-
-   /**
     * Counts the number of RGB method calls
     */
    int               rgbCount          = 0;
@@ -334,17 +324,17 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
     * PaintMode used by this constructor is always SCREEN
     * @param g
     */
-   public GraphicsX(DrwCtx drc) {
+   protected GraphicsX(DrwCtx drc) {
       super(drc);
       this.cache = drc.getCache();
       paintMode = MODE_0_SCREEN;
       aInit();
    }
 
-   GraphicsX(DrwCtx drc, RgbCache rc, RgbImage rgbImg, boolean isNull) {
+   protected GraphicsX(DrwCtx drc, RgbImage rgbImg, boolean isNull) {
       super(drc);
       if (isNull) {
-         this.cache = rc;
+         this.cache = drc.getCache();
          this.imageRgbData = rgbImg;
          paintMode = MODE_4_NULL;
          aInit();
@@ -359,8 +349,8 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
     * @param rgbImg image cannot be null
     * @param paintingMode
     */
-   GraphicsX(DrwCtx drc, RgbCache rc, RgbImage rgbImg, int paintingMode) {
-      this(drc, rc, rgbImg, paintingMode, 0, 0, rgbImg.getWidth(), rgbImg.getHeight());
+   protected GraphicsX(DrwCtx drc, RgbImage rgbImg, int paintingMode) {
+      this(drc, rgbImg, paintingMode, 0, 0, rgbImg.getWidth(), rgbImg.getHeight());
    }
 
    /**
@@ -377,11 +367,11 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
     * @param w
     * @param h
     */
-   GraphicsX(DrwCtx drc, RgbCache rc, RgbImage rgbImg, int paintingMode, int x, int y, int w, int h) {
+   protected GraphicsX(DrwCtx drc, RgbImage rgbImg, int paintingMode, int x, int y, int w, int h) {
       super(drc);
       if (paintingMode == MODE_0_SCREEN)
          throw new IllegalArgumentException("Cannot have SCREEN mode with a RgbImage");
-      this.cache = rc;
+      this.cache = drc.getCache();
       aInit();
       this.imageRgbData = rgbImg;
       if (imageRgbData.isRgb() && paintingMode == MODE_1_IMAGE) {
@@ -392,6 +382,14 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
       constructLayers(rgbImg);
       //not needed
       //imageRgbData.graphicsX = this;
+   }
+
+   /**
+    * By default uses the {@link DrwCtx#getRgbCache()}
+    * @param cache
+    */
+   public void setCache(RgbCache cache) {
+      this.cache = cache;
    }
 
    private void aInit() {
@@ -1714,20 +1712,6 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
    }
 
    /**
-    * Bit flag are decided externally.
-    * <br>
-    * Default implementation of MasterCanvas.
-    * <li> IMaster.SCREENSHOT for example
-    * <br>
-    * TODO move this method GraphicsXD
-    * @param ctx
-    * @return
-    */
-   public boolean hasPaintCtx(int ctx) {
-      return BitUtils.hasFlag(repaintFlags, ctx);
-   }
-
-   /**
     * 
     * @param flag
     * @return
@@ -1940,11 +1924,12 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
    }
 
    /**
+    * The {@link IGraphics} object is set with the reset each time a reference is process for rendering.
+    * 
     * Reset the Graphics g.
     * Change the reference as well because the Graphics object may have changed. When resize of canvas.
-    * <br>
-    * <br>
-    * Called by Constructor
+    * 
+    * 
     * @param g
     */
    public void reset(IGraphics g) {
@@ -2182,21 +2167,13 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
 
       if (g != null) {
          g.setClip(x, y, width, height);
-         
+
          //#debug
          String str = " clip is " + ((isReset) ? "reset" : "set  ") + " to \t[" + g.getClipX() + "," + g.getClipY() + " " + g.getClipWidth() + "," + g.getClipHeight() + "] cached=" + toStringClip();
          //#debug
          toDLog().pDraw(str, this, GraphicsX.class, "setMyClip", LVL_05_FINE, true);
-  
+
       }
-   }
-
-   public void setPaintCtx(int paintCtx) {
-      repaintFlags = paintCtx;
-   }
-
-   public void setPaintCtxFlag(int flag, boolean b) {
-      repaintFlags = BitUtils.setFlag(repaintFlags, flag, b);
    }
 
    /**
@@ -2279,9 +2256,6 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
    }
 
    /**
-    * The {@link IGraphics} object is set with the reset
-    * each time a reference is process for rendering
-    * {@link GraphicsX#reset(IGraphics)}
     */
    private void setPaintModeScreen() {
       if (imageRgbData != null) {
@@ -2328,7 +2302,9 @@ public class GraphicsX extends ObjectDrw implements IStringable, ITechGraphicsX,
     */
    public void setTranslationShift(int x, int y) {
       //#debug
-      toDLog().pFlow("[translateX=" + translateX + " + (x=" + x + ")] translateY=" + translateY + " (y=" + y + ")] Mode=" + ToStringStaticDrawx.toStringPaintMode(paintMode), this, GraphicsX.class, "setTranslationShift@2331", LVL_04_FINER, true);
+      String msg = "[translateX=" + translateX + " + (x=" + x + ")] translateY=" + translateY + " (y=" + y + ")] Mode=" + ToStringStaticDrawx.toStringPaintMode(paintMode);
+      //#debug
+      toDLog().pSetADraw(msg, this, toStringGetLine(GraphicsX.class, "setTranslationShift", 2331), LVL_04_FINER, true);
       translateX += x;
       translateY += y;
       //modify the clip roots ? why?

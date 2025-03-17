@@ -8,6 +8,7 @@ import pasa.cbentley.core.src4.ctx.UCtx;
 import pasa.cbentley.core.src4.logging.Dctx;
 import pasa.cbentley.core.src4.logging.IDLog;
 import pasa.cbentley.core.src4.logging.IStringable;
+import pasa.cbentley.core.src4.logging.LogParameters;
 
 /**
  * 
@@ -37,14 +38,6 @@ public abstract class ObjectDrw implements IStringable {
       return toStringGetUCtx().toDLog();
    }
 
-   public void toStringSetName(String name) {
-      if (toStringName == null) {
-         toStringName = name;
-      } else {
-         toStringName = toStringName + " - " + name;
-      }
-   }
-
    public String toString() {
       return Dctx.toString(this);
    }
@@ -58,19 +51,35 @@ public abstract class ObjectDrw implements IStringable {
       return Dctx.toString1Line(this);
    }
 
-   private void toStringPrivate(Dctx dc) {
-      if(toStringName != null) {
-         dc.appendWithSpace(toStringName);
-      }
-   }
-
    public void toString1Line(Dctx dc) {
       dc.root1Line(this, ObjectDrw.class);
       toStringPrivate(dc);
    }
 
+   public LogParameters toStringGetLine(Class cl, String method, int value) {
+      return toStringGetUCtx().toStringGetLine(cl, method, value);
+   }
+
+   public String toStringGetLine(int value) {
+      return toStringGetUCtx().toStringGetLine(value);
+   }
+
    public UCtx toStringGetUCtx() {
       return drc.getUC();
+   }
+
+   private void toStringPrivate(Dctx dc) {
+      if (toStringName != null) {
+         dc.appendWithSpace(toStringName);
+      }
+   }
+
+   public void toStringSetName(String name) {
+      if (toStringName == null) {
+         toStringName = name;
+      } else {
+         toStringName = toStringName + " - " + name;
+      }
    }
 
    //#enddebug

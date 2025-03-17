@@ -804,7 +804,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       }
       if (this == cache.NULL_IMAGE) {
          //special graphics that doesn't draw anything
-         graphicsX = new GraphicsX(drc, cache, this, true);
+         graphicsX = drc.getGraphicsXFactory().createGraphicsX(this, true);
          //#debug
          graphicsX.toStringSetName("RgbImage_" + ToStringStaticDrawx.toStringPaintMode(paintingMode));
          return graphicsX;
@@ -815,7 +815,9 @@ public class RgbImage implements IStringable, ITechRgbImage {
             graphicsX.setPaintMode(paintingMode, getWidth(), getHeight());
          }
       } else {
-         graphicsX = new GraphicsX(drc, cache, this, paintingMode);
+         graphicsX = drc.getGraphicsXFactory().createGraphicsX(this, paintingMode);
+         graphicsX.setCache(cache);
+
          //#debug
          graphicsX.toStringSetName("RgbImage_" + ToStringStaticDrawx.toStringPaintMode(paintingMode));
       }
@@ -837,12 +839,13 @@ public class RgbImage implements IStringable, ITechRgbImage {
    public GraphicsX getGraphicsX(int paintingMode, int x, int y, int w, int h) {
       if (this == cache.NULL_IMAGE) {
          //special graphics that doesn't draw anything
-         graphicsX = new GraphicsX(drc, cache, this, true);
+         graphicsX = drc.getGraphicsXFactory().createGraphicsX(this, true);
          //#debug
          graphicsX.toStringSetName("NullImage");
          return graphicsX;
       }
-      graphicsX = new GraphicsX(drc, cache, this, paintingMode, x, y, w, h);
+      graphicsX = drc.getGraphicsXFactory().createGraphicsX(this, paintingMode, x, y, w, h);
+      graphicsX.setCache(cache);
       //#debug
       graphicsX.toStringSetName("RgbImage_" + w + "_" + h);
       return graphicsX;
@@ -1070,7 +1073,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
       }
       return rgb;
    }
-   
+
    public RgbCache getRgbCache() {
       return cache;
    }
@@ -1242,7 +1245,7 @@ public class RgbImage implements IStringable, ITechRgbImage {
     */
    public boolean isAreaColored(int x, int y, int w, int h, int color) {
       checkModeRgb();
-      
+
       int[] sec = getIntersect(x, y, w, h);
       if (sec == null) {
          return false;
@@ -1759,7 +1762,6 @@ public class RgbImage implements IStringable, ITechRgbImage {
       int pixel = getPixel(x, y);
       return drc.getUC().getColorU().toStringColor(pixel);
    }
-
 
    public void toStringAlphas(Dctx sb, int[] ar, int w, int h) {
       int destIndex = 0;
